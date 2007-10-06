@@ -15,6 +15,10 @@ class MiniExpNumberTest:
 	
 	>>> MiniExp('foobar')
 	MiniExp('foobar')
+
+	>>> MiniExp([[1,2], 3, [4,5], ['quux']])
+	MiniExp(((1, 2), 3, (4, 5), ('quux',)))
+	
 	'''
 
 if __name__ == '__main__':
