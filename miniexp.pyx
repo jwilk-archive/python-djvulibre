@@ -15,8 +15,11 @@ cdef class MiniExp:
 	cdef miniexp_t _value
 
 	def __new__(self, value):
-		if isinstance(value, int):
-			self._value = int_to_miniexp(value)
+		if isinstance(value, (int, long)):
+			if -1 << 29 <= value <= 1 << 29:
+				self._value = int_to_miniexp(value)
+			else:
+				raise ValueError
 		elif isinstance(value, str):
 			self._value = symbol_to_miniexp(value)
 		else:

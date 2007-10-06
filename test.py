@@ -4,6 +4,15 @@ class MiniExpNumberTest:
 	'''
 	>>> MiniExp(3)
 	MiniExp(3)
+	
+	>>> MiniExp(42L)
+	MiniExp(42)
+	
+	>>> MiniExp(1 << 30)
+	Traceback (most recent call last):
+	...
+	ValueError
+	
 	>>> MiniExp('foobar')
 	MiniExp('foobar')
 	'''
