@@ -22,15 +22,18 @@ cdef class MiniExp:
 		else:
 			raise TypeError
 
-	def __repr__(self):
+	def get_value(self):
 		cdef miniexp_t value
 		value = self._value
 		if miniexp_is_int(value):
-			return 'MiniExp(%d)' % miniexp_to_int(value)
+			return miniexp_to_int(value)
 		elif miniexp_is_symbol(value):
-			return 'MiniExp(%r)' % miniexp_to_symbol(value)
+			return miniexp_to_symbol(value)
 		else:
 			raise TypeError
+
+	def __repr__(self):
+		return 'MiniExp(%r)' % self.get_value()
 
 	def __dealloc__(self):
 		pass		
