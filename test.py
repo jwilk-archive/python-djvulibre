@@ -13,11 +13,14 @@ class ExpressionNumberTest:
 	...
 	ValueError
 	
+	>>> Expression(Symbol('foobar'))
+	Expression(Symbol('foobar'))
+
 	>>> Expression('foobar')
 	Expression('foobar')
 
-	>>> Expression([[1,2], 3, [4,5], ['quux']])
-	Expression(((1, 2), 3, (4, 5), ('quux',)))
+	>>> Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
+	Expression(((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
 	
 	'''
 

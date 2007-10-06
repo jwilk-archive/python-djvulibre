@@ -25,11 +25,24 @@ cdef extern from "libdjvu/miniexp.h":
 	cexp_t cexp_replace_tail "miniexp_rplacd"(cexp_t exp, cexp_t new_tail)
 	cexp_t cexp_reverse_list "miniexp_reverse"(cexp_t exp)
 
+	int cexp_is_str "miniexp_stringp"(cexp_t cexp)
+	char* cexp_to_str "miniexp_to_str"(cexp_t cexp)
+	cexp_t str_to_cexp "miniexp_string"(char* s)
+	cexp_t cexp_substr "miniexp_substring"(char* s, int n)
+	cexp_t cexp_concat "miniexp_concat"(cexp_t cexp_list)
+
+class Symbol(str):
+
+	def __repr__(self):
+		return 'Symbol(%s)' % str.__repr__(self)
+
 def Expression(value):
 	if isinstance(value, (int, long)):
 		return IntExpression(value)
-	elif isinstance(value, str):
+	elif isinstance(value, Symbol):
 		return SymbolExpression(value)
+	elif isinstance(value, str):
+		return StringExpression(value)
 	else:
 		try:
 			iter(value)
@@ -66,7 +79,18 @@ cdef class SymbolExpression(_Expression):
 			raise TypeError
 
 	def get_value(self):
-		return cexp_to_symbol(self.cexp)
+		return Symbol(cexp_to_symbol(self.cexp))
+
+cdef class StringExpression(_Expression):
+
+	def __new__(self, value):
+		if isinstance(value, str):
+			self.cexp = str_to_cexp(value)
+		else:
+			raise TypeError
+
+	def get_value(self):
+		return cexp_to_str(self.cexp)
 
 cdef cexp_t _py2c(_Expression pyexp):
 	return pyexp.cexp
@@ -81,6 +105,8 @@ cdef _Expression _c2py(cexp_t cexp):
 		result = SymbolExpression('')
 	elif cexp_is_list(cexp):
 		result = ListExpression(())
+	elif cexp_is_str(cexp):
+		result = StringExpression('')
 	else:
 		raise TypeError
 	_py_set_value(result, cexp)
