@@ -16,6 +16,8 @@ cdef class MiniExp:
 	def __new__(self, value):
 		if isinstance(value, int):
 			self._value = miniexp_number(value)
+		elif isinstance(value, str):
+			self._value = miniexp_symbol(value)
 		else:
 			raise TypeError
 
@@ -24,6 +26,10 @@ cdef class MiniExp:
 		value = self._value
 		if miniexp_numberp(value):
 			return 'MiniExp(%d)' % miniexp_to_int(value)
+		elif miniexp_symbolp(value):
+			return 'MiniExp(%r)' % miniexp_to_name(value)
+		else:
+			raise TypeError
 
 	def __dealloc__(self):
 		pass		

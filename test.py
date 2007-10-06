@@ -4,6 +4,8 @@ class MiniExpNumberTest:
 	'''
 	>>> MiniExp(3)
 	MiniExp(3)
+	>>> MiniExp('foobar')
+	MiniExp('foobar')
 	'''
 
 if __name__ == '__main__':
