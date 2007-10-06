@@ -31,6 +31,16 @@ cdef extern from "libdjvu/miniexp.h":
 	cexp_t cexp_substr "miniexp_substring"(char* s, int n)
 	cexp_t cexp_concat "miniexp_concat"(cexp_t cexp_list)
 
+	cexp_t lock_gc "minilisp_acquire_gc_lock"(cexp_t cexp)
+	cexp_t unlock_gc "minilisp_release_gc_lock"(cexp_t cexp)
+	
+	cdef extern struct cvar_s "minivar_s"
+	ctypedef cvar_s* cvar_t "minivar_t"
+
+	cvar_t* cvar_new "minivar_alloc"()
+	void cvar_free "minivar_free"(cvar_t* v)
+	cexp_t* cvar_ptr "minivar_pointer"(cvar_t* v)
+
 class Symbol(str):
 
 	def __repr__(self):
@@ -83,11 +93,18 @@ cdef class SymbolExpression(_Expression):
 
 cdef class StringExpression(_Expression):
 
+	cdef cvar_t* cvar
+
 	def __new__(self, value):
 		if isinstance(value, str):
 			self.cexp = str_to_cexp(value)
 		else:
 			raise TypeError
+		self.cvar = cvar_new()
+		cvar_ptr(self.cvar)[0] = self.cexp
+
+	def __dealloc__(self):
+		cvar_free(self.cvar)
 
 	def get_value(self):
 		return cexp_to_str(self.cexp)
@@ -114,11 +131,20 @@ cdef _Expression _c2py(cexp_t cexp):
 
 cdef class ListExpression(_Expression):
 
+	cdef cvar_t* cvar
+
 	def __new__(self, items):
+		lock_gc(NULL)
 		self.cexp = cexp_nil
 		for item in items:
 			self.cexp = pair_to_cexp(_py2c(Expression(item)), self.cexp)
 		self.cexp = cexp_reverse_list(self.cexp)
+		unlock_gc(self.cexp)
+		self.cvar = cvar_new()
+		cvar_ptr(self.cvar)[0] = self.cexp
+
+	def __dealloc__(self):
+		cvar_free(self.cvar)
 
 	def get_value(self):
 		cdef cexp_t current
