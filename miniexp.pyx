@@ -1,33 +1,34 @@
 cdef extern from "libdjvu/miniexp.h":
 
-	extern struct miniexp_s
+	struct miniexp_s
+	ctypedef miniexp_s* miniexp_t
 	
-	extern int miniexp_numberp(miniexp_s* sexp)
-	extern int miniexp_to_int(miniexp_s* sexp)
-	extern miniexp_s* miniexp_number(int n)
+	int miniexp_is_int "miniexp_numberp"(miniexp_t sexp)
+	int miniexp_to_int(miniexp_t sexp)
+	miniexp_t int_to_miniexp "miniexp_number"(int n)
 	
-	int miniexp_symbolp(miniexp_s* sexp)
-	char* miniexp_to_name(miniexp_s* sexp)
-	miniexp_s* miniexp_symbol(char* name)
+	int miniexp_is_symbol "miniexp_symbolp"(miniexp_t sexp)
+	char* miniexp_to_symbol "miniexp_to_name"(miniexp_t sexp)
+	miniexp_t symbol_to_miniexp "miniexp_symbol"(char* name)
 
 cdef class MiniExp:
-	cdef miniexp_s* _value
+	cdef miniexp_t _value
 
 	def __new__(self, value):
 		if isinstance(value, int):
-			self._value = miniexp_number(value)
+			self._value = int_to_miniexp(value)
 		elif isinstance(value, str):
-			self._value = miniexp_symbol(value)
+			self._value = symbol_to_miniexp(value)
 		else:
 			raise TypeError
 
 	def __repr__(self):
-		cdef miniexp_s *value
+		cdef miniexp_t value
 		value = self._value
-		if miniexp_numberp(value):
+		if miniexp_is_int(value):
 			return 'MiniExp(%d)' % miniexp_to_int(value)
-		elif miniexp_symbolp(value):
-			return 'MiniExp(%r)' % miniexp_to_name(value)
+		elif miniexp_is_symbol(value):
+			return 'MiniExp(%r)' % miniexp_to_symbol(value)
 		else:
 			raise TypeError
 
