@@ -1,23 +1,23 @@
 from miniexp import *
 
-class MiniExpNumberTest:
+class ExpressionNumberTest:
 	'''
-	>>> MiniExp(3)
-	MiniExp(3)
+	>>> Expression(3)
+	Expression(3)
 	
-	>>> MiniExp(42L)
-	MiniExp(42)
+	>>> Expression(42L)
+	Expression(42)
 	
-	>>> MiniExp(1 << 30)
+	>>> Expression(1 << 30)
 	Traceback (most recent call last):
 	...
 	ValueError
 	
-	>>> MiniExp('foobar')
-	MiniExp('foobar')
+	>>> Expression('foobar')
+	Expression('foobar')
 
-	>>> MiniExp([[1,2], 3, [4,5], ['quux']])
-	MiniExp(((1, 2), 3, (4, 5), ('quux',)))
+	>>> Expression([[1,2], 3, [4,5], ['quux']])
+	Expression(((1, 2), 3, (4, 5), ('quux',)))
 	
 	'''
 

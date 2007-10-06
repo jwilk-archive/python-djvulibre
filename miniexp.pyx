@@ -1,105 +1,105 @@
+	
 cdef extern from "libdjvu/miniexp.h":
+	cdef extern struct cexp_s "miniexp_s"
+	ctypedef cexp_s* cexp_t "miniexp_t"
 
-	struct miniexp_s
-	ctypedef miniexp_s* miniexp_t
+	int cexp_is_int "miniexp_numberp"(cexp_t sexp)
+	int cexp_to_int "miniexp_to_int"(cexp_t sexp)
+	cexp_t int_to_cexp "miniexp_number"(int n)
 	
-	int miniexp_is_int "miniexp_numberp"(miniexp_t sexp)
-	int miniexp_to_int(miniexp_t sexp)
-	miniexp_t int_to_miniexp "miniexp_number"(int n)
-	
-	int miniexp_is_symbol "miniexp_symbolp"(miniexp_t sexp)
-	char* miniexp_to_symbol "miniexp_to_name"(miniexp_t sexp)
-	miniexp_t symbol_to_miniexp "miniexp_symbol"(char* name)
+	int cexp_is_symbol "miniexp_symbolp"(cexp_t sexp)
+	char* cexp_to_symbol "miniexp_to_name"(cexp_t sexp)
+	cexp_t symbol_to_cexp "miniexp_symbol"(char* name)
 
-	miniexp_t miniexp_nil
-	miniexp_t miniexp_dummy
-	int miniexp_is_list "miniexp_listp"(miniexp_t exp)
-	int miniexp_is_nonempty_list "miniexp_consp"(miniexp_t exp)
-	int miniexp_length(miniexp_t exp)
-	miniexp_t miniexp_head "miniexp_car"(miniexp_t exp)
-	miniexp_t miniexp_tail "miniexp_cdr"(miniexp_t exp)
-	miniexp_t miniexp_nth(int n, miniexp_t exp)
-	miniexp_t pair_to_miniexp "miniexp_cons"(miniexp_t head, miniexp_t tail)
-	miniexp_t miniexp_replace_head "miniexp_rplaca"(miniexp_t exp, miniexp_t new_head)
-	miniexp_t miniexp_replace_tail "miniexp_rplacd"(miniexp_t exp, miniexp_t new_tail)
-	miniexp_t miniexp_reverse_list "miniexp_reverse"(miniexp_t exp)
+	cexp_t cexp_nil "miniexp_nil"
+	cexp_t cexp_dummy "miniexp_dummy"
+	int cexp_is_list "miniexp_listp"(cexp_t exp)
+	int cexp_is_nonempty_list "miniexp_consp"(cexp_t exp)
+	int cexp_length "miniexp_length"(cexp_t exp)
+	cexp_t cexp_head "miniexp_car"(cexp_t exp)
+	cexp_t cexp_tail "miniexp_cdr"(cexp_t exp)
+	cexp_t cexp_nth "miniexp_nth"(int n, cexp_t exp)
+	cexp_t pair_to_cexp "miniexp_cons"(cexp_t head, cexp_t tail)
+	cexp_t cexp_replace_head "miniexp_rplaca"(cexp_t exp, cexp_t new_head)
+	cexp_t cexp_replace_tail "miniexp_rplacd"(cexp_t exp, cexp_t new_tail)
+	cexp_t cexp_reverse_list "miniexp_reverse"(cexp_t exp)
 
-def MiniExp(value):
+def Expression(value):
 	if isinstance(value, (int, long)):
-		return MiniExpInt(value)
+		return IntExpression(value)
 	elif isinstance(value, str):
-		return MiniExpSymbol(value)
+		return SymbolExpression(value)
 	else:
 		try:
 			iter(value)
 		except TypeError:
 			raise
 		else:
-			return MiniExpList(value)
+			return ListExpression(value)
 
-cdef class _MiniExp:
-	cdef miniexp_t _value
+cdef class _Expression:
+	cdef cexp_t cexp
 	
 	def __repr__(self):
-		return 'MiniExp(%r)' % (self.get_value(),)
+		return 'Expression(%r)' % (self.get_value(),)
 
-cdef class MiniExpInt(_MiniExp):
+cdef class IntExpression(_Expression):
 
 	def __new__(self, value):
 		if not isinstance(value, (int, long)):
 			raise TypeError
 		if -1 << 29 <= value <= 1 << 29:
-			self._value = int_to_miniexp(value)
+			self.cexp = int_to_cexp(value)
 		else:
 			raise ValueError
 
 	def get_value(self):
-		return miniexp_to_int(self._value)
+		return cexp_to_int(self.cexp)
 
-cdef class MiniExpSymbol(_MiniExp):
+cdef class SymbolExpression(_Expression):
 
 	def __new__(self, value):
 		if isinstance(value, str):
-			self._value = symbol_to_miniexp(value)
+			self.cexp = symbol_to_cexp(value)
 		else:
 			raise TypeError
 
 	def get_value(self):
-		return miniexp_to_symbol(self._value)
+		return cexp_to_symbol(self.cexp)
 
-cdef miniexp_t _py2c(_MiniExp pyexp):
-	return pyexp._value
+cdef cexp_t _py2c(_Expression pyexp):
+	return pyexp.cexp
 
-cdef void _py_set_value(_MiniExp pyexp, miniexp_t cexp):
-	pyexp._value = cexp
+cdef void _py_set_value(_Expression pyexp, cexp_t cexp):
+	pyexp.cexp = cexp
 
-cdef _MiniExp _c2py(miniexp_t cexp):
-	if miniexp_is_int(cexp):
-		result = MiniExpInt(0)
-	elif miniexp_is_symbol(cexp):
-		result = MiniExpSymbol('')
-	elif miniexp_is_list(cexp):
-		result = MiniExpList(())
+cdef _Expression _c2py(cexp_t cexp):
+	if cexp_is_int(cexp):
+		result = IntExpression(0)
+	elif cexp_is_symbol(cexp):
+		result = SymbolExpression('')
+	elif cexp_is_list(cexp):
+		result = ListExpression(())
 	else:
 		raise TypeError
 	_py_set_value(result, cexp)
 	return result
 
-cdef class MiniExpList(_MiniExp):
+cdef class ListExpression(_Expression):
 
 	def __new__(self, items):
-		self._value = miniexp_nil
+		self.cexp = cexp_nil
 		for item in items:
-			self._value = pair_to_miniexp(_py2c(MiniExp(item)), self._value)
-		self._value = miniexp_reverse_list(self._value)
+			self.cexp = pair_to_cexp(_py2c(Expression(item)), self.cexp)
+		self.cexp = cexp_reverse_list(self.cexp)
 
 	def get_value(self):
-		cdef miniexp_t current
-		current = self._value
+		cdef cexp_t current
+		current = self.cexp
 		result = []
-		while current != miniexp_nil:
-			result.append(_c2py(miniexp_head(current)).get_value())
-			current = miniexp_tail(current)
+		while current != cexp_nil:
+			result.append(_c2py(cexp_head(current)).get_value())
+			current = cexp_tail(current)
 		return tuple(result)
 
 # vim:ts=4 sw=4 noet
