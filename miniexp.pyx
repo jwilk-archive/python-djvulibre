@@ -35,7 +35,7 @@ cdef extern from "libdjvu/miniexp.h":
 	cexp_t unlock_gc "minilisp_release_gc_lock"(cexp_t cexp)
 	
 	cdef extern struct cvar_s "minivar_s"
-	ctypedef cvar_s* cvar_t "minivar_t"
+	ctypedef cvar_s cvar_t "minivar_t"
 
 	cvar_t* cvar_new "minivar_alloc"()
 	void cvar_free "minivar_free"(cvar_t* v)
