@@ -2,8 +2,11 @@ from miniexp import *
 
 class ExpressionNumberTest:
 	'''
-	>>> Expression(3)
+	>>> x = Expression(3)
+	>>> x
 	Expression(3)
+	>>> str(x)
+	'3'
 	
 	>>> Expression(42L)
 	Expression(42)
@@ -13,14 +16,23 @@ class ExpressionNumberTest:
 	...
 	ValueError
 	
-	>>> Expression(Symbol('foobar'))
+	>>> x = Expression(Symbol('foobar'))
+	>>> x
 	Expression(Symbol('foobar'))
+	>>> str(x)
+	'foobar'
 
-	>>> Expression('foobar')
+	>>> x = Expression('foobar')
+	>>> x
 	Expression('foobar')
+	>>> str(x)
+	'"foobar"'
 
-	>>> Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
+	>>> x = Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
+	>>> x
 	Expression(((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
+	>>> str(x)
+	'((1 2) 3 (4 5 baz) ("quux"))'
 	
 	'''
 

@@ -41,6 +41,35 @@ cdef extern from "libdjvu/miniexp.h":
 	void cvar_free "minivar_free"(cvar_t* v)
 	cexp_t* cvar_ptr "minivar_pointer"(cvar_t* v)
 
+	int (*io_puts "minilisp_puts")(char *s)
+	int (*io_getc "minilisp_getc")()
+	int (*io_ungetc "minilisp_ungetc")(int c)
+	cexp_t cexp_read "miniexp_read"()
+	cexp_t cexp_print "miniexp_prin"(cexp_t cexp)
+	cexp_t cexp_printw "miniexp_pprin"(cexp_t cexp, int width)
+
+cdef object myio_stdin
+cdef object myio_stdout
+
+cdef void myio_reset():
+	import sys
+	global myio_stdin, myio_stdout
+	myio_stdin = sys.stdin
+	myio_stdout = sys.stdout
+
+cdef int myio_puts(char *s):
+	myio_stdout.write(s)
+
+cdef int myio_getc():
+	return ord(myio_stdin.read(1))
+
+cdef int myio_ungetc(int c):
+	raise NotImplementedError
+
+io_puts = myio_puts
+io_getc = myio_getc
+io_ungetc = myio_ungetc
+
 cdef class _WrappedCExp:
 	cdef cvar_t* cvar
 
@@ -49,6 +78,26 @@ cdef class _WrappedCExp:
 
 	cdef cexp_t cexp(self):
 		return cvar_ptr(self.cvar)[0]
+
+	def print_into(self, stdout, width = None):
+		cdef cexp_t cexp
+		global myio_stdout
+		cexp = self.cexp()
+		myio_stdout = stdout
+		if width is None:
+			cexp_print(cexp)
+		else:
+			cexp_printw(cexp, width)
+		myio_reset()
+
+	def as_string(self, width = None):
+		from cStringIO import StringIO
+		stdout = StringIO()
+		try:
+			self.print_into(stdout)
+			return stdout.getvalue()
+		finally:
+			stdout.close()
 
 	def __dealloc__(self):
 		cvar_free(self.cvar)
@@ -83,7 +132,16 @@ def Expression(value):
 
 cdef class _Expression:
 	cdef _WrappedCExp wexp
+
+	def print_into(self, stdout, width = None):
+		return self.wexp.print_into(stdout, width)
+
+	def as_string(self, width = None):
+		return self.wexp.as_string(width)
 	
+	def __str__(self):
+		return self.as_string()
+
 	def __repr__(self):
 		return 'Expression(%r)' % (self.get_value(),)
 
