@@ -267,6 +267,98 @@ cdef class ListExpression(_Expression):
 		else:
 			self.wexp = _build_list_cexp(items)
 
+	def __nonzero__(self):
+		return self.wexp.cexp() != cexp_nil
+
+	def __len__(self):
+		cdef cexp_t cexp
+		cdef int n
+		cexp = self.wexp.cexp()
+		n = 0
+		while cexp != cexp_nil:
+			cexp = cexp_tail(cexp)
+			n = n + 1
+		return n
+
+	def __getitem__(self, key):
+		cdef cexp_t cexp
+		cdef int n
+		cexp = self.wexp.cexp()
+		if isinstance(key, (int, long)):
+			n = key
+			if n < 0:
+				n = n + len(self)
+			if n < 0:
+				raise IndexError('list index of out range')
+			while True:
+				if cexp == cexp_nil:
+					raise IndexError('list index of out range')
+				if n > 0:
+					n = n - 1
+					cexp = cexp_tail(cexp)
+				else:
+					cexp = cexp_head(cexp)
+					break
+		elif isinstance(key, slice):
+			if (isinstance(key.start, int)) or key.start is None and key.stop is None and key.step is None:
+				n = key.start or 0
+				if n < 0:
+					n = n + len(self)
+				while n > 0 and cexp != cexp_nil:
+					cexp = cexp_tail(cexp)
+					n = n - 1
+			else:
+				raise NotImplementedError('only [n:] slices are supported')
+		else:
+			raise TypeError
+		return _c2py(cexp)
+
+	def __setitem__(self, key, value):
+		cdef cexp_t cexp
+		cdef cexp_t prev_cexp
+		cdef cexp_t new_cexp
+		cdef int n
+		cexp = self.wexp.cexp()
+		new_cexp = (<_Expression>Expression(value)).wexp.cexp()
+		if isinstance(key, (int, long)):
+			n = key
+			if n < 0:
+				n = n + len(self)
+			if n < 0:
+				raise IndexError('list index of out range')
+			while True:
+				if cexp == cexp_nil:
+					raise IndexError('list index of out range')
+				if n > 0:
+					n = n - 1
+					cexp = cexp_tail(cexp)
+				else:
+					cexp_replace_head(cexp, new_cexp)
+					break
+		elif isinstance(key, slice):
+			if not cexp_is_list(new_cexp):
+				raise TypeError
+			if (isinstance(key.start, int)) or key.start is None and key.stop is None and key.step is None:
+				n = key.start or 0
+				if n < 0:
+					n = n + len(self)
+				prev_cexp = cexp_nil
+				while n > 0 and cexp != cexp_nil:
+					prev_cexp = cexp
+					cexp = cexp_tail(cexp)
+					n = n - 1
+				if prev_cexp == cexp_nil:
+					self.wexp = wexp(new_cexp)
+				else:
+					cexp_replace_tail(prev_cexp, new_cexp)
+			else:
+				raise NotImplementedError('only [n:] slices are supported')
+		else:
+			raise TypeError
+
+	def __iter__(self):
+		return _ListExpressionIterator(self)
+
 	def get_value(self):
 		cdef cexp_t current
 		current = self.wexp.cexp()
@@ -276,5 +368,23 @@ cdef class ListExpression(_Expression):
 			append(_c2py(cexp_head(current)).get_value())
 			current = cexp_tail(current)
 		return tuple(result)
+
+cdef class _ListExpressionIterator:
+
+	cdef ListExpression expression
+	cdef cexp_t cexp
+
+	def __new__(self, ListExpression expression not None):
+		self.expression = expression
+		self.cexp = expression.wexp.cexp()
+	
+	def __next__(self):
+		cdef cexp_t cexp
+		cexp = self.cexp
+		if cexp == cexp_nil:
+			raise StopIteration
+		self.cexp = cexp_tail(cexp)
+		cexp = cexp_head(cexp)
+		return _c2py(cexp)
 
 # vim:ts=4 sw=4 noet
