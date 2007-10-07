@@ -102,12 +102,10 @@ cdef class _WrappedCExp:
 	def __dealloc__(self):
 		cvar_free(self.cvar)
 
-cdef void wexp_set(_WrappedCExp wexp, cexp_t cexp):
-	cvar_ptr(wexp.cvar)[0] = cexp
-
 cdef _WrappedCExp wexp(cexp_t cexp):
+	cdef _WrappedCExp wexp
 	wexp = _WrappedCExp()
-	wexp_set(wexp, cexp)
+	cvar_ptr(wexp.cvar)[0] = cexp
 	return wexp
 
 class Symbol(str):
@@ -214,8 +212,9 @@ cdef class ListExpression(_Expression):
 			return
 		lock_gc(NULL)
 		self._cexp = cexp_nil
+		Expression_ = Expression
 		for item in items:
-			self._cexp = pair_to_cexp(_py2c(Expression(item)), self._cexp)
+			self._cexp = pair_to_cexp(_py2c(Expression_(item)), self._cexp)
 		self._cexp = cexp_reverse_list(self._cexp)
 		self.wexp = wexp(self._cexp)
 		unlock_gc(NULL)
@@ -224,8 +223,9 @@ cdef class ListExpression(_Expression):
 		cdef cexp_t current
 		current = self.wexp.cexp()
 		result = []
+		append = result.append
 		while current != cexp_nil:
-			result.append(_c2py(cexp_head(current)).get_value())
+			append(_c2py(cexp_head(current)).get_value())
 			current = cexp_tail(current)
 		return tuple(result)
 
