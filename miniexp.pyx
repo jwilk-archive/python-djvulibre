@@ -41,6 +41,26 @@ cdef extern from "libdjvu/miniexp.h":
 	void cvar_free "minivar_free"(cvar_t* v)
 	cexp_t* cvar_ptr "minivar_pointer"(cvar_t* v)
 
+cdef class _WrappedCExp:
+	cdef cvar_t* cvar
+
+	def __new__(self):
+		self.cvar = cvar_new()
+
+	cdef cexp_t cexp(self):
+		return cvar_ptr(self.cvar)[0]
+
+	def __dealloc__(self):
+		cvar_free(self.cvar)
+
+cdef void wexp_set(_WrappedCExp wexp, cexp_t cexp):
+	cvar_ptr(wexp.cvar)[0] = cexp
+
+cdef _WrappedCExp wexp(cexp_t cexp):
+	wexp = _WrappedCExp()
+	wexp_set(wexp, cexp)
+	return wexp
+
 class Symbol(str):
 
 	def __repr__(self):
@@ -62,7 +82,7 @@ def Expression(value):
 			return ListExpression(value)
 
 cdef class _Expression:
-	cdef cexp_t cexp
+	cdef _WrappedCExp wexp
 	
 	def __repr__(self):
 		return 'Expression(%r)' % (self.get_value(),)
@@ -70,85 +90,81 @@ cdef class _Expression:
 cdef class IntExpression(_Expression):
 
 	def __new__(self, value):
-		if not isinstance(value, (int, long)):
-			raise TypeError
-		if -1 << 29 <= value <= 1 << 29:
-			self.cexp = int_to_cexp(value)
+		if isinstance(value, _WrappedCExp):
+			self.wexp = value
+		elif isinstance(value, (int, long)):
+			if -1 << 29 <= value <= 1 << 29:
+				self.wexp = wexp(int_to_cexp(value))
+			else:
+				raise ValueError
 		else:
-			raise ValueError
+			raise TypeError
 
 	def get_value(self):
-		return cexp_to_int(self.cexp)
+		return cexp_to_int(self.wexp.cexp())
 
 cdef class SymbolExpression(_Expression):
 
 	def __new__(self, value):
-		if isinstance(value, str):
-			self.cexp = symbol_to_cexp(value)
+		if isinstance(value, _WrappedCExp):
+			self.wexp = value
+		elif isinstance(value, str):
+			self.wexp = wexp(symbol_to_cexp(value))
 		else:
 			raise TypeError
 
 	def get_value(self):
-		return Symbol(cexp_to_symbol(self.cexp))
+		return Symbol(cexp_to_symbol(self.wexp.cexp()))
 
 cdef class StringExpression(_Expression):
 
-	cdef cvar_t* cvar
-
 	def __new__(self, value):
-		if isinstance(value, str):
-			self.cexp = str_to_cexp(value)
+		if isinstance(value, _WrappedCExp):
+			self.wexp = value
+		elif isinstance(value, str):
+			self.wexp = wexp(str_to_cexp(value))
 		else:
 			raise TypeError
-		self.cvar = cvar_new()
-		cvar_ptr(self.cvar)[0] = self.cexp
-
-	def __dealloc__(self):
-		cvar_free(self.cvar)
 
 	def get_value(self):
-		return cexp_to_str(self.cexp)
+		return cexp_to_str(self.wexp.cexp())
 
 cdef cexp_t _py2c(_Expression pyexp):
-	return pyexp.cexp
-
-cdef void _py_set_value(_Expression pyexp, cexp_t cexp):
-	pyexp.cexp = cexp
+	return pyexp.wexp.cexp()
 
 cdef _Expression _c2py(cexp_t cexp):
+	_wexp = wexp(cexp)
 	if cexp_is_int(cexp):
-		result = IntExpression(0)
+		result = IntExpression(_wexp)
 	elif cexp_is_symbol(cexp):
-		result = SymbolExpression('')
+		result = SymbolExpression(_wexp)
 	elif cexp_is_list(cexp):
-		result = ListExpression(())
+		result = ListExpression(_wexp)
 	elif cexp_is_str(cexp):
-		result = StringExpression('')
+		result = StringExpression(_wexp)
 	else:
 		raise TypeError
-	_py_set_value(result, cexp)
 	return result
 
 cdef class ListExpression(_Expression):
 
-	cdef cvar_t* cvar
+	cdef cexp_t _cexp
 
 	def __new__(self, items):
+		if isinstance(items, _WrappedCExp):
+			self.wexp = items
+			return
 		lock_gc(NULL)
-		self.cexp = cexp_nil
+		self._cexp = cexp_nil
 		for item in items:
-			self.cexp = pair_to_cexp(_py2c(Expression(item)), self.cexp)
-		self.cexp = cexp_reverse_list(self.cexp)
-		unlock_gc(self.cexp)
-		self.cvar = cvar_new()
-		cvar_ptr(self.cvar)[0] = self.cexp
-
-	def __dealloc__(self):
-		cvar_free(self.cvar)
+			self._cexp = pair_to_cexp(_py2c(Expression(item)), self._cexp)
+		self._cexp = cexp_reverse_list(self._cexp)
+		self.wexp = wexp(self._cexp)
+		unlock_gc(NULL)
 
 	def get_value(self):
 		cdef cexp_t current
-		current = self.cexp
+		current = self.wexp.cexp()
 		result = []
 		while current != cexp_nil:
 			result.append(_c2py(cexp_head(current)).get_value())
