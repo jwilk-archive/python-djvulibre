@@ -33,6 +33,8 @@ class ExpressionNumberTest:
 	Expression(((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
 	>>> str(x)
 	'((1 2) 3 (4 5 baz) ("quux"))'
+	>>> repr(x) == repr(Expression.from_string(str(x)))
+	True
 	
 	'''
 

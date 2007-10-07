@@ -48,23 +48,43 @@ cdef extern from "libdjvu/miniexp.h":
 	cexp_t cexp_print "miniexp_prin"(cexp_t cexp)
 	cexp_t cexp_printw "miniexp_pprin"(cexp_t cexp, int width)
 
+cdef extern from 'stdio.h':
+	int EOF
+
 cdef object myio_stdin
 cdef object myio_stdout
+cdef int myio_buffer
+myio_buffer = -1
 
 cdef void myio_reset():
 	import sys
 	global myio_stdin, myio_stdout
 	myio_stdin = sys.stdin
 	myio_stdout = sys.stdout
+	myio_buffer = -1
 
 cdef int myio_puts(char *s):
 	myio_stdout.write(s)
 
 cdef int myio_getc():
-	return ord(myio_stdin.read(1))
+	global myio_buffer
+	cdef int result
+	result = myio_buffer
+	if result >= 0:
+		myio_buffer = -1
+	else:
+		s = myio_stdin.read(1)
+		if s:
+			result = ord(s)
+		else:
+			result = EOF
+	return result
 
 cdef int myio_ungetc(int c):
-	raise NotImplementedError
+	global myio_buffer
+	if myio_buffer >= 0:
+		raise RuntimeError
+	myio_buffer = c
 
 io_puts = myio_puts
 io_getc = myio_getc
@@ -113,7 +133,10 @@ class Symbol(str):
 	def __repr__(self):
 		return 'Symbol(%s)' % str.__repr__(self)
 
-def Expression(value):
+class Expression(object):
+	pass
+
+def Expression__new__(cls, value):
 	if isinstance(value, (int, long)):
 		return IntExpression(value)
 	elif isinstance(value, Symbol):
@@ -127,6 +150,26 @@ def Expression(value):
 			raise
 		else:
 			return ListExpression(value)
+
+def Expression_from_stream(stdin):
+	global myio_stdin
+	try:
+		myio_stdin = stdin
+		return _c2py(cexp_read())
+	finally:
+		myio_reset()
+
+def Expression_from_string(str):
+	from cStringIO import StringIO
+	stdin = StringIO(str)
+	try:
+		return Expression_from_stream(stdin)
+	finally:
+		stdin.close()
+
+Expression.__new__ = staticmethod(Expression__new__)
+Expression.from_string = staticmethod(Expression_from_string)
+Expression.from_stream = staticmethod(Expression_from_stream)
 
 cdef class _Expression:
 	cdef _WrappedCExp wexp
