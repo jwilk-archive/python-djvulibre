@@ -183,8 +183,12 @@ cdef class _Expression:
 	def __str__(self):
 		return self.as_string()
 
+	property value:
+		def __get__(self):
+			return self.get_value()
+
 	def __repr__(self):
-		return 'Expression(%r)' % (self.get_value(),)
+		return 'Expression(%r)' % (self.value,)
 
 cdef class IntExpression(_Expression):
 
@@ -228,9 +232,6 @@ cdef class StringExpression(_Expression):
 	def get_value(self):
 		return cexp_to_str(self.wexp.cexp())
 
-cdef cexp_t _py2c(_Expression pyexp):
-	return pyexp.wexp.cexp()
-
 cdef _Expression _c2py(cexp_t cexp):
 	_wexp = wexp(cexp)
 	if cexp_is_int(cexp):
@@ -257,7 +258,7 @@ cdef class ListExpression(_Expression):
 		self._cexp = cexp_nil
 		Expression_ = Expression
 		for item in items:
-			self._cexp = pair_to_cexp(_py2c(Expression_(item)), self._cexp)
+			self._cexp = pair_to_cexp((<_Expression>Expression_(item)).wexp.cexp(), self._cexp)
 		self._cexp = cexp_reverse_list(self._cexp)
 		self.wexp = wexp(self._cexp)
 		unlock_gc(NULL)
