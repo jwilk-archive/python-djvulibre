@@ -203,6 +203,12 @@ cdef class IntExpression(_Expression):
 		else:
 			raise TypeError
 
+	def __int__(self):
+		return self.value
+
+	def __long__(self):
+		return 0L + self.value
+
 	def get_value(self):
 		return cexp_to_int(self.wexp.cexp())
 
