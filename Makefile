@@ -4,7 +4,7 @@ all:
 
 .PHONY: test
 test: all
-	python test.py
+	python tests/miniexp.py
 
 .PHONY: clean
 clean:
