@@ -246,22 +246,26 @@ cdef _Expression _c2py(cexp_t cexp):
 		raise TypeError
 	return result
 
-cdef class ListExpression(_Expression):
+cdef _WrappedCExp _build_list_cexp(object items):
+	cdef cexp_t cexp
+	lock_gc(NULL)
+	try:
+		cexp = cexp_nil
+		Expression_ = Expression
+		for item in items:
+			cexp = pair_to_cexp((<_Expression>Expression_(item)).wexp.cexp(), cexp)
+		cexp = cexp_reverse_list(cexp)
+		return wexp(cexp)
+	finally:
+		unlock_gc(NULL)
 
-	cdef cexp_t _cexp
+cdef class ListExpression(_Expression):
 
 	def __new__(self, items):
 		if isinstance(items, _WrappedCExp):
 			self.wexp = items
-			return
-		lock_gc(NULL)
-		self._cexp = cexp_nil
-		Expression_ = Expression
-		for item in items:
-			self._cexp = pair_to_cexp((<_Expression>Expression_(item)).wexp.cexp(), self._cexp)
-		self._cexp = cexp_reverse_list(self._cexp)
-		self.wexp = wexp(self._cexp)
-		unlock_gc(NULL)
+		else:
+			self.wexp = _build_list_cexp(items)
 
 	def get_value(self):
 		cdef cexp_t current
