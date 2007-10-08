@@ -196,7 +196,7 @@ cdef class IntExpression(_Expression):
 		if isinstance(value, _WrappedCExp):
 			self.wexp = value
 		elif isinstance(value, (int, long)):
-			if -1 << 29 <= value <= 1 << 29:
+			if -1 << 29 <= value < 1 << 29:
 				self.wexp = wexp(int_to_cexp(value))
 			else:
 				raise ValueError
