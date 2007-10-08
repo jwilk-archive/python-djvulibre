@@ -155,7 +155,10 @@ def Expression_from_stream(stdin):
 	global myio_stdin
 	try:
 		myio_stdin = stdin
-		return _c2py(cexp_read())
+		try:
+			return _c2py(cexp_read())
+		except _InvalidExpression:
+			raise ExpressionSyntaxError
 	finally:
 		myio_reset()
 
@@ -163,13 +166,14 @@ def Expression_from_string(str):
 	from cStringIO import StringIO
 	stdin = StringIO(str)
 	try:
-		return Expression_from_stream(stdin)
+		return Expression.from_stream(stdin)
 	finally:
 		stdin.close()
 
 Expression.__new__ = staticmethod(Expression__new__)
 Expression.from_string = staticmethod(Expression_from_string)
 Expression.from_stream = staticmethod(Expression_from_stream)
+del Expression__new__, Expression_from_string, Expression_from_stream
 
 cdef class _Expression:
 	cdef _WrappedCExp wexp
@@ -238,7 +242,15 @@ cdef class StringExpression(_Expression):
 	def get_value(self):
 		return cexp_to_str(self.wexp.cexp())
 
+class _InvalidExpression(ValueError):
+	pass
+
+class ExpressionSyntaxError(SyntaxError):
+	pass
+
 cdef _Expression _c2py(cexp_t cexp):
+	if cexp == cexp_dummy:
+		raise _InvalidExpression
 	_wexp = wexp(cexp)
 	if cexp_is_int(cexp):
 		result = IntExpression(_wexp)
@@ -249,7 +261,7 @@ cdef _Expression _c2py(cexp_t cexp):
 	elif cexp_is_str(cexp):
 		result = StringExpression(_wexp)
 	else:
-		raise TypeError
+		raise ValueError
 	return result
 
 cdef _WrappedCExp _build_list_cexp(object items):

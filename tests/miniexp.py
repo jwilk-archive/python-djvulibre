@@ -145,6 +145,14 @@ class ListExpressionTest:
 	
 	'''
 
+class ExpressionParser:
+	'''
+	>>> Expression.from_string('(1')
+	Traceback (most recent call last):
+	...
+	ExpressionSyntaxError
+	'''
+
 if __name__ == '__main__':
 	import doctest
 	doctest.testmod()
