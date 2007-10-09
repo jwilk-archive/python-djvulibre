@@ -92,7 +92,7 @@ cdef extern from "libdjvu/ddjvuapi.h":
 	void ddjvu_document_release(ddjvu_document_t* document)
 
 	void ddjvu_document_set_user_data(ddjvu_document_t* document, void* userdata)
-	void* ddjvu_document_get_user_data(ddjvu_document_t* document) \
+	void* ddjvu_document_get_user_data(ddjvu_document_t* document)
 
 	ddjvu_status_t ddjvu_document_decoding_status(ddjvu_document_t* document)
 	int ddjvu_document_decoding_done(ddjvu_document_t* document)
