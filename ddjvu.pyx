@@ -367,6 +367,23 @@ cdef class Document:
 			raise InstantiationError
 		self.ddjvu_document = NULL
 
+	property status:
+		def __get__(self):
+			return ddjvu_document_decoding_status(self.ddjvu_document)
+
+	property is_error:
+		def __get__(self):
+			return ddjvu_document_decoding_error(self.ddjvu_document)
+	
+	property is_done:
+		def __get__(self):
+			return ddjvu_document_decoding_done(self.ddjvu_document)
+
+	def __dealloc__(self):
+		if self.ddjvu_document == NULL:
+			return
+		ddjvu_document_release(self.ddjvu_document)
+
 cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	cdef Document result
 	if ddjvu_document == NULL:
