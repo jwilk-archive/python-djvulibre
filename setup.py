@@ -6,9 +6,12 @@ setup(
 	name = 'djvulibre',
 	ext_modules = \
 	[
+		Extension('ddjvu', ['ddjvu.pyx'],
+			libraries = ['djvulibre'],
+		),
 		Extension('miniexp', ['miniexp.pyx'],
 			libraries = ['djvulibre'],
-		)
+		),
 	],
 	cmdclass = {'build_ext': build_ext}
 )
