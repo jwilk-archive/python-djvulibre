@@ -285,4 +285,40 @@ cdef extern from "libdjvu/ddjvuapi.h":
 		ddjvu_message_thumbnail_s m_thumbnail
 		ddjvu_message_progress_s m_progress
 
+
+cdef class _Context:
+
+	cdef ddjvu_context_t* context
+	cdef unsigned long DEFAULT_CACHE_SIZE
+
+	def __new__(self, argv0 = None):
+		if argv0 is None:
+			from sys import argv
+			argv0 = argv[0]
+		self.context = ddjvu_context_new(argv0)
+		if self.context == NULL:
+			raise MemoryError
+		self.DEFAULT_CACHE_SIZE = ddjvu_cache_get_size(self.context)
+
+	property cache_size:
+
+		def __set__(self, value):
+			value = int(value)
+			if 0 < value < (1L << (8 * sizeof(unsigned long))):
+				ddjvu_cache_set_size(self.context, value)
+			else:
+				raise ValueError('0 < cache_size < %d is not satisfied' % (1L << (8 * sizeof(unsigned long))))
+
+		def __get__(self):
+			return ddjvu_cache_get_size(self.context)
+
+		def __del__(self):
+			ddjvu_cache_set_size(self.context, self.DEFAULT_CACHE_SIZE)
+
+	def clear_cache(self):
+		ddjvu_cache_clear(self.context)
+
+	def __dealloc__(self):
+		ddjvu_context_free(self.context)
+
 # vim:ts=4 sw=4 noet
