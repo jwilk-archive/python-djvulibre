@@ -8,11 +8,11 @@ class ContextTest:
 	>>> x.cache_size = -100
 	Traceback (most recent call last):
 	...
-	ValueError: 0 < cache_size < 4294967296 is not satisfied
+	ValueError: 0 < cache_size < 2 * (sys.maxint + 1) is not satisfied
 	>>> x.cache_size = 0
 	Traceback (most recent call last):
 	...
-	ValueError: 0 < cache_size < 4294967296 is not satisfied
+	ValueError: 0 < cache_size < 2 * (sys.maxint + 1) is not satisfied
 	>>> x.cache_size = 100
 	>>> x.cache_size
 	100L
@@ -22,7 +22,7 @@ class ContextTest:
 	>>> x.cache_size = 1 << 32
 	Traceback (most recent call last):
 	...
-	ValueError: 0 < cache_size < 4294967296 is not satisfied
+	ValueError: 0 < cache_size < 2 * (sys.maxint + 1) is not satisfied
 	>>> x.cache_size == (1 << 32) - 1
 	True
 	>>> del x.cache_size
