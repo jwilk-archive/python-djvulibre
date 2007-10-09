@@ -1,7 +1,7 @@
 # Copyright (c) 2007 Jakub Wilk <ubanus@users.sf.net>
 
 cdef extern from "libdjvu/miniexp.h":
-	cdef extern struct cexp_s "miniexp_s"
+	struct cexp_s "miniexp_s"
 	ctypedef cexp_s* cexp_t "miniexp_t"
 
 	int cexp_is_int "miniexp_numberp"(cexp_t sexp)
