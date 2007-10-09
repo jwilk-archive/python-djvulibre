@@ -293,6 +293,51 @@ cdef object the_sentinel
 the_sentinel = object()
 
 
+class InstantiationError(RuntimeError):
+	pass
+
+
+cdef class Document:
+
+	cdef ddjvu_document_t* ddjvu_document
+	
+	def __new__(self, **kwargs):
+		if kwargs.get('sentinel') is not the_sentinel:
+			cache = bool(kwargs.get('cache'))
+		elif kwargs.get('sentinel') is not the_sentinel:
+			raise InstantiationError
+		self.ddjvu_document = NULL
+
+	property status:
+		def __get__(self):
+			return ddjvu_document_decoding_status(self.ddjvu_document)
+
+	property is_error:
+		def __get__(self):
+			return ddjvu_document_decoding_error(self.ddjvu_document)
+	
+	property is_done:
+		def __get__(self):
+			return ddjvu_document_decoding_done(self.ddjvu_document)
+
+	def __dealloc__(self):
+		if self.ddjvu_document == NULL:
+			return
+		ddjvu_document_release(self.ddjvu_document)
+
+cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
+	cdef Document result
+	if ddjvu_document == NULL:
+		result = None
+	else:
+		result = Document(the_sentinel)
+		result.ddjvu_document = ddjvu_document
+	return result
+
+
+class FileURI(str):
+	pass
+
 cdef class Context:
 
 	cdef ddjvu_context_t* ddjvu_context
@@ -332,6 +377,15 @@ cdef class Context:
 		ddjvu_message_pop(self.ddjvu_context)
 		return message
 
+	def new_document(self, uri):
+		cdef Document document
+		cdef ddjvu_document_t* ddjvu_document
+		if isinstance(uri, FileURI):
+			ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
+		else:
+			ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
+		return Document_from_c(ddjvu_document)
+
 	def __iter__(self):
 		return self
 
@@ -351,46 +405,6 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 	else:
 		result = Context(the_sentinel)
 		result.ddjvu_context = ddjvu_context
-	return result
-
-
-class InstantiationError(RuntimeError):
-	pass
-
-
-cdef class Document:
-
-	cdef ddjvu_document_t* ddjvu_document
-	
-	def __new__(self, **kwargs):
-		if kwargs.get('sentinel') is not the_sentinel:
-			raise InstantiationError
-		self.ddjvu_document = NULL
-
-	property status:
-		def __get__(self):
-			return ddjvu_document_decoding_status(self.ddjvu_document)
-
-	property is_error:
-		def __get__(self):
-			return ddjvu_document_decoding_error(self.ddjvu_document)
-	
-	property is_done:
-		def __get__(self):
-			return ddjvu_document_decoding_done(self.ddjvu_document)
-
-	def __dealloc__(self):
-		if self.ddjvu_document == NULL:
-			return
-		ddjvu_document_release(self.ddjvu_document)
-
-cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
-	cdef Document result
-	if ddjvu_document == NULL:
-		result = None
-	else:
-		result = Document(the_sentinel)
-		result.ddjvu_document = ddjvu_document
 	return result
 
 
