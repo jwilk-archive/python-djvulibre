@@ -307,7 +307,7 @@ cdef class Context:
 			if 0 < value < (1L << (8 * sizeof(unsigned long))):
 				ddjvu_cache_set_size(self.context, value)
 			else:
-				raise ValueError('0 < cache_size < %d is not satisfied' % (1L << (8 * sizeof(unsigned long))))
+				raise ValueError('0 < cache_size < 2 * (sys.maxint + 1) is not satisfied' % (1L << (8 * sizeof(unsigned long))))
 
 		def __get__(self):
 			return ddjvu_cache_get_size(self.context)
