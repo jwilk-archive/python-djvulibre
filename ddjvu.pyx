@@ -326,7 +326,7 @@ cdef class Context:
 			ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
 		else:
 			ddjvu_message = ddjvu_message_peek(self.ddjvu_context)
-			if <void*>ddjvu_message == NULL:
+			if ddjvu_message == NULL:
 				return None
 		message = Message_from_c(ddjvu_message)
 		ddjvu_message_pop(self.ddjvu_context)
@@ -346,8 +346,11 @@ cdef class Context:
 
 cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 	cdef Context result
-	result = Context(the_sentinel)
-	result.ddjvu_context = ddjvu_context
+	if ddjvu_context == NULL:
+		result = None
+	else:
+		result = Context(the_sentinel)
+		result.ddjvu_context = ddjvu_context
 	return result
 
 
@@ -366,8 +369,11 @@ cdef class Document:
 
 cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	cdef Document result
-	result = Document(the_sentinel)
-	result.ddjvu_document = ddjvu_document
+	if ddjvu_document == NULL:
+		result = None
+	else:
+		result = Document(the_sentinel)
+		result.ddjvu_document = ddjvu_document
 	return result
 
 
@@ -382,8 +388,11 @@ cdef class Page:
 
 cdef Page Page_from_c(ddjvu_page_t* ddjvu_page):
 	cdef Page result
-	result = Page(the_sentinel)
-	result.ddjvu_page = ddjvu_page
+	if ddjvu_page == NULL:
+		result = None
+	else:
+		result = Page(the_sentinel)
+		result.ddjvu_page = ddjvu_page
 	return result
 
 
@@ -396,10 +405,33 @@ cdef class Job:
 			raise InstantiationError
 		self.ddjvu_job = NULL
 
+	property status:
+		def __get__(self):
+			return ddjvu_job_status(self.ddjvu_job)
+
+	property is_error:
+		def __get__(self):
+			return ddjvu_job_error(self.ddjvu_job)
+	
+	property is_done:
+		def __get__(self):
+			return ddjvu_job_done(self.ddjvu_job)
+
+	def stop(self):
+		ddjvu_job_stop(self.ddjvu_job)
+
+	def __dealloc__(self):
+		if self.ddjvu_job == NULL:
+			return
+		ddjvu_job_release(self.ddjvu_job)
+
 cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	cdef Job result
-	result = Job(the_sentinel)
-	result.ddjvu_job = ddjvu_job
+	if ddjvu_job == NULL:
+		result = None
+	else:
+		result = Job(the_sentinel)
+		result.ddjvu_job = ddjvu_job
 	return result
 
 
@@ -569,6 +601,8 @@ MESSAGE_MAP = \
 
 cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
 	cdef Message message
+	if ddjvu_message == NULL:
+		return None
 	try:
 		klass = MESSAGE_MAP(ddjvu_message.m_any.tag)
 	except KeyError:
