@@ -286,7 +286,7 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 		ddjvu_message_progress_s m_progress
 
 
-cdef class _Context:
+cdef class Context:
 
 	cdef ddjvu_context_t* context
 	cdef unsigned long DEFAULT_CACHE_SIZE
