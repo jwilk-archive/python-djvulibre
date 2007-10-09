@@ -424,24 +424,36 @@ cdef class Message:
 
 cdef class ErrorMessage(Message):
 
+	cdef object _message
+	cdef object _location
+
+	def __init(self):
+		self._message = self.ddjvu_message.m_error.message
+		self._location = \
+		(
+			self.ddjvu_message.m_error.function,
+			self.ddjvu_message.m_error.filename,
+			self.ddjvu_message.m_error.lineno
+		)
+
 	property message:
 		def __get__(self):
-			return self.ddjvu_message.m_error.message
+			return self._message
 	
 	property location:
 		def __get__(self):
-			return \
-			(
-				self.ddjvu_message.m_error.function,
-				self.ddjvu_message.m_error.filename,
-				self.ddjvu_message.m_error.lineno
-			)
+			return self._location
 
 cdef class InfoMessage(Message):
+
+	cdef object _message
+
+	def __init(self):
+		self._message = self.ddjvu_message.m_error.message
 	
 	property message:
 		def __get__(self):
-			return self.ddjvu_message.m_info.message
+			return self._message
 	
 cdef class Stream:
 
@@ -479,11 +491,15 @@ cdef class Stream:
 
 cdef class NewStreamMessage(Message):
 
+	cdef object _name
+	cdef object _uri
 	cdef Stream _stream
 
 	def __init(self):
 		Message.__init(self)
 		self._stream = Stream(self.document, self.ddjvu_message.m_newstream.streamid, sentinel = the_sentinel)
+		self._name = self.ddjvu_message.m_newstream.name
+		self._uri = self.ddjvu_message.m_newstream.url
 
 	property stream:
 		def __get__(self):
@@ -491,11 +507,11 @@ cdef class NewStreamMessage(Message):
 	
 	property name:
 		def __get__(self):
-			return self.ddjvu_message.m_newstream.name
+			return self._name
 	
 	property uri:
 		def __get__(self):
-			return self.ddjvu_message.m_newstream.url
+			return self._uri
 
 cdef class DocInfoMessage(Message):
 	pass
@@ -517,5 +533,31 @@ cdef class ThumbnailMessage(Message):
 
 cdef class ProgressMessage(Message):
 	pass
+
+cdef object MESSAGE_MAP
+MESSAGE_MAP = \
+{
+	DDJVU_ERROR: ErrorMessage,
+	DDJVU_INFO: InfoMessage,
+	DDJVU_NEWSTREAM: NewStreamMessage,
+	DDJVU_DOCINFO: DocInfoMessage,
+	DDJVU_PAGEINFO: PageInfoMessage,
+	DDJVU_RELAYOUT: RelayoutMessage,
+	DDJVU_REDISPLAY: RedisplayMessage,
+	DDJVU_CHUNK: ChunkMessage,
+	DDJVU_THUMBNAIL: ThumbnailMessage,
+	DDJVU_PROGRESS: ProgressMessage
+}
+
+cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
+	cdef Message message
+	try:
+		klass = MESSAGE_MAP(ddjvu_message.m_any.tag)
+	except KeyError:
+		raise SystemError
+	message = klass(sentinel = the_sentinel)
+	message.ddjvu_message = ddjvu_message
+	message.__init()
+	return message
 
 # vim:ts=4 sw=4 noet
