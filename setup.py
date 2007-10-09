@@ -2,16 +2,14 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Pyrex.Distutils import build_ext
 
+EXT_MODULES = ('ddjvu', 'miniexp')
+
 setup(
 	name = 'djvulibre',
 	ext_modules = \
 	[
-		Extension('ddjvu', ['ddjvu.pyx'],
-			libraries = ['djvulibre'],
-		),
-		Extension('miniexp', ['miniexp.pyx'],
-			libraries = ['djvulibre'],
-		),
+		Extension(name, ['%s.pyx' % name], libraries = ['djvulibre'])
+		for name in EXT_MODULES
 	],
 	cmdclass = {'build_ext': build_ext}
 )
