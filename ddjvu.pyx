@@ -6,7 +6,7 @@ cdef extern from 'stdio.h':
 
 from miniexp cimport cexp_t
 
-cdef extern from "libdjvu/ddjvuapi.h":
+cdef extern from 'libdjvu/ddjvuapi.h':
 	struct ddjvu_context_s
 	struct ddjvu_message_s
 	struct ddjvu_job_s
@@ -25,8 +25,8 @@ cdef extern from "libdjvu/ddjvuapi.h":
 	ctypedef ddjvu_rect_s ddjvu_rect_t
 	ctypedef ddjvu_rectmapper_s ddjvu_rectmapper_t
 
-	ddjvu_context_t* ddjvu_context_new "ddjvu_context_create"(char* program_name)
-	void ddjvu_context_free "ddjvu_context_release"(ddjvu_context_t* context)
+	ddjvu_context_t* ddjvu_context_new 'ddjvu_context_create'(char* program_name)
+	void ddjvu_context_free 'ddjvu_context_release'(ddjvu_context_t* context)
 
 	void ddjvu_cache_set_size(ddjvu_context_t* context, unsigned long cachesize)
 	unsigned long ddjvu_cache_get_size(ddjvu_context_t* context)

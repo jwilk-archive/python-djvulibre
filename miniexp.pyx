@@ -1,49 +1,49 @@
 # Copyright (c) 2007 Jakub Wilk <ubanus@users.sf.net>
 
-cdef extern from "libdjvu/miniexp.h":
-	int cexp_is_int "miniexp_numberp"(cexp_t sexp)
-	int cexp_to_int "miniexp_to_int"(cexp_t sexp)
-	cexp_t int_to_cexp "miniexp_number"(int n)
+cdef extern from 'libdjvu/miniexp.h':
+	int cexp_is_int 'miniexp_numberp'(cexp_t sexp)
+	int cexp_to_int 'miniexp_to_int'(cexp_t sexp)
+	cexp_t int_to_cexp 'miniexp_number'(int n)
 	
-	int cexp_is_symbol "miniexp_symbolp"(cexp_t sexp)
-	char* cexp_to_symbol "miniexp_to_name"(cexp_t sexp)
-	cexp_t symbol_to_cexp "miniexp_symbol"(char* name)
+	int cexp_is_symbol 'miniexp_symbolp'(cexp_t sexp)
+	char* cexp_to_symbol 'miniexp_to_name'(cexp_t sexp)
+	cexp_t symbol_to_cexp 'miniexp_symbol'(char* name)
 
-	cexp_t cexp_nil "miniexp_nil"
-	cexp_t cexp_dummy "miniexp_dummy"
-	int cexp_is_list "miniexp_listp"(cexp_t exp)
-	int cexp_is_nonempty_list "miniexp_consp"(cexp_t exp)
-	int cexp_length "miniexp_length"(cexp_t exp)
-	cexp_t cexp_head "miniexp_car"(cexp_t exp)
-	cexp_t cexp_tail "miniexp_cdr"(cexp_t exp)
-	cexp_t cexp_nth "miniexp_nth"(int n, cexp_t exp)
-	cexp_t pair_to_cexp "miniexp_cons"(cexp_t head, cexp_t tail)
-	cexp_t cexp_replace_head "miniexp_rplaca"(cexp_t exp, cexp_t new_head)
-	cexp_t cexp_replace_tail "miniexp_rplacd"(cexp_t exp, cexp_t new_tail)
-	cexp_t cexp_reverse_list "miniexp_reverse"(cexp_t exp)
+	cexp_t cexp_nil 'miniexp_nil'
+	cexp_t cexp_dummy 'miniexp_dummy'
+	int cexp_is_list 'miniexp_listp'(cexp_t exp)
+	int cexp_is_nonempty_list 'miniexp_consp'(cexp_t exp)
+	int cexp_length 'miniexp_length'(cexp_t exp)
+	cexp_t cexp_head 'miniexp_car'(cexp_t exp)
+	cexp_t cexp_tail 'miniexp_cdr'(cexp_t exp)
+	cexp_t cexp_nth 'miniexp_nth'(int n, cexp_t exp)
+	cexp_t pair_to_cexp 'miniexp_cons'(cexp_t head, cexp_t tail)
+	cexp_t cexp_replace_head 'miniexp_rplaca'(cexp_t exp, cexp_t new_head)
+	cexp_t cexp_replace_tail 'miniexp_rplacd'(cexp_t exp, cexp_t new_tail)
+	cexp_t cexp_reverse_list 'miniexp_reverse'(cexp_t exp)
 
-	int cexp_is_str "miniexp_stringp"(cexp_t cexp)
-	char* cexp_to_str "miniexp_to_str"(cexp_t cexp)
-	cexp_t str_to_cexp "miniexp_string"(char* s)
-	cexp_t cexp_substr "miniexp_substring"(char* s, int n)
-	cexp_t cexp_concat "miniexp_concat"(cexp_t cexp_list)
+	int cexp_is_str 'miniexp_stringp'(cexp_t cexp)
+	char* cexp_to_str 'miniexp_to_str'(cexp_t cexp)
+	cexp_t str_to_cexp 'miniexp_string'(char* s)
+	cexp_t cexp_substr 'miniexp_substring'(char* s, int n)
+	cexp_t cexp_concat 'miniexp_concat'(cexp_t cexp_list)
 
-	cexp_t lock_gc "minilisp_acquire_gc_lock"(cexp_t cexp)
-	cexp_t unlock_gc "minilisp_release_gc_lock"(cexp_t cexp)
+	cexp_t lock_gc 'minilisp_acquire_gc_lock'(cexp_t cexp)
+	cexp_t unlock_gc 'minilisp_release_gc_lock'(cexp_t cexp)
 	
-	cdef extern struct cvar_s "minivar_s"
-	ctypedef cvar_s cvar_t "minivar_t"
+	cdef extern struct cvar_s 'minivar_s'
+	ctypedef cvar_s cvar_t 'minivar_t'
 
-	cvar_t* cvar_new "minivar_alloc"()
-	void cvar_free "minivar_free"(cvar_t* v)
-	cexp_t* cvar_ptr "minivar_pointer"(cvar_t* v)
+	cvar_t* cvar_new 'minivar_alloc'()
+	void cvar_free 'minivar_free'(cvar_t* v)
+	cexp_t* cvar_ptr 'minivar_pointer'(cvar_t* v)
 
-	int (*io_puts "minilisp_puts")(char *s)
-	int (*io_getc "minilisp_getc")()
-	int (*io_ungetc "minilisp_ungetc")(int c)
-	cexp_t cexp_read "miniexp_read"()
-	cexp_t cexp_print "miniexp_prin"(cexp_t cexp)
-	cexp_t cexp_printw "miniexp_pprin"(cexp_t cexp, int width)
+	int (*io_puts 'minilisp_puts')(char *s)
+	int (*io_getc 'minilisp_getc')()
+	int (*io_ungetc 'minilisp_ungetc')(int c)
+	cexp_t cexp_read 'miniexp_read'()
+	cexp_t cexp_print 'miniexp_prin'(cexp_t cexp)
+	cexp_t cexp_printw 'miniexp_pprin'(cexp_t cexp, int width)
 
 cdef extern from 'stdio.h':
 	int EOF
