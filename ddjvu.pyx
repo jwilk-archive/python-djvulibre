@@ -320,6 +320,24 @@ cdef class Context:
 		def __get__(self):
 			return ddjvu_cache_get_size(self.ddjvu_context)
 
+	def get_message(self, wait = True):
+		cdef ddjvu_message_t* ddjvu_message
+		if wait:
+			ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
+		else:
+			ddjvu_message = ddjvu_message_peek(self.ddjvu_context)
+			if <void*>ddjvu_message == NULL:
+				return None
+		message = Message_from_c(ddjvu_message)
+		ddjvu_message_pop(self.ddjvu_context)
+		return message
+
+	def __iter__(self):
+		return self
+
+	def __next__(self):
+		return self.get_message()
+
 	def clear_cache(self):
 		ddjvu_cache_clear(self.ddjvu_context)
 
@@ -519,7 +537,7 @@ cdef class DocInfoMessage(Message):
 cdef class PageInfoMessage(Message):
 	pass
 
-cdef class RelayOutMessage(Message):
+cdef class RelayoutMessage(Message):
 	pass
 
 cdef class RedisplayMessage(Message):

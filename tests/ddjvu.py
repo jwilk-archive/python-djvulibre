@@ -26,6 +26,10 @@ class ContextTest:
 	>>> x.cache_size == (1 << 32) - 1
 	True
 	>>> x.clear_cache()
+
+	>>> x.get_message(wait = False) is None
+	True
+
 	>>> del x
 	'''
 
