@@ -129,6 +129,15 @@ class Symbol(str):
 
 	def __repr__(self):
 		return 'Symbol(%s)' % str.__repr__(self)
+	
+	def __eq__(self, other):
+		if not isinstance(other, Symbol):
+			return False
+		else:
+			return str.__eq__(self, other)
+	
+	def __neq__(self, other):
+		return not self.__eq__(other)
 
 class Expression(object):
 	pass
