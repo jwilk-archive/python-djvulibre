@@ -19,7 +19,16 @@ class IntExpressionTest:
 	3
 	>>> long(x)
 	3L
-	
+
+	>>> x == Expression(3)
+	True
+	>>> x == Expression(-3)
+	False
+	>>> hash(x) == x.value
+	True
+	>>> x == 3
+	False
+
 	>>> Expression(42L)
 	Expression(42)
 
@@ -33,6 +42,12 @@ class IntExpressionTest:
 	Traceback (most recent call last):
 	...
 	ValueError
+
+	>>> Expression(1) and 42
+	42
+	>>> Expression(0) or 42
+	42
+
 	'''
 
 class SymbolExpressionTest:
@@ -49,6 +64,15 @@ class SymbolExpressionTest:
 	
 	>>> repr(x) == repr(Expression.from_string(str(x)))
 	True
+
+	>>> x == Expression(Symbol('foobar'))
+	True
+	>>> x == Expression('foobar')
+	False
+	>>> x == Symbol('foobar')
+	False
+	>>> hash(x) == hash('foobar')
+	True
 	'''
 
 class StringExpressionTest:
@@ -64,6 +88,15 @@ class StringExpressionTest:
 	'"foobar"'
 	
 	>>> repr(x) == repr(Expression.from_string(str(x)))
+	True
+	
+	>>> x == Expression('foobar')
+	True
+	>>> x == Expression(Symbol('foobar'))
+	False
+	>>> x == 'foobar'
+	False
+	>>> hash(x) == hash('foobar')
 	True
 	'''
 
@@ -142,6 +175,17 @@ class ListExpressionTest:
 	>>> x[3:] = 7,
 	>>> x
 	Expression((1, 3, 5, 7))
+
+	>>> x == Expression((1, 3, 5, 7))
+	True
+	>>> x == Expression((2, 4, 6))
+	False
+	>>> x == (1, 3, 5, 7)
+	False
+	>>> hash(x)
+	Traceback (most recent call last):
+	...
+	TypeError: unhashable type
 	
 	'''
 

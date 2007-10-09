@@ -181,6 +181,27 @@ Expression.from_string = staticmethod(Expression_from_string)
 Expression.from_stream = staticmethod(Expression_from_stream)
 del Expression__new__, Expression_from_string, Expression_from_stream
 
+cdef object _Expression_richcmp(object left, object right, int op):
+	if not isinstance(left, _Expression):
+		return NotImplemented
+	elif not isinstance(right, _Expression):
+		return NotImplemented
+	elif op == 0:
+		result = left.value <  right.value
+	elif op == 1:
+		result = left.value <= right.value
+	elif op == 2:
+		result = left.value == right.value
+	elif op == 3:
+		result = left.value != right.value
+	elif op == 4:
+		result = left.value >  right.value
+	elif op == 5:
+		result = left.value >= right.value
+	else:
+		raise SystemError
+	return bool(result)
+
 cdef class _Expression:
 	cdef _WrappedCExp wexp
 
@@ -196,6 +217,9 @@ cdef class _Expression:
 	property value:
 		def __get__(self):
 			return self.get_value()
+
+	def __richcmp__(self, other, int op):
+		return _Expression_richcmp(self, other, op)
 
 	def __repr__(self):
 		return 'Expression(%r)' % (self.value,)
@@ -213,6 +237,9 @@ cdef class IntExpression(_Expression):
 		else:
 			raise TypeError
 
+	def __nonzero__(self):
+		return bool(self.value)
+
 	def __int__(self):
 		return self.value
 
@@ -221,6 +248,12 @@ cdef class IntExpression(_Expression):
 
 	def get_value(self):
 		return cexp_to_int(self.wexp.cexp())
+
+	def __richcmp__(self, other, int op):
+		return _Expression_richcmp(self, other, op)
+
+	def __hash__(self):
+		return hash(self.value)
 
 cdef class SymbolExpression(_Expression):
 
@@ -235,6 +268,12 @@ cdef class SymbolExpression(_Expression):
 	def get_value(self):
 		return Symbol(cexp_to_symbol(self.wexp.cexp()))
 
+	def __richcmp__(self, other, int op):
+		return _Expression_richcmp(self, other, op)
+
+	def __hash__(self):
+		return hash(self.value)
+
 cdef class StringExpression(_Expression):
 
 	def __new__(self, value):
@@ -247,6 +286,12 @@ cdef class StringExpression(_Expression):
 
 	def get_value(self):
 		return cexp_to_str(self.wexp.cexp())
+
+	def __richcmp__(self, other, int op):
+		return _Expression_richcmp(self, other, op)
+
+	def __hash__(self):
+		return hash(self.value)
 
 class _InvalidExpression(ValueError):
 	pass
