@@ -329,6 +329,14 @@ cdef class Document:
 		def __get__(self):
 			return ddjvu_document_get_type(self.ddjvu_document)
 
+	property npages:
+		def __get__(self):
+			return ddjvu_document_get_pagenum(self.ddjvu_document)
+
+	property nfiles:
+		def __get__(self):
+			return ddjvu_document_get_filenum(self.ddjvu_document)
+
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:
 			return

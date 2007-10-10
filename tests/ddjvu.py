@@ -58,6 +58,10 @@ class DocumentTest:
 		False
 		>>> document.type == DOCUMENT_TYPE_SINGLE_PAGE
 		True
+		>>> document.npages
+		1
+		>>> document.nfiles
+		1
 		>>> message = context.get_message(wait = False)
 		>>> message is None
 		True
