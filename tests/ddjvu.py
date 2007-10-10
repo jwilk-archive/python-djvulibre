@@ -33,6 +33,9 @@ class ContextTest(unittest.TestCase):
 		self.assertEqual(type(document), Document)
 		message = context.get_message()
 		self.assertEqual(type(message), DocInfoMessage)
+		self.assertEqual(document.is_done, True)
+		self.assertEqual(document.is_error, False)
+		self.assertEqual(document.type, DOCUMENT_TYPE_SINGLE_PAGE)
 		message = context.get_message(wait = False)
 		self.assertEqual(message, None)
 

@@ -297,6 +297,13 @@ class InstantiationError(RuntimeError):
 	pass
 
 
+DOCUMENT_TYPE_UNKNOWN = DDJVU_DOCTYPE_UNKNOWN
+DOCUMENT_TYPE_SINGLE_PAGE = DDJVU_DOCTYPE_SINGLEPAGE
+DOCUMENT_TYPE_BUNDLED = DDJVU_DOCTYPE_BUNDLED
+DOCUMENT_TYPE_INDIRECT = DDJVU_DOCTYPE_INDIRECT
+DOCUMENT_TYPE_OLD_BUNDLED = DDJVU_DOCTYPE_OLD_BUNDLED
+DOCUMENT_TYPE_OLD_INDEXED = DDJVU_DOCTYPE_OLD_INDEXED
+
 cdef class Document:
 
 	cdef ddjvu_document_t* ddjvu_document
@@ -317,6 +324,10 @@ cdef class Document:
 	property is_done:
 		def __get__(self):
 			return ddjvu_document_decoding_done(self.ddjvu_document)
+
+	property type:
+		def __get__(self):
+			return ddjvu_document_get_type(self.ddjvu_document)
 
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:
