@@ -303,8 +303,6 @@ cdef class Document:
 	
 	def __new__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
-			cache = bool(kwargs.get('cache'))
-		elif kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self.ddjvu_document = NULL
 
@@ -377,7 +375,7 @@ cdef class Context:
 		ddjvu_message_pop(self.ddjvu_context)
 		return message
 
-	def new_document(self, uri):
+	def new_document(self, uri, cache = True):
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
 		if isinstance(uri, FileURI):
@@ -525,6 +523,12 @@ cdef class ErrorMessage(Message):
 		def __get__(self):
 			return self._location
 
+	def __str__(self):
+		return self.message
+
+	def __repr__(self):
+		return '<%s.%s: %r at %r>' % (self.__class__.__module__, self.__class__.__name__, self.message, self.location)
+
 cdef class InfoMessage(Message):
 
 	cdef object _message
@@ -635,7 +639,7 @@ cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
 	if ddjvu_message == NULL:
 		return None
 	try:
-		klass = MESSAGE_MAP(ddjvu_message.m_any.tag)
+		klass = MESSAGE_MAP[ddjvu_message.m_any.tag]
 	except KeyError:
 		raise SystemError
 	message = klass(sentinel = the_sentinel)
