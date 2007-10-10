@@ -319,11 +319,11 @@ cdef class Document:
 
 	property is_error:
 		def __get__(self):
-			return ddjvu_document_decoding_error(self.ddjvu_document)
+			return bool(ddjvu_document_decoding_error(self.ddjvu_document))
 	
 	property is_done:
 		def __get__(self):
-			return ddjvu_document_decoding_done(self.ddjvu_document)
+			return bool(ddjvu_document_decoding_done(self.ddjvu_document))
 
 	property type:
 		def __get__(self):
@@ -451,11 +451,11 @@ cdef class Job:
 
 	property is_error:
 		def __get__(self):
-			return ddjvu_job_error(self.ddjvu_job)
+			return bool(ddjvu_job_error(self.ddjvu_job))
 	
 	property is_done:
 		def __get__(self):
-			return ddjvu_job_done(self.ddjvu_job)
+			return bool(ddjvu_job_done(self.ddjvu_job))
 
 	def stop(self):
 		ddjvu_job_stop(self.ddjvu_job)
