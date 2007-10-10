@@ -135,8 +135,6 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 	ctypedef ddjvu_fileinfo_s ddjvu_fileinfo_t
 
 	ddjvu_status_t ddjvu_document_get_fileinfo(ddjvu_document_t* document, int fileno, ddjvu_fileinfo_t* info)
-	ddjvu_status_t ddjvu_document_get_fileinfo_imp(ddjvu_document_t* document, int fileno, ddjvu_fileinfo_t* info, unsigned int infosz)
-	int ddjvu_document_search_pageno(ddjvu_document_t*, char*)
 	int ddjvu_document_check_pagedata(ddjvu_document_t* document, int pageno)
 
 	cdef struct ddjvu_pageinfo_s:
@@ -191,9 +189,6 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 		DDJVU_PAGETYPE_COMPOUND
 
 	ddjvu_page_type_t ddjvu_page_get_type(ddjvu_page_t* page)
-
-	char* ddjvu_page_get_short_description(ddjvu_page_t*)
-	char* ddjvu_page_get_long_description(ddjvu_page_t*)
 
 	cdef enum ddjvu_page_rotation_t:
 		DDJVU_ROTATE_0
