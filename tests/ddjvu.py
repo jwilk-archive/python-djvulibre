@@ -62,6 +62,24 @@ class DocumentTest:
 		1
 		>>> document.nfiles
 		1
+
+		>>> file_info = document.get_file_info(0)
+		>>> type(file_info) == FileInfo
+		True
+		>>> file_info.document is document
+		True
+		>>> file_info.type
+		'P'
+		>>> file_info.npage
+		0
+		>>> file_info.size
+		>>> file_info.id
+		u'ddjvu-g.djvu'
+		>>> file_info.name
+		u'ddjvu-g.djvu'
+		>>> file_info.title
+		u'ddjvu-g.djvu'
+
 		>>> message = context.get_message(wait = False)
 		>>> message is None
 		True

@@ -2,6 +2,7 @@
 
 cdef extern from 'Python.h':
 	int PyString_AsStringAndSize(object, char**, int*) except -1
+	object PyString_FromStringAndSize(char *s, int len)
 
 
 cdef object the_sentinel
@@ -50,6 +51,15 @@ cdef class Document:
 		def __get__(self):
 			return ddjvu_document_get_filenum(self.ddjvu_document)
 
+	def get_file_info(self, int nfile):
+		cdef ddjvu_status_t status
+		cdef FileInfo file_info
+		file_info = FileInfo(self, sentinel = the_sentinel)
+		status = ddjvu_document_get_fileinfo(self.ddjvu_document, nfile, &file_info.ddjvu_fileinfo)
+		if status != <int> DDJVU_JOB_OK:
+			raise JobError(status)
+		return file_info
+
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:
 			return
@@ -63,6 +73,64 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 		result = Document(sentinel = the_sentinel)
 		result.ddjvu_document = ddjvu_document
 	return result
+
+
+cdef class FileInfo:
+
+	def __new__(self, Document document not None, **kwargs):
+		if kwargs.get('sentinel') is not the_sentinel:
+			raise InstantiationError
+		self._document = document
+	
+	property document:
+		def __get__(self):
+			return self._document
+	
+	property type:
+		def __get__(self):
+			return PyString_FromStringAndSize(&self.ddjvu_fileinfo.type, 1)
+	
+	property npage:
+		def __get__(self):
+			if self.ddjvu_fileinfo.pageno < 0:
+				return None
+			else:
+				return self.ddjvu_fileinfo.pageno
+	
+	property size:
+		def __get__(self):
+			if self.ddjvu_fileinfo.size < 0:
+				return None
+			else:
+				return self.ddjvu_fileinfo.size
+	
+	property id:
+		def __get__(self):
+			cdef char* result
+			result = <char*> self.ddjvu_fileinfo.id
+			if result == NULL:
+				return None
+			else:
+				return result.decode('UTF-8')
+
+	property name:
+		def __get__(self):
+			cdef char* result
+			result = <char*> self.ddjvu_fileinfo.name
+			if result == NULL:
+				return None
+			else:
+				return result.decode('UTF-8')
+
+	property title:
+		def __get__(self):
+			cdef char* result
+			result = <char*> self.ddjvu_fileinfo.title
+			if result == NULL:
+				return None
+			else:
+				return result.decode('UTF-8')
+
 
 
 class FileURI(str):
@@ -152,6 +220,11 @@ cdef Page Page_from_c(ddjvu_page_t* ddjvu_page):
 		result.ddjvu_page = ddjvu_page
 	return result
 
+JOB_NOTSTARTED = DDJVU_JOB_NOTSTARTED
+JOB_STARTED = DDJVU_JOB_STARTED
+JOB_OK = DDJVU_JOB_OK
+JOB_FAILED = DDJVU_JOB_FAILED
+JOB_STOPPED = DDJVU_JOB_STOPPED
 
 cdef class Job:
 

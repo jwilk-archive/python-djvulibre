@@ -40,12 +40,13 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 
 	void ddjvu_message_set_callback(ddjvu_context_t* context, ddjvu_message_callback_t callback, void* closure)
 
-	cdef enum ddjvu_status_t:
+	cdef enum ddjvu_status_e:
 		DDJVU_JOB_NOTSTARTED
 		DDJVU_JOB_STARTED
 		DDJVU_JOB_OK
 		DDJVU_JOB_FAILED
 		DDJVU_JOB_STOPPED
+	ctypedef ddjvu_status_e ddjvu_status_t
 
 	ddjvu_status_t ddjvu_job_status(ddjvu_job_t* job)
 	int ddjvu_job_done(ddjvu_job_t* job)
@@ -283,7 +284,11 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 
 cdef class Document:
 	cdef ddjvu_document_t* ddjvu_document
-	
+
+cdef class FileInfo:
+	cdef ddjvu_fileinfo_t ddjvu_fileinfo
+	cdef Document _document
+
 cdef class Context:
 	cdef ddjvu_context_t* ddjvu_context
 
