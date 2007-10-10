@@ -19,33 +19,49 @@ class ContextTest(unittest.TestCase):
 			self.assertEqual(context.cache_size, n)
 		context.clear_cache()
 
-	def test_new_nonexistent_document(self):
-		context = Context()
-		document = context.new_document(FileURI('__nonexistent__'))
-		self.assertEqual(document, None)
-		message = context.get_message()
-		self.assertEqual(type(message), ErrorMessage)
-		self.assertEqual(message.message, "[1-11711] Failed to open '__nonexistent__': No such file or directory.")
-	
-	def test_new_document(self):
-		context = Context()
-		document = context.new_document(FileURI('ddjvu-g.djvu'))
-		self.assertEqual(type(document), Document)
-		message = context.get_message()
-		self.assertEqual(type(message), DocInfoMessage)
-		self.assertEqual(document.is_done, True)
-		self.assertEqual(document.is_error, False)
-		self.assertEqual(document.type, DOCUMENT_TYPE_SINGLE_PAGE)
-		message = context.get_message(wait = False)
-		self.assertEqual(message, None)
 
 class DocumentTest:
-	'''
-	>>> Document()
-	Traceback (most recent call last):
-	...
-	InstantiationError
-	'''
+
+	def test_instantiate(self):
+		'''
+		>>> Document()
+		Traceback (most recent call last):
+		...
+		InstantiationError
+		'''
+	
+	def test_nonexistent(self):
+		'''
+		>>> context = Context()
+		>>> document = context.new_document(FileURI('__nonexistent__'))
+		>>> document is None
+		True
+		>>> message = context.get_message()
+		>>> type(message) == ErrorMessage
+		True
+		>>> message.message
+		"[1-11711] Failed to open '__nonexistent__': No such file or directory."
+		'''
+	
+	def test_new_document(self):
+		'''
+		>>> context = Context()
+		>>> document = context.new_document(FileURI('ddjvu-g.djvu'))
+		>>> type(document) == Document
+		True
+		>>> message = context.get_message()
+		>>> type(message) == DocInfoMessage
+		True
+		>>> document.is_done
+		True
+		>>> document.is_error
+		False
+		>>> document.type == DOCUMENT_TYPE_SINGLE_PAGE
+		True
+		>>> message = context.get_message(wait = False)
+		>>> message is None
+		True
+		'''
 
 class PageTest:
 	'''
