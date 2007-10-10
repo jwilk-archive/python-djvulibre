@@ -321,14 +321,14 @@ cdef class Document:
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:
 			return
-		ddjvu_document_release(self.ddjvu_document)
+		# FIXME ddjvu_document_release(self.ddjvu_document)
 
 cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	cdef Document result
 	if ddjvu_document == NULL:
 		result = None
 	else:
-		result = Document(the_sentinel)
+		result = Document(sentinel = the_sentinel)
 		result.ddjvu_document = ddjvu_document
 	return result
 
@@ -401,7 +401,7 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 	if ddjvu_context == NULL:
 		result = None
 	else:
-		result = Context(the_sentinel)
+		result = Context(sentinel = the_sentinel)
 		result.ddjvu_context = ddjvu_context
 	return result
 
@@ -420,7 +420,7 @@ cdef Page Page_from_c(ddjvu_page_t* ddjvu_page):
 	if ddjvu_page == NULL:
 		result = None
 	else:
-		result = Page(the_sentinel)
+		result = Page(sentinel = the_sentinel)
 		result.ddjvu_page = ddjvu_page
 	return result
 
@@ -452,14 +452,14 @@ cdef class Job:
 	def __dealloc__(self):
 		if self.ddjvu_job == NULL:
 			return
-		ddjvu_job_release(self.ddjvu_job)
+		# XXX ddjvu_job_release(self.ddjvu_job)
 
 cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	cdef Job result
 	if ddjvu_job == NULL:
 		result = None
 	else:
-		result = Job(the_sentinel)
+		result = Job(sentinel = the_sentinel)
 		result.ddjvu_job = ddjvu_job
 	return result
 
