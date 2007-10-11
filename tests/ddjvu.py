@@ -4,8 +4,6 @@ import doctest
 
 class ContextTest(unittest.TestCase):
 
-	THE_CONTEXT = Context()
-
 	def test_cache(self):
 
 		def set_cache_size(n):
