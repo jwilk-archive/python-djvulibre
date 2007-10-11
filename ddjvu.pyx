@@ -23,12 +23,122 @@ DOCUMENT_TYPE_INDIRECT = DDJVU_DOCTYPE_INDIRECT
 DOCUMENT_TYPE_OLD_BUNDLED = DDJVU_DOCTYPE_OLD_BUNDLED
 DOCUMENT_TYPE_OLD_INDEXED = DDJVU_DOCTYPE_OLD_INDEXED
 
+cdef class DocumentExtension:
+
+	property document:
+		def __get__(self):
+			return self._document_weakref()
+	
+cdef class DocumentPages(DocumentExtension):
+
+	def __new__(self, Document document not None, object sentinel):
+		if sentinel is not the_sentinel:
+			raise InstantiationError
+		import weakref
+		self._document_weakref = weakref.ref(document)
+	
+	def __len__(self):
+		return ddjvu_document_get_pagenum((<Document>self.document).ddjvu_document)
+
+	def __getitem__(self, int key):
+		if key < 0:
+			raise ValueError
+		return DocumentPage(self.document, key, the_sentinel)
+
+cdef class DocumentPage:
+
+	def __new__(self, Document document not None, int n, object sentinel):
+		if sentinel is not the_sentinel:
+			raise InstantiationError
+		self._document = document
+		self._n = n
+	
+	property document:
+		def __get__(self):
+			return self._document
+	
+	property info:
+		def __get__(self):
+			cdef ddjvu_status_t status
+			cdef PageInfo page_info
+			page_info = PageInfo(self._document, sentinel = the_sentinel)
+			status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
+			try:
+				raise JobException_from_c(status)
+			except JobOK:
+				return page_info
+
+	property dump:
+		def __get__(self):
+			cdef char* s
+			s = ddjvu_document_get_pagedump(self._document.ddjvu_document, self._n)
+			if s == NULL:
+				return None
+				# FIXME?
+			else:
+				result = s.decode('UTF-8')
+				libc_free(s)
+
+cdef class DocumentFiles(DocumentExtension):
+
+	def __new__(self, Document document not None, object sentinel):
+		if sentinel is not the_sentinel:
+			raise InstantiationError
+		import weakref
+		self._document_weakref = weakref.ref(document)
+	
+	def __len__(self):
+		return ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
+
+	def __getitem__(self, key):
+		return DocumentFile(self.document, key, the_sentinel)
+
+cdef class DocumentFile:
+
+	def __new__(self, Document document not None, int n, object sentinel):
+		if sentinel is not the_sentinel:
+			raise InstantiationError
+		self._document = document
+		self._n = n
+	
+	property document:
+		def __get__(self):
+			return self._document
+
+	property n:
+		def __get__(self):
+			return n
+
+	property info:
+		def __get__(self):
+			cdef ddjvu_status_t status
+			cdef FileInfo file_info
+			file_info = FileInfo(self._document, sentinel = the_sentinel)
+			status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
+			try:
+				raise JobException_from_c(status)
+			except JobOK:
+				return file_info
+
+	property dump:
+		def __get__(self):
+			cdef char* s
+			s = ddjvu_document_get_filedump(self._document.ddjvu_document, self._n)
+			if s == NULL:
+				return None
+				# FIXME?
+			else:
+				result = s.decode('UTF-8')
+				libc_free(s)
+
 cdef class Document:
 
 	def __new__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self.ddjvu_document = NULL
+		self._pages = DocumentPages(self, sentinel = the_sentinel)
+		self._files = DocumentFiles(self, sentinel = the_sentinel)
 
 	property status:
 		def __get__(self):
@@ -46,53 +156,13 @@ cdef class Document:
 		def __get__(self):
 			return ddjvu_document_get_type(self.ddjvu_document)
 
-	property npages:
+	property pages:
 		def __get__(self):
-			return ddjvu_document_get_pagenum(self.ddjvu_document)
-
-	property nfiles:
+			return self._pages
+	
+	property files:
 		def __get__(self):
-			return ddjvu_document_get_filenum(self.ddjvu_document)
-
-	def get_file_info(self, int nfile):
-		cdef ddjvu_status_t status
-		cdef FileInfo file_info
-		file_info = FileInfo(self, sentinel = the_sentinel)
-		status = ddjvu_document_get_fileinfo(self.ddjvu_document, nfile, &file_info.ddjvu_fileinfo)
-		try:
-			raise JobException_from_c(status)
-		except JobOK:
-			return file_info
-
-	def get_file_dump(self, int npage):
-		cdef char* s
-		s = ddjvu_document_get_filedump(self.ddjvu_document, npage)
-		if s == NULL:
-			return None
-			# FIXME?
-		else:
-			result = s.decode('UTF-8')
-			libc_free(s)
-
-	def get_page_info(self, int npage):
-		cdef ddjvu_status_t status
-		cdef PageInfo page_info
-		page_info = PageInfo(self, sentinel = the_sentinel)
-		status = ddjvu_document_get_pageinfo(self.ddjvu_document, npage, &page_info.ddjvu_pageinfo)
-		try:
-			raise JobException_from_c(status)
-		except JobOK:
-			return page_info
-
-	def get_page_dump(self, int npage):
-		cdef char* s
-		s = ddjvu_document_get_pagedump(self.ddjvu_document, npage)
-		if s == NULL:
-			return None
-			# FIXME?
-		else:
-			result = s.decode('UTF-8')
-			libc_free(s)
+			return self._files
 
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:

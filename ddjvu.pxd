@@ -282,8 +282,29 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 		ddjvu_message_progress_s m_progress
 
 
+
+cdef class DocumentExtension:
+	cdef object _document_weakref
+
+cdef class DocumentPages(DocumentExtension):
+	pass
+
+cdef class DocumentFiles(DocumentExtension):
+	pass
+
 cdef class Document:
 	cdef ddjvu_document_t* ddjvu_document
+	cdef DocumentPages _pages
+	cdef DocumentFiles _files
+	cdef object __weakref__
+
+cdef class DocumentFile:
+	cdef int _n
+	cdef Document _document
+
+cdef class DocumentPage:
+	cdef int _n
+	cdef Document _document
 
 cdef class FileInfo:
 	cdef ddjvu_fileinfo_t ddjvu_fileinfo

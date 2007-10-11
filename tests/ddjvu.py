@@ -60,12 +60,12 @@ class DocumentTest:
 		True
 		>>> document.type == DOCUMENT_TYPE_SINGLE_PAGE
 		True
-		>>> document.npages
+		>>> len(document.pages)
 		1
-		>>> document.nfiles
+		>>> len(document.files)
 		1
 
-		>>> file_info = document.get_file_info(0)
+		>>> file_info = document.files[0].info
 		>>> type(file_info) == FileInfo
 		True
 		>>> file_info.document is document
@@ -82,10 +82,10 @@ class DocumentTest:
 		>>> file_info.title
 		u'ddjvu-g.djvu'
 
-		>>> document.get_file_dump(0) is None
+		>>> document.files[0].dump is None
 		True
 
-		>>> page_info = document.get_page_info(0)
+		>>> page_info = document.pages[0].info
 		>>> type(page_info) == PageInfo
 		True
 		>>> page_info.document is document
@@ -101,17 +101,17 @@ class DocumentTest:
 		>>> page_info.version
 		24
 		
-		>>> document.get_page_dump(0) is None
+		>>> document.pages[0].dump is None
 		True
 
 		>>> context.get_message(wait = False) is None
 		True
 		
-		>>> document.get_file_info(1)
+		>>> document.files[-1].info
 		Traceback (most recent call last):
 		...
 		JobFailed
-		>>> message = context.get_message()
+		>>> message = context.get_message(wait = False)
 		>>> type(message) == ErrorMessage
 		True
 		>>> message.message
@@ -119,7 +119,11 @@ class DocumentTest:
 		>>> context.get_message(wait = False) is None
 		True
 		
-		>>> document.get_page_info(1)
+		>>> document.pages[-1].info
+		Traceback (most recent call last):
+		...
+		ValueError
+		>>> document.pages[1].info
 		Traceback (most recent call last):
 		...
 		JobFailed
