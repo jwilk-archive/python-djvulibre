@@ -4,6 +4,9 @@ cdef extern from 'Python.h':
 	int PyString_AsStringAndSize(object, char**, int*) except -1
 	object PyString_FromStringAndSize(char *s, int len)
 
+cdef extern from 'stdlib.h':
+	void libc_free 'free'(void* ptr)
+
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -61,6 +64,16 @@ cdef class Document:
 		except JobOK:
 			return file_info
 
+	def get_file_dump(self, int npage):
+		cdef char* s
+		s = ddjvu_document_get_filedump(self.ddjvu_document, npage)
+		if s == NULL:
+			return None
+			# FIXME?
+		else:
+			result = s.decode('UTF-8')
+			libc_free(s)
+
 	def get_page_info(self, int npage):
 		cdef ddjvu_status_t status
 		cdef PageInfo page_info
@@ -70,6 +83,16 @@ cdef class Document:
 			raise JobException_from_c(status)
 		except JobOK:
 			return page_info
+
+	def get_page_dump(self, int npage):
+		cdef char* s
+		s = ddjvu_document_get_pagedump(self.ddjvu_document, npage)
+		if s == NULL:
+			return None
+			# FIXME?
+		else:
+			result = s.decode('UTF-8')
+			libc_free(s)
 
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:

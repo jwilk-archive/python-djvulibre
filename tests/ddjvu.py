@@ -80,6 +80,9 @@ class DocumentTest:
 		>>> file_info.title
 		u'ddjvu-g.djvu'
 
+		>>> document.get_file_dump(0) is None
+		True
+
 		>>> page_info = document.get_page_info(0)
 		>>> type(page_info) == PageInfo
 		True
@@ -95,6 +98,9 @@ class DocumentTest:
 		0
 		>>> page_info.version
 		24
+		
+		>>> document.get_page_dump(0) is None
+		True
 
 		>>> context.get_message(wait = False) is None
 		True
