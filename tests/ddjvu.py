@@ -4,6 +4,8 @@ import doctest
 
 class ContextTest(unittest.TestCase):
 
+	THE_CONTEXT = Context()
+
 	def test_cache(self):
 
 		def set_cache_size(n):
@@ -79,6 +81,22 @@ class DocumentTest:
 		u'ddjvu-g.djvu'
 		>>> file_info.title
 		u'ddjvu-g.djvu'
+
+		>>> page_info = document.get_page_info(0)
+		>>> type(page_info) == PageInfo
+		True
+		>>> page_info.document is document
+		True
+		>>> page_info.width
+		64
+		>>> page_info.height
+		48
+		>>> page_info.dpi
+		300
+		>>> page_info.rotation
+		0
+		>>> page_info.version
+		24
 
 		>>> message = context.get_message(wait = False)
 		>>> message is None

@@ -60,6 +60,15 @@ cdef class Document:
 			raise JobError(status)
 		return file_info
 
+	def get_page_info(self, int npage):
+		cdef ddjvu_status_t status
+		cdef PageInfo page_info
+		page_info = PageInfo(self, sentinel = the_sentinel)
+		status = ddjvu_document_get_pageinfo(self.ddjvu_document, npage, &page_info.ddjvu_pageinfo)
+		if status != <int> DDJVU_JOB_OK:
+			raise JobError(status)
+		return page_info
+
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:
 			return
@@ -73,6 +82,38 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 		result = Document(sentinel = the_sentinel)
 		result.ddjvu_document = ddjvu_document
 	return result
+
+
+cdef class PageInfo:
+
+	def __new__(self, Document document not None, **kwargs):
+		if kwargs.get('sentinel') is not the_sentinel:
+			raise InstantiationError
+		self._document = document
+	
+	property document:
+		def __get__(self):
+			return self._document
+	
+	property width:
+		def __get__(self):
+			return self.ddjvu_pageinfo.width
+	
+	property height:
+		def __get__(self):
+			return self.ddjvu_pageinfo.height
+	
+	property dpi:
+		def __get__(self):
+			return self.ddjvu_pageinfo.dpi
+	
+	property rotation:
+		def __get__(self):
+			return self.ddjvu_pageinfo.rotation * 90
+
+	property version:
+		def __get__(self):
+			return self.ddjvu_pageinfo.version
 
 
 cdef class FileInfo:

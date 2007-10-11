@@ -289,6 +289,10 @@ cdef class FileInfo:
 	cdef ddjvu_fileinfo_t ddjvu_fileinfo
 	cdef Document _document
 
+cdef class PageInfo:
+	cdef ddjvu_pageinfo_t ddjvu_pageinfo
+	cdef Document _document
+
 cdef class Context:
 	cdef ddjvu_context_t* ddjvu_context
 
