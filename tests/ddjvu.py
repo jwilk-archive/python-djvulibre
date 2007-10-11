@@ -96,8 +96,31 @@ class DocumentTest:
 		>>> page_info.version
 		24
 
-		>>> message = context.get_message(wait = False)
-		>>> message is None
+		>>> context.get_message(wait = False) is None
+		True
+		
+		>>> document.get_file_info(1)
+		Traceback (most recent call last):
+		...
+		JobError: 3
+		>>> message = context.get_message()
+		>>> type(message) == ErrorMessage
+		True
+		>>> message.message
+		'Illegal file number'
+		>>> context.get_message(wait = False) is None
+		True
+		
+		>>> document.get_page_info(1)
+		Traceback (most recent call last):
+		...
+		JobError: 3
+		>>> message = context.get_message()
+		>>> message.message
+		'[1-13001] Page number is too big.'
+		>>> type(message) == ErrorMessage
+		True
+		>>> context.get_message(wait = False) is None
 		True
 		'''
 
