@@ -476,4 +476,7 @@ cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
 	message.__init()
 	return message
 
+class JobError(Exception):
+	pass
+
 # vim:ts=4 sw=4 noet
