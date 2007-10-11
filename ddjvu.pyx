@@ -335,12 +335,15 @@ cdef class Stream:
 			raise InstantiationError
 		self._streamid = streamid
 		self._document = document
+		self._open = 1
 
 	def close(self):
 		ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 0)
+		self._open = 0
 	
 	def abort(self):
 		ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 1)
+		self._open = 0
 	
 	def flush(self):
 		pass
@@ -351,13 +354,17 @@ cdef class Stream:
 	def write(self, data):
 		cdef char* raw_data
 		cdef int length
-		PyString_AsStringAndSize(data, &raw_data, &length)
-		ddjvu_stream_write(self._document.ddjvu_document, self._streamid, raw_data, length)
+		if self._open:
+			PyString_AsStringAndSize(data, &raw_data, &length)
+			ddjvu_stream_write(self._document.ddjvu_document, self._streamid, raw_data, length)
+		else:
+			raise IOError('I/O operation on closed file')
 
 	def __dealloc__(self):
 		if <object>self._document is None:
 			return
-		ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 1)
+		if self._open:
+			ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 1)
 
 cdef class NewStreamMessage(Message):
 

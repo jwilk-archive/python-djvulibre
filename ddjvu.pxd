@@ -314,6 +314,7 @@ cdef class InfoMessage(Message):
 
 cdef class Stream:
 	cdef int _streamid
+	cdef int _open
 	cdef Document _document
 
 cdef class NewStreamMessage(Message):
