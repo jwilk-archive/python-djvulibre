@@ -115,6 +115,31 @@ class StreamTest:
 	Traceback (most recent call last):
 	...
 	TypeError: Argument 'document' has incorrect type (expected ddjvu.Document, got NoneType)
+	
+	>>> context = Context()
+	>>> document = context.new_document('dummy://dummy.djvu')
+	>>> message = context.get_message()
+	>>> type(message) == NewStreamMessage
+	True
+	>>> message.name
+	'dummy.djvu'
+	>>> message.uri
+	'dummy://dummy.djvu'
+	>>> type(message.stream) == Stream
+	True
+	
+	>>> try:
+	...   message.stream.write(file('ddjvu-g.djvu').read())
+	... finally:
+	...   message.stream.close()
+	>>> message.stream.write('foo')
+	Traceback (most recent call last):
+	...
+	IOError: I/O operation on closed file
+	
+	>>> message = context.get_message()
+	>>> type(message) == DocInfoMessage
+	True
 	'''
 
 if __name__ == '__main__':
