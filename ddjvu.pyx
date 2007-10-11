@@ -32,7 +32,7 @@ cdef class Document:
 
 	property status:
 		def __get__(self):
-			return ddjvu_document_decoding_status(self.ddjvu_document)
+			return JobException_from_c(ddjvu_document_decoding_status(self.ddjvu_document))
 
 	property is_error:
 		def __get__(self):
@@ -285,11 +285,6 @@ cdef Page Page_from_c(ddjvu_page_t* ddjvu_page):
 		result.ddjvu_page = ddjvu_page
 	return result
 
-JOB_NOTSTARTED = DDJVU_JOB_NOTSTARTED
-JOB_STARTED = DDJVU_JOB_STARTED
-JOB_OK = DDJVU_JOB_OK
-JOB_FAILED = DDJVU_JOB_FAILED
-JOB_STOPPED = DDJVU_JOB_STOPPED
 
 cdef class Job:
 
@@ -300,7 +295,7 @@ cdef class Job:
 
 	property status:
 		def __get__(self):
-			return ddjvu_job_status(self.ddjvu_job)
+			return JobException_from_c(ddjvu_job_status(self.ddjvu_job))
 
 	property is_error:
 		def __get__(self):

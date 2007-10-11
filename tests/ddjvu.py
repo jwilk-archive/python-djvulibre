@@ -56,6 +56,8 @@ class DocumentTest:
 		True
 		>>> document.is_error
 		False
+		>>> document.status == JobOK
+		True
 		>>> document.type == DOCUMENT_TYPE_SINGLE_PAGE
 		True
 		>>> document.npages
