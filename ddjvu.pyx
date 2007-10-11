@@ -56,18 +56,20 @@ cdef class Document:
 		cdef FileInfo file_info
 		file_info = FileInfo(self, sentinel = the_sentinel)
 		status = ddjvu_document_get_fileinfo(self.ddjvu_document, nfile, &file_info.ddjvu_fileinfo)
-		if status != <int> DDJVU_JOB_OK:
-			raise JobError(status)
-		return file_info
+		try:
+			raise JobException_from_c(status)
+		except JobOK:
+			return file_info
 
 	def get_page_info(self, int npage):
 		cdef ddjvu_status_t status
 		cdef PageInfo page_info
 		page_info = PageInfo(self, sentinel = the_sentinel)
 		status = ddjvu_document_get_pageinfo(self.ddjvu_document, npage, &page_info.ddjvu_pageinfo)
-		if status != <int> DDJVU_JOB_OK:
-			raise JobError(status)
-		return page_info
+		try:
+			raise JobException_from_c(status)
+		except JobOK:
+			return page_info
 
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:
@@ -476,7 +478,42 @@ cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
 	message.__init()
 	return message
 
-class JobError(Exception):
+cdef object JOB_EXCEPTION_MAP
+
+cdef JobException_from_c(ddjvu_status_t code):
+	try:
+		return JOB_EXCEPTION_MAP[code]
+	except KeyError:
+		raise SystemError
+
+class JobException(Exception):
 	pass
+
+class JobNotStarted(JobException):
+	pass
+
+class JobStarted(JobException):
+	pass
+
+class JobDone(JobException):
+	pass
+
+class JobOK(JobDone):
+	pass
+
+class JobFailed(JobDone):
+	pass
+
+class JobStopped(JobFailed):
+	pass
+
+JOB_EXCEPTION_MAP = \
+{
+	DDJVU_JOB_NOTSTARTED: JobNotStarted,
+	DDJVU_JOB_STARTED: JobStarted,
+	DDJVU_JOB_OK: JobOK,
+	DDJVU_JOB_FAILED: JobFailed,
+	DDJVU_JOB_STOPPED: JobStopped
+}
 
 # vim:ts=4 sw=4 noet

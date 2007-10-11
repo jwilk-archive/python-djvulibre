@@ -102,7 +102,7 @@ class DocumentTest:
 		>>> document.get_file_info(1)
 		Traceback (most recent call last):
 		...
-		JobError: 3
+		JobFailed
 		>>> message = context.get_message()
 		>>> type(message) == ErrorMessage
 		True
@@ -114,7 +114,7 @@ class DocumentTest:
 		>>> document.get_page_info(1)
 		Traceback (most recent call last):
 		...
-		JobError: 3
+		JobFailed
 		>>> message = context.get_message()
 		>>> message.message
 		'[1-13001] Page number is too big.'
