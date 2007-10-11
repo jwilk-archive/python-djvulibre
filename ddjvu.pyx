@@ -198,7 +198,6 @@ cdef class FileInfo:
 				return result.decode('UTF-8')
 
 
-
 class FileURI(str):
 	pass
 
