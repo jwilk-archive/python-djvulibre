@@ -13,6 +13,7 @@ test-ddjvu: all
 
 .PHONY: clean
 clean:
-	$(RM) -f *.c *.o *.so
+	$(RM) *.c *.o *.so
+	$(RM) -R build/
 
 # vim:ts=4 sw=4 noet
