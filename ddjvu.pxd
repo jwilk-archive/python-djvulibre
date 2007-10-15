@@ -303,8 +303,13 @@ cdef class File:
 	cdef Document _document
 
 cdef class Page:
-	cdef int _n
 	cdef Document _document
+
+cdef class PageNth(Page):
+	cdef int _n
+
+cdef class PageById(Page):
+	cdef object _id
 
 cdef class FileInfo:
 	cdef ddjvu_fileinfo_t ddjvu_fileinfo

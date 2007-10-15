@@ -2,6 +2,7 @@
 
 cdef extern from 'Python.h':
 	int PyString_AsStringAndSize(object, char**, int*) except -1
+	char* PyString_AsString(object) except NULL
 	object PyString_FromStringAndSize(char *s, int len)
 
 cdef extern from 'stdlib.h':
@@ -40,23 +41,57 @@ cdef class DocumentPages(DocumentExtension):
 	def __len__(self):
 		return ddjvu_document_get_pagenum((<Document>self.document).ddjvu_document)
 
-	def __getitem__(self, int key):
-		if key < 0:
-			raise ValueError
-		return Page(self.document, key, the_sentinel)
+	def __getitem__(self, key):
+		if isinstance(key, (int, long)):
+			if key < 0:
+				raise ValueError
+			return PageNth(self.document, key, the_sentinel)
+		elif isinstance(key, unicode):
+			return PageById(self.document, key, the_sentinel)
+		else:
+			raise TypeError
 
 cdef class Page:
+
+#	def __new__(self):
+#		pass
+#	FIXME
+
+	property document:
+		def __get__(self):
+			return self._document
+	
+	property n:
+		def __get__(self):
+			raise NotImplementedError
+
+	property id:
+		def __get__(self):
+			raise NotImplementedError
+
+	property info:
+		def __get__(self):
+			raise NotImplementedError
+	
+	property dump:
+		def __get__(self):
+			raise NotImplementedError
+
+	def decode(self):
+		raise NotImplementedError
+
+cdef class PageNth(Page):
 
 	def __new__(self, Document document not None, int n, object sentinel):
 		if sentinel is not the_sentinel:
 			raise InstantiationError
 		self._document = document
 		self._n = n
-	
-	property document:
+
+	property n:
 		def __get__(self):
-			return self._document
-	
+			return self._n
+
 	property info:
 		def __get__(self):
 			cdef ddjvu_status_t status
@@ -78,6 +113,27 @@ cdef class Page:
 			else:
 				result = s.decode('UTF-8')
 				libc_free(s)
+
+	def decode(self):
+		return PageJob_from_c(ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n))
+
+cdef class PageById(Page):
+	
+	def __new__(self, Document document not None, object id, object sentinel):
+		if sentinel is not the_sentinel:
+			raise InstantiationError
+		self._document = document
+		self._id = id
+
+	property id:
+		def __get__(self):
+			return self._id
+	
+	def decode(self):
+		return PageJob_from_c(ddjvu_page_create_by_pageid(
+			self._document.ddjvu_document,
+			PyString_AsString(self._id.decode('UTF-8'))
+		))
 
 cdef class DocumentFiles(DocumentExtension):
 
