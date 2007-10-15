@@ -43,9 +43,9 @@ cdef class DocumentPages(DocumentExtension):
 	def __getitem__(self, int key):
 		if key < 0:
 			raise ValueError
-		return DocumentPage(self.document, key, the_sentinel)
+		return Page(self.document, key, the_sentinel)
 
-cdef class DocumentPage:
+cdef class Page:
 
 	def __new__(self, Document document not None, int n, object sentinel):
 		if sentinel is not the_sentinel:
@@ -91,9 +91,9 @@ cdef class DocumentFiles(DocumentExtension):
 		return ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
 
 	def __getitem__(self, key):
-		return DocumentFile(self.document, key, the_sentinel)
+		return File(self.document, key, the_sentinel)
 
-cdef class DocumentFile:
+cdef class File:
 
 	def __new__(self, Document document not None, int n, object sentinel):
 		if sentinel is not the_sentinel:
@@ -339,19 +339,19 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 	return result
 
 
-cdef class Page:
+cdef class PageJob:
 	
 	def __new__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self.ddjvu_page = NULL
 
-cdef Page Page_from_c(ddjvu_page_t* ddjvu_page):
-	cdef Page result
+cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
+	cdef PageJob result
 	if ddjvu_page == NULL:
 		result = None
 	else:
-		result = Page(sentinel = the_sentinel)
+		result = PageJob(sentinel = the_sentinel)
 		result.ddjvu_page = ddjvu_page
 	return result
 
@@ -405,7 +405,7 @@ cdef class Message:
 			raise SystemError
 		self._context = Context_from_c(self.ddjvu_message.m_any.context)
 		self._document = Document_from_c(self.ddjvu_message.m_any.document)
-		self._page = Page_from_c(self.ddjvu_message.m_any.page)
+		self._page_job = PageJob_from_c(self.ddjvu_message.m_any.page)
 		self._job = Job_from_c(self.ddjvu_message.m_any.job)
 	
 	property context:
@@ -416,9 +416,9 @@ cdef class Message:
 		def __get__(self):
 			return self._document
 
-	property page:
+	property page_job:
 		def __get__(self):
-			return self._page
+			return self._page_job
 
 	property job:
 		def __get__(self):

@@ -136,9 +136,9 @@ class DocumentTest:
 		True
 		'''
 
-class PageTest:
+class PageJobTest:
 	'''
-	>>> Page()
+	>>> PageJob()
 	Traceback (most recent call last):
 	...
 	InstantiationError

@@ -298,11 +298,11 @@ cdef class Document:
 	cdef DocumentFiles _files
 	cdef object __weakref__
 
-cdef class DocumentFile:
+cdef class File:
 	cdef int _n
 	cdef Document _document
 
-cdef class DocumentPage:
+cdef class Page:
 	cdef int _n
 	cdef Document _document
 
@@ -317,7 +317,7 @@ cdef class PageInfo:
 cdef class Context:
 	cdef ddjvu_context_t* ddjvu_context
 
-cdef class Page:
+cdef class PageJob:
 	cdef ddjvu_page_t* ddjvu_page
 
 cdef class Job:
@@ -327,7 +327,7 @@ cdef class Message:
 	cdef ddjvu_message_t* ddjvu_message
 	cdef Context _context
 	cdef Document _document
-	cdef Page _page
+	cdef PageJob _page_job
 	cdef Job _job
 
 cdef class ErrorMessage(Message):
