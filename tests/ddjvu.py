@@ -156,12 +156,59 @@ class DocumentTest:
 		'''
 
 class PageJobTest:
-	'''
-	>>> PageJob()
-	Traceback (most recent call last):
-	...
-	InstantiationError
-	'''
+
+	def test_instantiation():
+		'''
+		>>> PageJob()
+		Traceback (most recent call last):
+		...
+		InstantiationError
+		'''
+	
+	def test_decode():
+		'''
+		>>> context = Context()
+		>>> document = context.new_document(FileURI('ddjvu-g.djvu'))
+		>>> message = context.get_message()
+		>>> type(message) == DocInfoMessage
+		True
+		>>> page_job = document.pages[0].decode()
+		>>> message = context.get_message()
+		>>> type(message) == ChunkMessage
+		True
+		>>> type(page_job) == PageJob
+		True
+		>>> page_job.is_done
+		True
+		>>> page_job.is_error
+		False
+		>>> page_job.status == JobOK
+		True
+		>>> page_job.width
+		64
+		>>> page_job.height
+		48
+		>>> page_job.resolution
+		300
+		>>> page_job.gamma
+		2.2000000000000002
+		>>> page_job.version
+		24
+		>>> page_job.type == PAGE_TYPE_BITONAL
+		True
+		>>> (page_job.rotation, page_job.initial_rotation)
+		(0, 0)
+		>>> page_job.rotation = 100
+		Traceback (most recent call last):
+		...
+		ValueError
+		>>> page_job.rotation = 180
+		>>> (page_job.rotation, page_job.initial_rotation)
+		(180, 0)
+		>>> del page_job.rotation
+		>>> (page_job.rotation, page_job.initial_rotation)
+		(0, 0)
+		'''
 
 class JobTest:
 	'''

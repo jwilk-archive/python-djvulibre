@@ -180,19 +180,21 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 	int ddjvu_page_get_version(ddjvu_page_t* page)
 	int ddjvu_code_get_version()
 
-	cdef enum ddjvu_page_type_t:
+	cdef enum ddjvu_page_type_s:
 		DDJVU_PAGETYPE_UNKNOWN
 		DDJVU_PAGETYPE_BITONAL
 		DDJVU_PAGETYPE_PHOTO
 		DDJVU_PAGETYPE_COMPOUND
+	ctypedef ddjvu_page_type_s ddjvu_page_type_t
 
 	ddjvu_page_type_t ddjvu_page_get_type(ddjvu_page_t* page)
 
-	cdef enum ddjvu_page_rotation_t:
+	cdef enum ddjvu_page_rotation_s:
 		DDJVU_ROTATE_0
 		DDJVU_ROTATE_90
 		DDJVU_ROTATE_180
 		DDJVU_ROTATE_270
+	ctypedef ddjvu_page_rotation_s ddjvu_page_rotation_t
 
 	void ddjvu_page_set_rotation(ddjvu_page_t* page, ddjvu_page_rotation_t rot)
 	ddjvu_page_rotation_t ddjvu_page_get_rotation(ddjvu_page_t* page)

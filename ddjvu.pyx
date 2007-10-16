@@ -13,6 +13,8 @@ cdef object the_sentinel
 the_sentinel = object()
 
 
+VERSION = ddjvu_code_get_version()
+
 class InstantiationError(RuntimeError):
 	pass
 
@@ -395,12 +397,120 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 	return result
 
 
+RENDER_COLOR = DDJVU_RENDER_COLOR
+RENDER_BLACK = DDJVU_RENDER_BLACK
+RENDER_COLOR_ONLY = DDJVU_RENDER_COLORONLY
+RENDER_MASK_ONLY = DDJVU_RENDER_MASKONLY
+RENDER_BACKGROUND = DDJVU_RENDER_BACKGROUND
+RENDER_FOREGROUND = DDJVU_RENDER_FOREGROUND
+
+PAGE_TYPE_BITONAL =	DDJVU_PAGETYPE_BITONAL
+PAGE_TYPE_PHOTO = DDJVU_PAGETYPE_PHOTO
+PAGE_TYPE_COMPOUND = DDJVU_PAGETYPE_COMPOUND
+
 cdef class PageJob:
 	
 	def __new__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self.ddjvu_page = NULL
+	
+	property status:
+		def __get__(self):
+			return JobException_from_c(ddjvu_page_decoding_status(self.ddjvu_page))
+
+	property is_error:
+		def __get__(self):
+			return bool(ddjvu_page_decoding_error(self.ddjvu_page))
+	
+	property is_done:
+		def __get__(self):
+			return bool(ddjvu_page_decoding_done(self.ddjvu_page))
+
+	property width:
+		def __get__(self):
+			cdef int width
+			width = ddjvu_page_get_width(self.ddjvu_page)
+			if width == 0:
+				return None
+				# FIXME?
+			else:
+				return width
+	
+	property height:
+		def __get__(self):
+			cdef int height
+			height = ddjvu_page_get_height(self.ddjvu_page)
+			if height == 0:
+				return None
+				# FIXME?
+			else:
+				return height
+
+	property resolution:
+		def __get__(self):
+			cdef int resolution
+			resolution = ddjvu_page_get_resolution(self.ddjvu_page)
+			if resolution == 0:
+				return None
+				# FIXME?
+			else:
+				return resolution
+
+	property gamma:
+		def __get__(self):
+			return ddjvu_page_get_gamma(self.ddjvu_page)
+	
+	property version:
+		def __get__(self):
+			return ddjvu_page_get_version(self.ddjvu_page)
+
+	property type:
+		def __get__(self):
+			cdef ddjvu_page_type_t type
+			type = ddjvu_page_get_type(self.ddjvu_page)
+			if <int> type == <int> DDJVU_PAGETYPE_UNKNOWN:
+				return None
+				# FIXME?
+			else:
+				return type
+
+	property initial_rotation:
+		def __get__(self):
+			return 90 * <int> ddjvu_page_get_initial_rotation(self.ddjvu_page)
+
+	property rotation:
+		def __get__(self):
+			return 90 * <int> ddjvu_page_get_rotation(self.ddjvu_page)
+	
+		def __set__(self, int value):
+			cdef ddjvu_page_rotation_t rotation
+			if value == 0:
+				rotation = DDJVU_ROTATE_0
+			elif value == 90:
+				rotation = DDJVU_ROTATE_90
+			elif value == 180:
+				rotation = DDJVU_ROTATE_180
+			elif value == 270:
+				rotation = DDJVU_ROTATE_180
+			else:
+				raise ValueError
+			ddjvu_page_set_rotation(self.ddjvu_page, rotation)
+	
+		def __del__(self):
+			ddjvu_page_set_rotation(self.ddjvu_page, ddjvu_page_get_initial_rotation(self.ddjvu_page))
+
+	def render(self, int mode, page_rect, render_rect, int pixel_format, unsigned long row_alignment):
+		cdef ddjvu_rect_t c_page_rect
+		cdef ddjvu_rect_t c_render_rect
+		(c_page_rect.x, c_page_rect.y, c_page_rect.w, c_page_rect.h) = page_rect
+		(c_render_rect.x, c_render_rect.y, c_render_rect.w, c_render_rect.h) = render_rect
+		raise NotImplementedError
+
+	def __dealloc__(self):
+		pass
+		# FIXME ddjvu_page_release(self.ddjvu_context)
+
 
 cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
 	cdef PageJob result
