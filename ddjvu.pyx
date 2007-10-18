@@ -1,9 +1,13 @@
 # Copyright (c) 2007 Jakub Wilk <ubanus@users.sf.net>
 
+ctypedef int size_t
+
 cdef extern from 'Python.h':
 	int PyString_AsStringAndSize(object, char**, int*) except -1
 	char* PyString_AsString(object) except NULL
 	object PyString_FromStringAndSize(char *s, int len)
+	void* PyMem_Malloc(size_t size)
+	void PyMem_Free(void* buffer)
 
 cdef extern from 'stdlib.h':
 	void libc_free 'free'(void* ptr)
@@ -408,6 +412,154 @@ PAGE_TYPE_BITONAL =	DDJVU_PAGETYPE_BITONAL
 PAGE_TYPE_PHOTO = DDJVU_PAGETYPE_PHOTO
 PAGE_TYPE_COMPOUND = DDJVU_PAGETYPE_COMPOUND
 
+cdef class PixelFormat:
+
+#	def __new__(self):
+#		raise InstantiationError
+# 	FIXME
+
+	property bpp:
+		def __get__(self):
+			return self._bpp
+	
+	def __dealloc__(self):
+		ddjvu_format_release(self.ddjvu_format)
+
+	def __repr__(self):
+		return '%s.%s()' % (self.__class__.__module__, self.__class__.__name__)
+
+cdef class PixelFormatTrueColor(PixelFormat):
+	pass
+
+#	def __new__(self):
+#		raise InstantiationError
+# 	FIXME
+
+cdef class PixelFormatBgr24(PixelFormatTrueColor):
+
+	def __new__(self):
+		self._bpp = 24
+		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_BGR24, 0, NULL)
+	
+cdef class PixelFormatRgb24(PixelFormatTrueColor):
+
+	def __new__(self):
+		self._bpp = 24
+		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGB24, 0, NULL)
+
+cdef class PixelFormatRgbMask(PixelFormat):
+	pass
+	
+#	def __new__(self):
+#		raise InstantiationError
+# 	FIXME
+	
+cdef class PixelFormatRgbMask16(PixelFormatRgbMask):
+
+	def __new__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
+		self._bpp = 16
+		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xorval)
+		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGBMASK16, 4, self._params)
+	
+	def __repr__(self):
+		return '%s.%s(0x%04x, 0x%04x, 0x%04x, 0x%04x)' % \
+		(
+			self.__class__.__module__, self.__class__.__name__,
+			self._params[0],
+			self._params[1],
+			self._params[2],
+			self._params[3],
+		)
+
+cdef class PixelFormatRgbMask32(PixelFormatRgbMask):
+
+	def __new__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
+		self._bpp = 32
+		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xorval)
+		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGBMASK32, 4, self._params)
+	
+	def __repr__(self):
+		return '%s.%s(0x%08x, 0x%08x, 0x%08x, 0x%08x)' % \
+		(
+			self.__class__.__module__, self.__class__.__name__,
+			self._params[0],
+			self._params[1],
+			self._params[2],
+			self._params[3],
+		)
+	
+cdef class PixelFormatGrey(PixelFormat):
+	pass
+
+#	def __new__(self):
+#		raise InstantiationError
+# 	FIXME
+
+cdef class PixelFormatGrey8(PixelFormatGrey):
+
+	def __new__(self):
+		cdef unsigned int params[4]
+		self._bpp = 8
+		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_GREY8, 0, NULL)
+
+cdef class PixelFormatPalette(PixelFormat):
+	pass
+
+#	def __new__(self):
+#		raise InstantiationError
+# 	FIXME
+
+cdef class PixelFormatPalette8(PixelFormatPalette):
+
+	def __new__(self, palette):
+		cdef int i
+		palette_next = iter(palette).next
+		for i from 0 <= i < 216:
+			try:
+				self._palette[i] = palette_next()
+			except StopIteration:
+				raise ValueError
+		try:
+			palette_next()
+		except StopIteration:
+			pass
+		else:
+			raise ValueError
+		self._bpp = 8
+		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_PALETTE8, 216, self._palette)
+
+	def __repr__(self):
+		cdef int i
+		from cStringIO import StringIO
+		io = StringIO()
+		io.write('%s.%s([' % (self.__class__.__module__, self.__class__.__name__))
+		for i from 0 <= i < 215:
+			io.write('0x%02x, ' % self._palette[i])
+		io.write('0x%02x])' % self._palette[215])
+		return io.getvalue()
+
+cdef class PixelFormatPackedBits(PixelFormat):
+	pass
+
+#	def __new__(self):
+#		raise InstantiationError
+# 	FIXME
+
+cdef class PixelFormatMsbToLsb(PixelFormatPackedBits):
+
+	def __new__(self):
+		self._bpp = 1
+		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_MSBTOLSB, 0, NULL)
+
+cdef class PixelFormatLsbToMsb(PixelFormatPackedBits):
+
+	def __new__(self):
+		self._bpp = 1
+		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_LSBTOMSB, 0, NULL)
+
+class RenderError(Exception):
+	pass
+
 cdef class PageJob:
 	
 	def __new__(self, **kwargs):
@@ -500,12 +652,40 @@ cdef class PageJob:
 		def __del__(self):
 			ddjvu_page_set_rotation(self.ddjvu_page, ddjvu_page_get_initial_rotation(self.ddjvu_page))
 
-	def render(self, int mode, page_rect, render_rect, int pixel_format, unsigned long row_alignment):
+	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned long row_alignment):
 		cdef ddjvu_rect_t c_page_rect
 		cdef ddjvu_rect_t c_render_rect
+		cdef size_t c_buffer_size
+		cdef unsigned long row_size
+		cdef int bpp
+		cdef char* buffer
 		(c_page_rect.x, c_page_rect.y, c_page_rect.w, c_page_rect.h) = page_rect
 		(c_render_rect.x, c_render_rect.y, c_render_rect.w, c_render_rect.h) = render_rect
-		raise NotImplementedError
+		bpp = pixel_format._bpp
+		if bpp == 1:
+			row_size = (c_render_rect.w + 7) >> 3
+		elif bpp & 7 == 0:
+			row_size = c_render_rect.w * (bpp >> 3)
+		else:
+			raise SystemError
+		if row_alignment == 0:
+			row_alignment = 1
+		row_size = ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
+		buffer_size = int(row_size) * int(c_render_rect.h)
+		try:
+			c_buffer_size = buffer_size
+		except OverflowError:
+			buffer = NULL
+		else:
+			buffer = <char*> PyMem_Malloc(buffer_size)
+		if buffer == NULL:
+			raise MemoryError('Unable to alocate %d bytes for an image buffer' % buffer_size)
+		try:
+			if ddjvu_page_render(self.ddjvu_page, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, buffer) == 0:
+				raise RenderError
+			return PyString_FromStringAndSize(buffer, buffer_size)
+		finally:
+			PyMem_Free(buffer)
 
 	def __dealloc__(self):
 		pass

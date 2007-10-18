@@ -200,13 +200,14 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 	ddjvu_page_rotation_t ddjvu_page_get_rotation(ddjvu_page_t* page)
 	ddjvu_page_rotation_t ddjvu_page_get_initial_rotation(ddjvu_page_t* page)
 
-	cdef enum ddjvu_render_mode_t:
+	cdef enum ddjvu_render_mode_s:
 		DDJVU_RENDER_COLOR
 		DDJVU_RENDER_BLACK
 		DDJVU_RENDER_COLORONLY
 		DDJVU_RENDER_MASKONLY
 		DDJVU_RENDER_BACKGROUND
 		DDJVU_RENDER_FOREGROUND
+	ctypedef int ddjvu_render_mode_t
 
 	cdef struct ddjvu_rect_s:
 		int x, y
@@ -222,7 +223,7 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 	void ddjvu_unmap_point(ddjvu_rectmapper_t* mapper, int* x, int* y)
 	void ddjvu_unmap_rect(ddjvu_rectmapper_t* mapper, ddjvu_rect_t* rect)
 
-	cdef enum ddjvu_format_style_t:
+	cdef enum ddjvu_format_style_s:
 		DDJVU_FORMAT_BGR24
 		DDJVU_FORMAT_RGB24
 		DDJVU_FORMAT_RGBMASK16
@@ -231,6 +232,7 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 		DDJVU_FORMAT_PALETTE8
 		DDJVU_FORMAT_MSBTOLSB
 		DDJVU_FORMAT_LSBTOMSB
+	ctypedef int ddjvu_format_style_t
    
 	ddjvu_format_t* ddjvu_format_create(ddjvu_format_style_t style, int nargs, unsigned int* args)
 	void ddjvu_format_set_row_order(ddjvu_format_t* format, int top_to_bottom)
@@ -323,6 +325,49 @@ cdef class PageInfo:
 
 cdef class Context:
 	cdef ddjvu_context_t* ddjvu_context
+
+cdef class PixelFormat:
+	cdef ddjvu_format_t* ddjvu_format
+	cdef int _bpp
+
+cdef class PixelFormatTrueColor(PixelFormat):
+	pass
+
+cdef class PixelFormatBgr24(PixelFormatTrueColor):
+	pass
+	
+cdef class PixelFormatRgb24(PixelFormatTrueColor):
+	pass
+
+cdef class PixelFormatRgbMask(PixelFormat):
+	cdef unsigned int _params[4]
+	
+cdef class PixelFormatRgbMask16(PixelFormatRgbMask):
+	pass
+
+cdef class PixelFormatRgbMask32(PixelFormatRgbMask):
+	pass
+	
+cdef class PixelFormatGrey(PixelFormat):
+	pass
+
+cdef class PixelFormatGrey8(PixelFormatGrey):
+	pass
+
+cdef class PixelFormatPalette(PixelFormat):
+	pass
+
+cdef class PixelFormatPalette8(PixelFormatPalette):
+	cdef unsigned int _palette[216]
+
+cdef class PixelFormatPackedBits(PixelFormat):
+	pass
+
+cdef class PixelFormatMsbToLsb(PixelFormatPackedBits):
+	pass
+
+cdef class PixelFormatLsbToMsb(PixelFormatPackedBits):
+	pass
 
 cdef class PageJob:
 	cdef ddjvu_page_t* ddjvu_page
