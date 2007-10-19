@@ -311,6 +311,45 @@ class JobTest:
 	InstantiationError
 	'''
 
+class AffineTransformTest:
+	'''
+	>>> AffineTransform((1, 2), (3, 4, 5))
+	Traceback (most recent call last):
+	...
+	ValueError: unpack sequence of wrong size
+	>>> af = AffineTransform((0, 0, 10, 10), (17, 42, 42, 100))
+	>>> type(af) == AffineTransform
+	True
+	>>> af((0, 0))
+	(17, 42)
+	>>> af((0, 10))
+	(17, 142)
+	>>> af((10, 0))
+	(59, 42)
+	>>> af((10, 10))
+	(59, 142)
+	>>> af((0, 0, 10, 10))
+	(17, 42, 42, 100)
+	>>> af.apply((123, 456)) == af((123, 456))
+	True
+	>>> af.apply((12, 34, 56, 78)) == af((12, 34, 56, 78))
+	True
+	>>> af.reverse((17, 42))
+	(0, 0)
+	>>> af.reverse((17, 142))
+	(0, 10)
+	>>> af.reverse((59, 42))
+	(10, 0)
+	>>> af.reverse((59, 142))
+	(10, 10)
+	>>> af.reverse((17, 42, 42, 100))
+	(0, 0, 10, 10)
+	>>> af.reverse(af((234, 567))) == (234, 567)
+	True
+	>>> af.reverse(af((23, 45, 67, 78))) == (23, 45, 67, 78)
+	True
+	'''
+
 class MessageTest:
 	'''
 	>>> Message()

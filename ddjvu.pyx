@@ -739,6 +739,58 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	return result
 
 
+cdef class AffineTransform:
+	def __new__(self, input, output):
+		cdef ddjvu_rect_t c_input
+		cdef ddjvu_rect_t c_output
+		self.ddjvu_rectmapper = NULL
+		(c_input.x, c_input.y, c_input.w, c_input.h) = input
+		(c_output.x, c_output.y, c_output.w, c_output.h) = output
+		self.ddjvu_rectmapper = ddjvu_rectmapper_create(&c_input, &c_output)
+
+	def rotate(self, int n):
+		if n % 90:
+			raise ValueError
+		else:
+			ddjvu_rectmapper_modify(self.ddjvu_rectmapper, n/90, 0, 0)
+
+	def __call__(self, value):
+		cdef ddjvu_rect_t rect
+		try:
+			(rect.x, rect.y) = value
+			ddjvu_map_point(self.ddjvu_rectmapper, &rect.x, &rect.y)
+			return (rect.x, rect.y)
+		except ValueError:
+			(rect.x, rect.y, rect.w, rect.h) = value
+			ddjvu_map_rect(self.ddjvu_rectmapper, &rect)
+			return (rect.x, rect.y, int(rect.w), int(rect.h))
+		return self.apply(value)
+
+	def apply(self, value):
+		return self(value)
+
+	def reverse(self, value):
+		cdef ddjvu_rect_t rect
+		try:
+			(rect.x, rect.y) = value
+			ddjvu_unmap_point(self.ddjvu_rectmapper, &rect.x, &rect.y)
+			return (rect.x, rect.y)
+		except ValueError:
+			(rect.x, rect.y, rect.w, rect.h) = value
+			ddjvu_unmap_rect(self.ddjvu_rectmapper, &rect)
+			return (rect.x, rect.y, int(rect.w), int(rect.h))
+		return self.apply(value)
+
+	def mirror_x(self):
+		ddjvu_rectmapper_modify(self.ddjvu_rectmapper, 0, 1, 0)
+	
+	def mirror_y(self):
+		ddjvu_rectmapper_modify(self.ddjvu_rectmapper, 0, 0, 1)
+
+	def __dealloc__(self):
+		if self.ddjvu_rectmapper != NULL:
+			ddjvu_rectmapper_release(self.ddjvu_rectmapper)
+
 cdef class Message:
 
 	def __new__(self, **kwargs):

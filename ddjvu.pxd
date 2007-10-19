@@ -375,6 +375,9 @@ cdef class PageJob:
 cdef class Job:
 	cdef ddjvu_job_t* ddjvu_job
 
+cdef class AffineTransform:
+	cdef ddjvu_rectmapper_t* ddjvu_rectmapper
+
 cdef class Message:
 	cdef ddjvu_message_t* ddjvu_message
 	cdef Context _context
