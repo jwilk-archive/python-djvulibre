@@ -6,6 +6,7 @@ EXT_MODULES = ('ddjvu', 'miniexp')
 
 setup(
 	name = 'djvulibre',
+	ext_package = 'djvu',
 	ext_modules = \
 	[
 		Extension(name, ['%s.pyx' % name], libraries = ['djvulibre'])
