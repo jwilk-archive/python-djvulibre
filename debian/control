@@ -3,7 +3,7 @@ Section: python
 Priority: extra
 Maintainer: Jakub Wilk <ubanus@users.sf.net>
 Bugs: mailto:ubanus@users.sf.net
-Build-Depends: cdbs, debhelper (>= 5), libdjvulibre-dev, python-setuptools, python-support, python-pyrex
+Build-Depends: cdbs, debhelper (>= 5), libdjvulibre-dev, python-setuptools, python-support, python-pyrex, python-all-dev
 Standards-Version: 3.7.2
 
 Package: python-djvulibre
