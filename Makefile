@@ -14,6 +14,6 @@ test-ddjvu: all
 .PHONY: clean
 clean:
 	python setup.py clean
-	$(RM) djvu/*.so
+	$(RM) djvu/*.so *.c
 
 # vim:ts=4 sw=4 noet
