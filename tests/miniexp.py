@@ -100,6 +100,17 @@ class StringExpressionTest:
 	True
 	'''
 
+class UnicodeExpressionTest:
+	'''
+	>>> x = Expression(u'foobar')
+	>>> x
+	Expression('foobar')
+
+	>>> x = Expression(u'\\u017c\\xf3\\u0142w')
+	>>> x
+	Expression('\xc5\xbc\xc3\xb3\xc5\x82w')
+	'''
+
 class ListExpressionTest:
 	'''
 	>>> x = Expression(())

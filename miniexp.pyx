@@ -147,7 +147,11 @@ def Expression__new__(cls, value):
 		return IntExpression(value)
 	elif isinstance(value, Symbol):
 		return SymbolExpression(value)
-	elif isinstance(value, str):
+	elif isinstance(value, basestring):
+		if isinstance(value, unicode):
+			value = value.encode('UTF-8')
+		else:
+			value = str(value)
 		return StringExpression(value)
 	else:
 		try:
