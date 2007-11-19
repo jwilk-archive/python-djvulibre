@@ -111,7 +111,7 @@ cdef class _WrappedCExp:
 		from cStringIO import StringIO
 		stdout = StringIO()
 		try:
-			self.print_into(stdout)
+			self.print_into(stdout, width)
 			return stdout.getvalue()
 		finally:
 			stdout.close()
