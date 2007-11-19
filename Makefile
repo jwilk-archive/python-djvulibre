@@ -13,7 +13,7 @@ test-ddjvu: all
 
 .PHONY: clean
 clean:
-	python setup.py clean
-	$(RM) djvu/*.so *.c
+	$(RM) djvu/*.so *.c python-build-stamp-*
+	$(RM) -R build/
 
 # vim:ts=4 sw=4 noet
