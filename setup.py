@@ -5,7 +5,12 @@ from Pyrex.Distutils import build_ext
 EXT_MODULES = ('ddjvu', 'miniexp')
 
 setup(
-	name = 'djvulibre',
+	name = 'python-djvulibre',
+	version = '0.1',
+	author = 'Jakub Wilk',
+	author_email = 'ubanus@users.sf.net',
+	license = 'GNU GPL 2',
+	platforms = ['all'],
 	ext_package = 'djvu',
 	ext_modules = \
 	[
