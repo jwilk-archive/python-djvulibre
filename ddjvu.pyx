@@ -1,4 +1,4 @@
-# Copyright (c) 2007 Jakub Wilk <ubanus@users.sf.net>
+# Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
 ctypedef int size_t
 

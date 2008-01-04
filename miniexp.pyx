@@ -1,4 +1,4 @@
-# Copyright (c) 2007 Jakub Wilk <ubanus@users.sf.net>
+# Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
 cdef extern from 'libdjvu/miniexp.h':
 	int cexp_is_int 'miniexp_numberp'(cexp_t sexp)
