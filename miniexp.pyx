@@ -90,7 +90,7 @@ io_ungetc = myio_ungetc
 cdef class _WrappedCExp:
 	cdef cvar_t* cvar
 
-	def __new__(self):
+	def __cinit__(self):
 		self.cvar = cvar_new()
 
 	cdef cexp_t cexp(self):
@@ -142,7 +142,7 @@ class Symbol(str):
 class Expression(object):
 	pass
 
-def Expression__new__(cls, value):
+def Expression__cinit__(cls, value):
 	if isinstance(value, (int, long)):
 		return IntExpression(value)
 	elif isinstance(value, Symbol):
@@ -180,10 +180,10 @@ def Expression_from_string(str):
 	finally:
 		stdin.close()
 
-Expression.__new__ = staticmethod(Expression__new__)
+Expression.__cinit__ = staticmethod(Expression__cinit__)
 Expression.from_string = staticmethod(Expression_from_string)
 Expression.from_stream = staticmethod(Expression_from_stream)
-del Expression__new__, Expression_from_string, Expression_from_stream
+del Expression__cinit__, Expression_from_string, Expression_from_stream
 
 cdef object _Expression_richcmp(object left, object right, int op):
 	if not isinstance(left, _Expression):
@@ -230,7 +230,7 @@ cdef class _Expression:
 
 cdef class IntExpression(_Expression):
 
-	def __new__(self, value):
+	def __cinit__(self, value):
 		if isinstance(value, _WrappedCExp):
 			self.wexp = value
 		elif isinstance(value, (int, long)):
@@ -261,7 +261,7 @@ cdef class IntExpression(_Expression):
 
 cdef class SymbolExpression(_Expression):
 
-	def __new__(self, value):
+	def __cinit__(self, value):
 		if isinstance(value, _WrappedCExp):
 			self.wexp = value
 		elif isinstance(value, str):
@@ -280,7 +280,7 @@ cdef class SymbolExpression(_Expression):
 
 cdef class StringExpression(_Expression):
 
-	def __new__(self, value):
+	def __cinit__(self, value):
 		if isinstance(value, _WrappedCExp):
 			self.wexp = value
 		elif isinstance(value, str):
@@ -334,7 +334,7 @@ cdef _WrappedCExp _build_list_cexp(object items):
 
 cdef class ListExpression(_Expression):
 
-	def __new__(self, items):
+	def __cinit__(self, items):
 		if isinstance(items, _WrappedCExp):
 			self.wexp = items
 		else:
@@ -447,7 +447,7 @@ cdef class _ListExpressionIterator:
 	cdef ListExpression expression
 	cdef cexp_t cexp
 
-	def __new__(self, ListExpression expression not None):
+	def __cinit__(self, ListExpression expression not None):
 		self.expression = expression
 		self.cexp = expression.wexp.cexp()
 	

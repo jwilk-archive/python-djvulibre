@@ -38,7 +38,7 @@ cdef class DocumentExtension:
 	
 cdef class DocumentPages(DocumentExtension):
 
-	def __new__(self, Document document not None, object sentinel):
+	def __cinit__(self, Document document not None, object sentinel):
 		if sentinel is not the_sentinel:
 			raise InstantiationError
 		import weakref
@@ -59,7 +59,7 @@ cdef class DocumentPages(DocumentExtension):
 
 cdef class Page:
 
-#	def __new__(self):
+#	def __cinit__(self):
 #		pass
 #	FIXME
 
@@ -88,7 +88,7 @@ cdef class Page:
 
 cdef class PageNth(Page):
 
-	def __new__(self, Document document not None, int n, object sentinel):
+	def __cinit__(self, Document document not None, int n, object sentinel):
 		if sentinel is not the_sentinel:
 			raise InstantiationError
 		self._document = document
@@ -125,7 +125,7 @@ cdef class PageNth(Page):
 
 cdef class PageById(Page):
 	
-	def __new__(self, Document document not None, object id, object sentinel):
+	def __cinit__(self, Document document not None, object id, object sentinel):
 		if sentinel is not the_sentinel:
 			raise InstantiationError
 		self._document = document
@@ -143,7 +143,7 @@ cdef class PageById(Page):
 
 cdef class DocumentFiles(DocumentExtension):
 
-	def __new__(self, Document document not None, object sentinel):
+	def __cinit__(self, Document document not None, object sentinel):
 		if sentinel is not the_sentinel:
 			raise InstantiationError
 		import weakref
@@ -157,7 +157,7 @@ cdef class DocumentFiles(DocumentExtension):
 
 cdef class File:
 
-	def __new__(self, Document document not None, int n, object sentinel):
+	def __cinit__(self, Document document not None, int n, object sentinel):
 		if sentinel is not the_sentinel:
 			raise InstantiationError
 		self._document = document
@@ -195,7 +195,7 @@ cdef class File:
 
 cdef class Document:
 
-	def __new__(self, **kwargs):
+	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self.ddjvu_document = NULL
@@ -243,7 +243,7 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 
 cdef class PageInfo:
 
-	def __new__(self, Document document not None, **kwargs):
+	def __cinit__(self, Document document not None, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self._document = document
@@ -275,7 +275,7 @@ cdef class PageInfo:
 
 cdef class FileInfo:
 
-	def __new__(self, Document document not None, **kwargs):
+	def __cinit__(self, Document document not None, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self._document = document
@@ -335,7 +335,7 @@ class FileURI(str):
 
 cdef class Context:
 
-	def __new__(self, argv0 = None, **kwargs):
+	def __cinit__(self, argv0 = None, **kwargs):
 		if kwargs.get('sentinel') is the_sentinel:
 			return
 		if argv0 is None:
@@ -414,7 +414,7 @@ PAGE_TYPE_COMPOUND = DDJVU_PAGETYPE_COMPOUND
 
 cdef class PixelFormat:
 
-#	def __new__(self):
+#	def __cinit__(self):
 #		raise InstantiationError
 # 	FIXME
 
@@ -431,32 +431,32 @@ cdef class PixelFormat:
 cdef class PixelFormatTrueColor(PixelFormat):
 	pass
 
-#	def __new__(self):
+#	def __cinit__(self):
 #		raise InstantiationError
 # 	FIXME
 
 cdef class PixelFormatBgr24(PixelFormatTrueColor):
 
-	def __new__(self):
+	def __cinit__(self):
 		self._bpp = 24
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_BGR24, 0, NULL)
 	
 cdef class PixelFormatRgb24(PixelFormatTrueColor):
 
-	def __new__(self):
+	def __cinit__(self):
 		self._bpp = 24
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGB24, 0, NULL)
 
 cdef class PixelFormatRgbMask(PixelFormat):
 	pass
 	
-#	def __new__(self):
+#	def __cinit__(self):
 #		raise InstantiationError
 # 	FIXME
 	
 cdef class PixelFormatRgbMask16(PixelFormatRgbMask):
 
-	def __new__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
+	def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
 		self._bpp = 16
 		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xorval)
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGBMASK16, 4, self._params)
@@ -473,7 +473,7 @@ cdef class PixelFormatRgbMask16(PixelFormatRgbMask):
 
 cdef class PixelFormatRgbMask32(PixelFormatRgbMask):
 
-	def __new__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
+	def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
 		self._bpp = 32
 		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xorval)
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGBMASK32, 4, self._params)
@@ -491,13 +491,13 @@ cdef class PixelFormatRgbMask32(PixelFormatRgbMask):
 cdef class PixelFormatGrey(PixelFormat):
 	pass
 
-#	def __new__(self):
+#	def __cinit__(self):
 #		raise InstantiationError
 # 	FIXME
 
 cdef class PixelFormatGrey8(PixelFormatGrey):
 
-	def __new__(self):
+	def __cinit__(self):
 		cdef unsigned int params[4]
 		self._bpp = 8
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_GREY8, 0, NULL)
@@ -505,13 +505,13 @@ cdef class PixelFormatGrey8(PixelFormatGrey):
 cdef class PixelFormatPalette(PixelFormat):
 	pass
 
-#	def __new__(self):
+#	def __cinit__(self):
 #		raise InstantiationError
 # 	FIXME
 
 cdef class PixelFormatPalette8(PixelFormatPalette):
 
-	def __new__(self, palette):
+	def __cinit__(self, palette):
 		cdef int i
 		palette_next = iter(palette).next
 		for i from 0 <= i < 216:
@@ -541,19 +541,19 @@ cdef class PixelFormatPalette8(PixelFormatPalette):
 cdef class PixelFormatPackedBits(PixelFormat):
 	pass
 
-#	def __new__(self):
+#	def __cinit__(self):
 #		raise InstantiationError
 # 	FIXME
 
 cdef class PixelFormatMsbToLsb(PixelFormatPackedBits):
 
-	def __new__(self):
+	def __cinit__(self):
 		self._bpp = 1
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_MSBTOLSB, 0, NULL)
 
 cdef class PixelFormatLsbToMsb(PixelFormatPackedBits):
 
-	def __new__(self):
+	def __cinit__(self):
 		self._bpp = 1
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_LSBTOMSB, 0, NULL)
 
@@ -562,7 +562,7 @@ class RenderError(Exception):
 
 cdef class PageJob:
 	
-	def __new__(self, **kwargs):
+	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self.ddjvu_page = NULL
@@ -704,7 +704,7 @@ cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
 
 cdef class Job:
 
-	def __new__(self, **kwargs):
+	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self.ddjvu_job = NULL
@@ -740,7 +740,7 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 
 
 cdef class AffineTransform:
-	def __new__(self, input, output):
+	def __cinit__(self, input, output):
 		cdef ddjvu_rect_t c_input
 		cdef ddjvu_rect_t c_output
 		self.ddjvu_rectmapper = NULL
@@ -793,7 +793,7 @@ cdef class AffineTransform:
 
 cdef class Message:
 
-	def __new__(self, **kwargs):
+	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self.ddjvu_message = NULL
@@ -858,7 +858,7 @@ cdef class InfoMessage(Message):
 	
 cdef class Stream:
 
-	def __new__(self, Document document not None, int streamid, **kwargs):
+	def __cinit__(self, Document document not None, int streamid, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
 		self._streamid = streamid
