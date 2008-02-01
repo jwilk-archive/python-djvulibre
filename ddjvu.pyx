@@ -169,7 +169,7 @@ cdef class File:
 
 	property n:
 		def __get__(self):
-			return n
+			return self._n
 
 	property info:
 		def __get__(self):
