@@ -111,11 +111,18 @@ cdef class PageNth(Page):
 			cdef ddjvu_status_t status
 			cdef PageInfo page_info
 			page_info = PageInfo(self._document, sentinel = the_sentinel)
-			status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
-			try:
-				raise JobException_from_c(status)
-			except JobOK:
-				return page_info
+			while True:
+				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
+				ex = JobException_from_c(status)
+				if issubclass(ex, JobNotDone):
+					try:
+						self._document._context.handle_messages(wait = True)
+					except NotImplementedError:
+						raise ex
+				elif ex == JobOK:
+					return page_info
+				else:
+					raise ex
 
 	property dump:
 		def __get__(self):
@@ -184,11 +191,18 @@ cdef class File:
 			cdef ddjvu_status_t status
 			cdef FileInfo file_info
 			file_info = FileInfo(self._document, sentinel = the_sentinel)
-			status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
-			try:
-				raise JobException_from_c(status)
-			except JobOK:
-				return file_info
+			while True:
+				status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
+				ex = JobException_from_c(status)
+				if issubclass(ex, JobNotDone):
+					try:
+						self._document._context.handle_messages(wait = True)
+					except NotImplementedError:
+						raise ex
+				elif ex == JobOK:
+					return file_info
+				else:
+					raise ex
 
 	property dump:
 		def __get__(self):
@@ -365,6 +379,16 @@ cdef class Context:
 		def __get__(self):
 			return ddjvu_cache_get_size(self.ddjvu_context)
 
+	def handle_message(self):
+		raise NotImplementedError
+
+	def handle_messages(self, wait = False):
+		while True:
+			message = self.get_message(wait)
+			if message is None:
+				return
+			self.handle_message(message)
+
 	def get_message(self, wait = True):
 		cdef ddjvu_message_t* ddjvu_message
 		if wait:
@@ -384,7 +408,9 @@ cdef class Context:
 			ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
 		else:
 			ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
-		return Document_from_c(ddjvu_document)
+		document = Document_from_c(ddjvu_document)
+		document._context = self
+		return document
 
 	def __iter__(self):
 		return self
@@ -982,10 +1008,13 @@ cdef JobException_from_c(ddjvu_status_t code):
 class JobException(Exception):
 	pass
 
-class JobNotStarted(JobException):
+class JobNotDone(JobException):
 	pass
 
-class JobStarted(JobException):
+class JobNotStarted(JobNotDone):
+	pass
+
+class JobStarted(JobNotDone):
 	pass
 
 class JobDone(JobException):

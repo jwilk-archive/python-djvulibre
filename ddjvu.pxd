@@ -287,6 +287,8 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 
 
 
+cdef class Context
+
 cdef class DocumentExtension:
 	cdef object _document_weakref
 
@@ -298,6 +300,7 @@ cdef class DocumentFiles(DocumentExtension):
 
 cdef class Document:
 	cdef ddjvu_document_t* ddjvu_document
+	cdef Context _context
 	cdef DocumentPages _pages
 	cdef DocumentFiles _files
 	cdef object __weakref__
