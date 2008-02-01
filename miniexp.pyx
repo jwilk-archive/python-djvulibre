@@ -142,7 +142,7 @@ class Symbol(str):
 class Expression(object):
 	pass
 
-def Expression__cinit__(cls, value):
+def Expression__new__(cls, value):
 	if isinstance(value, (int, long)):
 		return IntExpression(value)
 	elif isinstance(value, Symbol):
@@ -180,10 +180,10 @@ def Expression_from_string(str):
 	finally:
 		stdin.close()
 
-Expression.__cinit__ = staticmethod(Expression__cinit__)
+Expression.__new__ = staticmethod(Expression__new__)
 Expression.from_string = staticmethod(Expression_from_string)
 Expression.from_stream = staticmethod(Expression_from_stream)
-del Expression__cinit__, Expression_from_string, Expression_from_stream
+del Expression__new__, Expression_from_string, Expression_from_stream
 
 cdef object _Expression_richcmp(object left, object right, int op):
 	if not isinstance(left, _Expression):
