@@ -1,5 +1,17 @@
 # Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
+cdef extern from 'Python.h':
+	int typecheck 'PyObject_TypeCheck'(object o, object type)
+	int is_short_int 'PyInt_Check'(object o)
+	int is_long_int 'PyLong_Check'(object o)
+	int is_unicode 'PyUnicode_Check'(object o)
+	int is_string 'PyString_Check'(object o)
+	int is_slice 'PySlice_Check'(object o)
+	object encode_utf8 'PyUnicode_AsUTF8String'(object o)
+
+cdef int is_int(object o):
+	return is_short_int(o) or is_long_int(o)
+
 cdef extern from 'libdjvu/miniexp.h':
 	int cexp_is_int 'miniexp_numberp'(cexp_t sexp)
 	int cexp_to_int 'miniexp_to_int'(cexp_t sexp)
@@ -131,7 +143,7 @@ class Symbol(str):
 		return 'Symbol(%s)' % str.__repr__(self)
 	
 	def __eq__(self, other):
-		if not isinstance(other, Symbol):
+		if not typecheck(other, Symbol):
 			return False
 		else:
 			return str.__eq__(self, other)
@@ -145,14 +157,12 @@ class Expression(object):
 def Expression__new__(cls, value):
 	if isinstance(value, (int, long)):
 		return IntExpression(value)
-	elif isinstance(value, Symbol):
+	elif typecheck(value, Symbol):
 		return SymbolExpression(value)
-	elif isinstance(value, basestring):
-		if isinstance(value, unicode):
-			value = value.encode('UTF-8')
-		else:
-			value = str(value)
-		return StringExpression(value)
+	elif is_unicode(value):
+		return StringExpression(encode_utf8(value))
+	elif is_string(value):
+		return StringExpression(str(value))
 	else:
 		try:
 			iter(value)
@@ -186,9 +196,9 @@ Expression.from_stream = staticmethod(Expression_from_stream)
 del Expression__new__, Expression_from_string, Expression_from_stream
 
 cdef object _Expression_richcmp(object left, object right, int op):
-	if not isinstance(left, _Expression):
+	if not typecheck(left, _Expression):
 		return NotImplemented
-	elif not isinstance(right, _Expression):
+	elif not typecheck(right, _Expression):
 		return NotImplemented
 	elif op == 0:
 		result = left.value <  right.value
@@ -231,9 +241,9 @@ cdef class _Expression:
 cdef class IntExpression(_Expression):
 
 	def __cinit__(self, value):
-		if isinstance(value, _WrappedCExp):
+		if typecheck(value, _WrappedCExp):
 			self.wexp = value
-		elif isinstance(value, (int, long)):
+		elif is_int(value):
 			if -1 << 29 <= value < 1 << 29:
 				self.wexp = wexp(int_to_cexp(value))
 			else:
@@ -262,9 +272,9 @@ cdef class IntExpression(_Expression):
 cdef class SymbolExpression(_Expression):
 
 	def __cinit__(self, value):
-		if isinstance(value, _WrappedCExp):
+		if typecheck(value, _WrappedCExp):
 			self.wexp = value
-		elif isinstance(value, str):
+		elif typecheck(value, str):
 			self.wexp = wexp(symbol_to_cexp(value))
 		else:
 			raise TypeError
@@ -281,9 +291,9 @@ cdef class SymbolExpression(_Expression):
 cdef class StringExpression(_Expression):
 
 	def __cinit__(self, value):
-		if isinstance(value, _WrappedCExp):
+		if typecheck(value, _WrappedCExp):
 			self.wexp = value
-		elif isinstance(value, str):
+		elif is_string(value):
 			self.wexp = wexp(str_to_cexp(value))
 		else:
 			raise TypeError
@@ -335,7 +345,7 @@ cdef _WrappedCExp _build_list_cexp(object items):
 cdef class ListExpression(_Expression):
 
 	def __cinit__(self, items):
-		if isinstance(items, _WrappedCExp):
+		if typecheck(items, _WrappedCExp):
 			self.wexp = items
 		else:
 			self.wexp = _build_list_cexp(items)
@@ -357,7 +367,7 @@ cdef class ListExpression(_Expression):
 		cdef cexp_t cexp
 		cdef int n
 		cexp = self.wexp.cexp()
-		if isinstance(key, (int, long)):
+		if is_int(key):
 			n = key
 			if n < 0:
 				n = n + len(self)
@@ -372,8 +382,8 @@ cdef class ListExpression(_Expression):
 				else:
 					cexp = cexp_head(cexp)
 					break
-		elif isinstance(key, slice):
-			if (isinstance(key.start, int)) or key.start is None and key.stop is None and key.step is None:
+		elif is_slice(key):
+			if is_int(key.start) or key.start is None and key.stop is None and key.step is None:
 				n = key.start or 0
 				if n < 0:
 					n = n + len(self)
@@ -393,7 +403,7 @@ cdef class ListExpression(_Expression):
 		cdef int n
 		cexp = self.wexp.cexp()
 		new_cexp = (<_Expression>Expression(value)).wexp.cexp()
-		if isinstance(key, (int, long)):
+		if is_int(key):
 			n = key
 			if n < 0:
 				n = n + len(self)
@@ -408,10 +418,10 @@ cdef class ListExpression(_Expression):
 				else:
 					cexp_replace_head(cexp, new_cexp)
 					break
-		elif isinstance(key, slice):
+		elif is_slice(key):
 			if not cexp_is_list(new_cexp):
 				raise TypeError
-			if (isinstance(key.start, int)) or key.start is None and key.stop is None and key.step is None:
+			if is_slice(key) or key.start is None and key.stop is None and key.step is None:
 				n = key.start or 0
 				if n < 0:
 					n = n + len(self)
