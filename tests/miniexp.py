@@ -101,12 +101,12 @@ class StringExpressionTest:
 	'''
 
 class UnicodeExpressionTest:
-	'''
+	r'''
 	>>> x = Expression(u'foobar')
 	>>> x
 	Expression('foobar')
 
-	>>> x = Expression(u'\\u017c\\xf3\\u0142w')
+	>>> x = Expression(u'\u017c\xf3\u0142w')
 	>>> x
 	Expression('\xc5\xbc\xc3\xb3\xc5\x82w')
 	'''
