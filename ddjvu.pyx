@@ -9,6 +9,14 @@ cdef extern from 'Python.h':
 	void* PyMem_Malloc(size_t size)
 	void PyMem_Free(void* buffer)
 
+	int typecheck 'PyObject_TypeCheck'(object o, object type)
+	int is_short_int 'PyInt_Check'(object o)
+	int is_long_int 'PyLong_Check'(object o)
+	int is_unicode 'PyUnicode_Check'(object o)
+
+cdef int is_int(object o):
+	return is_short_int(o) or is_long_int(o)
+
 cdef extern from 'stdlib.h':
 	void libc_free 'free'(void* ptr)
 
@@ -48,11 +56,11 @@ cdef class DocumentPages(DocumentExtension):
 		return ddjvu_document_get_pagenum((<Document>self.document).ddjvu_document)
 
 	def __getitem__(self, key):
-		if isinstance(key, (int, long)):
+		if is_int(key):
 			if key < 0:
 				raise ValueError
 			return PageNth(self.document, key, the_sentinel)
-		elif isinstance(key, unicode):
+		elif is_unicode(key):
 			return PageById(self.document, key, the_sentinel)
 		else:
 			raise TypeError
@@ -372,7 +380,7 @@ cdef class Context:
 	def new_document(self, uri, cache = True):
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
-		if isinstance(uri, FileURI):
+		if typecheck(uri, FileURI):
 			ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
 		else:
 			ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
