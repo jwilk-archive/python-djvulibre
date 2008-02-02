@@ -253,14 +253,22 @@ class PageJobTest:
 	
 	def test_decode():
 		'''
-		>>> context = Context()
+		>>> class MyContext(Context):
+		...   def handle_messages(self, wait):
+		...      from sys import stderr
+		...      print >>stderr, 'HMs'
+		...      Context.handle_messages(self, wait)
+		...   def handle_message(self, message): pass
+		...      from sys import stderr
+		...      print >>stderr, message
+
+		>>> context = MyContext()
 		>>> document = context.new_document(FileURI('ddjvu-g.djvu'))
 		>>> message = context.get_message()
 		>>> type(message) == DocInfoMessage
 		True
 		>>> page_job = document.pages[0].decode()
-		>>> message = context.get_message()
-		>>> type(message) == ChunkMessage
+		>>> page_job.is_done
 		True
 		>>> type(page_job) == PageJob
 		True

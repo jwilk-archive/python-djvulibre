@@ -91,7 +91,7 @@ cdef class Page:
 		def __get__(self):
 			raise NotImplementedError
 
-	def decode(self):
+	def decode(self, wait = True):
 		raise NotImplementedError
 
 cdef class PageNth(Page):
@@ -135,8 +135,11 @@ cdef class PageNth(Page):
 				result = s.decode('UTF-8')
 				libc_free(s)
 
-	def decode(self):
-		return PageJob_from_c(ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n))
+	def decode(self, wait = True):
+		page_job = PageJob_from_c(ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n), self._document._context)
+		if wait:
+			page_job.wait()
+		return page_job
 
 cdef class PageById(Page):
 	
@@ -154,7 +157,7 @@ cdef class PageById(Page):
 		return PageJob_from_c(ddjvu_page_create_by_pageid(
 			self._document.ddjvu_document,
 			PyString_AsString(self._id.decode('UTF-8'))
-		))
+		), self._document._context)
 
 cdef class DocumentFiles(DocumentExtension):
 
@@ -379,15 +382,16 @@ cdef class Context:
 		def __get__(self):
 			return ddjvu_cache_get_size(self.ddjvu_context)
 
-	def handle_message(self):
+	def handle_message(self, message):
 		raise NotImplementedError
 
-	def handle_messages(self, wait = False):
+	def handle_messages(self, wait):
+		message = self.get_message(wait)
 		while True:
-			message = self.get_message(wait)
 			if message is None:
 				return
 			self.handle_message(message)
+			message = self.get_message(wait = False)
 
 	def get_message(self, wait = True):
 		cdef ddjvu_message_t* ddjvu_message
@@ -594,29 +598,17 @@ cdef class PixelFormatLsbToMsb(PixelFormatPackedBits):
 class RenderError(Exception):
 	pass
 
-cdef class PageJob:
+cdef class PageJob(Job):
 	
 	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
-		self.ddjvu_page = NULL
+		self.ddjvu_job = NULL
 	
-	property status:
-		def __get__(self):
-			return JobException_from_c(ddjvu_page_decoding_status(self.ddjvu_page))
-
-	property is_error:
-		def __get__(self):
-			return bool(ddjvu_page_decoding_error(self.ddjvu_page))
-	
-	property is_done:
-		def __get__(self):
-			return bool(ddjvu_page_decoding_done(self.ddjvu_page))
-
 	property width:
 		def __get__(self):
 			cdef int width
-			width = ddjvu_page_get_width(self.ddjvu_page)
+			width = ddjvu_page_get_width(<ddjvu_page_t*> self.ddjvu_job)
 			if width == 0:
 				return None
 				# FIXME?
@@ -626,7 +618,7 @@ cdef class PageJob:
 	property height:
 		def __get__(self):
 			cdef int height
-			height = ddjvu_page_get_height(self.ddjvu_page)
+			height = ddjvu_page_get_height(<ddjvu_page_t*> self.ddjvu_job)
 			if height == 0:
 				return None
 				# FIXME?
@@ -636,7 +628,7 @@ cdef class PageJob:
 	property resolution:
 		def __get__(self):
 			cdef int resolution
-			resolution = ddjvu_page_get_resolution(self.ddjvu_page)
+			resolution = ddjvu_page_get_resolution(<ddjvu_page_t*> self.ddjvu_job)
 			if resolution == 0:
 				return None
 				# FIXME?
@@ -645,16 +637,16 @@ cdef class PageJob:
 
 	property gamma:
 		def __get__(self):
-			return ddjvu_page_get_gamma(self.ddjvu_page)
+			return ddjvu_page_get_gamma(<ddjvu_page_t*> self.ddjvu_job)
 	
 	property version:
 		def __get__(self):
-			return ddjvu_page_get_version(self.ddjvu_page)
+			return ddjvu_page_get_version(<ddjvu_page_t*> self.ddjvu_job)
 
 	property type:
 		def __get__(self):
 			cdef ddjvu_page_type_t type
-			type = ddjvu_page_get_type(self.ddjvu_page)
+			type = ddjvu_page_get_type(<ddjvu_page_t*> self.ddjvu_job)
 			if <int> type == <int> DDJVU_PAGETYPE_UNKNOWN:
 				return None
 				# FIXME?
@@ -663,11 +655,11 @@ cdef class PageJob:
 
 	property initial_rotation:
 		def __get__(self):
-			return 90 * <int> ddjvu_page_get_initial_rotation(self.ddjvu_page)
+			return 90 * <int> ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job)
 
 	property rotation:
 		def __get__(self):
-			return 90 * <int> ddjvu_page_get_rotation(self.ddjvu_page)
+			return 90 * <int> ddjvu_page_get_rotation(<ddjvu_page_t*> self.ddjvu_job)
 	
 		def __set__(self, int value):
 			cdef ddjvu_page_rotation_t rotation
@@ -681,10 +673,10 @@ cdef class PageJob:
 				rotation = DDJVU_ROTATE_180
 			else:
 				raise ValueError
-			ddjvu_page_set_rotation(self.ddjvu_page, rotation)
+			ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, rotation)
 	
 		def __del__(self):
-			ddjvu_page_set_rotation(self.ddjvu_page, ddjvu_page_get_initial_rotation(self.ddjvu_page))
+			ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job))
 
 	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned long row_alignment):
 		cdef ddjvu_rect_t c_page_rect
@@ -715,7 +707,7 @@ cdef class PageJob:
 		if buffer == NULL:
 			raise MemoryError('Unable to alocate %d bytes for an image buffer' % buffer_size)
 		try:
-			if ddjvu_page_render(self.ddjvu_page, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, buffer) == 0:
+			if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, buffer) == 0:
 				raise RenderError
 			return PyString_FromStringAndSize(buffer, buffer_size)
 		finally:
@@ -726,13 +718,14 @@ cdef class PageJob:
 		# FIXME ddjvu_page_release(self.ddjvu_context)
 
 
-cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
+cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page, Context context):
 	cdef PageJob result
 	if ddjvu_page == NULL:
 		result = None
 	else:
 		result = PageJob(sentinel = the_sentinel)
-		result.ddjvu_page = ddjvu_page
+		result.ddjvu_job = <ddjvu_job_t*> ddjvu_page
+		result._context = context
 	return result
 
 
@@ -754,6 +747,10 @@ cdef class Job:
 	property is_done:
 		def __get__(self):
 			return bool(ddjvu_job_done(self.ddjvu_job))
+
+	def wait(self):
+		while not ddjvu_job_done(self.ddjvu_job):
+			self._context.handle_messages(wait = True)
 
 	def stop(self):
 		ddjvu_job_stop(self.ddjvu_job)
@@ -837,7 +834,7 @@ cdef class Message:
 			raise SystemError
 		self._context = Context_from_c(self.ddjvu_message.m_any.context)
 		self._document = Document_from_c(self.ddjvu_message.m_any.document)
-		self._page_job = PageJob_from_c(self.ddjvu_message.m_any.page)
+		self._page_job = PageJob_from_c(self.ddjvu_message.m_any.page, self._context)
 		self._job = Job_from_c(self.ddjvu_message.m_any.job)
 	
 	property context:

@@ -372,11 +372,12 @@ cdef class PixelFormatMsbToLsb(PixelFormatPackedBits):
 cdef class PixelFormatLsbToMsb(PixelFormatPackedBits):
 	pass
 
-cdef class PageJob:
-	cdef ddjvu_page_t* ddjvu_page
-
 cdef class Job:
+	cdef Context _context
 	cdef ddjvu_job_t* ddjvu_job
+
+cdef class PageJob(Job):
+	pass
 
 cdef class AffineTransform:
 	cdef ddjvu_rectmapper_t* ddjvu_rectmapper
