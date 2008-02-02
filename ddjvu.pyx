@@ -115,6 +115,7 @@ cdef class PageNth(Page):
 				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
 				ex = JobException_from_c(status)
 				if issubclass(ex, JobNotDone):
+					# FIXME: fix concurrency issues
 					try:
 						self._document._context.handle_messages(wait = True)
 					except NotImplementedError:
@@ -199,6 +200,7 @@ cdef class File:
 				ex = JobException_from_c(status)
 				if issubclass(ex, JobNotDone):
 					try:
+						# FIXME: fix concurrency issues
 						self._document._context.handle_messages(wait = True)
 					except NotImplementedError:
 						raise ex
