@@ -123,15 +123,16 @@ class DocumentTest:
 		Traceback (most recent call last):
 		...
 		ValueError
-		>>> document.pages[1].info
-		Traceback (most recent call last):
-		...
-		JobFailed
-		>>> message = context.get_message()
-		>>> message.message
-		'[1-13001] Page number is too big.'
-		>>> type(message) == ErrorMessage
-		True
+
+#		>>> document.pages[1].info
+#		Traceback (most recent call last):
+#		...
+#		JobFailed
+#		>>> message = context.get_message()
+#		>>> message.message
+#		'[1-13001] Page number is too big.'
+#		>>> type(message) == ErrorMessage
+#		True
 
 		>>> foo_page = document.pages[u'foo']
 		>>> isinstance(foo_page, Page)
@@ -254,13 +255,7 @@ class PageJobTest:
 	def test_decode():
 		'''
 		>>> class MyContext(Context):
-		...   def handle_messages(self, wait):
-		...      from sys import stderr
-		...      print >>stderr, 'HMs'
-		...      Context.handle_messages(self, wait)
 		...   def handle_message(self, message): pass
-		...      from sys import stderr
-		...      print >>stderr, message
 
 		>>> context = MyContext()
 		>>> document = context.new_document(FileURI('ddjvu-g.djvu'))
