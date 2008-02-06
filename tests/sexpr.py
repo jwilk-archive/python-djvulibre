@@ -1,4 +1,4 @@
-from djvu.miniexp import *
+from djvu.sexpr import *
 
 class IntExpressionTest:
 	'''

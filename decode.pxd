@@ -4,7 +4,7 @@ cdef extern from 'stdio.h':
 	struct _IO_FILE
 	ctypedef _IO_FILE FILE
 
-from miniexp cimport cexp_t
+from sexpr cimport cexp_t
 
 cdef extern from 'libdjvu/ddjvuapi.h':
 	struct ddjvu_context_s

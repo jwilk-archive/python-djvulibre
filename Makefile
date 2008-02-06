@@ -3,13 +3,10 @@ all:
 	python setup.py build_ext --inplace
 
 .PHONY: test
-test: test-miniexp test-ddjvu
+test: test-sexpr test-decode
 
-test-miniexp: all
-	python tests/miniexp.py
-
-test-ddjvu: all
-	python tests/ddjvu.py
+test-%: tests/%.py all
+	python $(<)
 
 .PHONY: clean
 clean:

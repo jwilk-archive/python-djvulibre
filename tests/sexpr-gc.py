@@ -1,4 +1,4 @@
-from djvu.miniexp import *
+from djvu.sexpr import *
 from os import getpid
 import gc
 
