@@ -226,9 +226,9 @@ cdef class File:
 cdef class Document:
 
 	def __cinit__(self, **kwargs):
+		self.ddjvu_document = NULL
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise InstantiationError
-		self.ddjvu_document = NULL
 		self._pages = DocumentPages(self, sentinel = the_sentinel)
 		self._files = DocumentFiles(self, sentinel = the_sentinel)
 
@@ -418,7 +418,8 @@ cdef class Context:
 		else:
 			ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
 		document = Document_from_c(ddjvu_document)
-		document._context = self
+		if document is not None:
+			document._context = self
 		return document
 
 	def __iter__(self):
