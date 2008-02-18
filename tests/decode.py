@@ -302,6 +302,8 @@ class AffineTransformTest:
 	(59, 142)
 	>>> af((0, 0, 10, 10))
 	(17, 42, 42, 100)
+	>>> af(x for x in (0, 0, 10, 10))
+	(17, 42, 42, 100)
 	>>> af.apply((123, 456)) == af((123, 456))
 	True
 	>>> af.apply((12, 34, 56, 78)) == af((12, 34, 56, 78))
@@ -315,6 +317,8 @@ class AffineTransformTest:
 	>>> af.reverse((59, 142))
 	(10, 10)
 	>>> af.reverse((17, 42, 42, 100))
+	(0, 0, 10, 10)
+	>>> af.reverse(x for x in (17, 42, 42, 100))
 	(0, 0, 10, 10)
 	>>> af.reverse(af((234, 567))) == (234, 567)
 	True
