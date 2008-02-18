@@ -454,13 +454,61 @@ PAGE_TYPE_COMPOUND = DDJVU_PAGETYPE_COMPOUND
 
 cdef class PixelFormat:
 
-#	def __cinit__(self):
-#		raise InstantiationError
-# 	FIXME
+	def __cinit__(self, *args, **kwargs):
+		self._row_order = 0
+		self._y_direction = 0
+		self._dither_bpp = 32
+		self._gamma = 2.2
+		for cls in (
+			PixelFormatBgr24, PixelFormatRgb24,
+			PixelFormatRgbMask16, PixelFormatRgbMask32,
+			PixelFormatGrey8, PixelFormatPalette8,
+			PixelFormatMsbToLsb, PixelFormatLsbToMsb
+		):
+			if typecheck(self, cls):
+				return
+		raise InstantiationError
+	
+	property rows_top_to_bottom:
 
+		def __get__(self):
+			return bool(self._row_order)
+
+		def __set__(self, value):
+			ddjvu_format_set_row_order(self.ddjvu_format, not not value)
+
+	property y_top_to_bottom:
+
+		def __get__(self):
+			return bool(self._row_order)
+
+		def __set__(self, value):
+			ddjvu_format_set_y_direction(self.ddjvu_format, not not value)
+	
 	property bpp:
 		def __get__(self):
 			return self._bpp
+	
+	property dither_bpp:
+		def __get__(self):
+			return self._dither_bpp
+
+		def __set__(self, int value):
+			if (value > 0 and value < 64):
+				ddjvu_format_set_ditherbits(self.ddjvu_format, value)
+				self._dither_bpp = value
+			else:
+				raise ValueError
+	
+	property gamma:
+		def __get__(self):
+			return self._gamma
+
+		def __set__(self, double value):
+			if (_value >= 0.5 and value <= 5.0):
+				ddjvu_format_set_gamma(self.ddjvu_format, value)
+			else:
+				raise ValueError
 	
 	def __dealloc__(self):
 		ddjvu_format_release(self.ddjvu_format)
@@ -470,10 +518,6 @@ cdef class PixelFormat:
 
 cdef class PixelFormatTrueColor(PixelFormat):
 	pass
-
-#	def __cinit__(self):
-#		raise InstantiationError
-# 	FIXME
 
 cdef class PixelFormatBgr24(PixelFormatTrueColor):
 
@@ -490,14 +534,11 @@ cdef class PixelFormatRgb24(PixelFormatTrueColor):
 cdef class PixelFormatRgbMask(PixelFormat):
 	pass
 	
-#	def __cinit__(self):
-#		raise InstantiationError
-# 	FIXME
-	
 cdef class PixelFormatRgbMask16(PixelFormatRgbMask):
 
 	def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
 		self._bpp = 16
+		self._dither_bpp = 16
 		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xorval)
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGBMASK16, 4, self._params)
 	
@@ -531,10 +572,6 @@ cdef class PixelFormatRgbMask32(PixelFormatRgbMask):
 cdef class PixelFormatGrey(PixelFormat):
 	pass
 
-#	def __cinit__(self):
-#		raise InstantiationError
-# 	FIXME
-
 cdef class PixelFormatGrey8(PixelFormatGrey):
 
 	def __cinit__(self):
@@ -544,10 +581,6 @@ cdef class PixelFormatGrey8(PixelFormatGrey):
 
 cdef class PixelFormatPalette(PixelFormat):
 	pass
-
-#	def __cinit__(self):
-#		raise InstantiationError
-# 	FIXME
 
 cdef class PixelFormatPalette8(PixelFormatPalette):
 
@@ -566,6 +599,7 @@ cdef class PixelFormatPalette8(PixelFormatPalette):
 		else:
 			raise ValueError
 		self._bpp = 8
+		self._dither_bpp = 8
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_PALETTE8, 216, self._palette)
 
 	def __repr__(self):
@@ -581,20 +615,18 @@ cdef class PixelFormatPalette8(PixelFormatPalette):
 cdef class PixelFormatPackedBits(PixelFormat):
 	pass
 
-#	def __cinit__(self):
-#		raise InstantiationError
-# 	FIXME
-
 cdef class PixelFormatMsbToLsb(PixelFormatPackedBits):
 
 	def __cinit__(self):
 		self._bpp = 1
+		self._dither_bpp = 1
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_MSBTOLSB, 0, NULL)
 
 cdef class PixelFormatLsbToMsb(PixelFormatPackedBits):
 
 	def __cinit__(self):
 		self._bpp = 1
+		self._dither_bpp = 1
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_LSBTOMSB, 0, NULL)
 
 class RenderError(Exception):

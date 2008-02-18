@@ -159,15 +159,15 @@ class DocumentTest:
 class PixelFormatTest:
 
 	'''
-#	>>> PixelFormat()
-#	Traceback (most recent call last):
-#	...
-#	InstantiationError
+	>>> PixelFormat()
+	Traceback (most recent call last):
+	...
+	InstantiationError
 
-#	>>> PixelFormatTrueColor()
-#	Traceback (most recent call last):
-#	...
-#	InstantiationError
+	>>> PixelFormatTrueColor()
+	Traceback (most recent call last):
+	...
+	InstantiationError
 
 	>>> pf = PixelFormatBgr24()
 	>>> pf
@@ -181,11 +181,10 @@ class PixelFormatTest:
 	>>> pf.bpp
 	24
 
-#	>>> PixelFormatRgbMask()
-#	Traceback (most recent call last):
-#	...
-#	InstantiationError
-
+	>>> PixelFormatRgbMask()
+	Traceback (most recent call last):
+	...
+	InstantiationError
 	>>> pf = PixelFormatRgbMask16(57005, 48815, 1717, 4242)
 	>>> pf
 	decode.PixelFormatRgbMask16(0xdead, 0xbeaf, 0x06b5, 0x1092)
@@ -198,22 +197,20 @@ class PixelFormatTest:
 	>>> pf.bpp
 	32
 
-#	>>> PixelFormatGrey()
-#	Traceback (most recent call last):
-#	...
-#	InstantiationError
-
+	>>> PixelFormatGrey()
+	Traceback (most recent call last):
+	...
+	InstantiationError
 	>>> pf = PixelFormatGrey8()
 	>>> pf
 	decode.PixelFormatGrey8()
 	>>> pf.bpp
 	8
 
-#	>>> PixelFormatPalette()
-#	Traceback (most recent call last):
-#	...
-#	InstantiationError
-
+	>>> PixelFormatPalette()
+	Traceback (most recent call last):
+	...
+	InstantiationError
 	>>> pf = PixelFormatPalette8([])
 	Traceback (most recent call last):
 	...
@@ -229,6 +226,9 @@ class PixelFormatTest:
 	8
 
 	>>> pf = PixelFormatPackedBits()
+	Traceback (most recent call last):
+	...
+	InstantiationError
 	>>> pf = PixelFormatMsbToLsb()
 	>>> pf
 	decode.PixelFormatMsbToLsb()

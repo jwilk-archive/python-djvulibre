@@ -332,6 +332,10 @@ cdef class Context:
 cdef class PixelFormat:
 	cdef ddjvu_format_t* ddjvu_format
 	cdef int _bpp
+	cdef int _dither_bpp
+	cdef int _row_order
+	cdef int _y_direction
+	cdef double _gamma
 
 cdef class PixelFormatTrueColor(PixelFormat):
 	pass
