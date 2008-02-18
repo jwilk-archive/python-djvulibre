@@ -462,6 +462,7 @@ cdef class PixelFormat:
 		self._y_direction = 0
 		self._dither_bpp = 32
 		self._gamma = 2.2
+		self.ddjvu_format = NULL
 		for cls in (PixelFormatRgb, PixelFormatRgbMask, PixelFormatGrey, PixelFormatPalette, PixelFormatPackedBits):
 			if typecheck(self, cls):
 				return
@@ -509,7 +510,8 @@ cdef class PixelFormat:
 				raise ValueError
 	
 	def __dealloc__(self):
-		ddjvu_format_release(self.ddjvu_format)
+		if self.ddjvu_format != NULL:
+			ddjvu_format_release(self.ddjvu_format)
 
 	def __repr__(self):
 		return '%s.%s()' % (self.__class__.__module__, self.__class__.__name__)
