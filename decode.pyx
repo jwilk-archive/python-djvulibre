@@ -20,6 +20,9 @@ cdef int is_int(object o):
 cdef extern from 'stdlib.h':
 	void libc_free 'free'(void* ptr)
 
+cdef extern from 'string.h':
+	int strcmp(char *s1, char *s2)
+
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -459,12 +462,7 @@ cdef class PixelFormat:
 		self._y_direction = 0
 		self._dither_bpp = 32
 		self._gamma = 2.2
-		for cls in (
-			PixelFormatBgr24, PixelFormatRgb24,
-			PixelFormatRgbMask16, PixelFormatRgbMask32,
-			PixelFormatGrey8, PixelFormatPalette8,
-			PixelFormatMsbToLsb, PixelFormatLsbToMsb
-		):
+		for cls in (PixelFormatRgb, PixelFormatRgbMask, PixelFormatGrey, PixelFormatPalette, PixelFormatPackedBits):
 			if typecheck(self, cls):
 				return
 		raise InstantiationError
@@ -516,75 +514,78 @@ cdef class PixelFormat:
 	def __repr__(self):
 		return '%s.%s()' % (self.__class__.__module__, self.__class__.__name__)
 
-cdef class PixelFormatTrueColor(PixelFormat):
-	pass
+cdef class PixelFormatRgb(PixelFormat):
 
-cdef class PixelFormatBgr24(PixelFormatTrueColor):
-
-	def __cinit__(self):
+	def __cinit__(self, char *byte_order = 'RGB', unsigned int bpp = 24):
+		cdef unsigned int _format
+		if strcmp(byte_order, 'RGB') == 0:
+			self._rgb = 1
+			_format = DDJVU_FORMAT_RGB24
+		elif strcmp(byte_order, 'BGR') == 0:
+			self._rgb = 0
+			_format = DDJVU_FORMAT_BGR24
+		else:
+			raise ValueError
+		if bpp != 24:
+			raise ValueError
 		self._bpp = 24
-		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_BGR24, 0, NULL)
+		self.ddjvu_format = ddjvu_format_create(_format, 0, NULL)
 	
-cdef class PixelFormatRgb24(PixelFormatTrueColor):
+	property byte_order:
+		def __get__(self):
+			if self._rgb:
+				return 'RGB'
+			else:
+				return 'BGR'
 
-	def __cinit__(self):
-		self._bpp = 24
-		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGB24, 0, NULL)
-
-cdef class PixelFormatRgbMask(PixelFormat):
-	pass
-	
-cdef class PixelFormatRgbMask16(PixelFormatRgbMask):
-
-	def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
-		self._bpp = 16
-		self._dither_bpp = 16
-		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xorval)
-		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGBMASK16, 4, self._params)
-	
 	def __repr__(self):
-		return '%s.%s(0x%04x, 0x%04x, 0x%04x, 0x%04x)' % \
+		return '%s.%s(byte_order = %r, bpp = %d)' % \
 		(
 			self.__class__.__module__, self.__class__.__name__,
-			self._params[0],
-			self._params[1],
-			self._params[2],
-			self._params[3],
+			self.byte_order,
+			self.bpp
 		)
+	
+cdef class PixelFormatRgbMask(PixelFormat):
 
-cdef class PixelFormatRgbMask32(PixelFormatRgbMask):
-
-	def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xorval = 0):
-		self._bpp = 32
-		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xorval)
-		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_RGBMASK32, 4, self._params)
+	def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xor_value = 0, unsigned int bpp = 16):
+		cdef unsigned int _format
+		if bpp == 16:
+			_format = DDJVU_FORMAT_RGBMASK16
+		elif bpp == 32:
+			_format = DDJVU_FORMAT_RGBMASK32
+		else:
+			raise ValueError
+		self._bpp = self._dither_bpp = bpp
+		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xor_value)
+		self.ddjvu_format = ddjvu_format_create(_format, 4, self._params)
 	
 	def __repr__(self):
-		return '%s.%s(0x%08x, 0x%08x, 0x%08x, 0x%08x)' % \
+		return '%s.%s(red_mask = 0x%0*x, green_mask = 0x%0*x, blue_mask = 0x%0*x, xor_value = 0x%0*x, bpp = %d)' % \
 		(
 			self.__class__.__module__, self.__class__.__name__,
-			self._params[0],
-			self._params[1],
-			self._params[2],
-			self._params[3],
+			self.bpp/4, self._params[0],
+			self.bpp/4, self._params[1],
+			self.bpp/4, self._params[2],
+			self.bpp/4, self._params[3],
+			self.bpp,
 		)
 	
 cdef class PixelFormatGrey(PixelFormat):
-	pass
 
-cdef class PixelFormatGrey8(PixelFormatGrey):
-
-	def __cinit__(self):
+	def __cinit__(self, unsigned int bpp = 8):
 		cdef unsigned int params[4]
-		self._bpp = 8
+		if bpp != 8:
+			raise ValueError
+		self._bpp = self._dither_bpp = bpp
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_GREY8, 0, NULL)
 
+	def __repr__(self):
+		return '%s.%s(bpp = %d)' % (self.__class__.__module__, self.__class__.__name__, self.bpp)
+
 cdef class PixelFormatPalette(PixelFormat):
-	pass
 
-cdef class PixelFormatPalette8(PixelFormatPalette):
-
-	def __cinit__(self, palette):
+	def __cinit__(self, palette, unsigned int bpp = 8):
 		cdef int i
 		palette_next = iter(palette).next
 		for i from 0 <= i < 216:
@@ -598,8 +599,9 @@ cdef class PixelFormatPalette8(PixelFormatPalette):
 			pass
 		else:
 			raise ValueError
-		self._bpp = 8
-		self._dither_bpp = 8
+		if bpp != 8:
+			raise ValueError
+		self._bpp = self._dither_bpp = bpp
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_PALETTE8, 216, self._palette)
 
 	def __repr__(self):
@@ -609,25 +611,37 @@ cdef class PixelFormatPalette8(PixelFormatPalette):
 		io.write('%s.%s([' % (self.__class__.__module__, self.__class__.__name__))
 		for i from 0 <= i < 215:
 			io.write('0x%02x, ' % self._palette[i])
-		io.write('0x%02x])' % self._palette[215])
+		io.write('0x%02x], bpp = %d)' % (self._palette[215], self.bpp))
 		return io.getvalue()
 
 cdef class PixelFormatPackedBits(PixelFormat):
-	pass
-
-cdef class PixelFormatMsbToLsb(PixelFormatPackedBits):
-
-	def __cinit__(self):
+	def __cinit__(self, char *endianess):
+		cdef int _format
+		if strcmp(endianess, '<') == 0:
+			self._little_endian = 1
+			_format = DDJVU_FORMAT_LSBTOMSB
+		elif strcmp(endianess, '>') == 0:
+			self._little_endian = 0
+			_format = DDJVU_FORMAT_MSBTOLSB
+		else:
+			raise ValueError
 		self._bpp = 1
 		self._dither_bpp = 1
-		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_MSBTOLSB, 0, NULL)
-
-cdef class PixelFormatLsbToMsb(PixelFormatPackedBits):
-
-	def __cinit__(self):
-		self._bpp = 1
-		self._dither_bpp = 1
-		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_LSBTOMSB, 0, NULL)
+		self.ddjvu_format = ddjvu_format_create(_format, 0, NULL)
+	
+	property endianness:
+		def __get__(self):
+			if self._little_endian:
+				return '<'
+			else:
+				return '>'
+	
+	def __repr__(self):
+		return '%s.%s(%r)' % \
+		(
+			self.__class__.__module__, self.__class__.__name__,
+			self.endianness
+		)
 
 class RenderError(Exception):
 	pass

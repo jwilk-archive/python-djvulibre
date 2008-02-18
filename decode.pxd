@@ -337,43 +337,20 @@ cdef class PixelFormat:
 	cdef int _y_direction
 	cdef double _gamma
 
-cdef class PixelFormatTrueColor(PixelFormat):
-	pass
-
-cdef class PixelFormatBgr24(PixelFormatTrueColor):
-	pass
-	
-cdef class PixelFormatRgb24(PixelFormatTrueColor):
-	pass
+cdef class PixelFormatRgb(PixelFormat):
+	cdef int _rgb
 
 cdef class PixelFormatRgbMask(PixelFormat):
 	cdef unsigned int _params[4]
 	
-cdef class PixelFormatRgbMask16(PixelFormatRgbMask):
-	pass
-
-cdef class PixelFormatRgbMask32(PixelFormatRgbMask):
-	pass
-	
 cdef class PixelFormatGrey(PixelFormat):
 	pass
 
-cdef class PixelFormatGrey8(PixelFormatGrey):
-	pass
-
 cdef class PixelFormatPalette(PixelFormat):
-	pass
-
-cdef class PixelFormatPalette8(PixelFormatPalette):
 	cdef unsigned int _palette[216]
 
 cdef class PixelFormatPackedBits(PixelFormat):
-	pass
-
-cdef class PixelFormatMsbToLsb(PixelFormatPackedBits):
-	pass
-
-cdef class PixelFormatLsbToMsb(PixelFormatPackedBits):
+	cdef int _little_endian
 	pass
 
 cdef class Job:
