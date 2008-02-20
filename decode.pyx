@@ -692,7 +692,7 @@ cdef class PixelFormatPackedBits(PixelFormat):
 			self.endianness
 		)
 
-class RenderError(Exception):
+class ImageNotAvailable(Exception):
 	pass
 
 
@@ -809,7 +809,7 @@ cdef class PageJob(Job):
 		buffer = allocate_image_buffer(row_size, c_render_rect.h, &buffer_size)
 		try:
 			if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, buffer) == 0:
-				raise RenderError
+				raise ImageNotAvailable
 			return PyString_FromStringAndSize(buffer, buffer_size)
 		finally:
 			PyMem_Free(buffer)
