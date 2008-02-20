@@ -403,7 +403,7 @@ cdef class ChunkMessage(Message):
 	pass
 
 cdef class ThumbnailMessage(Message):
-	pass
+	cdef int _page_no
 
 cdef class ProgressMessage(Message):
 	pass

@@ -1035,7 +1035,14 @@ cdef class ChunkMessage(Message):
 	pass
 
 cdef class ThumbnailMessage(Message):
-	pass
+
+	def __init(self):
+		Message.__init_(self)
+		self._page_no = self._uri = self.ddjvu_message.m_thumbnail.pagenum
+	
+	property n:
+		def __get__(self):
+			return self._n
 
 cdef class ProgressMessage(Message):
 	pass
