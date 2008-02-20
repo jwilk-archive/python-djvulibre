@@ -651,11 +651,6 @@ class RenderError(Exception):
 
 cdef class PageJob(Job):
 	
-	def __cinit__(self, **kwargs):
-		if kwargs.get('sentinel') is not the_sentinel:
-			raise InstantiationError
-		self.ddjvu_job = NULL
-	
 	property width:
 		def __get__(self):
 			cdef int width
