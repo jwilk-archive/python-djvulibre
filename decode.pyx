@@ -1037,7 +1037,7 @@ cdef class ChunkMessage(Message):
 cdef class ThumbnailMessage(Message):
 
 	def __init(self):
-		Message.__init_(self)
+		Message.__init(self)
 		self._page_no = self._uri = self.ddjvu_message.m_thumbnail.pagenum
 	
 	property n:
