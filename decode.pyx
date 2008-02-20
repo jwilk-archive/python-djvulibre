@@ -1038,11 +1038,11 @@ cdef class ThumbnailMessage(Message):
 
 	def __init(self):
 		Message.__init(self)
-		self._page_no = self._uri = self.ddjvu_message.m_thumbnail.pagenum
+		self._page_no = self.ddjvu_message.m_thumbnail.pagenum
 	
 	property n:
 		def __get__(self):
-			return self._n
+			return self._page_no
 
 cdef class ProgressMessage(Message):
 	pass
