@@ -97,6 +97,48 @@ cdef class Page:
 	def decode(self, wait = True):
 		raise NotImplementedError
 
+
+cdef class Thumbnail:
+
+	def __cinit__(self, PageNth page not None):
+		self._page = page
+	
+	property page:
+		def __get__(self):
+			return self._page
+	
+	property status:
+		def __get__(self):
+			return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 0))
+	
+	def calculate(self):
+		return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 1))
+
+	def render(self, size, PixelFormat pixel_format not None, unsigned long row_alignment = 0, dry_run = False):
+		cdef int w, h
+		cdef char* buffer
+		cdef size_t buffer_size
+		(w, h) = size
+		if w <= 0 or h <= 0:
+			raise ValueError
+		row_size = calculate_row_size(w, row_alignment, pixel_format._bpp)
+		if dry_run:
+			buffer = NULL
+		else:
+			buffer = allocate_image_buffer(row_size, h, &buffer_size)
+		try:
+			if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &w, &h, pixel_format.ddjvu_format, row_size, buffer):
+				if dry_run:
+					pybuffer = None
+				else:
+					pybuffer = PyString_FromStringAndSize(buffer, buffer_size)
+				return (w, h), pybuffer
+			else:
+				return None
+		finally:
+			PyMem_Free(buffer)
+
+
 cdef class PageNth(Page):
 
 	def __cinit__(self, Document document not None, int n, object sentinel):
@@ -108,6 +150,10 @@ cdef class PageNth(Page):
 	property n:
 		def __get__(self):
 			return self._n
+	
+	property thumbnail:
+		def __get__(self):
+			return Thumbnail(self)
 
 	property info:
 		def __get__(self):
@@ -649,6 +695,32 @@ cdef class PixelFormatPackedBits(PixelFormat):
 class RenderError(Exception):
 	pass
 
+
+cdef unsigned long calculate_row_size(unsigned long width, unsigned long row_alignment, int bpp):
+	if bpp == 1:
+		row_size = (width + 7) >> 3
+	elif bpp & 7 == 0:
+		row_size = width * (bpp >> 3)
+	else:
+		raise SystemError
+	if row_alignment == 0:
+		row_alignment = 1
+	return ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
+
+cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size_t* buffer_size) except NULL:
+	cdef char *buffer
+	py_buffer_size = int(width) * int(height)
+	try:
+		buffer_size[0] = py_buffer_size
+	except OverflowError:
+		buffer = NULL
+	else:
+		buffer = <char*> PyMem_Malloc(buffer_size[0])
+	if buffer == NULL:
+		raise MemoryError('Unable to alocate %d bytes for an image buffer' % py_buffer_size)
+	return buffer
+
+
 cdef class PageJob(Job):
 	
 	property width:
@@ -724,34 +796,17 @@ cdef class PageJob(Job):
 		def __del__(self):
 			ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job))
 
-	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned long row_alignment):
+	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned int row_alignment = 0):
 		cdef ddjvu_rect_t c_page_rect
 		cdef ddjvu_rect_t c_render_rect
-		cdef size_t c_buffer_size
+		cdef size_t buffer_size
 		cdef unsigned long row_size
 		cdef int bpp
 		cdef char* buffer
 		(c_page_rect.x, c_page_rect.y, c_page_rect.w, c_page_rect.h) = page_rect
 		(c_render_rect.x, c_render_rect.y, c_render_rect.w, c_render_rect.h) = render_rect
-		bpp = pixel_format._bpp
-		if bpp == 1:
-			row_size = (c_render_rect.w + 7) >> 3
-		elif bpp & 7 == 0:
-			row_size = c_render_rect.w * (bpp >> 3)
-		else:
-			raise SystemError
-		if row_alignment == 0:
-			row_alignment = 1
-		row_size = ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
-		buffer_size = int(row_size) * int(c_render_rect.h)
-		try:
-			c_buffer_size = buffer_size
-		except OverflowError:
-			buffer = NULL
-		else:
-			buffer = <char*> PyMem_Malloc(buffer_size)
-		if buffer == NULL:
-			raise MemoryError('Unable to alocate %d bytes for an image buffer' % buffer_size)
+		row_size = calculate_row_size(c_render_rect.w, row_alignment, pixel_format._bpp)
+		buffer = allocate_image_buffer(row_size, c_render_rect.h, &buffer_size)
 		try:
 			if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, buffer) == 0:
 				raise RenderError

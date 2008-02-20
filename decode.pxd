@@ -408,4 +408,7 @@ cdef class ThumbnailMessage(Message):
 cdef class ProgressMessage(Message):
 	pass
 
+cdef class Thumbnail:
+	cdef PageNth _page
+
 # vim:ts=4 sw=4 noet
