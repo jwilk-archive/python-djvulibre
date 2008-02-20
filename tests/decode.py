@@ -222,7 +222,7 @@ class PageJobTest:
 		'''
 	
 	def test_decode():
-		'''
+		r'''
 		>>> class MyContext(Context):
 		...   def handle_message(self, message): pass
 
@@ -272,7 +272,7 @@ class PageJobTest:
 		...
 		MemoryError: Unable to alocate 30000000000 bytes for an image buffer
 		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1)
-		'\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xef\\xff\\xff\\xff\\xa4\\xff\\xff\\xff\\xb8'
+		'\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8'
 		'''
 
 class ThumbnailTest:
