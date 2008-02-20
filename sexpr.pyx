@@ -99,18 +99,32 @@ io_puts = myio_puts
 io_getc = myio_getc
 io_ungetc = myio_ungetc
 
+class InstantiationError(RuntimeError):
+	pass
+
+cdef object the_sentinel
+the_sentinel = object()
+
 cdef class _WrappedCExp:
 	cdef cvar_t* cvar
 
-	def __cinit__(self):
+	def __cinit__(self, object sentinel):
+		if sentinel is not the_sentinel:
+			raise InstantiationError
 		self.cvar = cvar_new()
 
 	cdef cexp_t cexp(self):
 		return cvar_ptr(self.cvar)[0]
 
-	def print_into(self, stdout, width = None):
+	cdef object print_into(self, object stdout, object width):
 		cdef cexp_t cexp
 		global myio_stdout
+		if width is None:
+			pass
+		elif not is_int(width):
+			raise TypeError
+		elif width <= 0:
+			raise ValueError
 		cexp = self.cexp()
 		myio_stdout = stdout
 		if width is None:
@@ -119,7 +133,7 @@ cdef class _WrappedCExp:
 			cexp_printw(cexp, width)
 		myio_reset()
 
-	def as_string(self, width = None):
+	cdef object as_string(self, object width):
 		from cStringIO import StringIO
 		stdout = StringIO()
 		try:
@@ -133,9 +147,20 @@ cdef class _WrappedCExp:
 
 cdef _WrappedCExp wexp(cexp_t cexp):
 	cdef _WrappedCExp wexp
-	wexp = _WrappedCExp()
+	wexp = _WrappedCExp(sentinel = the_sentinel)
 	cvar_ptr(wexp.cvar)[0] = cexp
 	return wexp
+
+cdef class _MissingCExp(_WrappedCExp):
+
+	cdef object print_into(self, object stdout, object width):
+		raise NotImplementedError
+	
+	cdef object as_string(self, object width):
+		raise NotImplementedError
+
+cdef _MissingCExp wexp_missing():
+	return _MissingCExp(the_sentinel)
 
 class Symbol(str):
 
@@ -219,8 +244,11 @@ cdef object _Expression_richcmp(object left, object right, int op):
 cdef class _Expression:
 	cdef _WrappedCExp wexp
 
+	def __cinit__(self):
+		self.wexp = wexp_missing()
+
 	def print_into(self, stdout, width = None):
-		return self.wexp.print_into(stdout, width)
+		self.wexp.print_into(stdout, width)
 
 	def as_string(self, width = None):
 		return self.wexp.as_string(width)
@@ -231,6 +259,9 @@ cdef class _Expression:
 	property value:
 		def __get__(self):
 			return self.get_value()
+	
+	cdef object get_value(self):
+		raise NotImplementedError
 
 	def __richcmp__(self, other, int op):
 		return _Expression_richcmp(self, other, op)
@@ -260,7 +291,7 @@ cdef class IntExpression(_Expression):
 	def __long__(self):
 		return 0L + self.value
 
-	def get_value(self):
+	cdef object get_value(self):
 		return cexp_to_int(self.wexp.cexp())
 
 	def __richcmp__(self, other, int op):
@@ -279,7 +310,7 @@ cdef class SymbolExpression(_Expression):
 		else:
 			raise TypeError
 
-	def get_value(self):
+	cdef object get_value(self):
 		return Symbol(cexp_to_symbol(self.wexp.cexp()))
 
 	def __richcmp__(self, other, int op):
@@ -298,7 +329,7 @@ cdef class StringExpression(_Expression):
 		else:
 			raise TypeError
 
-	def get_value(self):
+	cdef object get_value(self):
 		return cexp_to_str(self.wexp.cexp())
 
 	def __richcmp__(self, other, int op):
@@ -442,7 +473,7 @@ cdef class ListExpression(_Expression):
 	def __iter__(self):
 		return _ListExpressionIterator(self)
 
-	def get_value(self):
+	cdef object get_value(self):
 		cdef cexp_t current
 		current = self.wexp.cexp()
 		result = []
