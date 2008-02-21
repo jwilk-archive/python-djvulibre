@@ -1,16 +1,6 @@
 # Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
-cdef extern from 'Python.h':
-	int typecheck 'PyObject_TypeCheck'(object o, object type)
-	int is_short_int 'PyInt_Check'(object o)
-	int is_long_int 'PyLong_Check'(object o)
-	int is_unicode 'PyUnicode_Check'(object o)
-	int is_string 'PyString_Check'(object o)
-	int is_slice 'PySlice_Check'(object o)
-	object encode_utf8 'PyUnicode_AsUTF8String'(object o)
-
-cdef int is_int(object o):
-	return is_short_int(o) or is_long_int(o)
+include 'common.pxd'
 
 cdef extern from 'libdjvu/miniexp.h':
 	int cexp_is_int 'miniexp_numberp'(cexp_t sexp)

@@ -1,28 +1,6 @@
 # Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
-ctypedef int size_t
-
-cdef extern from 'Python.h':
-	int PyString_AsStringAndSize(object, char**, int*) except -1
-	char* PyString_AsString(object) except NULL
-	object PyString_FromStringAndSize(char *s, int len)
-	void* PyMem_Malloc(size_t size)
-	void PyMem_Free(void* buffer)
-
-	int typecheck 'PyObject_TypeCheck'(object o, object type)
-	int is_short_int 'PyInt_Check'(object o)
-	int is_long_int 'PyLong_Check'(object o)
-	int is_unicode 'PyUnicode_Check'(object o)
-
-cdef int is_int(object o):
-	return is_short_int(o) or is_long_int(o)
-
-cdef extern from 'stdlib.h':
-	void libc_free 'free'(void* ptr)
-
-cdef extern from 'string.h':
-	int strcmp(char *s1, char *s2)
-
+include 'common.pxd'
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -131,12 +109,12 @@ cdef class Thumbnail:
 				if dry_run:
 					pybuffer = None
 				else:
-					pybuffer = PyString_FromStringAndSize(buffer, buffer_size)
+					pybuffer = charp_to_string(buffer, buffer_size)
 				return (w, h), pybuffer
 			else:
 				return None
 		finally:
-			PyMem_Free(buffer)
+			py_free(buffer)
 
 
 cdef class PageNth(Page):
@@ -206,7 +184,7 @@ cdef class PageById(Page):
 	def decode(self):
 		return PageJob_from_c(ddjvu_page_create_by_pageid(
 			self._document.ddjvu_document,
-			PyString_AsString(self._id.decode('UTF-8'))
+			string_to_charp(self._id.decode('UTF-8'))
 		), self._document._context)
 
 cdef class DocumentFiles(DocumentExtension):
@@ -362,7 +340,7 @@ cdef class FileInfo:
 	
 	property type:
 		def __get__(self):
-			return PyString_FromStringAndSize(&self.ddjvu_fileinfo.type, 1)
+			return charp_to_string(&self.ddjvu_fileinfo.type, 1)
 	
 	property npage:
 		def __get__(self):
@@ -715,7 +693,7 @@ cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size
 	except OverflowError:
 		buffer = NULL
 	else:
-		buffer = <char*> PyMem_Malloc(buffer_size[0])
+		buffer = <char*> py_malloc(buffer_size[0])
 	if buffer == NULL:
 		raise MemoryError('Unable to alocate %d bytes for an image buffer' % py_buffer_size)
 	return buffer
@@ -810,9 +788,9 @@ cdef class PageJob(Job):
 		try:
 			if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, buffer) == 0:
 				raise ImageNotAvailable
-			return PyString_FromStringAndSize(buffer, buffer_size)
+			return charp_to_string(buffer, buffer_size)
 		finally:
-			PyMem_Free(buffer)
+			py_free(buffer)
 
 	def __dealloc__(self):
 		pass
@@ -1043,7 +1021,7 @@ cdef class Stream:
 		cdef char* raw_data
 		cdef int length
 		if self._open:
-			PyString_AsStringAndSize(data, &raw_data, &length)
+			string_to_charp_and_size(data, &raw_data, &length)
 			ddjvu_stream_write(self._document.ddjvu_document, self._streamid, raw_data, length)
 		else:
 			raise IOError('I/O operation on closed file')
