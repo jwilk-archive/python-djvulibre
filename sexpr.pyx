@@ -170,7 +170,7 @@ class Expression(object):
 	pass
 
 def Expression__new__(cls, value):
-	if isinstance(value, (int, long)):
+	if is_int(value):
 		return IntExpression(value)
 	elif typecheck(value, Symbol):
 		return SymbolExpression(value)
