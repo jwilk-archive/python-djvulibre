@@ -134,24 +134,6 @@ class DocumentTest:
 #		>>> type(message) == ErrorMessage
 #		True
 
-		>>> foo_page = document.pages[u'foo']
-		>>> isinstance(foo_page, Page)
-		True
-		>>> foo_page.n
-		Traceback (most recent call last):
-		...
-		NotImplementedError
-		>>> foo_page.id
-		u'foo'
-		>>> foo_page.dump
-		Traceback (most recent call last):
-		...
-		NotImplementedError
-		>>> foo_page.info
-		Traceback (most recent call last):
-		...
-		NotImplementedError
-
 		>>> context.get_message(wait = False) is None
 		True
 		'''

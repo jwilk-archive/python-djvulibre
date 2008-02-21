@@ -149,7 +149,6 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 	char* ddjvu_document_get_filedump(ddjvu_document_t* document, int fileno)
 
 	ddjvu_page_t* ddjvu_page_create_by_pageno(ddjvu_document_t* document, int pageno)
-	ddjvu_page_t* ddjvu_page_create_by_pageid(ddjvu_document_t* document, char* pageid)
 	ddjvu_job_t* ddjvu_page_job(ddjvu_page_t* page)
 
 	void ddjvu_page_release(ddjvu_page_t* page)
@@ -311,12 +310,7 @@ cdef class File:
 
 cdef class Page:
 	cdef Document _document
-
-cdef class PageNth(Page):
 	cdef int _n
-
-cdef class PageById(Page):
-	cdef object _id
 
 cdef class FileInfo:
 	cdef ddjvu_fileinfo_t ddjvu_fileinfo
@@ -409,6 +403,6 @@ cdef class ProgressMessage(Message):
 	pass
 
 cdef class Thumbnail:
-	cdef PageNth _page
+	cdef Page _page
 
 # vim:ts=4 sw=4 noet

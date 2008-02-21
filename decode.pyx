@@ -40,84 +40,11 @@ cdef class DocumentPages(DocumentExtension):
 		if is_int(key):
 			if key < 0:
 				raise ValueError
-			return PageNth(self.document, key, the_sentinel)
-		elif is_unicode(key):
-			return PageById(self.document, key, the_sentinel)
+			return Page(self.document, key, the_sentinel)
 		else:
 			raise TypeError
 
 cdef class Page:
-
-#	def __cinit__(self):
-#		pass
-#	FIXME
-
-	property document:
-		def __get__(self):
-			return self._document
-	
-	property n:
-		def __get__(self):
-			raise NotImplementedError
-
-	property id:
-		def __get__(self):
-			raise NotImplementedError
-
-	property info:
-		def __get__(self):
-			raise NotImplementedError
-	
-	property dump:
-		def __get__(self):
-			raise NotImplementedError
-
-	def decode(self, wait = True):
-		raise NotImplementedError
-
-
-cdef class Thumbnail:
-
-	def __cinit__(self, PageNth page not None):
-		self._page = page
-	
-	property page:
-		def __get__(self):
-			return self._page
-	
-	property status:
-		def __get__(self):
-			return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 0))
-	
-	def calculate(self):
-		return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 1))
-
-	def render(self, size, PixelFormat pixel_format not None, unsigned long row_alignment = 0, dry_run = False):
-		cdef int w, h
-		cdef char* buffer
-		cdef size_t buffer_size
-		(w, h) = size
-		if w <= 0 or h <= 0:
-			raise ValueError
-		row_size = calculate_row_size(w, row_alignment, pixel_format._bpp)
-		if dry_run:
-			buffer = NULL
-		else:
-			buffer = allocate_image_buffer(row_size, h, &buffer_size)
-		try:
-			if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &w, &h, pixel_format.ddjvu_format, row_size, buffer):
-				if dry_run:
-					pybuffer = None
-				else:
-					pybuffer = charp_to_string(buffer, buffer_size)
-				return (w, h), pybuffer
-			else:
-				return None
-		finally:
-			py_free(buffer)
-
-
-cdef class PageNth(Page):
 
 	def __cinit__(self, Document document not None, int n, object sentinel):
 		if sentinel is not the_sentinel:
@@ -125,6 +52,10 @@ cdef class PageNth(Page):
 		self._document = document
 		self._n = n
 
+	property document:
+		def __get__(self):
+			return self._document
+	
 	property n:
 		def __get__(self):
 			return self._n
@@ -169,23 +100,47 @@ cdef class PageNth(Page):
 			page_job.wait()
 		return page_job
 
-cdef class PageById(Page):
-	
-	def __cinit__(self, Document document not None, object id, object sentinel):
-		if sentinel is not the_sentinel:
-			raise InstantiationError
-		self._document = document
-		self._id = id
 
-	property id:
-		def __get__(self):
-			return self._id
+cdef class Thumbnail:
+
+	def __cinit__(self, Page page not None):
+		self._page = page
 	
-	def decode(self):
-		return PageJob_from_c(ddjvu_page_create_by_pageid(
-			self._document.ddjvu_document,
-			string_to_charp(self._id.decode('UTF-8'))
-		), self._document._context)
+	property page:
+		def __get__(self):
+			return self._page
+	
+	property status:
+		def __get__(self):
+			return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 0))
+	
+	def calculate(self):
+		return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 1))
+
+	def render(self, size, PixelFormat pixel_format not None, unsigned long row_alignment = 0, dry_run = False):
+		cdef int w, h
+		cdef char* buffer
+		cdef size_t buffer_size
+		(w, h) = size
+		if w <= 0 or h <= 0:
+			raise ValueError
+		row_size = calculate_row_size(w, row_alignment, pixel_format._bpp)
+		if dry_run:
+			buffer = NULL
+		else:
+			buffer = allocate_image_buffer(row_size, h, &buffer_size)
+		try:
+			if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &w, &h, pixel_format.ddjvu_format, row_size, buffer):
+				if dry_run:
+					pybuffer = None
+				else:
+					pybuffer = charp_to_string(buffer, buffer_size)
+				return (w, h), pybuffer
+			else:
+				return None
+		finally:
+			py_free(buffer)
+
 
 cdef class DocumentFiles(DocumentExtension):
 
