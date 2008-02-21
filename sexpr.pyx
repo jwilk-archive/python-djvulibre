@@ -244,7 +244,7 @@ cdef object _Expression_richcmp(object left, object right, int op):
 cdef class _Expression:
 	cdef _WrappedCExp wexp
 
-	def __cinit__(self):
+	def __cinit__(self, *args, **kwargs):
 		self.wexp = wexp_missing()
 
 	def print_into(self, stdout, width = None):
