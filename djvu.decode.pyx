@@ -1114,9 +1114,9 @@ JOB_EXCEPTION_MAP = \
 
 cdef class _SexprWrapper:
 
-	def __cinit__(self, sentinel):
+	def __cinit__(self, document, sentinel):
 		import weakref
-		self._weakref_document = weakref.ref(document)
+		self._document_weakref = weakref.ref(document)
 		if sentinel != the_sentinel:
 			raise InstantiationError
 	
@@ -1127,14 +1127,14 @@ cdef class _SexprWrapper:
 		cdef Document document
 		if self._cexp == NULL:
 			return
-		document = self._weakref_document()
+		document = self._document_weakref()
 		if document is None:
 			return
 		ddjvu_miniexp_release(document.ddjvu_document, self._cexp)
 
-cdef _SexprWrapper wrap_sexpr(cexp_t cexp):
+cdef _SexprWrapper wrap_sexpr(Document document, cexp_t cexp):
 	cdef _SexprWrapper result
-	result = _SexprWrapper()
+	result = _SexprWrapper(document, the_sentinel)
 	result._cexp = cexp
 	return result
 
@@ -1142,7 +1142,7 @@ cdef class DocumentOutline:
 
 	def __cinit__(self, Document document not None):
 		self._document = document
-		self._sexpr = wrap_sexpr(ddjvu_document_get_outline(document.ddjvu_document))
+		self._sexpr = wrap_sexpr(document, ddjvu_document_get_outline(document.ddjvu_document))
 	
 	property sexpr:
 		def __get__(self):
@@ -1153,15 +1153,15 @@ cdef class DocumentOutline:
 			return self._document
 	
 	def __repr__(self):
-		return '%s.%s(%r)' % (self.__module__, self.__class__.__name__, self._document)
+		return '%s.%s(%r)' % (self.__class__.__module__, self.__class__.__name__, self._document)
 
 cdef class Annotations:
 
-	def __cinit__(self):
+	def __cinit__(self, *args, **kwargs):
 		if typecheck(self, DocumentAnnotations):
-			pass
+			return
 		if typecheck(self, PageAnnotations):
-			pass
+			return
 		raise InstantiationError
 
 	property sexpr:
@@ -1200,7 +1200,7 @@ cdef class DocumentAnnotations(Annotations):
 
 	def __cinit__(self, Document document not None, compat = False):
 		self._document = document
-		self._sexpr = wrap_sexpr(ddjvu_document_get_anno(document.ddjvu_document, compat))
+		self._sexpr = wrap_sexpr(document, ddjvu_document_get_anno(document.ddjvu_document, compat))
 
 	property document:
 		def __get__(self):
@@ -1209,8 +1209,9 @@ cdef class DocumentAnnotations(Annotations):
 cdef class PageAnnotations(Annotations):
 
 	def __cinit__(self, Page page not None):
+		self._document = page._document
 		self._page = page
-		self._sexpr = wrap_sexpr(ddjvu_document_get_pageanno(page._document.ddjvu_document, page._n))
+		self._sexpr = wrap_sexpr(document, ddjvu_document_get_pageanno(page._document.ddjvu_document, page._n))
 	
 	property page:
 		def __get__(self):
@@ -1233,7 +1234,7 @@ cdef class PageText:
 		if details not in (TEXT_DETAILS_PAGE, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE):
 			raise ValueError
 		self._page = page
-		self._sexpr = wrap_sexpr(ddjvu_document_get_pagetext(page._document.ddjvu_document, page._n, details))
+		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pagetext(page._document.ddjvu_document, page._n, details))
 	
 	property page:
 		def __get__(self):
@@ -1246,7 +1247,7 @@ cdef class PageText:
 cdef class Hyperlinks:
 
 	def __cinit__(self, Annotations annotations not None):
-		self._sexpr = wrap_sexpr(ddjvu_anno_get_hyperlinks(annotations._sexpr._cexp)[0])
+		self._sexpr = wrap_sexpr(self.annotations._document, ddjvu_anno_get_hyperlinks(annotations._sexpr._cexp)[0])
 
 cdef class Metadata:
 

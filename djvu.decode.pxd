@@ -307,6 +307,7 @@ cdef class Document:
 	cdef object __weakref__
 
 cdef class _SexprWrapper:
+	cdef object _document_weakref
 	cdef cexp_t _cexp
 
 cdef class DocumentOutline:
@@ -315,9 +316,10 @@ cdef class DocumentOutline:
 
 cdef class Annotations:
 	cdef _SexprWrapper _sexpr
+	cdef Document _document
 
 cdef class DocumentAnnotations(Annotations):
-	cdef Document _document
+	pass
 
 cdef class Hyperlinks:
 	cdef _SexprWrapper _sexpr
