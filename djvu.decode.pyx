@@ -1226,7 +1226,7 @@ cdef class Annotations:
 
 cdef class DocumentAnnotations(Annotations):
 
-	def __cinit__(self, Document document not None, compat = False):
+	def __cinit__(self, Document document not None, compat = True):
 		self._document = document
 		self._sexpr = wrap_sexpr(document, ddjvu_document_get_anno(document.ddjvu_document, compat))
 
