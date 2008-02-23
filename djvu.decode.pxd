@@ -4,9 +4,9 @@ cdef extern from 'stdio.h':
 	struct _IO_FILE
 	ctypedef _IO_FILE FILE
 
-from djvu.sexpr cimport cexp_t, _WrappedCExp
-from djvu.sexpr cimport public_c2py as cexp2py
-from djvu.sexpr cimport public_py2c as py2cexp
+from djvu.sexpr cimport cexpr_t, _WrappedCExpr
+from djvu.sexpr cimport public_c2py as cexpr2py
+from djvu.sexpr cimport public_py2c as py2cexpr
 
 cdef extern from 'libdjvu/ddjvuapi.h':
 	struct ddjvu_context_s
@@ -258,20 +258,20 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 	ddjvu_job_t* ddjvu_document_print(ddjvu_document_t* document, FILE* output, int optc, char** optv)
 	ddjvu_job_t* ddjvu_document_save(ddjvu_document_t* document, FILE* output, int optc, char** optv)
 
-	void ddjvu_miniexp_release(ddjvu_document_t* document, cexp_t expr)
+	void ddjvu_miniexp_release(ddjvu_document_t* document, cexpr_t expr)
 
-	cexp_t ddjvu_document_get_outline(ddjvu_document_t* document)
-	cexp_t ddjvu_document_get_anno(ddjvu_document_t* document, int compat)
-	cexp_t ddjvu_document_get_pagetext(ddjvu_document_t* document, int pageno, char* maxdetail)
-	cexp_t ddjvu_document_get_pageanno(ddjvu_document_t* document, int pageno)
-	char* ddjvu_anno_get_bgcolor(cexp_t annotations)
-	char* ddjvu_anno_get_zoom(cexp_t annotations)
-	char* ddjvu_anno_get_mode(cexp_t annotations)
-	char* ddjvu_anno_get_horizalign(cexp_t annotations)
-	char* ddjvu_anno_get_vertalign(cexp_t annotations)
-	cexp_t* ddjvu_anno_get_hyperlinks(cexp_t annotations)
-	cexp_t* ddjvu_anno_get_metadata_keys(cexp_t annotations)
-	char* ddjvu_anno_get_metadata(cexp_t annotations, cexp_t key)
+	cexpr_t ddjvu_document_get_outline(ddjvu_document_t* document)
+	cexpr_t ddjvu_document_get_anno(ddjvu_document_t* document, int compat)
+	cexpr_t ddjvu_document_get_pagetext(ddjvu_document_t* document, int pageno, char* maxdetail)
+	cexpr_t ddjvu_document_get_pageanno(ddjvu_document_t* document, int pageno)
+	char* ddjvu_anno_get_bgcolor(cexpr_t annotations)
+	char* ddjvu_anno_get_zoom(cexpr_t annotations)
+	char* ddjvu_anno_get_mode(cexpr_t annotations)
+	char* ddjvu_anno_get_horizalign(cexpr_t annotations)
+	char* ddjvu_anno_get_vertalign(cexpr_t annotations)
+	cexpr_t* ddjvu_anno_get_hyperlinks(cexpr_t annotations)
+	cexpr_t* ddjvu_anno_get_metadata_keys(cexpr_t annotations)
+	char* ddjvu_anno_get_metadata(cexpr_t annotations, cexpr_t key)
 
 	cdef union ddjvu_message_s:
 		ddjvu_message_any_s m_any
@@ -308,7 +308,7 @@ cdef class Document:
 
 cdef class _SexprWrapper:
 	cdef object _document_weakref
-	cdef cexp_t _cexp
+	cdef cexpr_t _cexpr
 
 cdef class DocumentOutline:
 	cdef Document _document
