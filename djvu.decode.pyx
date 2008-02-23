@@ -1288,6 +1288,12 @@ cdef class Hyperlinks:
 				current = current + 1
 		finally:
 			libc_free(all)
+	
+	def __len__(self):
+		return len(self._sexpr)
+	
+	def __getitem__(self, Py_ssize_t n):
+		return self._sexpr[n]()
 
 cdef class Metadata:
 
@@ -1308,6 +1314,9 @@ cdef class Metadata:
 		finally:
 			libc_free(all)
 	
+	def __len__(self):
+		return len(self._keys)
+
 	def __getitem__(self, key):
 		cdef _WrappedCExpr cexpr_key
 		cdef char *s
