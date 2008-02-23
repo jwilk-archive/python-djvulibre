@@ -421,6 +421,8 @@ class SexprTest:
 	>>> metadata = anno.metadata
 	>>> type(metadata) == Metadata
 	True
+	>>> len(metadata)
+	5
 	>>> sorted(metadata.keys())
 	[u'Author', u'CreationDate', u'Creator', u'ModDate', u'Producer']
 	>>> k = 'ModDate'
@@ -432,13 +434,20 @@ class SexprTest:
 	Traceback (most recent call last):
 	...
 	KeyError: 'foo'
+
 	>>> hyperlinks = anno.hyperlinks
 	>>> type(hyperlinks) == Hyperlinks
 	True
+	>>> len(hyperlinks)
+	0
+	>>> list(hyperlinks)
+	[]
 
 	>>> outline = document.outline
 	>>> type(outline) == DocumentOutline
 	True
+	>>> outline.sexpr
+	Expression((Symbol('bookmarks'), ('First equation', '#1'), ('Color samples', '#2', ('Even more colors', '#3')), ('Second equation', '#4', ('Vari\xc3\xa9t\xc3\xa9s', '#4', ('HTTP URI', '#4'), ('Different font sizes', '#4'), ('Photo', '#4')))))
 
 	>>> page = document.pages[3]
 	>>> anno = page.annotations
@@ -459,6 +468,14 @@ class SexprTest:
 	True
 	>>> [page_metadata[k] == metadata[k] for k in metadata]
 	[True, True, True, True, True]
+
+	>>> hyperlinks = anno.hyperlinks
+	>>> type(hyperlinks) == Hyperlinks
+	True
+	>>> len(hyperlinks)
+	2
+	>>> list(hyperlinks)
+	[Expression((Symbol('maparea'), '#1', '', (Symbol('rect'), 255, 610, 8, 13), (Symbol('border'), Symbol('#ff0000')))), Expression((Symbol('maparea'), 'http://jw209508.hopto.org/', '', (Symbol('rect'), 110, 504, 162, 13), (Symbol('border'), Symbol('#ff0000'))))]
 
 	>>> text = page.text
 	>>> type(text) == PageText
