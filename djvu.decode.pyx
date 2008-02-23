@@ -982,7 +982,7 @@ cdef class Stream:
 	
 	def write(self, data):
 		cdef char* raw_data
-		cdef int length
+		cdef Py_ssize_t length
 		if self._open:
 			string_to_charp_and_size(data, &raw_data, &length)
 			ddjvu_stream_write(self._document.ddjvu_document, self._streamid, raw_data, length)
