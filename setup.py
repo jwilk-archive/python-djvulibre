@@ -14,7 +14,11 @@ setup(
 	ext_package = 'djvu',
 	ext_modules = \
 	[
-		Extension(name, ['djvu.%s.pyx' % name], libraries = ['djvulibre'])
+		Extension(name, ['djvu.%s.pyx' % name],
+			libraries = ['djvulibre'],
+			extra_compile_args = ['-g'],
+			extra_link_args = ['-g']
+		)
 		for name in EXT_MODULES
 	],
 	cmdclass = {'build_ext': build_ext}
