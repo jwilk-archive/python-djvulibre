@@ -1178,23 +1178,43 @@ cdef class Annotations:
 	
 	property background_color:
 		def __get__(self):
-			return ddjvu_anno_get_bgcolor(self._sexpr._cexp)
+			cdef char* result
+			result = ddjvu_anno_get_bgcolor(self._sexpr._cexp)
+			if result == NULL:
+				return None
+			return result
 
 	property zoom:
 		def __get__(self):
-			return ddjvu_anno_get_zoom(self._sexpr._cexp)
+			cdef char* result
+			result = ddjvu_anno_get_zoom(self._sexpr._cexp)
+			if result == NULL:
+				return
+			return result
 
 	property mode:
 		def __get__(self):
-			return ddjvu_anno_get_mode(self._sexpr._cexp)
+			cdef char* result
+			result = ddjvu_anno_get_mode(self._sexpr._cexp)
+			if result == NULL:
+				return
+			return result
 
 	property horizontal_align:
 		def __get__(self):
-			return ddjvu_anno_get_horizalign(self._sexpr._cexp)
+			cdef char* result
+			result = ddjvu_anno_get_horizalign(self._sexpr._cexp)
+			if result == NULL:
+				return
+			return result
 
 	property vertical_align:
 		def __get__(self):
-			return ddjvu_anno_get_vertalign(self._sexpr._cexp)
+			cdef char* result
+			result = ddjvu_anno_get_vertalign(self._sexpr._cexp)
+			if result == NULL:
+				return
+			return result
 	
 	property hyperlinks:
 		def __get__(self):
