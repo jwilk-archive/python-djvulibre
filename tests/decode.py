@@ -236,17 +236,17 @@ class PageJobTest:
 		24
 		>>> page_job.type == PAGE_TYPE_BITONAL
 		True
-		>>> (page_job.rotation, page_job.initial_rotation)
+		>>> page_job.rotation, page_job.initial_rotation
 		(0, 0)
 		>>> page_job.rotation = 100
 		Traceback (most recent call last):
 		...
 		ValueError
 		>>> page_job.rotation = 180
-		>>> (page_job.rotation, page_job.initial_rotation)
+		>>> page_job.rotation, page_job.initial_rotation
 		(180, 0)
 		>>> del page_job.rotation
-		>>> (page_job.rotation, page_job.initial_rotation)
+		>>> page_job.rotation, page_job.initial_rotation
 		(0, 0)
 
 		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 100000, 100000), PixelFormatRgb(), 8)
@@ -281,7 +281,7 @@ class ThumbnailTest:
 		0
 		>>> thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
 		((5, 3), None)
-		>>> ((w, h), pixels) = thumbnail.render((5, 5), PixelFormatGrey())
+		>>> (w, h), pixels = thumbnail.render((5, 5), PixelFormatGrey())
 		>>> w, h
 		(5, 3)
 		>>> pixels[:15]
