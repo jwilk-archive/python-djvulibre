@@ -379,6 +379,94 @@ class StreamTest:
 	True
 	'''
 
+class SexprTest:
+	r'''
+	>>> context = Context()
+	>>> document = context.new_document(FileURI('test-p.djvu'))
+	>>> type(document) == Document
+	True
+	>>> message = context.get_message()
+	>>> type(message) == DocInfoMessage
+	True
+	>>> document.is_done
+	True
+	>>> document.is_error
+	False
+	>>> document.status == JobOK
+	True
+	>>> document.type == DOCUMENT_TYPE_BUNDLED
+	True
+	>>> len(document.pages)
+	4
+	>>> len(document.files)
+	5
+
+	>>> anno = DocumentAnnotations(document, compat = False)
+	>>> type(anno) == DocumentAnnotations
+	True
+	>>> anno.sexpr
+	Expression(())
+
+	>>> anno = document.annotations
+	>>> type(anno) == DocumentAnnotations
+	True
+	>>> anno.background_color
+	>>> anno.horizontal_align
+	>>> anno.vertical_align
+	>>> anno.mode
+	>>> anno.zoom
+	>>> anno.sexpr
+	Expression(((Symbol('metadata'), (Symbol('ModDate'), '2007-12-07 18:11:10+01:00'), (Symbol('CreationDate'), '2007-12-07 18:11:10+01:00'), (Symbol('Producer'), 'pdfTeX-1.40.3\npdf2djvu 0.4.5 (DjVuLibre , poppler 3.5.20)'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')),))
+
+	>>> metadata = anno.metadata
+	>>> type(metadata) == Metadata
+	True
+	>>> sorted(metadata.keys())
+	[u'Author', u'CreationDate', u'Creator', u'ModDate', u'Producer']
+	>>> k = 'ModDate'
+	>>> k in metadata
+	True
+	>>> metadata[k]
+	u'2007-12-07 18:11:10+01:00'
+	>>> metadata['foo']
+	Traceback (most recent call last):
+	...
+	KeyError: 'foo'
+	>>> hyperlinks = anno.hyperlinks
+	>>> type(hyperlinks) == Hyperlinks
+	True
+
+	>>> outline = document.outline
+	>>> type(outline) == DocumentOutline
+	True
+
+	>>> page = document.pages[3]
+	>>> anno = page.annotations
+	>>> type(anno) == PageAnnotations
+	True
+	>>> anno.background_color
+	>>> anno.horizontal_align
+	>>> anno.vertical_align
+	>>> anno.mode
+	>>> anno.zoom
+	>>> anno.sexpr
+	Expression(((Symbol('metadata'), (Symbol('ModDate'), '2007-12-07 18:11:10+01:00'), (Symbol('CreationDate'), '2007-12-07 18:11:10+01:00'), (Symbol('Producer'), 'pdfTeX-1.40.3\npdf2djvu 0.4.5 (DjVuLibre , poppler 3.5.20)'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('maparea'), '#1', '', (Symbol('rect'), 255, 610, 8, 13), (Symbol('border'), Symbol('#ff0000'))), (Symbol('maparea'), 'http://jw209508.hopto.org/', '', (Symbol('rect'), 110, 504, 162, 13), (Symbol('border'), Symbol('#ff0000')))))
+
+	>>> page_metadata = anno.metadata
+	>>> type(page_metadata) == Metadata
+	True
+	>>> page_metadata.keys() == metadata.keys()
+	True
+	>>> [page_metadata[k] == metadata[k] for k in metadata]
+	[True, True, True, True, True]
+
+	>>> text = page.text
+	>>> type(text) == PageText
+	True
+	>>> text.sexpr
+	Expression((Symbol('page'), 0, 0, 612, 792, (Symbol('line'), 110, 652, 277, 672, '3 Second equation '), (Symbol('line'), 110, 625, 309, 639, '(Image background, black foreground.) '), (Symbol('line'), 128, 611, 311, 625, 'In addition to equation (1) consider '), (Symbol('line'), 281, 587, 328, 599, '2+1=3 '), (Symbol('line'), 484, 585, 498, 599, '(2) '), (Symbol('line'), 110, 553, 204, 567, '3.1 Vari\xc2\xb4et\xc2\xb4es '), (Symbol('line'), 110, 531, 220, 542, '3.1.1 HTTP URI '), (Symbol('line'), 110, 506, 270, 520, 'http://jw209508.hopto.org/ '), (Symbol('line'), 110, 477, 262, 488, '3.1.2 Di\xef\xac\x80erent font sizes '), (Symbol('line'), 110, 436, 498, 460, 'Poo qoo Poo qoo Poo qoo Poo qoo Poo qoo Poo qoo Poo qoo Poo qoo '), (Symbol('line'), 110, 405, 280, 434, 'Poo qoo Poo qoo '), (Symbol('line'), 110, 361, 186, 372, '3.1.3 Photo '), (Symbol('line'), 302, 90, 307, 101, '4 ')))
+	'''
+
 if __name__ == '__main__':
 	import os, sys
 	os.chdir(sys.path[0])
