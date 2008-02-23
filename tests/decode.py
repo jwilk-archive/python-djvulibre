@@ -259,33 +259,32 @@ class PageJobTest:
 
 class ThumbnailTest:
 
-	def test_render():
-		r'''
-		>>> class MyContext(Context):
-		...   def handle_message(self, message): pass
+	r'''
+	>>> class MyContext(Context):
+	...   def handle_message(self, message): pass
 
-		>>> context = MyContext()
-		>>> document = context.new_document(FileURI('test-g.djvu'))
-		>>> message = context.get_message()
-		>>> type(message) == DocInfoMessage
-		True
-		>>> thumbnail = document.pages[0].thumbnail
-		>>> thumbnail.status == JobOK
-		True
-		>>> thumbnail.calculate() == JobOK
-		True
-		>>> message = context.get_message()
-		>>> type(message) == ThumbnailMessage
-		True
-		>>> message.n
-		0
-		>>> thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
-		((5, 3), None)
-		>>> (w, h), pixels = thumbnail.render((5, 5), PixelFormatGrey())
-		>>> w, h
-		(5, 3)
-		>>> pixels[:15]
-		'\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
+	>>> context = MyContext()
+	>>> document = context.new_document(FileURI('test-g.djvu'))
+	>>> message = context.get_message()
+	>>> type(message) == DocInfoMessage
+	True
+	>>> thumbnail = document.pages[0].thumbnail
+	>>> thumbnail.status == JobOK
+	True
+	>>> thumbnail.calculate() == JobOK
+	True
+	>>> message = context.get_message()
+	>>> type(message) == ThumbnailMessage
+	True
+	>>> message.n
+	0
+	>>> thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
+	((5, 3), None)
+	>>> (w, h), pixels = thumbnail.render((5, 5), PixelFormatGrey())
+	>>> w, h
+	(5, 3)
+	>>> pixels[:15]
+	'\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
 		'''
 
 class JobTest:
