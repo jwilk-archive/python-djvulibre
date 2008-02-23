@@ -1275,18 +1275,48 @@ cdef class PageText:
 cdef class Hyperlinks:
 
 	def __cinit__(self, Annotations annotations not None):
-		self._sexpr = wrap_sexpr(self.annotations._document, ddjvu_anno_get_hyperlinks(annotations._sexpr._cexp)[0])
+		cdef cexp_t* all
+		cdef cexp_t* current
+		all = ddjvu_anno_get_hyperlinks(annotations._sexpr._cexp)
+		if all == NULL:
+			raise MemoryError
+		try:
+			current = all
+			self._sexpr = []
+			while current[0]:
+				self._sexpr.append(wrap_sexpr(annotations._document, current[0]))
+				current = current + 1
+		finally:
+			libc_free(all)
 
 cdef class Metadata:
 
 	def __cinit__(self, Annotations annotations not None):
+		cdef cexp_t* all
+		cdef cexp_t* current
 		self._annotations = annotations
-		self._keys = frozenset(cexp2py(ddjvu_anno_get_metadata_keys(annotations._sexpr._cexp)[0]))
+		all = ddjvu_anno_get_metadata_keys(annotations._sexpr._cexp)
+		if all == NULL:
+			raise MemoryError
+		try:
+			current = all
+			keys = []
+			while current[0]:
+				keys.append(unicode(wrap_sexpr(annotations._document, current[0])()))
+				current = current + 1
+			self._keys = frozenset(keys)
+		finally:
+			libc_free(all)
 	
 	def __getitem__(self, key):
-		cdef cexp_t cexp_key
-		cexp_key = py2cexp(key)
-		return ddjvu_anno_get_metadata(self._annotations._sexpr._cexp, cexp_key).decode('UTF-8')
+		cdef _WrappedCExp cexp_key
+		cdef char *s
+		from djvu.sexpr import Symbol
+		cexp_key = py2cexp(Symbol(key))
+		s = ddjvu_anno_get_metadata(self._annotations._sexpr._cexp, cexp_key.cexp())
+		if s == NULL:
+			raise KeyError(key)
+		return s.decode('UTF-8')
 	
 	def keys(self):
 		return self._keys
@@ -1301,6 +1331,6 @@ cdef class Metadata:
 		return k in self
 	
 	def __contains__(self, k):
-		return k in self.keys
+		return k in self._keys
 	
 # vim:ts=4 sw=4 noet

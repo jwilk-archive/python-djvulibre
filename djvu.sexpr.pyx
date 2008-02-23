@@ -33,9 +33,6 @@ cdef extern from 'libdjvu/miniexp.h':
 	cexp_t lock_gc 'minilisp_acquire_gc_lock'(cexp_t cexp)
 	cexp_t unlock_gc 'minilisp_release_gc_lock'(cexp_t cexp)
 	
-	cdef extern struct cvar_s 'minivar_s'
-	ctypedef cvar_s cvar_t 'minivar_t'
-
 	cvar_t* cvar_new 'minivar_alloc'()
 	void cvar_free 'minivar_free'(cvar_t* v)
 	cexp_t* cvar_ptr 'minivar_pointer'(cvar_t* v)
@@ -96,7 +93,6 @@ cdef object the_sentinel
 the_sentinel = object()
 
 cdef class _WrappedCExp:
-	cdef cvar_t* cvar
 
 	def __cinit__(self, object sentinel):
 		if sentinel is not the_sentinel:
@@ -334,10 +330,10 @@ class _InvalidExpression(ValueError):
 class ExpressionSyntaxError(SyntaxError):
 	pass
 
-cdef cexp_t public_py2c(object o):
+cdef _WrappedCExp public_py2c(object o):
 	cdef _Expression x
 	x = Expression(o)
-	return x.wexp.cexp()
+	return x.wexp
 
 cdef object public_c2py(cexp_t cexp):
 	return _c2py(cexp)

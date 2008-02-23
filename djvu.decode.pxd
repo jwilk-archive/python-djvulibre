@@ -4,7 +4,7 @@ cdef extern from 'stdio.h':
 	struct _IO_FILE
 	ctypedef _IO_FILE FILE
 
-from djvu.sexpr cimport cexp_t
+from djvu.sexpr cimport cexp_t, _WrappedCExp
 from djvu.sexpr cimport public_c2py as cexp2py
 from djvu.sexpr cimport public_py2c as py2cexp
 
@@ -322,7 +322,7 @@ cdef class DocumentAnnotations(Annotations):
 	pass
 
 cdef class Hyperlinks:
-	cdef _SexprWrapper _sexpr
+	cdef object _sexpr
 
 cdef class Metadata:
 	cdef Annotations _annotations
