@@ -1129,21 +1129,21 @@ cdef class _SexprWrapper:
 			raise InstantiationError
 	
 	def __call__(self):
-		return cexp2py(self._cexp)
+		return cexpr2py(self._cexpr)
 	
 	def __dealloc__(self):
 		cdef Document document
-		if self._cexp == NULL:
+		if self._cexpr == NULL:
 			return
 		document = self._document_weakref()
 		if document is None:
 			return
-		ddjvu_miniexp_release(document.ddjvu_document, self._cexp)
+		ddjvu_miniexp_release(document.ddjvu_document, self._cexpr)
 
-cdef _SexprWrapper wrap_sexpr(Document document, cexp_t cexp):
+cdef _SexprWrapper wrap_sexpr(Document document, cexpr_t cexpr):
 	cdef _SexprWrapper result
 	result = _SexprWrapper(document, the_sentinel)
-	result._cexp = cexp
+	result._cexpr = cexpr
 	return result
 
 cdef class DocumentOutline:
@@ -1179,7 +1179,7 @@ cdef class Annotations:
 	property background_color:
 		def __get__(self):
 			cdef char* result
-			result = ddjvu_anno_get_bgcolor(self._sexpr._cexp)
+			result = ddjvu_anno_get_bgcolor(self._sexpr._cexpr)
 			if result == NULL:
 				return None
 			return result
@@ -1187,7 +1187,7 @@ cdef class Annotations:
 	property zoom:
 		def __get__(self):
 			cdef char* result
-			result = ddjvu_anno_get_zoom(self._sexpr._cexp)
+			result = ddjvu_anno_get_zoom(self._sexpr._cexpr)
 			if result == NULL:
 				return
 			return result
@@ -1195,7 +1195,7 @@ cdef class Annotations:
 	property mode:
 		def __get__(self):
 			cdef char* result
-			result = ddjvu_anno_get_mode(self._sexpr._cexp)
+			result = ddjvu_anno_get_mode(self._sexpr._cexpr)
 			if result == NULL:
 				return
 			return result
@@ -1203,7 +1203,7 @@ cdef class Annotations:
 	property horizontal_align:
 		def __get__(self):
 			cdef char* result
-			result = ddjvu_anno_get_horizalign(self._sexpr._cexp)
+			result = ddjvu_anno_get_horizalign(self._sexpr._cexpr)
 			if result == NULL:
 				return
 			return result
@@ -1211,7 +1211,7 @@ cdef class Annotations:
 	property vertical_align:
 		def __get__(self):
 			cdef char* result
-			result = ddjvu_anno_get_vertalign(self._sexpr._cexp)
+			result = ddjvu_anno_get_vertalign(self._sexpr._cexpr)
 			if result == NULL:
 				return
 			return result
@@ -1275,9 +1275,9 @@ cdef class PageText:
 cdef class Hyperlinks:
 
 	def __cinit__(self, Annotations annotations not None):
-		cdef cexp_t* all
-		cdef cexp_t* current
-		all = ddjvu_anno_get_hyperlinks(annotations._sexpr._cexp)
+		cdef cexpr_t* all
+		cdef cexpr_t* current
+		all = ddjvu_anno_get_hyperlinks(annotations._sexpr._cexpr)
 		if all == NULL:
 			raise MemoryError
 		try:
@@ -1292,10 +1292,10 @@ cdef class Hyperlinks:
 cdef class Metadata:
 
 	def __cinit__(self, Annotations annotations not None):
-		cdef cexp_t* all
-		cdef cexp_t* current
+		cdef cexpr_t* all
+		cdef cexpr_t* current
 		self._annotations = annotations
-		all = ddjvu_anno_get_metadata_keys(annotations._sexpr._cexp)
+		all = ddjvu_anno_get_metadata_keys(annotations._sexpr._cexpr)
 		if all == NULL:
 			raise MemoryError
 		try:
@@ -1309,11 +1309,11 @@ cdef class Metadata:
 			libc_free(all)
 	
 	def __getitem__(self, key):
-		cdef _WrappedCExp cexp_key
+		cdef _WrappedCExpr cexpr_key
 		cdef char *s
 		from djvu.sexpr import Symbol
-		cexp_key = py2cexp(Symbol(key))
-		s = ddjvu_anno_get_metadata(self._annotations._sexpr._cexp, cexp_key.cexp())
+		cexpr_key = py2cexpr(Symbol(key))
+		s = ddjvu_anno_get_metadata(self._annotations._sexpr._cexpr, cexpr_key.cexpr())
 		if s == NULL:
 			raise KeyError(key)
 		return s.decode('UTF-8')

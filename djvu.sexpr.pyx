@@ -3,46 +3,46 @@
 include 'common.pxd'
 
 cdef extern from 'libdjvu/miniexp.h':
-	int cexp_is_int 'miniexp_numberp'(cexp_t sexp)
-	int cexp_to_int 'miniexp_to_int'(cexp_t sexp)
-	cexp_t int_to_cexp 'miniexp_number'(int n)
+	int cexpr_is_int 'miniexp_numberp'(cexpr_t sexp)
+	int cexpr_to_int 'miniexp_to_int'(cexpr_t sexp)
+	cexpr_t int_to_cexpr 'miniexp_number'(int n)
 	
-	int cexp_is_symbol 'miniexp_symbolp'(cexp_t sexp)
-	char* cexp_to_symbol 'miniexp_to_name'(cexp_t sexp)
-	cexp_t symbol_to_cexp 'miniexp_symbol'(char* name)
+	int cexpr_is_symbol 'miniexp_symbolp'(cexpr_t sexp)
+	char* cexpr_to_symbol 'miniexp_to_name'(cexpr_t sexp)
+	cexpr_t symbol_to_cexpr 'miniexp_symbol'(char* name)
 
-	cexp_t cexp_nil 'miniexp_nil'
-	cexp_t cexp_dummy 'miniexp_dummy'
-	int cexp_is_list 'miniexp_listp'(cexp_t exp)
-	int cexp_is_nonempty_list 'miniexp_consp'(cexp_t exp)
-	int cexp_length 'miniexp_length'(cexp_t exp)
-	cexp_t cexp_head 'miniexp_car'(cexp_t exp)
-	cexp_t cexp_tail 'miniexp_cdr'(cexp_t exp)
-	cexp_t cexp_nth 'miniexp_nth'(int n, cexp_t exp)
-	cexp_t pair_to_cexp 'miniexp_cons'(cexp_t head, cexp_t tail)
-	cexp_t cexp_replace_head 'miniexp_rplaca'(cexp_t exp, cexp_t new_head)
-	cexp_t cexp_replace_tail 'miniexp_rplacd'(cexp_t exp, cexp_t new_tail)
-	cexp_t cexp_reverse_list 'miniexp_reverse'(cexp_t exp)
+	cexpr_t cexpr_nil 'miniexp_nil'
+	cexpr_t cexpr_dummy 'miniexp_dummy'
+	int cexpr_is_list 'miniexp_listp'(cexpr_t exp)
+	int cexpr_is_nonempty_list 'miniexp_consp'(cexpr_t exp)
+	int cexpr_length 'miniexp_length'(cexpr_t exp)
+	cexpr_t cexpr_head 'miniexp_car'(cexpr_t exp)
+	cexpr_t cexpr_tail 'miniexp_cdr'(cexpr_t exp)
+	cexpr_t cexpr_nth 'miniexp_nth'(int n, cexpr_t exp)
+	cexpr_t pair_to_cexpr 'miniexp_cons'(cexpr_t head, cexpr_t tail)
+	cexpr_t cexpr_replace_head 'miniexp_rplaca'(cexpr_t exp, cexpr_t new_head)
+	cexpr_t cexpr_replace_tail 'miniexp_rplacd'(cexpr_t exp, cexpr_t new_tail)
+	cexpr_t cexpr_reverse_list 'miniexp_reverse'(cexpr_t exp)
 
-	int cexp_is_str 'miniexp_stringp'(cexp_t cexp)
-	char* cexp_to_str 'miniexp_to_str'(cexp_t cexp)
-	cexp_t str_to_cexp 'miniexp_string'(char* s)
-	cexp_t cexp_substr 'miniexp_substring'(char* s, int n)
-	cexp_t cexp_concat 'miniexp_concat'(cexp_t cexp_list)
+	int cexpr_is_str 'miniexp_stringp'(cexpr_t cexpr)
+	char* cexpr_to_str 'miniexp_to_str'(cexpr_t cexpr)
+	cexpr_t str_to_cexpr 'miniexp_string'(char* s)
+	cexpr_t cexpr_substr 'miniexp_substring'(char* s, int n)
+	cexpr_t cexpr_concat 'miniexp_concat'(cexpr_t cexpr_list)
 
-	cexp_t lock_gc 'minilisp_acquire_gc_lock'(cexp_t cexp)
-	cexp_t unlock_gc 'minilisp_release_gc_lock'(cexp_t cexp)
+	cexpr_t lock_gc 'minilisp_acquire_gc_lock'(cexpr_t cexpr)
+	cexpr_t unlock_gc 'minilisp_release_gc_lock'(cexpr_t cexpr)
 	
 	cvar_t* cvar_new 'minivar_alloc'()
 	void cvar_free 'minivar_free'(cvar_t* v)
-	cexp_t* cvar_ptr 'minivar_pointer'(cvar_t* v)
+	cexpr_t* cvar_ptr 'minivar_pointer'(cvar_t* v)
 
 	int (*io_puts 'minilisp_puts')(char *s)
 	int (*io_getc 'minilisp_getc')()
 	int (*io_ungetc 'minilisp_ungetc')(int c)
-	cexp_t cexp_read 'miniexp_read'()
-	cexp_t cexp_print 'miniexp_prin'(cexp_t cexp)
-	cexp_t cexp_printw 'miniexp_pprin'(cexp_t cexp, int width)
+	cexpr_t cexpr_read 'miniexp_read'()
+	cexpr_t cexpr_print 'miniexp_prin'(cexpr_t cexpr)
+	cexpr_t cexpr_printw 'miniexp_pprin'(cexpr_t cexpr, int width)
 
 cdef extern from 'stdio.h':
 	int EOF
@@ -92,18 +92,18 @@ class InstantiationError(RuntimeError):
 cdef object the_sentinel
 the_sentinel = object()
 
-cdef class _WrappedCExp:
+cdef class _WrappedCExpr:
 
 	def __cinit__(self, object sentinel):
 		if sentinel is not the_sentinel:
 			raise InstantiationError
 		self.cvar = cvar_new()
 
-	cdef cexp_t cexp(self):
+	cdef cexpr_t cexpr(self):
 		return cvar_ptr(self.cvar)[0]
 
 	cdef object print_into(self, object stdout, object width):
-		cdef cexp_t cexp
+		cdef cexpr_t cexpr
 		global myio_stdout
 		if width is None:
 			pass
@@ -111,12 +111,12 @@ cdef class _WrappedCExp:
 			raise TypeError
 		elif width <= 0:
 			raise ValueError
-		cexp = self.cexp()
+		cexpr = self.cexpr()
 		myio_stdout = stdout
 		if width is None:
-			cexp_print(cexp)
+			cexpr_print(cexpr)
 		else:
-			cexp_printw(cexp, width)
+			cexpr_printw(cexpr, width)
 		myio_reset()
 
 	cdef object as_string(self, object width):
@@ -131,13 +131,13 @@ cdef class _WrappedCExp:
 	def __dealloc__(self):
 		cvar_free(self.cvar)
 
-cdef _WrappedCExp wexp(cexp_t cexp):
-	cdef _WrappedCExp wexp
-	wexp = _WrappedCExp(sentinel = the_sentinel)
-	cvar_ptr(wexp.cvar)[0] = cexp
-	return wexp
+cdef _WrappedCExpr wexpr(cexpr_t cexpr):
+	cdef _WrappedCExpr wexpr
+	wexpr = _WrappedCExpr(sentinel = the_sentinel)
+	cvar_ptr(wexpr.cvar)[0] = cexpr
+	return wexpr
 
-cdef class _MissingCExp(_WrappedCExp):
+cdef class _MissingCExpr(_WrappedCExpr):
 
 	cdef object print_into(self, object stdout, object width):
 		raise NotImplementedError
@@ -145,8 +145,8 @@ cdef class _MissingCExp(_WrappedCExp):
 	cdef object as_string(self, object width):
 		raise NotImplementedError
 
-cdef _MissingCExp wexp_missing():
-	return _MissingCExp(the_sentinel)
+cdef _MissingCExpr wexpr_missing():
+	return _MissingCExpr(the_sentinel)
 
 class Symbol(str):
 
@@ -187,7 +187,7 @@ def Expression_from_stream(stdin):
 	try:
 		myio_stdin = stdin
 		try:
-			return _c2py(cexp_read())
+			return _c2py(cexpr_read())
 		except _InvalidExpression:
 			raise ExpressionSyntaxError
 	finally:
@@ -228,16 +228,16 @@ cdef object _Expression_richcmp(object left, object right, int op):
 	return bool(result)
 
 cdef class _Expression:
-	cdef _WrappedCExp wexp
+	cdef _WrappedCExpr wexpr
 
 	def __cinit__(self, *args, **kwargs):
-		self.wexp = wexp_missing()
+		self.wexpr = wexpr_missing()
 
 	def print_into(self, stdout, width = None):
-		self.wexp.print_into(stdout, width)
+		self.wexpr.print_into(stdout, width)
 
 	def as_string(self, width = None):
-		return self.wexp.as_string(width)
+		return self.wexpr.as_string(width)
 	
 	def __str__(self):
 		return self.as_string()
@@ -258,11 +258,11 @@ cdef class _Expression:
 cdef class IntExpression(_Expression):
 
 	def __cinit__(self, value):
-		if typecheck(value, _WrappedCExp):
-			self.wexp = value
+		if typecheck(value, _WrappedCExpr):
+			self.wexpr = value
 		elif is_int(value):
 			if -1 << 29 <= value < 1 << 29:
-				self.wexp = wexp(int_to_cexp(value))
+				self.wexpr = wexpr(int_to_cexpr(value))
 			else:
 				raise ValueError
 		else:
@@ -278,7 +278,7 @@ cdef class IntExpression(_Expression):
 		return 0L + self.value
 
 	cdef object get_value(self):
-		return cexp_to_int(self.wexp.cexp())
+		return cexpr_to_int(self.wexpr.cexpr())
 
 	def __richcmp__(self, other, int op):
 		return _Expression_richcmp(self, other, op)
@@ -289,15 +289,15 @@ cdef class IntExpression(_Expression):
 cdef class SymbolExpression(_Expression):
 
 	def __cinit__(self, value):
-		if typecheck(value, _WrappedCExp):
-			self.wexp = value
+		if typecheck(value, _WrappedCExpr):
+			self.wexpr = value
 		elif typecheck(value, str):
-			self.wexp = wexp(symbol_to_cexp(value))
+			self.wexpr = wexpr(symbol_to_cexpr(value))
 		else:
 			raise TypeError
 
 	cdef object get_value(self):
-		return Symbol(cexp_to_symbol(self.wexp.cexp()))
+		return Symbol(cexpr_to_symbol(self.wexpr.cexpr()))
 
 	def __richcmp__(self, other, int op):
 		return _Expression_richcmp(self, other, op)
@@ -308,15 +308,15 @@ cdef class SymbolExpression(_Expression):
 cdef class StringExpression(_Expression):
 
 	def __cinit__(self, value):
-		if typecheck(value, _WrappedCExp):
-			self.wexp = value
+		if typecheck(value, _WrappedCExpr):
+			self.wexpr = value
 		elif is_string(value):
-			self.wexp = wexp(str_to_cexp(value))
+			self.wexpr = wexpr(str_to_cexpr(value))
 		else:
 			raise TypeError
 
 	cdef object get_value(self):
-		return cexp_to_str(self.wexp.cexp())
+		return cexpr_to_str(self.wexpr.cexpr())
 
 	def __richcmp__(self, other, int op):
 		return _Expression_richcmp(self, other, op)
@@ -330,68 +330,68 @@ class _InvalidExpression(ValueError):
 class ExpressionSyntaxError(SyntaxError):
 	pass
 
-cdef _WrappedCExp public_py2c(object o):
+cdef _WrappedCExpr public_py2c(object o):
 	cdef _Expression x
 	x = Expression(o)
-	return x.wexp
+	return x.wexpr
 
-cdef object public_c2py(cexp_t cexp):
-	return _c2py(cexp)
+cdef object public_c2py(cexpr_t cexpr):
+	return _c2py(cexpr)
 
-cdef _Expression _c2py(cexp_t cexp):
-	if cexp == cexp_dummy:
+cdef _Expression _c2py(cexpr_t cexpr):
+	if cexpr == cexpr_dummy:
 		raise _InvalidExpression
-	_wexp = wexp(cexp)
-	if cexp_is_int(cexp):
-		result = IntExpression(_wexp)
-	elif cexp_is_symbol(cexp):
-		result = SymbolExpression(_wexp)
-	elif cexp_is_list(cexp):
-		result = ListExpression(_wexp)
-	elif cexp_is_str(cexp):
-		result = StringExpression(_wexp)
+	_wexpr = wexpr(cexpr)
+	if cexpr_is_int(cexpr):
+		result = IntExpression(_wexpr)
+	elif cexpr_is_symbol(cexpr):
+		result = SymbolExpression(_wexpr)
+	elif cexpr_is_list(cexpr):
+		result = ListExpression(_wexpr)
+	elif cexpr_is_str(cexpr):
+		result = StringExpression(_wexpr)
 	else:
 		raise ValueError
 	return result
 
-cdef _WrappedCExp _build_list_cexp(object items):
-	cdef cexp_t cexp
+cdef _WrappedCExpr _build_list_cexpr(object items):
+	cdef cexpr_t cexpr
 	lock_gc(NULL)
 	try:
-		cexp = cexp_nil
+		cexpr = cexpr_nil
 		Expression_ = Expression
 		for item in items:
-			cexp = pair_to_cexp((<_Expression>Expression_(item)).wexp.cexp(), cexp)
-		cexp = cexp_reverse_list(cexp)
-		return wexp(cexp)
+			cexpr = pair_to_cexpr((<_Expression>Expression_(item)).wexpr.cexpr(), cexpr)
+		cexpr = cexpr_reverse_list(cexpr)
+		return wexpr(cexpr)
 	finally:
 		unlock_gc(NULL)
 
 cdef class ListExpression(_Expression):
 
 	def __cinit__(self, items):
-		if typecheck(items, _WrappedCExp):
-			self.wexp = items
+		if typecheck(items, _WrappedCExpr):
+			self.wexpr = items
 		else:
-			self.wexp = _build_list_cexp(items)
+			self.wexpr = _build_list_cexpr(items)
 
 	def __nonzero__(self):
-		return self.wexp.cexp() != cexp_nil
+		return self.wexpr.cexpr() != cexpr_nil
 
 	def __len__(self):
-		cdef cexp_t cexp
+		cdef cexpr_t cexpr
 		cdef int n
-		cexp = self.wexp.cexp()
+		cexpr = self.wexpr.cexpr()
 		n = 0
-		while cexp != cexp_nil:
-			cexp = cexp_tail(cexp)
+		while cexpr != cexpr_nil:
+			cexpr = cexpr_tail(cexpr)
 			n = n + 1
 		return n
 
 	def __getitem__(self, key):
-		cdef cexp_t cexp
+		cdef cexpr_t cexpr
 		cdef int n
-		cexp = self.wexp.cexp()
+		cexpr = self.wexpr.cexpr()
 		if is_int(key):
 			n = key
 			if n < 0:
@@ -399,35 +399,35 @@ cdef class ListExpression(_Expression):
 			if n < 0:
 				raise IndexError('list index of out range')
 			while True:
-				if cexp == cexp_nil:
+				if cexpr == cexpr_nil:
 					raise IndexError('list index of out range')
 				if n > 0:
 					n = n - 1
-					cexp = cexp_tail(cexp)
+					cexpr = cexpr_tail(cexpr)
 				else:
-					cexp = cexp_head(cexp)
+					cexpr = cexpr_head(cexpr)
 					break
 		elif is_slice(key):
 			if is_int(key.start) or key.start is None and key.stop is None and key.step is None:
 				n = key.start or 0
 				if n < 0:
 					n = n + len(self)
-				while n > 0 and cexp != cexp_nil:
-					cexp = cexp_tail(cexp)
+				while n > 0 and cexpr != cexpr_nil:
+					cexpr = cexpr_tail(cexpr)
 					n = n - 1
 			else:
 				raise NotImplementedError('only [n:] slices are supported')
 		else:
 			raise TypeError
-		return _c2py(cexp)
+		return _c2py(cexpr)
 
 	def __setitem__(self, key, value):
-		cdef cexp_t cexp
-		cdef cexp_t prev_cexp
-		cdef cexp_t new_cexp
+		cdef cexpr_t cexpr
+		cdef cexpr_t prev_cexpr
+		cdef cexpr_t new_cexpr
 		cdef int n
-		cexp = self.wexp.cexp()
-		new_cexp = (<_Expression>Expression(value)).wexp.cexp()
+		cexpr = self.wexpr.cexpr()
+		new_cexpr = (<_Expression>Expression(value)).wexpr.cexpr()
 		if is_int(key):
 			n = key
 			if n < 0:
@@ -435,30 +435,30 @@ cdef class ListExpression(_Expression):
 			if n < 0:
 				raise IndexError('list index of out range')
 			while True:
-				if cexp == cexp_nil:
+				if cexpr == cexpr_nil:
 					raise IndexError('list index of out range')
 				if n > 0:
 					n = n - 1
-					cexp = cexp_tail(cexp)
+					cexpr = cexpr_tail(cexpr)
 				else:
-					cexp_replace_head(cexp, new_cexp)
+					cexpr_replace_head(cexpr, new_cexpr)
 					break
 		elif is_slice(key):
-			if not cexp_is_list(new_cexp):
+			if not cexpr_is_list(new_cexpr):
 				raise TypeError
 			if is_slice(key) or key.start is None and key.stop is None and key.step is None:
 				n = key.start or 0
 				if n < 0:
 					n = n + len(self)
-				prev_cexp = cexp_nil
-				while n > 0 and cexp != cexp_nil:
-					prev_cexp = cexp
-					cexp = cexp_tail(cexp)
+				prev_cexpr = cexpr_nil
+				while n > 0 and cexpr != cexpr_nil:
+					prev_cexpr = cexpr
+					cexpr = cexpr_tail(cexpr)
 					n = n - 1
-				if prev_cexp == cexp_nil:
-					self.wexp = wexp(new_cexp)
+				if prev_cexpr == cexpr_nil:
+					self.wexpr = wexpr(new_cexpr)
 				else:
-					cexp_replace_tail(prev_cexp, new_cexp)
+					cexpr_replace_tail(prev_cexpr, new_cexpr)
 			else:
 				raise NotImplementedError('only [n:] slices are supported')
 		else:
@@ -468,31 +468,31 @@ cdef class ListExpression(_Expression):
 		return _ListExpressionIterator(self)
 
 	cdef object get_value(self):
-		cdef cexp_t current
-		current = self.wexp.cexp()
+		cdef cexpr_t current
+		current = self.wexpr.cexpr()
 		result = []
 		append = result.append
-		while current != cexp_nil:
-			append(_c2py(cexp_head(current)).get_value())
-			current = cexp_tail(current)
+		while current != cexpr_nil:
+			append(_c2py(cexpr_head(current)).get_value())
+			current = cexpr_tail(current)
 		return tuple(result)
 
 cdef class _ListExpressionIterator:
 
 	cdef ListExpression expression
-	cdef cexp_t cexp
+	cdef cexpr_t cexpr
 
 	def __cinit__(self, ListExpression expression not None):
 		self.expression = expression
-		self.cexp = expression.wexp.cexp()
+		self.cexpr = expression.wexpr.cexpr()
 	
 	def __next__(self):
-		cdef cexp_t cexp
-		cexp = self.cexp
-		if cexp == cexp_nil:
+		cdef cexpr_t cexpr
+		cexpr = self.cexpr
+		if cexpr == cexpr_nil:
 			raise StopIteration
-		self.cexp = cexp_tail(cexp)
-		cexp = cexp_head(cexp)
-		return _c2py(cexp)
+		self.cexpr = cexpr_tail(cexpr)
+		cexpr = cexpr_head(cexpr)
+		return _c2py(cexpr)
 
 # vim:ts=4 sw=4 noet
