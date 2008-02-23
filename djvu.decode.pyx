@@ -99,6 +99,14 @@ cdef class Page:
 		if wait:
 			page_job.wait()
 		return page_job
+	
+	property annotations:
+		def __get__(self):
+			return PageAnnotations(self)
+	
+	property text:
+		def __get__(self):
+			return PageText(self)
 
 
 cdef class Thumbnail:
@@ -1211,7 +1219,7 @@ cdef class PageAnnotations(Annotations):
 	def __cinit__(self, Page page not None):
 		self._document = page._document
 		self._page = page
-		self._sexpr = wrap_sexpr(document, ddjvu_document_get_pageanno(page._document.ddjvu_document, page._n))
+		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pageanno(page._document.ddjvu_document, page._n))
 	
 	property page:
 		def __get__(self):
