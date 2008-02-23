@@ -255,6 +255,42 @@ cdef class Document:
 		if self.ddjvu_document == NULL:
 			return
 		# FIXME ddjvu_document_release(self.ddjvu_document)
+	
+	def save(self, file = None, pages = None, indirect = None, wait = True):
+		cdef char * optv[2]
+		cdef int optc
+		cdef Job job
+		from itertools import imap
+		optc = 0
+		cdef FILE* output
+		cdef Py_ssize_t i
+		if indirect is None:
+			if not is_file(file):
+				raise TypeError
+			output = file_to_cfile(file)
+		else:
+			output = NULL
+			if file is not None:
+				raise TypeError
+			if not is_string(indirect):
+				raise TypeError
+			s1 = '--indirect=' + indirect
+			optv[optc] = s1
+			optc = optc + 1
+		if pages is not None:
+			pages = tuple(pages)
+			for i from 0 <= i < len(pages):
+				if not is_int(pages[i]):
+					raise TypeError
+				if pages[i] < 0:
+					raise ValueError
+			s2 = '--pages=' + (','.join(imap(str, pages)))
+			optv[optc] = s2
+			optc = optc + 1
+		job = Job_from_c(ddjvu_document_save(self.ddjvu_document, output, optc, optv), self._context)
+		if wait:
+			job.wait()
+		return job
 
 cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	cdef Document result
@@ -810,13 +846,14 @@ cdef class Job:
 			return
 		# XXX ddjvu_job_release(self.ddjvu_job)
 
-cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
+cdef Job Job_from_c(ddjvu_job_t* ddjvu_job, Context context):
 	cdef Job result
 	if ddjvu_job == NULL:
 		result = None
 	else:
 		result = Job(sentinel = the_sentinel)
 		result.ddjvu_job = ddjvu_job
+		result._context = context
 	return result
 
 
@@ -913,7 +950,7 @@ cdef class Message:
 		self._context = Context_from_c(self.ddjvu_message.m_any.context)
 		self._document = Document_from_c(self.ddjvu_message.m_any.document)
 		self._page_job = PageJob_from_c(self.ddjvu_message.m_any.page, self._context)
-		self._job = Job_from_c(self.ddjvu_message.m_any.job)
+		self._job = Job_from_c(self.ddjvu_message.m_any.job, self._context)
 	
 	property context:
 		def __get__(self):

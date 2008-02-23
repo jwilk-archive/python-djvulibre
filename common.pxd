@@ -23,11 +23,14 @@ cdef extern from 'Python.h':
 	int is_unicode 'PyUnicode_Check'(object)
 	int is_string 'PyString_Check'(object)
 	int is_slice 'PySlice_Check'(object)
+	int is_file 'PyFile_Check'(object)
 
 	object encode_utf8 'PyUnicode_AsUTF8String'(object)
 	int string_to_charp_and_size 'PyString_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
 	char* string_to_charp 'PyString_AsString'(object) except NULL
 	object charp_to_string 'PyString_FromStringAndSize'(char *, Py_ssize_t)
+
+	FILE* file_to_cfile 'PyFile_AsFile'(object)
 
 cdef int is_int(object o):
 	return is_short_int(o) or is_long_int(o)
