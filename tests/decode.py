@@ -276,6 +276,69 @@ class DocumentTest:
 		>>> rmtree(tmpdir)
 		'''
 
+	def test_export_ps(self):
+		r'''
+		>>> class MyContext(Context):
+		...   def handle_message(self, message): pass
+		>>> context = MyContext()
+		>>> document = context.new_document(FileURI('test-p.djvu'))
+		>>> message = context.get_message()
+		>>> type(message) == DocInfoMessage
+		True
+		>>> document.is_done
+		True
+		>>> document.is_error
+		False
+		>>> document.status == JobOK
+		True
+		>>> document.type == DOCUMENT_TYPE_BUNDLED
+		True
+		>>> len(document.pages)
+		4
+		>>> len(document.files)
+		5
+			
+		>>> from tempfile import NamedTemporaryFile
+		>>> from subprocess import Popen, PIPE
+		>>> from pprint import pprint
+
+		>>> tmp = NamedTemporaryFile()
+		>>> job = document.export_ps(tmp.file)
+		>>> type(job) == Job
+		True
+		>>> job.is_done, job.is_error
+		(True, False)
+		>>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+		>>> stderr
+		''
+		>>> stdout
+		'\x0c\x0c\x0c'
+		>>> del tmp
+
+		>>> tmp = NamedTemporaryFile()
+		>>> job = document.export_ps(tmp.file, pages = (2, 3), text = True)
+		>>> type(job) == Job
+		True
+		>>> job.is_done, job.is_error
+		(True, False)
+		>>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+		>>> stderr
+		''
+		>>> for line in stdout.splitlines(): print repr(line)
+		''
+		''
+		' (White background, colorful foreground.)  2  Color samples  red green blue cyan magenta yellow red'
+		''
+		' green  blue  cyan  magenta yellow'
+		''
+		' 2\x0c'
+		''
+		' (Colorful solild background, black foreground.)  2.1  Even  more  colors  Yes, looks odd.'
+		''
+		' 3'
+		>>> del tmp
+		'''
+
 
 class PixelFormatTest:
 

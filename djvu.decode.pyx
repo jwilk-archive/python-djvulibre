@@ -210,6 +210,35 @@ cdef class File:
 				result = s.decode('UTF-8')
 				libc_free(s)
 
+cdef object pages_to_opt(object pages):
+	from itertools import imap
+	pages = tuple(pages)
+	for i from 0 <= i < len(pages):
+		if not is_int(pages[i]):
+			raise TypeError
+		if pages[i] < 0:
+			raise ValueError
+	return '--pages=' + (','.join(imap(str, pages)))
+
+PRINT_ORIENTATION_AUTO = None
+PRINT_ORIENTATION_LANDSCAPE = 'landscape'
+PRINT_ORIENTATION_PORTRAIT = 'portrait'
+
+cdef object PRINT_RENDER_MODE_MAP
+PRINT_RENDER_MODE_MAP = \
+{
+	DDJVU_RENDER_COLOR: None,
+	DDJVU_RENDER_BLACK: 'bw',
+	DDJVU_RENDER_FOREGROUND: 'fore',
+	DDJVU_RENDER_BACKGROUND: 'back'
+}
+
+PRINT_BOOKLET_NO = None
+PRINT_BOOKLET_YES = 'yes'
+PRINT_BOOKLET_RECTO = 'recto'
+PRINT_BOOKLET_VERSO = 'verso'
+
+
 cdef class Document:
 
 	def __cinit__(self, **kwargs):
@@ -260,7 +289,6 @@ cdef class Document:
 		cdef char * optv[2]
 		cdef int optc
 		cdef Job job
-		from itertools import imap
 		optc = 0
 		cdef FILE* output
 		cdef Py_ssize_t i
@@ -278,16 +306,93 @@ cdef class Document:
 			optv[optc] = s1
 			optc = optc + 1
 		if pages is not None:
-			pages = tuple(pages)
-			for i from 0 <= i < len(pages):
-				if not is_int(pages[i]):
-					raise TypeError
-				if pages[i] < 0:
-					raise ValueError
-			s2 = '--pages=' + (','.join(imap(str, pages)))
+			s2 = pages_to_opt(pages)
 			optv[optc] = s2
 			optc = optc + 1
 		job = Job_from_c(ddjvu_document_save(self.ddjvu_document, output, optc, optv), self._context)
+		if wait:
+			job.wait()
+		return job
+	
+	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, cropmarks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
+		cdef FILE* output
+		options = []
+		if not is_file(file):
+			raise TypeError
+		output = file_to_cfile(file)
+		if pages is not None:
+			options.append(pages_to_opt(pages))
+		if eps:
+			options.append('--format=eps')
+		if level is not None:
+			if not is_int(level):
+				raise TypeError
+			options.append('--level=%d' % level)
+		if orientation is not None:
+			if not is_string(booklet):
+				raise TypeError
+			options.append('--orientation=' + orientation)
+		if not is_int(mode):
+			raise TypeError
+		try:
+			mode = PRINT_RENDER_MODE_MAP[mode]
+			if mode is not None:
+				options.append('--mode=' + mode)
+		except KeyError:
+			raise ValueError
+		if zoom is not None:
+			if not is_int(zoom):
+				raise TypeError
+			options.append('--zoom=%d' % zoom)
+		if not color:
+			options.append('--color=no')
+		if not srgb:
+			options.append('--srgb=no')
+		if gamma is not None:
+			if not is_int(gamma) and not is_float(gamma):
+				raise TypeError
+			options.append('--gamma=%.16f' % gamma)
+		if not is_int(copies):
+			raise TypeError
+		if copies != 1:
+			options.append('--options=%d' % copies)
+		if frame:
+			options.append('--frame')
+		if cropmarks:
+			options.append('--cropmarks')
+		if text:
+			options.append('--text')
+		if booklet is not None:
+			if not is_string(booklet):
+				raise TypeError
+			options.append('--booklet=' + booklet)
+		if not is_int(booklet_max):
+			raise TypeError
+		if booklet_max:
+			options.append('--bookletmax=%d' % booklet_max)
+		if not is_int(booklet_align):
+			raise TypeError
+		if booklet_align:
+			options.append('--bookletalign=%d' % booklet_align)
+		if is_int(booklet_fold):
+			options.append('--bookletfold=%d' % booklet_fold)
+		else:
+			fold_base, fold_incr = booklet_fold
+			if not is_int(fold_base) or not is_int(fold_incr):
+				options.append('--bookletfold=%d+%d' % (fold_base, fold_incr))
+		cdef char **optv
+		cdef int optc
+		optc = 0
+		optv = <char**> py_malloc(len(options) * sizeof (char*))
+		if optv == NULL:
+			raise MemoryError
+		try:
+			for option in options:
+				optv[optc] = option
+				optc = optc + 1
+			job = Job_from_c(ddjvu_document_print(self.ddjvu_document, output, optc, optv), self._context)
+		finally:
+			py_free(optv)
 		if wait:
 			job.wait()
 		return job
