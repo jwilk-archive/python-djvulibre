@@ -4,6 +4,9 @@
 
 ctypedef int size_t
 
+cdef extern from 'stdio.h':
+	ctypedef struct FILE
+
 cdef extern from 'stdlib.h':
 	void libc_free 'free'(void* ptr)
 
