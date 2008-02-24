@@ -1,8 +1,7 @@
 # Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
 cdef extern from 'stdio.h':
-	struct _IO_FILE
-	ctypedef _IO_FILE FILE
+	ctypedef struct FILE
 
 from djvu.sexpr cimport cexpr_t, _WrappedCExpr
 from djvu.sexpr cimport public_c2py as cexpr2py
