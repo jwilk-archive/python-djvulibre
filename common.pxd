@@ -23,6 +23,7 @@ cdef extern from 'Python.h':
 	int typecheck 'PyObject_TypeCheck'(object o, object type)
 	int is_short_int 'PyInt_Check'(object)
 	int is_long_int 'PyLong_Check'(object)
+	int is_float 'PyFloat_Check'(object)
 	int is_unicode 'PyUnicode_Check'(object)
 	int is_string 'PyString_Check'(object)
 	int is_slice 'PySlice_Check'(object)
