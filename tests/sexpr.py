@@ -193,7 +193,7 @@ class ListExpressionTest:
 	False
 	>>> x == (1, 3, 5, 7)
 	False
-	>>> hash(x)
+	>>> hash(x) # doctest: +IGNORE_EXCEPTION_DETAIL
 	Traceback (most recent call last):
 	...
 	TypeError: unhashable type
