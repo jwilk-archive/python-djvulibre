@@ -137,6 +137,145 @@ class DocumentTest:
 		>>> context.get_message(wait = False) is None
 		True
 		'''
+	
+	def test_save(self):
+		r'''
+		>>> class MyContext(Context):
+		...   def handle_message(self, message): pass
+		>>> context = MyContext()
+		>>> document = context.new_document(FileURI('test-p.djvu'))
+		>>> message = context.get_message()
+		>>> type(message) == DocInfoMessage
+		True
+		>>> document.is_done
+		True
+		>>> document.is_error
+		False
+		>>> document.status == JobOK
+		True
+		>>> document.type == DOCUMENT_TYPE_BUNDLED
+		True
+		>>> len(document.pages)
+		4
+		>>> len(document.files)
+		5
+			
+		>>> from tempfile import NamedTemporaryFile, mkdtemp
+		>>> from shutil import rmtree
+		>>> from os.path import join as path_join
+		>>> from subprocess import Popen, PIPE
+
+		>>> tmp = NamedTemporaryFile()
+		>>> job = document.save(tmp.file)
+		>>> type(job) == Job
+		True
+		>>> job.is_done, job.is_error
+		(True, False)
+		>>> stdout, stderr = Popen(['djvudump', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+		>>> stderr
+		''
+		>>> for line in stdout.splitlines(): print repr(line)
+		...
+		'  FORM:DJVM [8393] '
+		'    DIRM [83]         Document directory (bundled, 5 files 4 pages)'
+		'    NAVM [123] '
+		'    FORM:DJVU [528] {p0001.djvu}'
+		'      INFO [10]         DjVu 612x792, v24, 72 dpi, gamma=2.2'
+		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
+		'      Sjbz [274]        JB2 bilevel data'
+		'      TXTz [192]        Hidden text (text, etc.)'
+		'    FORM:DJVI [179] {shared_anno.iff}'
+		'      ANTz [167]        Page annotation (hyperlinks, etc.)'
+		'    FORM:DJVU [1738] {p0002.djvu}'
+		'      INFO [10]         DjVu 612x792, v24, 72 dpi, gamma=2.2'
+		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
+		'      Sjbz [637]        JB2 bilevel data'
+		'      FGbz [730]        JB2 colors data'
+		'      BG44 [19]         IW4 data #1, 97 slices, v1.2 (b&w), 51x66'
+		'      TXTz [272]        Hidden text (text, etc.)'
+		'    FORM:DJVU [1300] {p0003.djvu}'
+		'      INFO [10]         DjVu 612x792, v24, 72 dpi, gamma=2.2'
+		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
+		'      Sjbz [308]        JB2 bilevel data'
+		'      FGbz [660]        JB2 colors data'
+		'      BG44 [43]         IW4 data #1, 97 slices, v1.2 (color), 51x66'
+		'      TXTz [210]        Hidden text (text, etc.)'
+		'    FORM:DJVU [4379] {p0004.djvu}'
+		'      INFO [10]         DjVu 612x792, v24, 72 dpi, gamma=2.2'
+		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
+		'      Sjbz [900]        JB2 bilevel data'
+		'      FGbz [661]        JB2 colors data'
+		'      BG44 [433]        IW4 data #1, 72 slices, v1.2 (color), 204x264'
+		'      BG44 [328]        IW4 data #2, 11 slices'
+		'      BG44 [443]        IW4 data #3, 10 slices'
+		'      BG44 [865]        IW4 data #4, 10 slices'
+		'      ANTz [93]         Page annotation (hyperlinks, etc.)'
+		'      TXTz [541]        Hidden text (text, etc.)'
+		>>> del tmp
+
+		>>> tmp = NamedTemporaryFile()
+		>>> job = document.save(tmp.file, pages=(1,))
+		>>> type(job) == Job
+		True
+		>>> job.is_done, job.is_error
+		(True, False)
+		>>> stdout, stderr = Popen(['djvudump', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+		>>> stderr
+		''
+		>>> for line in stdout.splitlines(): print repr(line)
+		...
+		'  FORM:DJVM [789] '
+		'    DIRM [54]         Document directory (bundled, 2 files 1 pages)'
+		'    FORM:DJVU [528] {p0001.djvu}'
+		'      INFO [10]         DjVu 612x792, v24, 72 dpi, gamma=2.2'
+		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
+		'      Sjbz [274]        JB2 bilevel data'
+		'      TXTz [192]        Hidden text (text, etc.)'
+		'    FORM:DJVI [179] {shared_anno.iff}'
+		'      ANTz [167]        Page annotation (hyperlinks, etc.)'
+		>>> del tmp
+		
+		>>> tmpdir = mkdtemp()
+		>>> tmpfname = path_join(tmpdir, 'index.djvu')
+		>>> job = document.save(indirect = tmpfname)
+		>>> type(job) == Job
+		True
+		>>> job.is_done, job.is_error
+		(True, False)
+		>>> stdout, stderr = Popen(['djvudump', tmpfname], stdout = PIPE, stderr = PIPE).communicate()
+		>>> stderr
+		''
+		>>> for line in stdout.splitlines(): print repr(line)
+		...
+		'  FORM:DJVM [207] '
+		'    DIRM [63]         Document directory (indirect, 5 files 4 pages)'
+		'      p0001.djvu -> p0001.djvu'
+		'      shared_anno.iff -> shared_anno.iff'
+		'      p0002.djvu -> p0002.djvu'
+		'      p0003.djvu -> p0003.djvu'
+		'      p0004.djvu -> p0004.djvu'
+		'    NAVM [123] '
+		>>> rmtree(tmpdir)
+
+		>>> tmpdir = mkdtemp()
+		>>> tmpfname = path_join(tmpdir, 'index.djvu')
+		>>> job = document.save(indirect = tmpfname, pages = (1,))
+		>>> type(job) == Job
+		True
+		>>> job.is_done, job.is_error
+		(True, False)
+		>>> stdout, stderr = Popen(['djvudump', tmpfname], stdout = PIPE, stderr = PIPE).communicate()
+		>>> stderr
+		''
+		>>> for line in stdout.splitlines(): print repr(line)
+		...
+		'  FORM:DJVM [58] '
+		'    DIRM [46]         Document directory (indirect, 2 files 1 pages)'
+		'      p0001.djvu -> p0001.djvu'
+		'      shared_anno.iff -> shared_anno.iff'
+		>>> rmtree(tmpdir)
+		'''
+
 
 class PixelFormatTest:
 
@@ -388,18 +527,6 @@ class SexprTest:
 	>>> message = context.get_message()
 	>>> type(message) == DocInfoMessage
 	True
-	>>> document.is_done
-	True
-	>>> document.is_error
-	False
-	>>> document.status == JobOK
-	True
-	>>> document.type == DOCUMENT_TYPE_BUNDLED
-	True
-	>>> len(document.pages)
-	4
-	>>> len(document.files)
-	5
 
 	>>> anno = DocumentAnnotations(document, compat = False)
 	>>> type(anno) == DocumentAnnotations
