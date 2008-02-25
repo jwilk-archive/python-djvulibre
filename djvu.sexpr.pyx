@@ -355,7 +355,7 @@ cdef _WrappedCExpr public_py2c(object o):
 	pyexpr = Expression(o)
 	if pyexpr is None:
 		raise TypeError
-	return x.wexpr
+	return pyexpr.wexpr
 
 cdef object public_c2py(cexpr_t cexpr):
 	return _c2py(cexpr)
