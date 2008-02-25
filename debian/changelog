@@ -1,5 +1,5 @@
-python-djvulibre (0.0.1) unstable; urgency=low
+python-djvulibre (0.1.1) unstable; urgency=low
 
   * Initial release.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Mon, 19 Nov 2007 14:12:09 +0100
+ -- Jakub Wilk <ubanus@users.sf.net>  Mon, 25 Feb 2008 19:05:48 +0100
