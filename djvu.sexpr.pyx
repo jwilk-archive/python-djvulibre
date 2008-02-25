@@ -347,7 +347,7 @@ del StringExpression__new__
 class _InvalidExpression(ValueError):
 	pass
 
-class ExpressionSyntaxError(SyntaxError):
+class ExpressionSyntaxError(Exception):
 	pass
 
 cdef _WrappedCExpr public_py2c(object o):
