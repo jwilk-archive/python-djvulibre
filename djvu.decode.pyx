@@ -1046,7 +1046,7 @@ cdef class Message:
 			raise_instantiation_error(type(self))
 		self.ddjvu_message = NULL
 	
-	def __init(self):
+	cdef void _init(self):
 		if self.ddjvu_message == NULL:
 			raise SystemError
 		self._context = Context_from_c(self.ddjvu_message.m_any.context)
@@ -1072,7 +1072,8 @@ cdef class Message:
 
 cdef class ErrorMessage(Message):
 
-	def __init(self):
+	cdef void _init(self):
+		Message._init(self)
 		self._message = self.ddjvu_message.m_error.message
 		self._location = \
 		(
@@ -1097,7 +1098,8 @@ cdef class ErrorMessage(Message):
 
 cdef class InfoMessage(Message):
 
-	def __init(self):
+	cdef void _init(self):
+		Message._init(self)
 		self._message = self.ddjvu_message.m_error.message
 	
 	property message:
@@ -1144,8 +1146,8 @@ cdef class Stream:
 
 cdef class NewStreamMessage(Message):
 
-	def __init(self):
-		Message.__init(self)
+	cdef void _init(self):
+		Message._init(self)
 		self._stream = Stream(self.document, self.ddjvu_message.m_newstream.streamid, sentinel = the_sentinel)
 		self._name = self.ddjvu_message.m_newstream.name
 		self._uri = self.ddjvu_message.m_newstream.url
@@ -1179,7 +1181,7 @@ cdef class ChunkMessage(Message):
 
 cdef class ThumbnailMessage(Message):
 
-	def __init(self):
+	cdef void _init(self):
 		Message.__init(self)
 		self._page_no = self.ddjvu_message.m_thumbnail.pagenum
 	
@@ -1188,7 +1190,19 @@ cdef class ThumbnailMessage(Message):
 			return self._page_no
 
 cdef class ProgressMessage(Message):
-	pass
+
+	def __init(self):
+		Message.__init(self)
+		self._percent = self.ddjvu_message.m_progress.percent
+		self._status = self.ddjvu_message.m_progress.status
+	
+	property percent:
+		def __get__(self):
+			return self._percent
+	
+	property status:
+		def __get__(self):
+			return self._status
 
 cdef object MESSAGE_MAP
 MESSAGE_MAP = \
@@ -1215,7 +1229,7 @@ cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
 		raise SystemError
 	message = klass(sentinel = the_sentinel)
 	message.ddjvu_message = ddjvu_message
-	message.__init()
+	message._init()
 	return message
 
 cdef object JOB_EXCEPTION_MAP

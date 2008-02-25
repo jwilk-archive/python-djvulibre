@@ -393,6 +393,7 @@ cdef class Message:
 	cdef Document _document
 	cdef PageJob _page_job
 	cdef Job _job
+	cdef void _init(self)
 
 cdef class ErrorMessage(Message):
 	cdef object _message
@@ -430,7 +431,8 @@ cdef class ThumbnailMessage(Message):
 	cdef int _page_no
 
 cdef class ProgressMessage(Message):
-	pass
+	cdef int _percent
+	cdef int _status
 
 cdef class Thumbnail:
 	cdef Page _page
