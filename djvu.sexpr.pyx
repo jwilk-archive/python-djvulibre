@@ -164,6 +164,9 @@ class Symbol(str):
 		return not self.__eq__(other)
 
 def Expression__new__(cls, value):
+	'''
+	Expression(value) -> an expression.
+	'''
 	if is_int(value):
 		return IntExpression(value)
 	elif typecheck(value, Symbol):
@@ -181,6 +184,11 @@ def Expression__new__(cls, value):
 			return ListExpression(it)
 
 def Expression_from_stream(stdin):
+	'''
+	Expression.from_stream(stream) -> an expression.
+
+	Read an expression from a stream.
+	'''
 	global myio_stdin
 	try:
 		myio_stdin = stdin
@@ -192,6 +200,11 @@ def Expression_from_stream(stdin):
 		myio_reset()
 
 def Expression_from_string(str):
+	'''
+	Expression.from_string(s) -> an expression.
+
+	Read an expression from a string.
+	'''
 	from cStringIO import StringIO
 	stdin = StringIO(str)
 	try:
@@ -200,6 +213,35 @@ def Expression_from_string(str):
 		stdin.close()
 
 class Expression(BaseExpression):
+
+	'''
+	Notes about the textual represenation of S-expressions
+	------------------------------------------------------
+
+	Special characters are:
+
+	* the parenthesis ``(`` and ``)``,
+	* the double quote ``"``,
+	* the vertical bar ``|``.
+	
+	Symbols are represented by their name. Vertical bars ``|`` can be used to
+	delimit names that contain blanks, special characters, non printable
+	characters, non ascii characters, or can be confused as a number.
+	
+	Numbers follow the syntax specified by the C function ``strtol()`` with
+	``base=0``.
+	
+	Strings are delimited by double quotes. All C string escapes are
+	recognized. Non-printable ascii characters must be escaped.
+	
+	List are represented by an open parenthesis ``(`` followed by the space
+	separated list elements, followed by a closing parenthesis ``)``.
+	
+	When the ``cdr`` of the last pair is non zero, the closed parenthesis is
+	preceded by a space, a dot ``.``, a space, and the textual representation
+	of the ``cdr``. (This is only partially supported by Python bindings.)
+
+	'''
 	__new__ = staticmethod(Expression__new__)
 	from_string = staticmethod(Expression_from_string)
 	from_stream = staticmethod(Expression_from_stream)
@@ -229,7 +271,7 @@ cdef object BaseExpression_richcmp(object left, object right, int op):
 
 cdef class BaseExpression:
 	'''
-	Don't use this class directly. Use the `Expression` class instead.
+	Don't use this class directly. Use the ``Expression`` class instead.
 	'''
 
 	cdef _WrappedCExpr wexpr
@@ -273,6 +315,9 @@ cdef class BaseExpression:
 		return '%s(%r)' % (get_type_name(ExpressionType), self.value)
 
 def IntExpression__new__(cls, value):
+	'''
+	IntExpression(n) -> an integer expression.
+	'''
 	cdef BaseExpression self
 	self = BaseExpression.__new__(cls)
 	if typecheck(value, _WrappedCExpr):
@@ -315,6 +360,9 @@ class IntExpression(Expression):
 del IntExpression__new__
 
 def SymbolExpression__new__(cls, value):
+	'''
+	SymbolExpression(Symbol(s)) -> a symbol expression.
+	'''
 	cdef BaseExpression self
 	self = BaseExpression.__new__(cls)
 	if typecheck(value, _WrappedCExpr):
@@ -341,6 +389,9 @@ class SymbolExpression(Expression):
 del SymbolExpression__new__
 
 def StringExpression__new__(cls, value):
+	'''
+	SymbolExpression(s) -> a string expression.
+	'''
 	cdef BaseExpression self
 	self = BaseExpression.__new__(cls)
 	if typecheck(value, _WrappedCExpr):
@@ -370,6 +421,9 @@ class _InvalidExpression(ValueError):
 	pass
 
 class ExpressionSyntaxError(Exception):
+	'''
+	Invalid expression syntax.
+	'''
 	pass
 
 cdef _WrappedCExpr public_py2c(object o):
@@ -415,6 +469,9 @@ cdef _WrappedCExpr _build_list_cexpr(object items):
 		unlock_gc(NULL)
 
 def ListExpression__new__(cls, items):
+	'''
+	ListExpression(iterable) -> a list expression.
+	'''
 	cdef BaseExpression self
 	self = BaseExpression.__new__(cls)
 	if typecheck(items, _WrappedCExpr):
