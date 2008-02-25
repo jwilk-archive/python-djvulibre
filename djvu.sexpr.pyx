@@ -152,7 +152,7 @@ cdef _MissingCExpr wexpr_missing():
 class Symbol(str):
 
 	def __repr__(self):
-		return 'Symbol(%s)' % str.__repr__(self)
+		return '%s(%s)' % (get_type_name(SymbolType), str.__repr__(self))
 	
 	def __eq__(self, other):
 		if not typecheck(other, Symbol):
@@ -270,7 +270,7 @@ cdef class BaseExpression:
 		return BaseExpression_richcmp(self, other, op)
 
 	def __repr__(self):
-		return 'Expression(%r)' % (self.value,)
+		return '%s(%r)' % (get_type_name(ExpressionType), self.value)
 
 def IntExpression__new__(cls, value):
 	cdef BaseExpression self
@@ -551,6 +551,12 @@ cdef class _ListExpressionIterator:
 		self.cexpr = cexpr_tail(cexpr)
 		cexpr = cexpr_head(cexpr)
 		return _c2py(cexpr)
+
+cdef object SymbolType
+cdef object ExpressionType
+
+SymbolType = Symbol
+ExpressionType = Expression
 
 __all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'ExpressionSyntaxError')
 
