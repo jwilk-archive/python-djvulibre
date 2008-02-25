@@ -1481,4 +1481,4 @@ cdef class Metadata:
 	def __contains__(self, k):
 		return k in self._keys
 	
-# vim:ts=4 sw=4 noet
+# vim:ts=4 sw=4 noet ft=pyrex

@@ -533,4 +533,4 @@ cdef class _ListExpressionIterator:
 
 __all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'ExpressionSyntaxError')
 
-# vim:ts=4 sw=4 noet
+# vim:ts=4 sw=4 noet ft=pyrex

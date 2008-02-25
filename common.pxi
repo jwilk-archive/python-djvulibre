@@ -49,4 +49,4 @@ cdef char* get_type_name(object type):
 cdef void raise_instantiation_error(object cls) except *:
 	raise TypeError, 'cannot create \'%s\' instances' % get_type_name(cls)
 
-# vim:ts=4 sw=4 noet
+# vim:ts=4 sw=4 noet ft=pyrex

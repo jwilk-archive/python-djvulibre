@@ -14,4 +14,4 @@ cdef class _WrappedCExpr:
 cdef object public_c2py(cexpr_t)
 cdef _WrappedCExpr public_py2c(object)
 
-# vim:ts=4 sw=4 noet
+# vim:ts=4 sw=4 noet ft=pyrex

@@ -435,4 +435,4 @@ cdef class ProgressMessage(Message):
 cdef class Thumbnail:
 	cdef Page _page
 
-# vim:ts=4 sw=4 noet
+# vim:ts=4 sw=4 noet ft=pyrex
