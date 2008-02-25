@@ -641,7 +641,7 @@ cdef class PixelFormat:
 			return self._gamma
 
 		def __set__(self, double value):
-			if (_value >= 0.5 and value <= 5.0):
+			if (value >= 0.5 and value <= 5.0):
 				ddjvu_format_set_gamma(self.ddjvu_format, value)
 			else:
 				raise ValueError
