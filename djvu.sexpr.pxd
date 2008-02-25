@@ -1,4 +1,4 @@
-cdef extern from "libdjvu/miniexp.h":
+cdef extern from 'libdjvu/miniexp.h':
 	struct cexpr_s 'miniexp_s'
 	ctypedef cexpr_s* cexpr_t 'miniexp_t'
 
