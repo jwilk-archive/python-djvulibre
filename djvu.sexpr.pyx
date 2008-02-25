@@ -288,6 +288,10 @@ def IntExpression__new__(cls, value):
 
 class IntExpression(Expression):
 
+	'''
+	IntExpression can represent any integer in range(-2 ** 29, 2 ** 29).
+	'''
+
 	__new__ = staticmethod(IntExpression__new__)
 	
 	def __nonzero__(self):
