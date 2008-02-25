@@ -1,5 +1,9 @@
 # Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
+'''
+DjVuLibre bindings: module for handling Lisp S-expressions
+'''
+
 include 'common.pxi'
 
 cdef extern from 'libdjvu/miniexp.h':
@@ -224,21 +228,38 @@ cdef object BaseExpression_richcmp(object left, object right, int op):
 	return bool(result)
 
 cdef class BaseExpression:
+	'''
+	Don't use this class directly. Use the `Expression` class instead.
+	'''
+
 	cdef _WrappedCExpr wexpr
 
 	def __cinit__(self, *args, **kwargs):
 		self.wexpr = wexpr_missing()
 
 	def print_into(self, stdout, width = None):
+		'''
+		expr.print_into(file[, width]).
+		
+		Print the expression into the file.
+		'''
 		self.wexpr.print_into(stdout, width)
 
 	def as_string(self, width = None):
+		'''
+		expr.as_string([width]).
+
+		Return a string representation of the expression.
+		'''
 		return self.wexpr.as_string(width)
 	
 	def __str__(self):
 		return self.as_string()
 
 	property value:
+		'''
+		The actual "pythonic" value of the expression.
+		'''	
 		def __get__(self):
 			return self._get_value()
 	
