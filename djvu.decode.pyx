@@ -8,9 +8,6 @@ the_sentinel = object()
 
 VERSION = ddjvu_code_get_version()
 
-class InstantiationError(RuntimeError):
-	pass
-
 
 DOCUMENT_TYPE_UNKNOWN = DDJVU_DOCTYPE_UNKNOWN
 DOCUMENT_TYPE_SINGLE_PAGE = DDJVU_DOCTYPE_SINGLEPAGE
@@ -29,7 +26,7 @@ cdef class DocumentPages(DocumentExtension):
 
 	def __cinit__(self, Document document not None, object sentinel):
 		if sentinel is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		import weakref
 		self._document_weakref = weakref.ref(document)
 	
@@ -48,7 +45,7 @@ cdef class Page:
 
 	def __cinit__(self, Document document not None, int n, object sentinel):
 		if sentinel is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self._document = document
 		self._n = n
 
@@ -154,7 +151,7 @@ cdef class DocumentFiles(DocumentExtension):
 
 	def __cinit__(self, Document document not None, object sentinel):
 		if sentinel is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		import weakref
 		self._document_weakref = weakref.ref(document)
 	
@@ -168,7 +165,7 @@ cdef class File:
 
 	def __cinit__(self, Document document not None, int n, object sentinel):
 		if sentinel is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self._document = document
 		self._n = n
 	
@@ -244,7 +241,7 @@ cdef class Document:
 	def __cinit__(self, **kwargs):
 		self.ddjvu_document = NULL
 		if kwargs.get('sentinel') is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self._pages = DocumentPages(self, sentinel = the_sentinel)
 		self._files = DocumentFiles(self, sentinel = the_sentinel)
 
@@ -411,7 +408,7 @@ cdef class PageInfo:
 
 	def __cinit__(self, Document document not None, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self._document = document
 	
 	property document:
@@ -443,7 +440,7 @@ cdef class FileInfo:
 
 	def __cinit__(self, Document document not None, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self._document = document
 	
 	property document:
@@ -603,7 +600,7 @@ cdef class PixelFormat:
 		for cls in (PixelFormatRgb, PixelFormatRgbMask, PixelFormatGrey, PixelFormatPalette, PixelFormatPackedBits):
 			if typecheck(self, cls):
 				return
-		raise InstantiationError
+		raise_instantiation_error(type(self))
 	
 	property rows_top_to_bottom:
 
@@ -924,7 +921,7 @@ cdef class Job:
 
 	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self.ddjvu_job = NULL
 
 	property status:
@@ -1046,7 +1043,7 @@ cdef class Message:
 
 	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self.ddjvu_message = NULL
 	
 	def __init(self):
@@ -1111,7 +1108,7 @@ cdef class Stream:
 
 	def __cinit__(self, Document document not None, int streamid, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self._streamid = streamid
 		self._document = document
 		self._open = 1
@@ -1268,7 +1265,7 @@ cdef class _SexprWrapper:
 		import weakref
 		self._document_weakref = weakref.ref(document)
 		if sentinel != the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 	
 	def __call__(self):
 		return cexpr2py(self._cexpr)
@@ -1312,7 +1309,7 @@ cdef class Annotations:
 			return
 		if typecheck(self, PageAnnotations):
 			return
-		raise InstantiationError
+		raise_instantiation_error(type(self))
 
 	property sexpr:
 		def __get__(self):

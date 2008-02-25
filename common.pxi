@@ -36,7 +36,17 @@ cdef extern from 'Python.h':
 
 	FILE* file_to_cfile 'PyFile_AsFile'(object)
 
+cdef extern from 'object.h':
+	ctypedef struct PyTypeObject:
+		char *tp_name
+
 cdef int is_int(object o):
 	return is_short_int(o) or is_long_int(o)
+
+cdef char* get_type_name(object type):
+	return (<PyTypeObject*>type).tp_name
+
+cdef void raise_instantiation_error(object cls) except *:
+	raise TypeError, 'cannot create \'%s\' instances' % get_type_name(cls)
 
 # vim:ts=4 sw=4 noet

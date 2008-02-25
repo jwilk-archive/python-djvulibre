@@ -27,7 +27,7 @@ class DocumentTest:
 		>>> Document()
 		Traceback (most recent call last):
 		...
-		InstantiationError
+		TypeError: cannot create 'djvu.decode.Document' instances
 		'''
 	
 	def test_nonexistent(self):
@@ -346,7 +346,7 @@ class PixelFormatTest:
 	>>> PixelFormat()
 	Traceback (most recent call last):
 	...
-	InstantiationError
+	TypeError: cannot create 'djvu.decode.PixelFormat' instances
 
 	>>> pf = PixelFormatRgb()
 	>>> pf
@@ -402,7 +402,7 @@ class PageJobTest:
 		>>> PageJob()
 		Traceback (most recent call last):
 		...
-		InstantiationError
+		TypeError: cannot create 'djvu.decode.PageJob' instances
 		'''
 	
 	def test_decode():
@@ -494,7 +494,7 @@ class JobTest:
 	>>> Job()
 	Traceback (most recent call last):
 	...
-	InstantiationError
+	TypeError: cannot create 'djvu.decode.Job' instances
 	'''
 
 class AffineTransformTest:
@@ -545,7 +545,7 @@ class MessageTest:
 	>>> Message()
 	Traceback (most recent call last):
 	...
-	InstantiationError
+	TypeError: cannot create 'djvu.decode.Message' instances
 	'''
 
 class StreamTest:

@@ -86,9 +86,6 @@ io_puts = myio_puts
 io_getc = myio_getc
 io_ungetc = myio_ungetc
 
-class InstantiationError(RuntimeError):
-	pass
-
 cdef object the_sentinel
 the_sentinel = object()
 
@@ -96,7 +93,7 @@ cdef class _WrappedCExpr:
 
 	def __cinit__(self, object sentinel):
 		if sentinel is not the_sentinel:
-			raise InstantiationError
+			raise_instantiation_error(type(self))
 		self.cvar = cvar_new()
 
 	cdef cexpr_t cexpr(self):
