@@ -620,5 +620,7 @@ SymbolType = Symbol
 ExpressionType = Expression
 
 __all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'ExpressionSyntaxError')
+__author__ = 'Jakub Wilk <ubanus@users.sf.net>'
+__version__ = '0.1.1'
 
 # vim:ts=4 sw=4 noet ft=pyrex

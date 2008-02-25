@@ -1481,4 +1481,7 @@ cdef class Metadata:
 	def __contains__(self, k):
 		return k in self._keys
 	
+__author__ = 'Jakub Wilk <ubanus@users.sf.net>'
+__version__ = '0.1.1'
+
 # vim:ts=4 sw=4 noet ft=pyrex
