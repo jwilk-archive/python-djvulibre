@@ -162,9 +162,6 @@ class Symbol(str):
 	def __neq__(self, other):
 		return not self.__eq__(other)
 
-class Expression(object):
-	pass
-
 def Expression__new__(cls, value):
 	if is_int(value):
 		return IntExpression(value)
@@ -176,11 +173,11 @@ def Expression__new__(cls, value):
 		return StringExpression(str(value))
 	else:
 		try:
-			iter(value)
+			it = iter(value)
 		except TypeError:
 			raise
 		else:
-			return ListExpression(value)
+			return ListExpression(it)
 
 def Expression_from_stream(stdin):
 	global myio_stdin
@@ -201,15 +198,17 @@ def Expression_from_string(str):
 	finally:
 		stdin.close()
 
-Expression.__new__ = staticmethod(Expression__new__)
-Expression.from_string = staticmethod(Expression_from_string)
-Expression.from_stream = staticmethod(Expression_from_stream)
+class Expression(BaseExpression):
+	__new__ = staticmethod(Expression__new__)
+	from_string = staticmethod(Expression_from_string)
+	from_stream = staticmethod(Expression_from_stream)
+
 del Expression__new__, Expression_from_string, Expression_from_stream
 
-cdef object _Expression_richcmp(object left, object right, int op):
-	if not typecheck(left, _Expression):
+cdef object BaseExpression_richcmp(object left, object right, int op):
+	if not typecheck(left, BaseExpression):
 		return NotImplemented
-	elif not typecheck(right, _Expression):
+	elif not typecheck(right, BaseExpression):
 		return NotImplemented
 	elif op == 0:
 		result = left.value <  right.value
@@ -227,7 +226,7 @@ cdef object _Expression_richcmp(object left, object right, int op):
 		raise SystemError
 	return bool(result)
 
-cdef class _Expression:
+cdef class BaseExpression:
 	cdef _WrappedCExpr wexpr
 
 	def __cinit__(self, *args, **kwargs):
@@ -244,30 +243,35 @@ cdef class _Expression:
 
 	property value:
 		def __get__(self):
-			return self.get_value()
+			return self._get_value()
 	
-	cdef object get_value(self):
+	def _get_value(self):
 		raise NotImplementedError
 
 	def __richcmp__(self, other, int op):
-		return _Expression_richcmp(self, other, op)
+		return BaseExpression_richcmp(self, other, op)
 
 	def __repr__(self):
 		return 'Expression(%r)' % (self.value,)
 
-cdef class IntExpression(_Expression):
-
-	def __cinit__(self, value):
-		if typecheck(value, _WrappedCExpr):
-			self.wexpr = value
-		elif is_int(value):
-			if -1 << 29 <= value < 1 << 29:
-				self.wexpr = wexpr(int_to_cexpr(value))
-			else:
-				raise ValueError
+def IntExpression__new__(cls, value):
+	cdef BaseExpression self
+	self = BaseExpression.__new__(cls)
+	if typecheck(value, _WrappedCExpr):
+		self.wexpr = value
+	elif is_int(value):
+		if -1 << 29 <= value < 1 << 29:
+			self.wexpr = wexpr(int_to_cexpr(value))
 		else:
-			raise TypeError
+			raise ValueError
+	else:
+		raise TypeError
+	return self
 
+class IntExpression(Expression):
+
+	__new__ = staticmethod(IntExpression__new__)
+	
 	def __nonzero__(self):
 		return bool(self.value)
 
@@ -277,52 +281,68 @@ cdef class IntExpression(_Expression):
 	def __long__(self):
 		return 0L + self.value
 
-	cdef object get_value(self):
+	def _get_value(BaseExpression self not None):
 		return cexpr_to_int(self.wexpr.cexpr())
 
 	def __richcmp__(self, other, int op):
-		return _Expression_richcmp(self, other, op)
+		return BaseExpression_richcmp(self, other, op)
 
 	def __hash__(self):
 		return hash(self.value)
 
-cdef class SymbolExpression(_Expression):
+del IntExpression__new__
 
-	def __cinit__(self, value):
-		if typecheck(value, _WrappedCExpr):
-			self.wexpr = value
-		elif typecheck(value, str):
-			self.wexpr = wexpr(symbol_to_cexpr(value))
-		else:
-			raise TypeError
+def SymbolExpression__new__(cls, value):
+	cdef BaseExpression self
+	self = BaseExpression.__new__(cls)
+	if typecheck(value, _WrappedCExpr):
+		self.wexpr = value
+	elif typecheck(value, str):
+		self.wexpr = wexpr(symbol_to_cexpr(value))
+	else:
+		raise TypeError
+	return self
 
-	cdef object get_value(self):
+class SymbolExpression(Expression):
+
+	__new__ = staticmethod(SymbolExpression__new__)
+
+	def _get_value(BaseExpression self not None):
 		return Symbol(cexpr_to_symbol(self.wexpr.cexpr()))
 
 	def __richcmp__(self, other, int op):
-		return _Expression_richcmp(self, other, op)
+		return BaseExpression_richcmp(self, other, op)
 
 	def __hash__(self):
 		return hash(self.value)
 
-cdef class StringExpression(_Expression):
+del SymbolExpression__new__
 
-	def __cinit__(self, value):
-		if typecheck(value, _WrappedCExpr):
-			self.wexpr = value
-		elif is_string(value):
-			self.wexpr = wexpr(str_to_cexpr(value))
-		else:
-			raise TypeError
+def StringExpression__new__(cls, value):
+	cdef BaseExpression self
+	self = BaseExpression.__new__(cls)
+	if typecheck(value, _WrappedCExpr):
+		self.wexpr = value
+	elif is_string(value):
+		self.wexpr = wexpr(str_to_cexpr(value))
+	else:
+		raise TypeError
+	return self
 
-	cdef object get_value(self):
+class StringExpression(Expression):
+
+	__new__ = staticmethod(StringExpression__new__)
+
+	def _get_value(BaseExpression self not None):
 		return cexpr_to_str(self.wexpr.cexpr())
 
 	def __richcmp__(self, other, int op):
-		return _Expression_richcmp(self, other, op)
+		return BaseExpression_richcmp(self, other, op)
 
 	def __hash__(self):
 		return hash(self.value)
+
+del StringExpression__new__
 
 class _InvalidExpression(ValueError):
 	pass
@@ -331,14 +351,16 @@ class ExpressionSyntaxError(SyntaxError):
 	pass
 
 cdef _WrappedCExpr public_py2c(object o):
-	cdef _Expression x
-	x = Expression(o)
+	cdef BaseExpression pyexpr
+	pyexpr = Expression(o)
+	if pyexpr is None:
+		raise TypeError
 	return x.wexpr
 
 cdef object public_c2py(cexpr_t cexpr):
 	return _c2py(cexpr)
 
-cdef _Expression _c2py(cexpr_t cexpr):
+cdef BaseExpression _c2py(cexpr_t cexpr):
 	if cexpr == cexpr_dummy:
 		raise _InvalidExpression
 	_wexpr = wexpr(cexpr)
@@ -356,29 +378,37 @@ cdef _Expression _c2py(cexpr_t cexpr):
 
 cdef _WrappedCExpr _build_list_cexpr(object items):
 	cdef cexpr_t cexpr
+	cdef BaseExpression citem
 	lock_gc(NULL)
 	try:
 		cexpr = cexpr_nil
-		Expression_ = Expression
 		for item in items:
-			cexpr = pair_to_cexpr((<_Expression>Expression_(item)).wexpr.cexpr(), cexpr)
+			citem = Expression(item)
+			if citem is None:
+				raise TypeError
+			cexpr = pair_to_cexpr(citem.wexpr.cexpr(), cexpr)
 		cexpr = cexpr_reverse_list(cexpr)
 		return wexpr(cexpr)
 	finally:
 		unlock_gc(NULL)
 
-cdef class ListExpression(_Expression):
+def ListExpression__new__(cls, items):
+	cdef BaseExpression self
+	self = BaseExpression.__new__(cls)
+	if typecheck(items, _WrappedCExpr):
+		self.wexpr = items
+	else:
+		self.wexpr = _build_list_cexpr(items)
+	return self
 
-	def __cinit__(self, items):
-		if typecheck(items, _WrappedCExpr):
-			self.wexpr = items
-		else:
-			self.wexpr = _build_list_cexpr(items)
+class ListExpression(Expression):
 
-	def __nonzero__(self):
+	__new__ = staticmethod(ListExpression__new__)
+
+	def __nonzero__(BaseExpression self not None):
 		return self.wexpr.cexpr() != cexpr_nil
 
-	def __len__(self):
+	def __len__(BaseExpression self not None):
 		cdef cexpr_t cexpr
 		cdef int n
 		cexpr = self.wexpr.cexpr()
@@ -388,7 +418,7 @@ cdef class ListExpression(_Expression):
 			n = n + 1
 		return n
 
-	def __getitem__(self, key):
+	def __getitem__(BaseExpression self not None, key):
 		cdef cexpr_t cexpr
 		cdef int n
 		cexpr = self.wexpr.cexpr()
@@ -421,13 +451,17 @@ cdef class ListExpression(_Expression):
 			raise TypeError
 		return _c2py(cexpr)
 
-	def __setitem__(self, key, value):
+	def __setitem__(BaseExpression self not None, key, value):
 		cdef cexpr_t cexpr
 		cdef cexpr_t prev_cexpr
 		cdef cexpr_t new_cexpr
 		cdef int n
+		cdef BaseExpression pyexpr
 		cexpr = self.wexpr.cexpr()
-		new_cexpr = (<_Expression>Expression(value)).wexpr.cexpr()
+		pyexpr = Expression(value)
+		if pyexpr is None:
+			raise TypeError
+		new_cexpr = pyexpr.wexpr.cexpr()
 		if is_int(key):
 			n = key
 			if n < 0:
@@ -466,23 +500,28 @@ cdef class ListExpression(_Expression):
 
 	def __iter__(self):
 		return _ListExpressionIterator(self)
+	
+	def __hash__(self):
+		raise TypeError('unhashable type: \'%s.%s\'' % (self.__module__, self.__class__.__name__))
 
-	cdef object get_value(self):
+	def _get_value(BaseExpression self not None):
 		cdef cexpr_t current
 		current = self.wexpr.cexpr()
 		result = []
 		append = result.append
 		while current != cexpr_nil:
-			append(_c2py(cexpr_head(current)).get_value())
+			append(_c2py(cexpr_head(current))._get_value())
 			current = cexpr_tail(current)
 		return tuple(result)
 
+del ListExpression__new__
+
 cdef class _ListExpressionIterator:
 
-	cdef ListExpression expression
+	cdef BaseExpression expression
 	cdef cexpr_t cexpr
 
-	def __cinit__(self, ListExpression expression not None):
+	def __cinit__(self, BaseExpression expression not None):
 		self.expression = expression
 		self.cexpr = expression.wexpr.cexpr()
 	
@@ -494,5 +533,7 @@ cdef class _ListExpressionIterator:
 		self.cexpr = cexpr_tail(cexpr)
 		cexpr = cexpr_head(cexpr)
 		return _c2py(cexpr)
+
+__all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'ExpressionSyntaxError')
 
 # vim:ts=4 sw=4 noet

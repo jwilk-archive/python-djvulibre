@@ -193,10 +193,10 @@ class ListExpressionTest:
 	False
 	>>> x == (1, 3, 5, 7)
 	False
-	>>> hash(x) # doctest: +IGNORE_EXCEPTION_DETAIL
+	>>> hash(x)
 	Traceback (most recent call last):
 	...
-	TypeError: unhashable type
+	TypeError: unhashable type: 'djvu.sexpr.ListExpression'
 	
 	'''
 
