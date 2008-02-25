@@ -1,6 +1,6 @@
 # Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
-include 'common.pxd'
+include 'common.pxi'
 
 cdef extern from 'libdjvu/miniexp.h':
 	int cexpr_is_int 'miniexp_numberp'(cexpr_t sexp)

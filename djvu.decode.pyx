@@ -1,6 +1,6 @@
 # Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
-include 'common.pxd'
+include 'common.pxi'
 
 cdef object the_sentinel
 the_sentinel = object()
