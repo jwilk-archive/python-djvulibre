@@ -16,8 +16,6 @@ setup(
 	[
 		Extension(name, ['djvu.%s.pyx' % name],
 			libraries = ['djvulibre'],
-			extra_compile_args = ['-g'],
-			extra_link_args = ['-g']
 		)
 		for name in EXT_MODULES
 	],
