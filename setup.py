@@ -19,7 +19,7 @@ setup(
 		)
 		for name in EXT_MODULES
 	],
-	cmdclass = {'build_ext': build_ext}
+	cmdclass = dict(build_ext = build_ext)
 )
 
 # vim:ts=4 sw=4 noet
