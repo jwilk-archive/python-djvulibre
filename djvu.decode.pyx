@@ -1182,7 +1182,7 @@ cdef class ChunkMessage(Message):
 cdef class ThumbnailMessage(Message):
 
 	cdef void _init(self):
-		Message.__init(self)
+		Message._init(self)
 		self._page_no = self.ddjvu_message.m_thumbnail.pagenum
 	
 	property n:
@@ -1191,8 +1191,8 @@ cdef class ThumbnailMessage(Message):
 
 cdef class ProgressMessage(Message):
 
-	def __init(self):
-		Message.__init(self)
+	cdef void _init(self):
+		Message._init(self)
 		self._percent = self.ddjvu_message.m_progress.percent
 		self._status = self.ddjvu_message.m_progress.status
 	
