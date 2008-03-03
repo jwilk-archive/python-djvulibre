@@ -2,8 +2,17 @@
 
 include 'common.pxi'
 
+import weakref
+
 cdef object the_sentinel
 the_sentinel = object()
+
+
+cdef object _context_loft, _document_loft, _job_loft
+_context_loft = {}
+_document_loft = weakref.WeakValueDictionary()
+_job_loft = weakref.WeakValueDictionary()
+_page_job_loft = weakref.WeakValueDictionary()
 
 
 VERSION = ddjvu_code_get_version()
@@ -101,10 +110,12 @@ cdef class Page:
 				libc_free(s)
 
 	def decode(self, wait = True):
-		page_job = PageJob_from_c(ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n), self._document._context)
+		cdef PageJob job
+		job = PageJob(sentinel = the_sentinel)
+		job.__init(self._document._context, <ddjvu_job_t*>ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n))
 		if wait:
-			page_job.wait()
-		return page_job
+			job.wait()
+		return job
 	
 	property annotations:
 		def __get__(self):
@@ -261,6 +272,13 @@ cdef class Document:
 			raise_instantiation_error(type(self))
 		self._pages = DocumentPages(self, sentinel = the_sentinel)
 		self._files = DocumentFiles(self, sentinel = the_sentinel)
+		self._context = None
+	
+	cdef void __init(self, Context context, ddjvu_document_t *ddjvu_document):
+		assert context != None and ddjvu_document != NULL
+		self.ddjvu_document = ddjvu_document
+		self._context = context
+		_document_loft[<long> ddjvu_document] = self
 
 	property status:
 		def __get__(self):
@@ -326,7 +344,8 @@ cdef class Document:
 			s2 = pages_to_opt(pages)
 			optv[optc] = s2
 			optc = optc + 1
-		job = Job_from_c(ddjvu_document_save(self.ddjvu_document, output, optc, optv), self._context)
+		job = Job(sentinel = the_sentinel)
+		job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
 		if wait:
 			job.wait()
 		return job
@@ -336,6 +355,7 @@ cdef class Document:
 		# XXX Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
 		# XXX See <http://bugs.debian.org/469122> for details.
 		cdef FILE* output
+		cdef Job job
 		options = []
 		if not is_file(file):
 			raise TypeError
@@ -410,7 +430,8 @@ cdef class Document:
 			for option in options:
 				optv[optc] = option
 				optc = optc + 1
-			job = Job_from_c(ddjvu_document_print(self.ddjvu_document, output, optc, optv), self._context)
+			job = Job(sentinel = the_sentinel)
+			job.__init(self._context, ddjvu_document_print(self.ddjvu_document, output, optc, optv))
 		finally:
 			py_free(optv)
 		if wait:
@@ -422,8 +443,7 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	if ddjvu_document == NULL:
 		result = None
 	else:
-		result = Document(sentinel = the_sentinel)
-		result.ddjvu_document = ddjvu_document
+		result = _document_loft.get(<long> ddjvu_document)
 	return result
 
 
@@ -521,15 +541,14 @@ class FileURI(str):
 
 cdef class Context:
 
-	def __cinit__(self, argv0 = None, **kwargs):
-		if kwargs.get('sentinel') is the_sentinel:
-			return
+	def __cinit__(self, argv0 = None):
 		if argv0 is None:
 			from sys import argv
 			argv0 = argv[0]
 		self.ddjvu_context = ddjvu_context_create(argv0)
 		if self.ddjvu_context == NULL:
 			raise MemoryError
+		_context_loft[<long> self.ddjvu_context] = self
 	
 	property cache_size:
 
@@ -573,9 +592,10 @@ cdef class Context:
 			ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
 		else:
 			ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
-		document = Document_from_c(ddjvu_document)
-		if document is not None:
-			document._context = self
+		if ddjvu_document == NULL:
+			return None
+		document = Document(sentinel = the_sentinel)
+		document.__init(self, ddjvu_document)
 		return document
 
 	def __iter__(self):
@@ -588,16 +608,17 @@ cdef class Context:
 		ddjvu_cache_clear(self.ddjvu_context)
 
 	def __dealloc__(self):
-		pass
-		# FIXME ddjvu_context_release(self.ddjvu_context)
+		ddjvu_context_release(self.ddjvu_context)
 
 cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 	cdef Context result
 	if ddjvu_context == NULL:
 		result = None
 	else:
-		result = Context(sentinel = the_sentinel)
-		result.ddjvu_context = ddjvu_context
+		try:
+			result = _context_loft[<long> ddjvu_context]
+		except KeyError:
+			raise SystemError
 	return result
 
 
@@ -829,6 +850,10 @@ cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size
 
 
 cdef class PageJob(Job):
+
+	cdef void __init(self, Context context, ddjvu_job_t *ddjvu_job):
+		Job.__init(self, context, ddjvu_job)
+		_page_job_loft[<long> ddjvu_job] = self
 	
 	property width:
 		'''
@@ -970,18 +995,18 @@ cdef class PageJob(Job):
 			py_free(buffer)
 
 	def __dealloc__(self):
-		pass
-		# FIXME ddjvu_page_release(self.ddjvu_context)
+		if self.ddjvu_job == NULL:
+			return
+		# FIXME ddjvu_page_release(<ddjvu_page_t*> self.ddjvu_job)
+		self.ddjvu_job = NULL
 
 
-cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page, Context context):
+cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
 	cdef PageJob result
 	if ddjvu_page == NULL:
 		result = None
 	else:
-		result = PageJob(sentinel = the_sentinel)
-		result.ddjvu_job = <ddjvu_job_t*> ddjvu_page
-		result._context = context
+		result = _page_job_loft.get(<long> ddjvu_page)
 	return result
 
 
@@ -990,7 +1015,15 @@ cdef class Job:
 	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise_instantiation_error(type(self))
+		self._context = None
 		self.ddjvu_job = NULL
+	
+	cdef void __init(self, Context context, ddjvu_job_t *ddjvu_job):
+		if context is None:
+			raise SystemError
+		self._context = context
+		self.ddjvu_job = ddjvu_job
+		_job_loft[<int> ddjvu_job] = self
 
 	property status:
 		def __get__(self):
@@ -1014,16 +1047,15 @@ cdef class Job:
 	def __dealloc__(self):
 		if self.ddjvu_job == NULL:
 			return
-		# XXX ddjvu_job_release(self.ddjvu_job)
+		# FIXME ddjvu_job_release(self.ddjvu_job)
+		self.ddjvu_job = NULL
 
-cdef Job Job_from_c(ddjvu_job_t* ddjvu_job, Context context):
+cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	cdef Job result
 	if ddjvu_job == NULL:
 		result = None
 	else:
-		result = Job(sentinel = the_sentinel)
-		result.ddjvu_job = ddjvu_job
-		result._context = context
+		result = _job_loft.get(<long> ddjvu_job)
 	return result
 
 
@@ -1119,8 +1151,8 @@ cdef class Message:
 			raise SystemError
 		self._context = Context_from_c(self.ddjvu_message.m_any.context)
 		self._document = Document_from_c(self.ddjvu_message.m_any.document)
-		self._page_job = PageJob_from_c(self.ddjvu_message.m_any.page, self._context)
-		self._job = Job_from_c(self.ddjvu_message.m_any.job, self._context)
+		self._page_job = PageJob_from_c(self.ddjvu_message.m_any.page)
+		self._job = Job_from_c(self.ddjvu_message.m_any.job)
 	
 	property context:
 		def __get__(self):
