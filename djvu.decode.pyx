@@ -309,7 +309,7 @@ cdef class Document:
 	def __dealloc__(self):
 		if self.ddjvu_document == NULL:
 			return
-		# FIXME ddjvu_document_release(self.ddjvu_document)
+		ddjvu_document_release(self.ddjvu_document)
 	
 	def save(self, file = None, pages = None, indirect = None, wait = True):
 		# XXX WARNING XXX
@@ -986,7 +986,7 @@ cdef class PageJob(Job):
 	def __dealloc__(self):
 		if self.ddjvu_job == NULL:
 			return
-		# FIXME ddjvu_page_release(<ddjvu_page_t*> self.ddjvu_job)
+		ddjvu_page_release(<ddjvu_page_t*> self.ddjvu_job)
 		self.ddjvu_job = NULL
 
 cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
@@ -1034,7 +1034,7 @@ cdef class Job:
 	def __dealloc__(self):
 		if self.ddjvu_job == NULL:
 			return
-		# FIXME ddjvu_job_release(self.ddjvu_job)
+		ddjvu_job_release(self.ddjvu_job)
 		self.ddjvu_job = NULL
 
 cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
