@@ -283,6 +283,9 @@ cdef class Document:
 		# FIXME ddjvu_document_release(self.ddjvu_document)
 	
 	def save(self, file = None, pages = None, indirect = None, wait = True):
+		# XXX WARNING XXX
+		# XXX Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
+		# XXX See <http://bugs.debian.org/bug=467282> for details.
 		cdef char * optv[2]
 		cdef int optc
 		cdef Job job
@@ -312,6 +315,9 @@ cdef class Document:
 		return job
 	
 	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, cropmarks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
+		# XXX WARNING XXX
+		# XXX Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
+		# XXX See <https://sourceforge.net/tracker/index.php?func=detail&aid=1906108&group_id=32953&atid=406583> for details.
 		cdef FILE* output
 		options = []
 		if not is_file(file):
