@@ -320,28 +320,22 @@ class DocumentTest:
 		'\x0c\x0c\x0c'
 		>>> del tmp
 
-		# >>> tmp = NamedTemporaryFile()
-		# >>> job = document.export_ps(tmp.file, text = True)
-		# >>> type(job) == Job
-		# True
-		# >>> job.is_done, job.is_error
-		# (True, False)
-		# >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
-		# >>> stderr
-		# ''
-		# >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
-		# ''
-		# ''
-		# ' (White background, colorful foreground.)  2  Color samples  red green blue cyan magenta yellow red'
-		# ''
-		# ' green  blue  cyan  magenta yellow'
-		# ''
-		# ' 2\x0c'
-		# ''
-		# ' (Colorful solild background, black foreground.)  2.1  Even  more  colors  Yes, looks odd.'
-		# ''
-		# ' 3'
-		# >>> del tmp
+		>>> tmp = NamedTemporaryFile()
+		>>> job = document.export_ps(tmp.file, pages = (2,), text = True)
+		>>> type(job) == Job
+		True
+		>>> job.is_done, job.is_error
+		(True, False)
+		>>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+		>>> stderr
+		''
+		>>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
+		''
+		''
+		' 2  White background, colorful foreground  red green blue cyan magenta yellow red  green blue cyan magenta yellow'
+		''
+		' 2'
+		>>> del tmp
 		'''
 
 
