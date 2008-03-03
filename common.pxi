@@ -12,6 +12,7 @@ cdef extern from 'stdlib.h':
 
 cdef extern from 'string.h':
 	int strcmp(char *s1, char *s2)
+	size_t strlen(char *s)
 
 # Python library
 
@@ -30,6 +31,7 @@ cdef extern from 'Python.h':
 	int is_file 'PyFile_Check'(object)
 
 	object encode_utf8 'PyUnicode_AsUTF8String'(object)
+	object decode_utf8_ex 'PyUnicode_DecodeUTF8'(char *, Py_ssize_t, char *)
 	int string_to_charp_and_size 'PyString_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
 	char* string_to_charp 'PyString_AsString'(object) except NULL
 	object charp_to_string 'PyString_FromStringAndSize'(char *, Py_ssize_t)
@@ -48,5 +50,8 @@ cdef char* get_type_name(object type):
 
 cdef void raise_instantiation_error(object cls) except *:
 	raise TypeError, 'cannot create \'%s\' instances' % get_type_name(cls)
+
+cdef object decode_utf8(char* s):
+	return decode_utf8_ex(s, strlen(s), NULL)
 
 # vim:ts=4 sw=4 noet ft=pyrex

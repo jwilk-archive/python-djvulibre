@@ -102,7 +102,7 @@ cdef class Page:
 			if s == NULL:
 				raise NotAvailable
 			try:
-				return s.decode('UTF-8')
+				return decode_utf8(s)
 			finally:
 				libc_free(s)
 
@@ -226,7 +226,7 @@ cdef class File:
 			if s == NULL:
 				raise NotAvailable
 			try:
-				return s.decode('UTF-8')
+				return decode_utf8(s)
 			finally:
 				libc_free(s)
 
@@ -507,7 +507,7 @@ cdef class FileInfo:
 			if result == NULL:
 				return None
 			else:
-				return result.decode('UTF-8')
+				return decode_utf8(result)
 
 	property name:
 		def __get__(self):
@@ -516,7 +516,7 @@ cdef class FileInfo:
 			if result == NULL:
 				return None
 			else:
-				return result.decode('UTF-8')
+				return decode_utf8(result)
 
 	property title:
 		def __get__(self):
@@ -525,7 +525,7 @@ cdef class FileInfo:
 			if result == NULL:
 				return None
 			else:
-				return result.decode('UTF-8')
+				return decode_utf8(result)
 
 class FileURI(str):
 	pass
@@ -1564,7 +1564,7 @@ cdef class Metadata:
 		s = ddjvu_anno_get_metadata(self._annotations._sexpr._cexpr, cexpr_key.cexpr())
 		if s == NULL:
 			raise KeyError(key)
-		return s.decode('UTF-8')
+		return decode_utf8(s)
 	
 	def keys(self):
 		return self._keys
