@@ -82,7 +82,7 @@ class DocumentTest:
 		>>> file_info.title
 		u't-gamma.djvu'
 
-		>>> for line in document.files[0].dump.splitlines(): print repr(line)
+		>>> for line in document.files[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
 		u'  FORM:DJVU [83] '
 		u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
 		u'    Sjbz [53]         JB2 bilevel data'
@@ -103,7 +103,7 @@ class DocumentTest:
 		>>> page_info.version
 		24
 		
-		>>> for line in document.pages[0].dump.splitlines(): print repr(line)
+		>>> for line in document.pages[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
 		u'  FORM:DJVU [83] '
 		u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
 		u'    Sjbz [53]         JB2 bilevel data'
@@ -178,7 +178,8 @@ class DocumentTest:
 		>>> stdout, stderr = Popen(['djvudump', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
 		>>> stderr
 		''
-		>>> for line in stdout.splitlines(): print repr(line)
+		>>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
+		...
 		'  FORM:DJVM [26874] '
 		'    DIRM [82]         Document directory (bundled, 5 files 4 pages)'
 		'    NAVM [173] '
@@ -225,7 +226,8 @@ class DocumentTest:
 		>>> stdout, stderr = Popen(['djvudump', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
 		>>> stderr
 		''
-		>>> for line in stdout.splitlines(): print repr(line)
+		>>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
+		...
 		'  FORM:DJVM [5941] '
 		'    DIRM [52]         Document directory (bundled, 2 files 1 pages)'
 		'    FORM:DJVU [5678] {p0001.djvu}'
@@ -247,7 +249,7 @@ class DocumentTest:
 		>>> stdout, stderr = Popen(['djvudump', tmpfname], stdout = PIPE, stderr = PIPE).communicate()
 		>>> stderr
 		''
-		>>> for line in stdout.splitlines(): print repr(line)
+		>>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
 		...
 		'  FORM:DJVM [255] '
 		'    DIRM [62]         Document directory (indirect, 5 files 4 pages)'
@@ -269,7 +271,7 @@ class DocumentTest:
 		>>> stdout, stderr = Popen(['djvudump', tmpfname], stdout = PIPE, stderr = PIPE).communicate()
 		>>> stderr
 		''
-		>>> for line in stdout.splitlines(): print repr(line)
+		>>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
 		...
 		'  FORM:DJVM [56] '
 		'    DIRM [44]         Document directory (indirect, 2 files 1 pages)'
