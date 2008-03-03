@@ -317,7 +317,7 @@ cdef class Document:
 	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, cropmarks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
 		# XXX WARNING XXX
 		# XXX Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
-		# XXX See <https://sourceforge.net/tracker/index.php?func=detail&aid=1906108&group_id=32953&atid=406583> for details.
+		# XXX See <http://bugs.debian.org/469122> for details.
 		cdef FILE* output
 		options = []
 		if not is_file(file):
