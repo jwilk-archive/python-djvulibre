@@ -285,8 +285,6 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 		ddjvu_message_thumbnail_s m_thumbnail
 		ddjvu_message_progress_s m_progress
 
-
-
 cdef class Context
 
 cdef class DocumentExtension:

@@ -7,16 +7,13 @@ import weakref
 cdef object the_sentinel
 the_sentinel = object()
 
-
 cdef object _context_loft, _document_loft, _job_loft
 _context_loft = {}
 _document_loft = weakref.WeakValueDictionary()
 _job_loft = weakref.WeakValueDictionary()
 _page_job_loft = weakref.WeakValueDictionary()
 
-
 VERSION = ddjvu_code_get_version()
-
 
 DOCUMENT_TYPE_UNKNOWN = DDJVU_DOCTYPE_UNKNOWN
 DOCUMENT_TYPE_SINGLE_PAGE = DDJVU_DOCTYPE_SINGLEPAGE
@@ -125,7 +122,6 @@ cdef class Page:
 		def __get__(self):
 			return PageText(self)
 
-
 cdef class Thumbnail:
 
 	def __cinit__(self, Page page not None):
@@ -165,7 +161,6 @@ cdef class Thumbnail:
 				return None
 		finally:
 			py_free(buffer)
-
 
 cdef class DocumentFiles(DocumentExtension):
 
@@ -262,7 +257,6 @@ PRINT_BOOKLET_NO = None
 PRINT_BOOKLET_YES = 'yes'
 PRINT_BOOKLET_RECTO = 'recto'
 PRINT_BOOKLET_VERSO = 'verso'
-
 
 cdef class Document:
 
@@ -446,7 +440,6 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 		result = _document_loft.get(<long> ddjvu_document)
 	return result
 
-
 cdef class PageInfo:
 
 	def __cinit__(self, Document document not None, **kwargs):
@@ -477,7 +470,6 @@ cdef class PageInfo:
 	property version:
 		def __get__(self):
 			return self.ddjvu_pageinfo.version
-
 
 cdef class FileInfo:
 
@@ -534,7 +526,6 @@ cdef class FileInfo:
 				return None
 			else:
 				return result.decode('UTF-8')
-
 
 class FileURI(str):
 	pass
@@ -620,7 +611,6 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 		except KeyError:
 			raise SystemError
 	return result
-
 
 RENDER_COLOR = DDJVU_RENDER_COLOR
 RENDER_BLACK = DDJVU_RENDER_BLACK
@@ -848,7 +838,6 @@ cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size
 		raise MemoryError('Unable to alocate %d bytes for an image buffer' % py_buffer_size)
 	return buffer
 
-
 cdef class PageJob(Job):
 
 	cdef void __init(self, Context context, ddjvu_job_t *ddjvu_job):
@@ -1000,7 +989,6 @@ cdef class PageJob(Job):
 		# FIXME ddjvu_page_release(<ddjvu_page_t*> self.ddjvu_job)
 		self.ddjvu_job = NULL
 
-
 cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
 	cdef PageJob result
 	if ddjvu_page == NULL:
@@ -1008,7 +996,6 @@ cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
 	else:
 		result = _page_job_loft.get(<long> ddjvu_page)
 	return result
-
 
 cdef class Job:
 
@@ -1057,7 +1044,6 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	else:
 		result = _job_loft.get(<long> ddjvu_job)
 	return result
-
 
 cdef class AffineTransform:
 	def __cinit__(self, input, output):
