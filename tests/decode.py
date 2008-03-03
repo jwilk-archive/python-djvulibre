@@ -82,8 +82,10 @@ class DocumentTest:
 		>>> file_info.title
 		u't-gamma.djvu'
 
-		>>> document.files[0].dump is None
-		True
+		>>> for line in document.files[0].dump.splitlines(): print repr(line)
+		u'  FORM:DJVU [83] '
+		u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
+		u'    Sjbz [53]         JB2 bilevel data'
 
 		>>> page_info = document.pages[0].info
 		>>> type(page_info) == PageInfo
@@ -101,8 +103,10 @@ class DocumentTest:
 		>>> page_info.version
 		24
 		
-		>>> document.pages[0].dump is None
-		True
+		>>> for line in document.pages[0].dump.splitlines(): print repr(line)
+		u'  FORM:DJVU [83] '
+		u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
+		u'    Sjbz [53]         JB2 bilevel data'
 
 		>>> context.get_message(wait = False) is None
 		True

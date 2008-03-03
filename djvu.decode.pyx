@@ -16,6 +16,9 @@ DOCUMENT_TYPE_INDIRECT = DDJVU_DOCTYPE_INDIRECT
 DOCUMENT_TYPE_OLD_BUNDLED = DDJVU_DOCTYPE_OLD_BUNDLED
 DOCUMENT_TYPE_OLD_INDEXED = DDJVU_DOCTYPE_OLD_INDEXED
 
+class NotAvailable(Exception):
+	pass
+
 cdef class DocumentExtension:
 
 	property document:
@@ -81,14 +84,22 @@ cdef class Page:
 					raise ex
 
 	property dump:
+		'''
+		Return a text describing the contents of the page using the same format
+		as the ``djvudump`` command. 
+
+		If the information is not available, raise ``NotAvailable`` exception.
+		Then, ``PageInfoMessage`` messages with empty ``page_job`` may be
+		emitted.
+		'''
 		def __get__(self):
 			cdef char* s
 			s = ddjvu_document_get_pagedump(self._document.ddjvu_document, self._n)
 			if s == NULL:
-				return None
-				# FIXME?
-			else:
-				result = s.decode('UTF-8')
+				raise NotAvailable
+			try:
+				return s.decode('UTF-8')
+			finally:
 				libc_free(s)
 
 	def decode(self, wait = True):
@@ -197,14 +208,22 @@ cdef class File:
 					raise ex
 
 	property dump:
+		'''
+		Return a text describing the contents of the file using the same format
+		as the ``djvudump`` command. 
+
+		If the information is not available, raise ``NotAvailable`` exception.
+		Then, ``PageInfoMessage`` messages with empty ``page_job`` may be
+		emitted.
+		'''
 		def __get__(self):
 			cdef char* s
 			s = ddjvu_document_get_filedump(self._document.ddjvu_document, self._n)
 			if s == NULL:
-				return None
-				# FIXME?
-			else:
-				result = s.decode('UTF-8')
+				raise NotAvailable
+			try:
+				return s.decode('UTF-8')
+			finally:
 				libc_free(s)
 
 cdef object pages_to_opt(object pages):
@@ -591,6 +610,7 @@ RENDER_MASK_ONLY = DDJVU_RENDER_MASKONLY
 RENDER_BACKGROUND = DDJVU_RENDER_BACKGROUND
 RENDER_FOREGROUND = DDJVU_RENDER_FOREGROUND
 
+PAGE_TYPE_UNKNOWN = DDJVU_PAGETYPE_UNKNOWN
 PAGE_TYPE_BITONAL =	DDJVU_PAGETYPE_BITONAL
 PAGE_TYPE_PHOTO = DDJVU_PAGETYPE_PHOTO
 PAGE_TYPE_COMPOUND = DDJVU_PAGETYPE_COMPOUND
@@ -785,10 +805,6 @@ cdef class PixelFormatPackedBits(PixelFormat):
 			self.endianness
 		)
 
-class ImageNotAvailable(Exception):
-	pass
-
-
 cdef unsigned long calculate_row_size(unsigned long width, unsigned long row_alignment, int bpp):
 	if bpp == 1:
 		row_size = (width + 7) >> 3
@@ -817,52 +833,84 @@ cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size
 cdef class PageJob(Job):
 	
 	property width:
+		'''
+		Return the page width in pixels.
+
+		Before receiving a ``PageInfoMessage``, raise ``NotAvailable``.
+		'''
 		def __get__(self):
 			cdef int width
 			width = ddjvu_page_get_width(<ddjvu_page_t*> self.ddjvu_job)
 			if width == 0:
-				return None
-				# FIXME?
+				raise NotAvailable
 			else:
 				return width
 	
 	property height:
+		'''
+		Return the page height in pixels.
+
+		Before receiving a ``PageInfoMessage``, raise ``NotAvailable``.
+		'''
 		def __get__(self):
 			cdef int height
 			height = ddjvu_page_get_height(<ddjvu_page_t*> self.ddjvu_job)
 			if height == 0:
-				return None
-				# FIXME?
+				raise NotAvailable
 			else:
 				return height
 
 	property resolution:
+		'''
+		Return the page resolution in pixels per inch (dpi).
+
+		Before receiving a ``PageInfoMessage``, raise ``NotAvailable``.
+		'''
 		def __get__(self):
 			cdef int resolution
 			resolution = ddjvu_page_get_resolution(<ddjvu_page_t*> self.ddjvu_job)
 			if resolution == 0:
-				return None
-				# FIXME?
+				raise NotAvailable
 			else:
 				return resolution
 
 	property gamma:
+		'''
+		Return the gamma of the display for which this page was designed.
+
+		Before receiving a ``PageInfoMessage``, return a meaningless but plausible value.
+		'''
 		def __get__(self):
 			return ddjvu_page_get_gamma(<ddjvu_page_t*> self.ddjvu_job)
 	
 	property version:
+		'''
+		Return the version of the DjVu file format.
+
+		Before receiving a ``PageInfoMessage``, return a meaningless but plausible value.
+		'''
 		def __get__(self):
 			return ddjvu_page_get_version(<ddjvu_page_t*> self.ddjvu_job)
 
 	property type:
+		'''
+		Returns the type of the page data. Possible values are:
+		* PAGE_TYPE_UNKNOWN,
+		* PAGE_TYPE_BITONAL, 
+		* PAGE_TYPE_PHOTO,
+		* PAGE_TYPE_COMPOUND.
+
+		Before receiving a ``PageInfoMessage``, raise ``NotAvailable``.
+		'''
 		def __get__(self):
 			cdef ddjvu_page_type_t type
+			cdef int is_done
+			is_done = self.is_done
 			type = ddjvu_page_get_type(<ddjvu_page_t*> self.ddjvu_job)
-			if <int> type == <int> DDJVU_PAGETYPE_UNKNOWN:
-				return None
-				# FIXME?
-			else:
-				return type
+			if <int> type == <int> DDJVU_PAGETYPE_UNKNOWN and not is_done:
+				# XXX An unavoidable race condition
+				raise NotAvailable
+			return type
 
 	property initial_rotation:
 		def __get__(self):
@@ -890,6 +938,22 @@ cdef class PageJob(Job):
 			ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job))
 
 	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned int row_alignment = 0):
+		'''
+		Render a segment of a page with arbitrary scale. ``mode`` indicates
+		what image layers should be rendered. 
+		
+		Conceptually this method renders the full page into a rectangle
+		``page_rect`` and copies the pixels specified by rectangle
+		``render_rect`` into a buffer. The actual code is much more efficient
+		than that.
+		
+		``pixel_format`` specifies the expected pixel format.
+		``row_alignment`` XXX.
+		
+		This method makes a best effort to compute an image that reflects the
+		most recently decoded data. It might raise ``NotAvailable`` to indicate
+		that no image could be computed at this point.
+		'''
 		cdef ddjvu_rect_t c_page_rect
 		cdef ddjvu_rect_t c_render_rect
 		cdef size_t buffer_size
@@ -902,7 +966,7 @@ cdef class PageJob(Job):
 		buffer = allocate_image_buffer(row_size, c_render_rect.h, &buffer_size)
 		try:
 			if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, buffer) == 0:
-				raise ImageNotAvailable
+				raise NotAvailable
 			return charp_to_string(buffer, buffer_size)
 		finally:
 			py_free(buffer)
