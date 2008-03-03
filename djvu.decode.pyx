@@ -40,15 +40,13 @@ cdef class DocumentPages(DocumentExtension):
 		if is_int(key):
 			if key < 0:
 				raise ValueError
-			return Page(self.document, key, the_sentinel)
+			return Page(self.document, key)
 		else:
 			raise TypeError
 
 cdef class Page:
 
-	def __cinit__(self, Document document not None, int n, object sentinel):
-		if sentinel is not the_sentinel:
-			raise_instantiation_error(type(self))
+	def __cinit__(self, Document document not None, int n):
 		self._document = document
 		self._n = n
 
