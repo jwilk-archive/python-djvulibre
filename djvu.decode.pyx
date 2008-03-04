@@ -274,7 +274,20 @@ cdef class SaveJob(Job):
 
 	def __cinit__(self, **kwargs):
 		self._file = None
+
+cdef class DocumentDecodingJob(Job):
+
+	cdef object __init_ddj(self, Document document):
+		self._context = document._context
+		self._document = document
+		self.ddjvu_job = <ddjvu_job_t*> document.ddjvu_document
+
+	def __dealloc__(self):
+		self.ddjvu_job = NULL # Don't allow `Job.__dealloc__` to release the job. 
 	
+	def __repr__(self):
+		return '<%s for %r>' % (get_type_name(DocumentDecodingJob), self._document)
+
 cdef class Document:
 
 	def __cinit__(self, **kwargs):
@@ -292,17 +305,24 @@ cdef class Document:
 		self._context = context
 		_document_loft[<long> ddjvu_document] = self
 
-	property status:
+	property decoding_status:
 		def __get__(self):
 			return JobException_from_c(ddjvu_document_decoding_status(self.ddjvu_document))
 
-	property is_error:
+	property decoding_error:
 		def __get__(self):
 			return bool(ddjvu_document_decoding_error(self.ddjvu_document))
 	
-	property is_done:
+	property decoding_done:
 		def __get__(self):
 			return bool(ddjvu_document_decoding_done(self.ddjvu_document))
+	
+	property decoding_job:
+		def __get__(self):
+			cdef DocumentDecodingJob job
+			job = DocumentDecodingJob(sentinel = the_sentinel)
+			job.__init_ddj(self)
+			return job
 
 	property type:
 		def __get__(self):
@@ -469,10 +489,6 @@ cdef class Document:
 		if wait:
 			job.wait()
 		return job
-
-	def wait(self):
-		while not ddjvu_document_decoding_done(self.ddjvu_document):
-			self._context.handle_document_message(self._queue.get())
 
 	def get_message(self, wait = True):
 		try:

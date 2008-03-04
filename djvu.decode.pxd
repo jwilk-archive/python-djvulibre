@@ -391,6 +391,10 @@ cdef class PageJob(Job):
 cdef class SaveJob(Job):
 	cdef object _file
 
+cdef class DocumentDecodingJob(Job):
+	cdef object _document
+	cdef object __init_ddj(self, Document document)
+
 cdef class AffineTransform:
 	cdef ddjvu_rectmapper_t* ddjvu_rectmapper
 

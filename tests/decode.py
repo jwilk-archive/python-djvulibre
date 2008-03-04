@@ -51,11 +51,11 @@ class DocumentTest:
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
-		>>> document.is_done
+		>>> document.decoding_done
 		True
-		>>> document.is_error
+		>>> document.decoding_error
 		False
-		>>> document.status == JobOK
+		>>> document.decoding_status == JobOK
 		True
 		>>> document.type == DOCUMENT_TYPE_SINGLE_PAGE
 		True
@@ -63,6 +63,12 @@ class DocumentTest:
 		1
 		>>> len(document.files)
 		1
+
+		>>> decoding_job = document.decoding_job
+		>>> decoding_job.is_done, decoding_job.is_error
+		(True, False)
+		>>> decoding_job.status == JobOK
+		True
 
 		>>> file_info = document.files[0].info
 		>>> type(file_info) == FileInfo
@@ -156,11 +162,11 @@ class DocumentTest:
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
-		>>> document.is_done
+		>>> document.decoding_done
 		True
-		>>> document.is_error
+		>>> document.decoding_error
 		False
-		>>> document.status == JobOK
+		>>> document.decoding_status == JobOK
 		True
 		>>> document.type == DOCUMENT_TYPE_BUNDLED
 		True
@@ -295,11 +301,11 @@ class DocumentTest:
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
-		>>> document.is_done
+		>>> document.decoding_done
 		True
-		>>> document.is_error
+		>>> document.decoding_error
 		False
-		>>> document.status == JobOK
+		>>> document.decoding_status == JobOK
 		True
 		>>> document.type == DOCUMENT_TYPE_BUNDLED
 		True
