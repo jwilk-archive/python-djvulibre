@@ -51,6 +51,10 @@ cdef extern from 'libdjvu/miniexp.h':
 cdef extern from 'stdio.h':
 	int EOF
 
+cdef object sys
+import sys
+
+cdef object StringIO
 from cStringIO import StringIO
 
 cdef object myio_stdin
@@ -59,7 +63,6 @@ cdef int myio_buffer
 myio_buffer = -1
 
 cdef void myio_reset():
-	import sys
 	global myio_stdin, myio_stdout
 	myio_stdin = sys.stdin
 	myio_stdout = sys.stdout

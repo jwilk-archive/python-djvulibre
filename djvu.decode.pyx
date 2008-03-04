@@ -2,9 +2,27 @@
 
 include 'common.pxi'
 
+cdef object weakref
 import weakref
+
+cdef object thread
 import thread
+
+cdef object Queue, Empty
 from Queue import Queue, Empty
+
+cdef object imap
+from itertools import imap
+
+cdef object sys, devnull
+import sys
+from os import devnull
+
+cdef object StringIO
+from cStringIO import StringIO
+
+cdef object Symbol
+from djvu.sexpr import Symbol
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -237,7 +255,6 @@ cdef class File:
 				libc_free(s)
 
 cdef object pages_to_opt(object pages, int sort_uniq):
-	from itertools import imap
 	if sort_uniq:
 		pages = sorted(frozenset(pages))
 	else:
@@ -363,7 +380,6 @@ cdef class Document:
 				raise TypeError
 			output = file_to_cfile(file)
 		else:
-			from os import devnull
 			if file is not None:
 				raise TypeError
 			if not is_string(indirect):
@@ -604,8 +620,7 @@ cdef class Context:
 
 	def __cinit__(self, argv0 = None):
 		if argv0 is None:
-			from sys import argv
-			argv0 = argv[0]
+			argv0 = sys.argv[0]
 		loft_lock.acquire()
 		try:
 			self.ddjvu_context = ddjvu_context_create(argv0)
@@ -882,7 +897,6 @@ cdef class PixelFormatPalette(PixelFormat):
 
 	def __repr__(self):
 		cdef int i
-		from cStringIO import StringIO
 		io = StringIO()
 		io.write('%s.%s([' % (self.__class__.__module__, self.__class__.__name__))
 		for i from 0 <= i < 215:
@@ -1683,7 +1697,6 @@ cdef class Metadata:
 	def __getitem__(self, key):
 		cdef _WrappedCExpr cexpr_key
 		cdef char *s
-		from djvu.sexpr import Symbol
 		cexpr_key = py2cexpr(Symbol(key))
 		s = ddjvu_anno_get_metadata(self._annotations._sexpr._cexpr, cexpr_key.cexpr())
 		if s == NULL:
