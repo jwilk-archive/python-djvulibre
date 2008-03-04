@@ -27,7 +27,7 @@ from djvu.sexpr import Symbol
 cdef object the_sentinel
 the_sentinel = object()
 
-cdef object _context_loft, _document_loft, _job_loft, loft_lock
+cdef object _context_loft, _document_loft, _job_loft, _page_job_loft, loft_lock
 _context_loft = {}
 _document_loft = {} # TODO: remove when decoding is done
 _job_loft = {} # TODO: remove when decoding is done
