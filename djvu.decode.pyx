@@ -240,14 +240,18 @@ cdef class File:
 			finally:
 				libc_free(s)
 
-cdef object pages_to_opt(object pages):
+cdef object pages_to_opt(object pages, int sort_uniq):
 	from itertools import imap
-	pages = tuple(pages)
+	if sort_uniq:
+		pages = sorted(frozenset(pages))
+	else:
+		pages = list(pages)
 	for i from 0 <= i < len(pages):
 		if not is_int(pages[i]):
 			raise TypeError
 		if pages[i] < 0:
 			raise ValueError
+		pages[i] = pages[i] + 1
 	return '--pages=' + (','.join(imap(str, pages)))
 
 PRINT_ORIENTATION_AUTO = None
@@ -350,7 +354,7 @@ cdef class Document:
 			optv[optc] = s1
 			optc = optc + 1
 		if pages is not None:
-			s2 = pages_to_opt(pages)
+			s2 = pages_to_opt(pages, 1)
 			optv[optc] = s2
 			optc = optc + 1
 		job = Job(sentinel = the_sentinel)
@@ -375,7 +379,7 @@ cdef class Document:
 			raise TypeError
 		output = file_to_cfile(file)
 		if pages is not None:
-			options.append(pages_to_opt(pages))
+			options.append(pages_to_opt(pages, 0))
 		if eps:
 			options.append('--format=eps')
 		if level is not None:
