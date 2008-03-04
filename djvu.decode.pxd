@@ -351,6 +351,7 @@ cdef class PageInfo:
 
 cdef class Context:
 	cdef ddjvu_context_t* ddjvu_context
+	cdef object _queue
 
 cdef class PixelFormat:
 	cdef ddjvu_format_t* ddjvu_format

@@ -3,6 +3,8 @@
 include 'common.pxi'
 
 import weakref
+import thread
+from Queue import Queue, Empty
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -572,7 +574,20 @@ cdef class Context:
 		if self.ddjvu_context == NULL:
 			raise MemoryError
 		_context_loft[<long> self.ddjvu_context] = self
+		self._queue = Queue()
+		thread.start_new_thread(Context._message_distributor, (self, the_sentinel))
 	
+	def _message_distributor(self, sentinel):
+		if sentinel is not the_sentinel:
+			raise RuntimeError
+		cdef ddjvu_message_t* ddjvu_message
+		while True:
+			with nogil:
+				ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
+			message = Message_from_c(ddjvu_message)
+			ddjvu_message_pop(self.ddjvu_context)
+			self._queue.put(message)
+
 	property cache_size:
 
 		def __set__(self, value):
@@ -597,16 +612,10 @@ cdef class Context:
 			message = self.get_message(wait = False)
 
 	def get_message(self, wait = True):
-		cdef ddjvu_message_t* ddjvu_message
-		if wait:
-			ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
-		else:
-			ddjvu_message = ddjvu_message_peek(self.ddjvu_context)
-			if ddjvu_message == NULL:
-				return None
-		message = Message_from_c(ddjvu_message)
-		ddjvu_message_pop(self.ddjvu_context)
-		return message
+		try:
+			return self._queue.get(wait)
+		except Empty:
+			return
 
 	def new_document(self, uri, cache = True):
 		cdef Document document
