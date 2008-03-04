@@ -19,7 +19,6 @@ class ContextTest(unittest.TestCase):
 			self.assertEqual(context.cache_size, n)
 		context.clear_cache()
 
-
 class DocumentTest:
  
 	def test_instantiate(self):
@@ -337,7 +336,6 @@ class DocumentTest:
 		' 2'
 		>>> del tmp
 		'''
-
 
 class PixelFormatTest:
 
