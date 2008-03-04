@@ -52,7 +52,6 @@ cdef class DocumentPages(DocumentExtension):
 
 	def __cinit__(self, Document document not None, **kwargs):
 		check_sentinel(self, kwargs)
-		import weakref
 		self._document_weakref = weakref.ref(document)
 	
 	def __len__(self):
@@ -181,7 +180,6 @@ cdef class DocumentFiles(DocumentExtension):
 
 	def __cinit__(self, Document document not None, **kwargs):
 		check_sentinel(self, kwargs)
-		import weakref
 		self._document_weakref = weakref.ref(document)
 	
 	def __len__(self):
@@ -1491,7 +1489,6 @@ cdef class _SexprWrapper:
 
 	def __cinit__(self, document, **kwargs):
 		check_sentinel(self, kwargs)
-		import weakref
 		self._document_weakref = weakref.ref(document)
 	
 	def __call__(self):
