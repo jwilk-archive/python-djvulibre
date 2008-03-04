@@ -504,6 +504,11 @@ class JobTest:
 	Traceback (most recent call last):
 	...
 	TypeError: cannot create 'djvu.decode.Job' instances
+	
+	>>> DocumentDecodingJob()
+	Traceback (most recent call last):
+	...
+	TypeError: cannot create 'djvu.decode.DocumentDecodingJob' instances
 	'''
 
 class AffineTransformTest:
