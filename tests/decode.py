@@ -107,6 +107,8 @@ class DocumentTest:
 		u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
 		u'    Sjbz [53]         JB2 bilevel data'
 
+		>>> document.get_message(wait = False) is None
+		True
 		>>> context.get_message(wait = False) is None
 		True
 		
@@ -119,6 +121,8 @@ class DocumentTest:
 		True
 		>>> message.message
 		'Illegal file number'
+		>>> document.get_message(wait = False) is None
+		True
 		>>> context.get_message(wait = False) is None
 		True
 		
@@ -137,6 +141,8 @@ class DocumentTest:
 #		>>> type(message) == ErrorMessage
 #		True
 
+		>>> document.get_message(wait = False) is None
+		True
 		>>> context.get_message(wait = False) is None
 		True
 		'''
