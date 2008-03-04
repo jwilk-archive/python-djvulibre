@@ -25,6 +25,10 @@ DOCUMENT_TYPE_INDIRECT = DDJVU_DOCTYPE_INDIRECT
 DOCUMENT_TYPE_OLD_BUNDLED = DDJVU_DOCTYPE_OLD_BUNDLED
 DOCUMENT_TYPE_OLD_INDEXED = DDJVU_DOCTYPE_OLD_INDEXED
 
+cdef object check_sentinel(self, kwargs):
+	if kwargs.get('sentinel') is not the_sentinel:
+		raise_instantiation_error(type(self))
+
 class NotAvailable(Exception):
 	pass
 
@@ -46,9 +50,8 @@ cdef class DocumentExtension:
 	
 cdef class DocumentPages(DocumentExtension):
 
-	def __cinit__(self, Document document not None, object sentinel):
-		if sentinel is not the_sentinel:
-			raise_instantiation_error(type(self))
+	def __cinit__(self, Document document not None, **kwargs):
+		check_sentinel(self, kwargs)
 		import weakref
 		self._document_weakref = weakref.ref(document)
 	
@@ -176,9 +179,8 @@ cdef class Thumbnail:
 
 cdef class DocumentFiles(DocumentExtension):
 
-	def __cinit__(self, Document document not None, object sentinel):
-		if sentinel is not the_sentinel:
-			raise_instantiation_error(type(self))
+	def __cinit__(self, Document document not None, **kwargs):
+		check_sentinel(self, kwargs)
 		import weakref
 		self._document_weakref = weakref.ref(document)
 	
@@ -186,13 +188,12 @@ cdef class DocumentFiles(DocumentExtension):
 		return ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
 
 	def __getitem__(self, key):
-		return File(self.document, key, the_sentinel)
+		return File(self.document, key, sentinel = the_sentinel)
 
 cdef class File:
 
-	def __cinit__(self, Document document not None, int n, object sentinel):
-		if sentinel is not the_sentinel:
-			raise_instantiation_error(type(self))
+	def __cinit__(self, Document document not None, int n, **kwargs):
+		check_sentinel(self, kwargs)
 		self._document = document
 		self._n = n
 	
@@ -1488,11 +1489,10 @@ JOB_EXCEPTION_MAP = \
 
 cdef class _SexprWrapper:
 
-	def __cinit__(self, document, sentinel):
+	def __cinit__(self, document, **kwargs):
+		check_sentinel(self, kwargs)
 		import weakref
 		self._document_weakref = weakref.ref(document)
-		if sentinel != the_sentinel:
-			raise_instantiation_error(type(self))
 	
 	def __call__(self):
 		return cexpr2py(self._cexpr)
@@ -1508,7 +1508,7 @@ cdef class _SexprWrapper:
 
 cdef _SexprWrapper wrap_sexpr(Document document, cexpr_t cexpr):
 	cdef _SexprWrapper result
-	result = _SexprWrapper(document, the_sentinel)
+	result = _SexprWrapper(document, sentinel = the_sentinel)
 	result._cexpr = cexpr
 	return result
 
