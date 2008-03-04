@@ -21,7 +21,7 @@ class ContextTest(unittest.TestCase):
 
 
 class DocumentTest:
-
+ 
 	def test_instantiate(self):
 		'''
 		>>> Document()
@@ -49,7 +49,7 @@ class DocumentTest:
 		>>> document = context.new_document(FileURI('t-gamma.djvu'))
 		>>> type(document) == Document
 		True
-		>>> message = context.get_message()
+		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
 		>>> document.is_done
@@ -115,7 +115,7 @@ class DocumentTest:
 		Traceback (most recent call last):
 		...
 		JobFailed
-		>>> message = context.get_message(wait = False)
+		>>> message = document.get_message(wait = False)
 		>>> type(message) == ErrorMessage
 		True
 		>>> message.message
@@ -148,7 +148,7 @@ class DocumentTest:
 		...   def handle_message(self, message): pass
 		>>> context = MyContext()
 		>>> document = context.new_document(FileURI('t-alpha.djvu'))
-		>>> message = context.get_message()
+		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
 		>>> document.is_done
@@ -287,7 +287,7 @@ class DocumentTest:
 		...   def handle_message(self, message): pass
 		>>> context = MyContext()
 		>>> document = context.new_document(FileURI('t-alpha.djvu'))
-		>>> message = context.get_message()
+		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
 		>>> document.is_done
@@ -411,7 +411,7 @@ class PageJobTest:
 
 		>>> context = MyContext()
 		>>> document = context.new_document(FileURI('t-gamma.djvu'))
-		>>> message = context.get_message()
+		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
 		>>> page_job = document.pages[0].decode()
@@ -466,7 +466,7 @@ class ThumbnailTest:
 
 	>>> context = MyContext()
 	>>> document = context.new_document(FileURI('t-gamma.djvu'))
-	>>> message = context.get_message()
+	>>> message = document.get_message()
 	>>> type(message) == DocInfoMessage
 	True
 	>>> thumbnail = document.pages[0].thumbnail
@@ -474,7 +474,7 @@ class ThumbnailTest:
 	True
 	>>> thumbnail.calculate() == JobOK
 	True
-	>>> message = context.get_message()
+	>>> message = document.get_message()
 	>>> type(message) == ThumbnailMessage
 	True
 	>>> message.n
@@ -486,7 +486,7 @@ class ThumbnailTest:
 	(5, 3)
 	>>> pixels[:15]
 	'\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
-		'''
+	'''
 
 class JobTest:
 	'''
@@ -556,7 +556,7 @@ class StreamTest:
 	
 	>>> context = Context()
 	>>> document = context.new_document('dummy://dummy.djvu')
-	>>> message = context.get_message()
+	>>> message = document.get_message()
 	>>> type(message) == NewStreamMessage
 	True
 	>>> message.name
@@ -575,7 +575,7 @@ class StreamTest:
 	...
 	IOError: I/O operation on closed file
 	
-	>>> message = context.get_message()
+	>>> message = document.get_message()
 	>>> type(message) == DocInfoMessage
 	True
 	'''
@@ -586,7 +586,7 @@ class SexprTest:
 	>>> document = context.new_document(FileURI('t-alpha.djvu'))
 	>>> type(document) == Document
 	True
-	>>> message = context.get_message()
+	>>> message = document.get_message()
 	>>> type(message) == DocInfoMessage
 	True
 

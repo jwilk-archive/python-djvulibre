@@ -301,8 +301,9 @@ cdef class Document:
 	cdef Context _context
 	cdef DocumentPages _pages
 	cdef DocumentFiles _files
+	cdef object _queue
 	cdef object __weakref__
-	cdef void __init(self, Context context, ddjvu_document_t* ddjvu_document)
+	cdef object __init(self, Context context, ddjvu_document_t* ddjvu_document)
 
 cdef class _SexprWrapper:
 	cdef object _document_weakref
@@ -380,7 +381,8 @@ cdef class PixelFormatPackedBits(PixelFormat):
 cdef class Job:
 	cdef Context _context
 	cdef ddjvu_job_t* ddjvu_job
-	cdef void __init(self, Context context, ddjvu_job_t *ddjvu_job)
+	cdef object _queue
+	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job)
 	cdef object __weakref__
 
 cdef class PageJob(Job):
@@ -398,7 +400,7 @@ cdef class Message:
 	cdef Document _document
 	cdef PageJob _page_job
 	cdef Job _job
-	cdef void _init(self)
+	cdef object _init(self)
 
 cdef class ErrorMessage(Message):
 	cdef object _message

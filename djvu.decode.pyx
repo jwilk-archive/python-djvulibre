@@ -9,11 +9,12 @@ from Queue import Queue, Empty
 cdef object the_sentinel
 the_sentinel = object()
 
-cdef object _context_loft, _document_loft, _job_loft
+cdef object _context_loft, _document_loft, _job_loft, loft_lock
 _context_loft = {}
-_document_loft = weakref.WeakValueDictionary()
-_job_loft = weakref.WeakValueDictionary()
-_page_job_loft = weakref.WeakValueDictionary()
+_document_loft = {} # TODO: remove when decoding is done
+_job_loft = {} # TODO: remove when decoding is done
+_page_job_loft = {} # TODO: remove when decoding is done
+loft_lock = thread.allocate_lock()
 
 DDJVU_VERSION = ddjvu_code_get_version()
 
@@ -88,13 +89,8 @@ cdef class Page:
 			while True:
 				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
 				ex = JobException_from_c(status)
-				if issubclass(ex, JobNotDone):
+				if ex == JobOK:
 					# FIXME: fix concurrency issues
-					try:
-						self._document._context.handle_messages(wait = True)
-					except NotImplementedError:
-						raise ex
-				elif ex == JobOK:
 					return page_info
 				else:
 					raise ex
@@ -120,8 +116,12 @@ cdef class Page:
 
 	def decode(self, wait = True):
 		cdef PageJob job
-		job = PageJob(sentinel = the_sentinel)
-		job.__init(self._document._context, <ddjvu_job_t*>ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n))
+		loft_lock.acquire()
+		try:
+			job = PageJob(sentinel = the_sentinel)
+			job.__init(self._document._context, <ddjvu_job_t*>ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n))
+		finally:
+			loft_lock.release()
 		if wait:
 			job.wait()
 		return job
@@ -212,13 +212,8 @@ cdef class File:
 			while True:
 				status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
 				ex = JobException_from_c(status)
-				if issubclass(ex, JobNotDone):
-					try:
-						# FIXME: fix concurrency issues
-						self._document._context.handle_messages(wait = True)
-					except NotImplementedError:
-						raise ex
-				elif ex == JobOK:
+				if ex == JobOK:
+					# FIXME: fix concurrency issues
 					return file_info
 				else:
 					raise ex
@@ -289,8 +284,9 @@ cdef class Document:
 		self._pages = DocumentPages(self, sentinel = the_sentinel)
 		self._files = DocumentFiles(self, sentinel = the_sentinel)
 		self._context = None
+		self._queue = Queue()
 	
-	cdef void __init(self, Context context, ddjvu_document_t *ddjvu_document):
+	cdef object __init(self, Context context, ddjvu_document_t *ddjvu_document):
 		assert context != None and ddjvu_document != NULL
 		self.ddjvu_document = ddjvu_document
 		self._context = context
@@ -365,9 +361,13 @@ cdef class Document:
 			s2 = pages_to_opt(pages, 1)
 			optv[optc] = s2
 			optc = optc + 1
-		job = SaveJob(sentinel = the_sentinel)
-		job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
-		job._file = file
+		loft_lock.acquire()
+		try:
+			job = SaveJob(sentinel = the_sentinel)
+			job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
+			job._file = file
+		finally:
+			loft_lock.release()
 		if wait:
 			job.wait()
 			if indirect is not None:
@@ -457,14 +457,35 @@ cdef class Document:
 			for option in options:
 				optv[optc] = option
 				optc = optc + 1
-			job = SaveJob(sentinel = the_sentinel)
-			job.__init(self._context, ddjvu_document_print(self.ddjvu_document, output, optc, optv))
-			job._file = file
+			loft_lock.acquire()
+			try:
+				job = SaveJob(sentinel = the_sentinel)
+				job.__init(self._context, ddjvu_document_print(self.ddjvu_document, output, optc, optv))
+				job._file = file
+			finally:
+				loft_lock.release()
 		finally:
 			py_free(optv)
 		if wait:
 			job.wait()
 		return job
+
+	def wait(self):
+		while not ddjvu_document_decoding_done(self.ddjvu_document):
+			self._context.handle_document_message(self._queue.get())
+
+	def get_message(self, wait = True):
+		try:
+			return self._queue.get(wait)
+		except Empty:
+			return
+
+	def __iter__(self):
+		return self
+
+	def __next__(self):
+		return self.get_message()
+
 
 cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	cdef Document result
@@ -570,23 +591,45 @@ cdef class Context:
 		if argv0 is None:
 			from sys import argv
 			argv0 = argv[0]
-		self.ddjvu_context = ddjvu_context_create(argv0)
-		if self.ddjvu_context == NULL:
-			raise MemoryError
-		_context_loft[<long> self.ddjvu_context] = self
+		loft_lock.acquire()
+		try:
+			self.ddjvu_context = ddjvu_context_create(argv0)
+			if self.ddjvu_context == NULL:
+				raise MemoryError
+			_context_loft[<long> self.ddjvu_context] = self
+		finally:
+			loft_lock.release()
 		self._queue = Queue()
 		thread.start_new_thread(Context._message_distributor, (self, the_sentinel))
 	
 	def _message_distributor(self, sentinel):
+		cdef Message message
+		cdef Document document
+		cdef Job job
+		cdef PageJob page_job
+		cdef ddjvu_message_t* ddjvu_message
+
 		if sentinel is not the_sentinel:
 			raise RuntimeError
-		cdef ddjvu_message_t* ddjvu_message
 		while True:
 			with nogil:
 				ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
 			message = Message_from_c(ddjvu_message)
 			ddjvu_message_pop(self.ddjvu_context)
-			self._queue.put(message)
+			if message is None:
+				raise SystemError
+			# XXX Order of branches below is *crucial*. Do not change.
+			if message._job is not None:
+				job = message._job
+				job._queue.put(message)
+			elif message._page_job is not None:
+				page_job = self._page_job
+				page_job._queue.put(message)
+			elif message._document is not None:
+				document = message._document
+				document._queue.put(message)
+			else:
+				self._queue.put(message)
 
 	property cache_size:
 
@@ -601,15 +644,13 @@ cdef class Context:
 			return ddjvu_cache_get_size(self.ddjvu_context)
 
 	def handle_message(self, message):
-		raise NotImplementedError
-
-	def handle_messages(self, wait):
-		message = self.get_message(wait)
-		while True:
-			if message is None:
-				return
-			self.handle_message(message)
-			message = self.get_message(wait = False)
+		pass
+	
+	def handle_job_message(self, message):
+		pass
+	
+	def handle_document_message(self, message):
+		pass
 
 	def get_message(self, wait = True):
 		try:
@@ -620,14 +661,18 @@ cdef class Context:
 	def new_document(self, uri, cache = True):
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
-		if typecheck(uri, FileURI):
-			ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
-		else:
-			ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
-		if ddjvu_document == NULL:
-			return None
-		document = Document(sentinel = the_sentinel)
-		document.__init(self, ddjvu_document)
+		loft_lock.acquire()
+		try:
+			if typecheck(uri, FileURI):
+				ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
+			else:
+				ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
+			if ddjvu_document == NULL:
+				return None
+			document = Document(sentinel = the_sentinel)
+			document.__init(self, ddjvu_document)
+		finally:
+			loft_lock.release()
 		return document
 
 	def __iter__(self):
@@ -647,10 +692,14 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 	if ddjvu_context == NULL:
 		result = None
 	else:
+		loft_lock.acquire()
 		try:
-			result = _context_loft[<long> ddjvu_context]
-		except KeyError:
-			raise SystemError
+			try:
+				result = _context_loft[<long> ddjvu_context]
+			except KeyError:
+				raise SystemError
+		finally:
+			loft_lock.release()
 	return result
 
 RENDER_COLOR = DDJVU_RENDER_COLOR
@@ -881,7 +930,7 @@ cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size
 
 cdef class PageJob(Job):
 
-	cdef void __init(self, Context context, ddjvu_job_t *ddjvu_job):
+	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
 		Job.__init(self, context, ddjvu_job)
 		_page_job_loft[<long> ddjvu_job] = self
 	
@@ -1035,7 +1084,11 @@ cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
 	if ddjvu_page == NULL:
 		result = None
 	else:
-		result = _page_job_loft.get(<long> ddjvu_page)
+		loft_lock.acquire()
+		try:
+			result = _page_job_loft.get(<long> ddjvu_page)
+		finally:
+			loft_lock.release()
 	return result
 
 cdef class Job:
@@ -1045,8 +1098,9 @@ cdef class Job:
 			raise_instantiation_error(type(self))
 		self._context = None
 		self.ddjvu_job = NULL
+		self._queue = Queue()
 	
-	cdef void __init(self, Context context, ddjvu_job_t *ddjvu_job):
+	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
 		if context is None:
 			raise SystemError
 		self._context = context
@@ -1067,10 +1121,22 @@ cdef class Job:
 
 	def wait(self):
 		while not ddjvu_job_done(self.ddjvu_job):
-			self._context.handle_messages(wait = True)
+			self._context.handle_job_message(self._queue.get())
 
 	def stop(self):
 		ddjvu_job_stop(self.ddjvu_job)
+
+	def get_message(self, wait = True):
+		try:
+			return self._queue.get(wait)
+		except Empty:
+			return
+
+	def __iter__(self):
+		return self
+
+	def __next__(self):
+		return self.get_message()
 
 	def __dealloc__(self):
 		if self.ddjvu_job == NULL:
@@ -1083,7 +1149,11 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	if ddjvu_job == NULL:
 		result = None
 	else:
-		result = _job_loft.get(<long> ddjvu_job)
+		loft_lock.acquire()
+		try:
+			result = _job_loft.get(<long> ddjvu_job)
+		finally:
+			loft_lock.release()
 	return result
 
 cdef class AffineTransform:
@@ -1173,7 +1243,7 @@ cdef class Message:
 			raise_instantiation_error(type(self))
 		self.ddjvu_message = NULL
 	
-	cdef void _init(self):
+	cdef object _init(self):
 		if self.ddjvu_message == NULL:
 			raise SystemError
 		self._context = Context_from_c(self.ddjvu_message.m_any.context)
@@ -1199,7 +1269,7 @@ cdef class Message:
 
 cdef class ErrorMessage(Message):
 
-	cdef void _init(self):
+	cdef object _init(self):
 		Message._init(self)
 		self._message = self.ddjvu_message.m_error.message
 		self._location = \
@@ -1225,7 +1295,7 @@ cdef class ErrorMessage(Message):
 
 cdef class InfoMessage(Message):
 
-	cdef void _init(self):
+	cdef object _init(self):
 		Message._init(self)
 		self._message = self.ddjvu_message.m_error.message
 	
@@ -1273,7 +1343,7 @@ cdef class Stream:
 
 cdef class NewStreamMessage(Message):
 
-	cdef void _init(self):
+	cdef object _init(self):
 		Message._init(self)
 		self._stream = Stream(self.document, self.ddjvu_message.m_newstream.streamid, sentinel = the_sentinel)
 		self._name = self.ddjvu_message.m_newstream.name
@@ -1308,7 +1378,7 @@ cdef class ChunkMessage(Message):
 
 cdef class ThumbnailMessage(Message):
 
-	cdef void _init(self):
+	cdef object _init(self):
 		Message._init(self)
 		self._page_no = self.ddjvu_message.m_thumbnail.pagenum
 	
@@ -1318,7 +1388,7 @@ cdef class ThumbnailMessage(Message):
 
 cdef class ProgressMessage(Message):
 
-	cdef void _init(self):
+	cdef object _init(self):
 		Message._init(self)
 		self._percent = self.ddjvu_message.m_progress.percent
 		self._status = self.ddjvu_message.m_progress.status
