@@ -1243,7 +1243,7 @@ cdef class Message:
 			raise_instantiation_error(type(self))
 		self.ddjvu_message = NULL
 	
-	cdef object _init(self):
+	cdef object __init(self):
 		if self.ddjvu_message == NULL:
 			raise SystemError
 		self._context = Context_from_c(self.ddjvu_message.m_any.context)
@@ -1269,8 +1269,8 @@ cdef class Message:
 
 cdef class ErrorMessage(Message):
 
-	cdef object _init(self):
-		Message._init(self)
+	cdef object __init(self):
+		Message.__init(self)
 		self._message = self.ddjvu_message.m_error.message
 		self._location = \
 		(
@@ -1295,8 +1295,8 @@ cdef class ErrorMessage(Message):
 
 cdef class InfoMessage(Message):
 
-	cdef object _init(self):
-		Message._init(self)
+	cdef object __init(self):
+		Message.__init(self)
 		self._message = self.ddjvu_message.m_error.message
 	
 	property message:
@@ -1343,8 +1343,8 @@ cdef class Stream:
 
 cdef class NewStreamMessage(Message):
 
-	cdef object _init(self):
-		Message._init(self)
+	cdef object __init(self):
+		Message.__init(self)
 		self._stream = Stream(self.document, self.ddjvu_message.m_newstream.streamid, sentinel = the_sentinel)
 		self._name = self.ddjvu_message.m_newstream.name
 		self._uri = self.ddjvu_message.m_newstream.url
@@ -1378,8 +1378,8 @@ cdef class ChunkMessage(Message):
 
 cdef class ThumbnailMessage(Message):
 
-	cdef object _init(self):
-		Message._init(self)
+	cdef object __init(self):
+		Message.__init(self)
 		self._page_no = self.ddjvu_message.m_thumbnail.pagenum
 	
 	property n:
@@ -1388,8 +1388,8 @@ cdef class ThumbnailMessage(Message):
 
 cdef class ProgressMessage(Message):
 
-	cdef object _init(self):
-		Message._init(self)
+	cdef object __init(self):
+		Message.__init(self)
 		self._percent = self.ddjvu_message.m_progress.percent
 		self._status = self.ddjvu_message.m_progress.status
 	
@@ -1426,7 +1426,7 @@ cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
 		raise SystemError
 	message = klass(sentinel = the_sentinel)
 	message.ddjvu_message = ddjvu_message
-	message._init()
+	message.__init()
 	return message
 
 cdef object JOB_EXCEPTION_MAP

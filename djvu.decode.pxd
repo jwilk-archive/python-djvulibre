@@ -400,7 +400,7 @@ cdef class Message:
 	cdef Document _document
 	cdef PageJob _page_job
 	cdef Job _job
-	cdef object _init(self)
+	cdef object __init(self)
 
 cdef class ErrorMessage(Message):
 	cdef object _message
