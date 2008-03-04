@@ -51,6 +51,8 @@ cdef extern from 'libdjvu/miniexp.h':
 cdef extern from 'stdio.h':
 	int EOF
 
+from cStringIO import StringIO
+
 cdef object myio_stdin
 cdef object myio_stdout
 cdef int myio_buffer
@@ -121,7 +123,6 @@ cdef class _WrappedCExpr:
 		myio_reset()
 
 	cdef object as_string(self, object width):
-		from cStringIO import StringIO
 		stdout = StringIO()
 		try:
 			self.print_into(stdout, width)
@@ -205,7 +206,6 @@ def Expression_from_string(str):
 
 	Read an expression from a string.
 	'''
-	from cStringIO import StringIO
 	stdin = StringIO(str)
 	try:
 		return Expression.from_stream(stdin)
