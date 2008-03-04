@@ -13,7 +13,7 @@ _document_loft = weakref.WeakValueDictionary()
 _job_loft = weakref.WeakValueDictionary()
 _page_job_loft = weakref.WeakValueDictionary()
 
-VERSION = ddjvu_code_get_version()
+DDJVU_VERSION = ddjvu_code_get_version()
 
 DOCUMENT_TYPE_UNKNOWN = DDJVU_DOCTYPE_UNKNOWN
 DOCUMENT_TYPE_SINGLE_PAGE = DDJVU_DOCTYPE_SINGLEPAGE
@@ -1582,6 +1582,6 @@ cdef class Metadata:
 		return k in self._keys
 	
 __author__ = 'Jakub Wilk <ubanus@users.sf.net>'
-__version__ = '0.1.1'
+__version__ = '0.1.1/%d' % DDJVU_VERSION
 
 # vim:ts=4 sw=4 noet ft=pyrex
