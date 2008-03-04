@@ -171,7 +171,7 @@ class DocumentTest:
 
 		>>> tmp = NamedTemporaryFile()
 		>>> job = document.save(tmp.file)
-		>>> type(job) == Job
+		>>> type(job) == SaveJob
 		True
 		>>> job.is_done, job.is_error
 		(True, False)
@@ -219,7 +219,7 @@ class DocumentTest:
 
 		>>> tmp = NamedTemporaryFile()
 		>>> job = document.save(tmp.file, pages=(0,))
-		>>> type(job) == Job
+		>>> type(job) == SaveJob
 		True
 		>>> job.is_done, job.is_error
 		(True, False)
@@ -242,7 +242,7 @@ class DocumentTest:
 		>>> tmpdir = mkdtemp()
 		>>> tmpfname = path_join(tmpdir, 'index.djvu')
 		>>> job = document.save(indirect = tmpfname)
-		>>> type(job) == Job
+		>>> type(job) == SaveJob
 		True
 		>>> job.is_done, job.is_error
 		(True, False)
@@ -264,7 +264,7 @@ class DocumentTest:
 		>>> tmpdir = mkdtemp()
 		>>> tmpfname = path_join(tmpdir, 'index.djvu')
 		>>> job = document.save(indirect = tmpfname, pages = (0,))
-		>>> type(job) == Job
+		>>> type(job) == SaveJob
 		True
 		>>> job.is_done, job.is_error
 		(True, False)
@@ -309,7 +309,7 @@ class DocumentTest:
 
 		>>> tmp = NamedTemporaryFile()
 		>>> job = document.export_ps(tmp.file)
-		>>> type(job) == Job
+		>>> type(job) == SaveJob
 		True
 		>>> job.is_done, job.is_error
 		(True, False)
@@ -322,7 +322,7 @@ class DocumentTest:
 
 		>>> tmp = NamedTemporaryFile()
 		>>> job = document.export_ps(tmp.file, pages = (1,), text = True)
-		>>> type(job) == Job
+		>>> type(job) == SaveJob
 		True
 		>>> job.is_done, job.is_error
 		(True, False)

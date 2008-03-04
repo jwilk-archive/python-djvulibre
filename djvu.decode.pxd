@@ -385,6 +385,9 @@ cdef class Job:
 cdef class PageJob(Job):
 	pass
 
+cdef class SaveJob(Job):
+	cdef object _file
+
 cdef class AffineTransform:
 	cdef ddjvu_rectmapper_t* ddjvu_rectmapper
 

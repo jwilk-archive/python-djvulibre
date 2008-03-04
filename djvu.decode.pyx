@@ -272,6 +272,12 @@ PRINT_BOOKLET_YES = 'yes'
 PRINT_BOOKLET_RECTO = 'recto'
 PRINT_BOOKLET_VERSO = 'verso'
 
+
+cdef class SaveJob(Job):
+
+	def __cinit__(self, **kwargs):
+		self._file = None
+	
 cdef class Document:
 
 	def __cinit__(self, **kwargs):
@@ -331,7 +337,7 @@ cdef class Document:
 		# XXX See <http://bugs.debian.org/bug=467282> for details.
 		cdef char * optv[2]
 		cdef int optc
-		cdef Job job
+		cdef SaveJob job
 		optc = 0
 		cdef FILE* output
 		cdef Py_ssize_t i
@@ -357,8 +363,9 @@ cdef class Document:
 			s2 = pages_to_opt(pages, 1)
 			optv[optc] = s2
 			optc = optc + 1
-		job = Job(sentinel = the_sentinel)
+		job = SaveJob(sentinel = the_sentinel)
 		job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
+		job._file = file
 		if wait:
 			job.wait()
 			if indirect is not None:
@@ -373,7 +380,7 @@ cdef class Document:
 		# XXX Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
 		# XXX See <http://bugs.debian.org/469122> for details.
 		cdef FILE* output
-		cdef Job job
+		cdef SaveJob job
 		options = []
 		if not is_file(file):
 			raise TypeError
@@ -448,8 +455,9 @@ cdef class Document:
 			for option in options:
 				optv[optc] = option
 				optc = optc + 1
-			job = Job(sentinel = the_sentinel)
+			job = SaveJob(sentinel = the_sentinel)
 			job.__init(self._context, ddjvu_document_print(self.ddjvu_document, output, optc, optv))
+			job._file = file
 		finally:
 			py_free(optv)
 		if wait:
