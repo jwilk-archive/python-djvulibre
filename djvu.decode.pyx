@@ -170,7 +170,7 @@ cdef class Thumbnail:
 					pybuffer = charp_to_string(buffer, buffer_size)
 				return (w, h), pybuffer
 			else:
-				return None
+				return
 		finally:
 			py_free(buffer)
 
@@ -544,14 +544,14 @@ cdef class FileInfo:
 	property npage:
 		def __get__(self):
 			if self.ddjvu_fileinfo.pageno < 0:
-				return None
+				return
 			else:
 				return self.ddjvu_fileinfo.pageno
 	
 	property size:
 		def __get__(self):
 			if self.ddjvu_fileinfo.size < 0:
-				return None
+				return
 			else:
 				return self.ddjvu_fileinfo.size
 	
@@ -560,7 +560,7 @@ cdef class FileInfo:
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.id
 			if result == NULL:
-				return None
+				return
 			else:
 				return decode_utf8(result)
 
@@ -569,7 +569,7 @@ cdef class FileInfo:
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.name
 			if result == NULL:
-				return None
+				return
 			else:
 				return decode_utf8(result)
 
@@ -578,7 +578,7 @@ cdef class FileInfo:
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.title
 			if result == NULL:
-				return None
+				return
 			else:
 				return decode_utf8(result)
 
@@ -668,7 +668,7 @@ cdef class Context:
 			else:
 				ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
 			if ddjvu_document == NULL:
-				return None
+				return
 			document = Document(sentinel = the_sentinel)
 			document.__init(self, ddjvu_document)
 		finally:
@@ -1419,7 +1419,7 @@ MESSAGE_MAP = \
 cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
 	cdef Message message
 	if ddjvu_message == NULL:
-		return None
+		return
 	try:
 		klass = MESSAGE_MAP[ddjvu_message.m_any.tag]
 	except KeyError:
@@ -1531,7 +1531,7 @@ cdef class Annotations:
 			cdef char* result
 			result = ddjvu_anno_get_bgcolor(self._sexpr._cexpr)
 			if result == NULL:
-				return None
+				return
 			return result
 
 	property zoom:
