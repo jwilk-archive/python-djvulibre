@@ -25,6 +25,16 @@ DOCUMENT_TYPE_OLD_INDEXED = DDJVU_DOCTYPE_OLD_INDEXED
 class NotAvailable(Exception):
 	pass
 
+class DjVuLibreBug(Exception):
+	
+	def __init__(self, debian_bug_no):
+		Exception.__init__(
+			self,
+			'A DjVuLibre bug has been encountered.\n'
+			'See <http://bugs.debian.org/%d> for details.\n'
+			'Please upgrade your DjVuLibre.' % (debian_bug_no,)
+		)
+
 cdef class DocumentExtension:
 
 	property document:
@@ -326,11 +336,16 @@ cdef class Document:
 				raise TypeError
 			output = file_to_cfile(file)
 		else:
-			output = NULL
+			from os import devnull
 			if file is not None:
 				raise TypeError
 			if not is_string(indirect):
 				raise TypeError
+			# XXX ddjvu API documentation says that output should by NULL,
+			# but we'd like to spot the DjVuLibre bug
+			open(indirect, 'wb').close()
+			file = open(devnull, 'wb')
+			output = file_to_cfile(file)
 			s1 = '--indirect=' + indirect
 			optv[optc] = s1
 			optc = optc + 1
@@ -342,6 +357,11 @@ cdef class Document:
 		job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
 		if wait:
 			job.wait()
+			if indirect is not None:
+				file = open(indirect, 'rb')
+				file.seek(0, 2)
+			if file.tell() == 0:
+				raise DjVuLibreBug(467282)
 		return job
 	
 	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, cropmarks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
