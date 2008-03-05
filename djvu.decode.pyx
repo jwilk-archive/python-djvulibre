@@ -625,6 +625,50 @@ cdef class FileInfo:
 class FileURI(str):
 	pass
 
+cdef object Context_message_distributor
+def _Context_message_distributor(Context self not None, sentinel):
+	cdef Message message
+	cdef Document document
+	cdef Job job
+	cdef PageJob page_job
+	cdef ddjvu_message_t* ddjvu_message
+
+	if sentinel is not the_sentinel:
+		raise RuntimeError
+	while True:
+		with nogil:
+			ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
+		try:
+			try:
+				message = Message_from_c(ddjvu_message)
+			finally:
+				ddjvu_message_pop(self.ddjvu_context)
+			if message is None:
+				raise SystemError
+			# XXX Order of branches below is *crucial*. Do not change.
+			if message._job is not None:
+				job = message._job
+				job._queue.put(message)
+				if job.is_done:
+					job.__clear()
+			elif message._page_job is not None:
+				raise SystemError # should not happen
+			elif message._document is not None:
+				document = message._document
+				document._queue.put(message)
+				if document.decoding_done:
+					document.__clear()
+			else:
+				self._queue.put(message)
+		except KeyboardInterrupt:
+			raise
+		except SystemExit:
+			raise
+		except Exception, ex:
+			write_unraisable_exception(ex)
+Context_message_distributor = _Context_message_distributor
+del _Context_message_distributor
+
 cdef class Context:
 
 	def __cinit__(self, argv0 = None):
@@ -639,49 +683,8 @@ cdef class Context:
 		finally:
 			loft_lock.release()
 		self._queue = Queue()
-		thread.start_new_thread(Context._message_distributor, (self, the_sentinel))
+		thread.start_new_thread(Context_message_distributor, (self, the_sentinel))
 	
-	def _message_distributor(self, sentinel):
-		cdef Message message
-		cdef Document document
-		cdef Job job
-		cdef PageJob page_job
-		cdef ddjvu_message_t* ddjvu_message
-
-		if sentinel is not the_sentinel:
-			raise RuntimeError
-		while True:
-			with nogil:
-				ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
-			try:
-				try:
-					message = Message_from_c(ddjvu_message)
-				finally:
-					ddjvu_message_pop(self.ddjvu_context)
-				if message is None:
-					raise SystemError
-				# XXX Order of branches below is *crucial*. Do not change.
-				if message._job is not None:
-					job = message._job
-					job._queue.put(message)
-					if job.is_done:
-						job.__clear()
-				elif message._page_job is not None:
-					raise SystemError # should not happen
-				elif message._document is not None:
-					document = message._document
-					document._queue.put(message)
-					if document.decoding_done:
-						document.__clear()
-				else:
-					self._queue.put(message)
-			except KeyboardInterrupt:
-				raise
-			except SystemExit:
-				raise
-			except Exception, ex:
-				write_unraisable_exception(ex)
-
 	property cache_size:
 
 		def __set__(self, value):
