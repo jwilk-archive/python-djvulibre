@@ -55,11 +55,15 @@ cdef object check_sentinel(self, kwargs):
 		raise_instantiation_error(type(self))
 
 class NotAvailable(Exception):
-	'''A resource not (yet) available.'''
+	'''
+	A resource not (yet) available.
+	'''
 
 class DjVuLibreBug(Exception):
 
-	'''Spotted a DjVuLibre bug.'''
+	'''
+	Spotted a DjVuLibre bug.
+	'''
 	
 	def __init__(self, debian_bug_no):
 		Exception.__init__(
@@ -118,7 +122,9 @@ cdef class Page:
 		self._n = n
 
 	property document:
-		'''Return the `Document` which includes the page.'''
+		'''
+		Return the `Document` which includes the page.
+		'''
 		def __get__(self):
 			return self._document
 	
@@ -184,11 +190,11 @@ cdef class Page:
 
 	def decode(self, wait = True):
 		'''
-		page.decode(wait = True) -> a `PageJob`.
+		P.decode(wait=True) -> a `PageJob`.
 
 		Initiate data transfer and decoding threads for the page.
 
-		If `wait == True`, wait until the job is done.
+		If `wait` is true, wait until the job is done.
 
 		If the method is called before receiving the `DocInfoMessage`,
 		`NotAvailable` exception may be raised.
@@ -234,7 +240,9 @@ cdef class Thumbnail:
 		self._page = page
 	
 	property page:
-		'''Return the page.'''
+		'''
+		Return the page.
+		'''
 		def __get__(self):
 			return self._page
 	
@@ -260,7 +268,7 @@ cdef class Thumbnail:
 
 	def render(self, size, PixelFormat pixel_format not None, unsigned long row_alignment = 0, dry_run = False):
 		'''
-		T.render((w0, h0), pixel_format, row_alignment = 0, dry_run = False) -> (w1, h1, row_size), data.
+		T.render((w0, h0), pixel_format, row_alignment=0, dry_run=False) -> (w1, h1, row_size), data.
 
 		Render the thumbnail:
 		* not larger than `w0` x `h0` pixels;
@@ -560,10 +568,23 @@ cdef class Document:
 			return
 		ddjvu_document_release(self.ddjvu_document)
 	
-	def save(self, file = None, pages = None, indirect = None, wait = True):
-		# XXX WARNING XXX
-		# XXX Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
-		# XXX See <http://bugs.debian.org/bug=467282> for details.
+	def save(self, file = None, indirect = None, pages = None, wait = True):
+		'''
+		D.save(file=None, indirect=None, pages=<all-pages>, wait=True) -> a `SaveJob`.
+
+		Saves the document as:
+		* a bundled DjVu `file` or;
+		* an indirect DjVu document with index file name `indirect`.
+
+		`pages` argument specifies a subset of saved pages.
+
+		If `wait` is true, wait until the job is done.
+
+		**Warning**
+		-----------
+		Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
+		See http://bugs.debian.org/467282 for details.
+		'''
 		cdef char * optv[2]
 		cdef int optc
 		cdef SaveJob job
@@ -608,9 +629,110 @@ cdef class Document:
 		return job
 	
 	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, cropmarks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
-		# XXX WARNING XXX
-		# XXX Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
-		# XXX See <http://bugs.debian.org/469122> for details.
+		'''
+		D.export_ps(file, pages=<all-pages>, ..., wait=True) -> a `Job`.
+
+		Convert the document into PostScript.
+
+		`pages` argument specifies a subset of saved pages.
+
+		If `wait` is true, wait until the job is done.
+
+		Additional options
+		------------------
+
+		`eps`
+			Produce an _Encapsulated_ PostScript file. Encapsulated PostScript
+			files are suitable for embedding images into other documents.
+			Encapsulated PostScript file can only contain a single page.
+			Setting this option overrides the options `copies`, `orientation`,
+			`zoom`, `cropmarks`, and `booklet`.
+		`level`
+			Selects the language level of the generated PostScript. Valid
+			language levels are 1, 2, and 3. Level 3 produces the most compact
+			and fast printing PostScript files. Some of these files however
+			require a very modern printer. Level 2 is the default value. The
+			generated PostScript files are almost as compact and work with all
+			but the oldest PostScript printers. Level 1 can be used as a last
+			resort option.
+		`orientation`
+			Specifies whether pages should be printed using the:
+			* automatic (`PRINT_ORIENTATION_AUTO`), or
+			* portrait (`PRINT_ORIENTATION_PORTRAIT`), or
+			* landscape (`PRINT_ORIENTATION_LANDSCAPE`)
+			orientation.
+		`mode`
+			Specifies how pages should be decoded. The default mode,
+			`DDJVU_RENDER_COLOR`, renders all the layers of the DjVu documents.
+			Mode `DDJVU_RENDER_BLACK` only renders the foreground layer mask.
+			This mode does not work with DjVuPhoto images because these files
+			have no foreground layer mask. Modes `DDJVU_RENDER_FOREGROUND` and
+			`DDJVU_RENDER_BACKGROUND` only render the foreground layer or the
+			background layer of a DjVuDocument image.
+		`zoom`
+			Specifies a zoom factor. The default zoom factor scales the image to
+			fit the page.
+		`color`
+			Specifies whether to generate a color or a gray scale PostScript
+			file. A gray scale PostScript files are smaller and marginally more
+			portable.
+		`srgb`
+			The default value, True, generates a PostScript file using device
+			independent colors in compliance with the sRGB specification.
+			Modern printers then produce colors that match the original as well
+			as possible. Specifying a false value generates a PostScript file
+			using device dependent colors. This is sometimes useful with older
+			printers. You can then use the `gamma` option to tune the output
+			colors.
+		`gamma`
+			Specifies a gamma correction factor for the device dependent
+			PostScript colors. Argument must be in range 0.3 to 5.0. Gamma
+			correction normally pertains to cathodic screens only. It gets
+			meaningful for printers because several models interpret device
+			dependent RGB colors by emulating the color response of a cathodic
+			tube.
+		`copies`
+			Specifies the number of copies to print.
+		`frame`, 
+			If true, generate a thin gray border representing the boundaries of
+			the document pages.
+		`cropmarks`
+			If true, generate crop marks indicating where pages should be cut. 
+		`text`
+			Generate hidden text. See the wanrning below.
+		`booklet`
+			* PRINT_BOOKLET_NO
+				Disable booklet mode. This is the default.
+			* PRINT_BOOKLET_YES:
+				Enable recto/verse booklet mode.
+			* PRINT_BOOKLET_RECTO
+				Enable recto booklet mode.
+			* PRINT_BOOKLET_VERSO
+				Enable verso booklet mode.
+		`booklet_max`
+			Specifies the maximal number of pages per booklet. A single printout
+			might then be composed of several booklets. The argument is rounded
+			up to the next multiple of 4. Specifying 0 sets no maximal number
+			of pages and ensures that the printout will produce
+			a single booklet. This is the default.
+		`booklet_align`
+			Specifies a positive or negative offset applied  o the verso of
+			each sheet. The argument is expressed in points[1]_. This is useful
+			with certain printers to ensure that both recto and verso are
+			properly aligned. The default value is 0.
+		`booklet_fold` (= `(base, increment)`)
+			Specifies the extra margin left between both pages on a single
+			sheet. The base value is expressed in points[1]_. This margin is
+			incremented for each outer sheet by value expressed in millipoints.
+			The default value is (18, 200).
+
+		.. [1] 1 pt = 1/72 in = 0.3528 mm
+
+		**Warning***
+		------------
+		Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
+		See http://bugs.debian.org/469122 for details.
+		'''
 		cdef FILE* output
 		cdef SaveJob job
 		options = []
