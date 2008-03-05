@@ -79,6 +79,8 @@ cdef class DocumentPages(DocumentExtension):
 
 	'''
 	Pages of a document.
+
+	Use `document.pages` to obtain instances of this class.
 	
 	Page indexing is zero-based, i.e. `pages[0]` stands for the very first page.
 	'''
@@ -100,7 +102,11 @@ cdef class DocumentPages(DocumentExtension):
 
 cdef class Page:
 
-	'''Page of a document.'''
+	'''
+	Page of a document.
+	
+	Use `document.pages[N]` to obtain instances of this class.
+	'''
 
 	def __cinit__(self, Document document not None, int n):
 		self._document = document
@@ -159,8 +165,7 @@ cdef class Page:
 		as the ``djvudump`` command. 
 
 		If the information is not available, raise `NotAvailable` exception.
-		Then `PageInfoMessage` messages with empty `page_job` may be
-		emitted.
+		Then `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
 			cdef char* s
@@ -199,10 +204,16 @@ cdef class Page:
 		return job
 	
 	property annotations:
+		'''
+		Return `PageAnnotations` for the page.
+		'''
 		def __get__(self):
 			return PageAnnotations(self)
 	
 	property text:
+		'''
+		Return `PageText` for the page.
+		'''
 		def __get__(self):
 			return PageText(self)
 
