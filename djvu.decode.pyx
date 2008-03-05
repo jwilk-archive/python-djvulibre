@@ -258,7 +258,7 @@ cdef class Thumbnail:
 		'''
 		T.render((w0, h0), pixel_format, row_alignment = 0, dry_run = False) -> (w1, h1, row_size), data.
 
-		Renders the thumbnail:
+		Render the thumbnail:
 		* not larger than `w0` x `h0` pixels;
 		* using the `pixel_format` pixel format;
 		* with each row starting at `row_alignment` bytes boundary.
@@ -270,11 +270,6 @@ cdef class Thumbnail:
 		* `row_size` is length of each image row, in bytes;
 		* `data` is `None` if `dry_run` is true; otherwise is contains the
 		  actual image data.
-
-		Otherwise it returns <TRUE>, adjusts <*wptr> and <*hptr> to 
-		reflect the thumbnail size, and, if the pointer <imagebuffer>
-		is non zero, writes the pixel data into the image buffer. */
-
 		'''
 		cdef int w, h
 		cdef char* buffer
