@@ -55,7 +55,7 @@ cdef object check_sentinel(self, kwargs):
 		raise_instantiation_error(type(self))
 
 class NotAvailable(Exception):
-	pass
+	'''A resource not (yet) available.'''
 
 class DjVuLibreBug(Exception):
 
@@ -72,6 +72,11 @@ class DjVuLibreBug(Exception):
 cdef class DocumentExtension:
 
 	property document:
+
+		'''
+		Return the concerned `Document`.
+		'''
+
 		def __get__(self):
 			return self._document_weakref()
 	
@@ -113,7 +118,7 @@ cdef class Page:
 		self._n = n
 
 	property document:
-		'''Return the `Document`, which includes the page.'''
+		'''Return the `Document` which includes the page.'''
 		def __get__(self):
 			return self._document
 	
@@ -219,21 +224,58 @@ cdef class Page:
 
 cdef class Thumbnail:
 
+	'''Thumbnail for a page.'''
+
 	def __cinit__(self, Page page not None):
 		self._page = page
 	
 	property page:
+		'''Return the page.'''
 		def __get__(self):
 			return self._page
 	
 	property status:
+		'''
+		Determine whether the thumbnail is available. Return a `JobException`
+		subclass indicating the current job status.
+		'''
 		def __get__(self):
 			return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 0))
 	
 	def calculate(self):
+		'''
+		T.calculate() -> a `JobException`.
+
+		Determine whether the thumbnail is available. If it's not, initiate the
+		thumbnail calculating job. Regardless of its success, the completion of
+		the job is signalled by a subsequent `ThumbnailMessage`.
+
+		Return a `JobException` subclass indicating the current job status.
+		'''
 		return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 1))
 
 	def render(self, size, PixelFormat pixel_format not None, unsigned long row_alignment = 0, dry_run = False):
+		'''
+		T.render((w0, h0), pixel_format, row_alignment = 0, dry_run = False) -> (w1, h1, row_size), data.
+
+		Renders the thumbnail:
+		* not larger than `w0` x `h0` pixels;
+		* using the `pixel_format` pixel format;
+		* with each row starting at `row_alignment` bytes boundary.
+
+		Raise `NotAvailable` when no thumbnail is available.
+		Otherwise, return a `(w1, h1, row_size), data` tuple:
+		* `w1` and `h1` are actual thumbnail dimensions in pixels
+		  (`w1 <= w0` and `h1 <= h0`);
+		* `row_size` is length of each image row, in bytes;
+		* `data` is `None` if `dry_run` is true; otherwise is contains the
+		  actual image data.
+
+		Otherwise it returns <TRUE>, adjusts <*wptr> and <*hptr> to 
+		reflect the thumbnail size, and, if the pointer <imagebuffer>
+		is non zero, writes the pixel data into the image buffer. */
+
+		'''
 		cdef int w, h
 		cdef char* buffer
 		cdef size_t buffer_size
@@ -251,9 +293,9 @@ cdef class Thumbnail:
 					pybuffer = None
 				else:
 					pybuffer = charp_to_string(buffer, buffer_size)
-				return (w, h), pybuffer
+				return (w, h, row_size), pybuffer
 			else:
-				return
+				raise NotAvailable
 		finally:
 			py_free(buffer)
 

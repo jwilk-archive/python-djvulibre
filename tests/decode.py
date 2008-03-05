@@ -480,10 +480,10 @@ class ThumbnailTest:
 	>>> message.n
 	0
 	>>> thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
-	((5, 3), None)
-	>>> (w, h), pixels = thumbnail.render((5, 5), PixelFormatGrey())
-	>>> w, h
-	(5, 3)
+	((5, 3, 5L), None)
+	>>> (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey())
+	>>> w, h, r
+	(5, 3, 5L)
 	>>> pixels[:15]
 	'\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
 	'''
