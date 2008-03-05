@@ -3,7 +3,18 @@
 '''
 DjVuLibre bindings: module for efficiently decoding and displaying DjVu documents.
 
-(API of this module is a subject to change. You have been warned.)
+Summary
+-------
+The DDJVU API provides for efficiently decoding and displaying DjVu documents.
+It provides for displaying images without waiting for the complete DjVu data.
+Images can be displayed as soon as sufficient data is available. A higher
+quality image might later be displayed when further data is available. The DjVu
+library achieves this using a complicated scheme involving multiple threads.
+The DDJVU API hides this complexity with a familiar event model.
+
+Warning
+-------
+API of this module is a subject to change. You have been warned.
 '''
 
 include 'common.pxi'
