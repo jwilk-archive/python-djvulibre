@@ -58,6 +58,8 @@ class NotAvailable(Exception):
 	pass
 
 class DjVuLibreBug(Exception):
+
+	'''Spotted a DjVuLibre bug.'''
 	
 	def __init__(self, debian_bug_no):
 		Exception.__init__(
@@ -74,6 +76,12 @@ cdef class DocumentExtension:
 			return self._document_weakref()
 	
 cdef class DocumentPages(DocumentExtension):
+
+	'''
+	Pages of a document.
+	
+	Page indexing is zero-based, i.e. `pages[0]` stands for the very first page.
+	'''
 
 	def __cinit__(self, Document document not None, **kwargs):
 		check_sentinel(self, kwargs)
@@ -92,23 +100,45 @@ cdef class DocumentPages(DocumentExtension):
 
 cdef class Page:
 
+	'''Page of a document.'''
+
 	def __cinit__(self, Document document not None, int n):
 		self._document = document
 		self._n = n
 
 	property document:
+		'''Return the `Document`, which includes the page.'''
 		def __get__(self):
 			return self._document
 	
 	property n:
+		'''
+		Return the page number.
+		
+		Page indexing is zero-based, i.e. `0` stands for the very first page.
+		'''
 		def __get__(self):
 			return self._n
 	
 	property thumbnail:
+		'''
+		Return a `Thumbnail` for the page.
+		'''
 		def __get__(self):
 			return Thumbnail(self)
 
 	property info:
+		# FIXME: fix concurrency issues
+		'''
+		Attempt to obtain information about the page without decoding the page.
+		If the information is available, return a `PageInfo`.
+
+		Otherwise, raise `NotAvailable` exception. Then start fetching the page
+		data, which causes emition of `PageInfoMessage` messages with empty
+		`page_job`.
+
+		Raise `JobFail` in case of an error.
+		'''
 		def __get__(self):
 			cdef ddjvu_status_t status
 			cdef PageInfo page_info
@@ -117,8 +147,9 @@ cdef class Page:
 				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
 				ex = JobException_from_c(status)
 				if ex == JobOK:
-					# FIXME: fix concurrency issues
 					return page_info
+				elif ex == JobStarted:
+					raise NotAvailable
 				else:
 					raise ex
 
@@ -128,7 +159,7 @@ cdef class Page:
 		as the ``djvudump`` command. 
 
 		If the information is not available, raise `NotAvailable` exception.
-		Then, `PageInfoMessage` messages with empty `page_job` may be
+		Then `PageInfoMessage` messages with empty `page_job` may be
 		emitted.
 		'''
 		def __get__(self):
