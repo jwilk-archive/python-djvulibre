@@ -38,6 +38,8 @@ cdef extern from 'Python.h':
 
 	FILE* file_to_cfile 'PyFile_AsFile'(object)
 
+	void write_unraisable_exception 'PyErr_WriteUnraisable'(object)
+
 cdef extern from 'object.h':
 	ctypedef struct PyTypeObject:
 		char *tp_name

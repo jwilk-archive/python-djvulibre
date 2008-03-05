@@ -653,25 +653,34 @@ cdef class Context:
 		while True:
 			with nogil:
 				ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
-			message = Message_from_c(ddjvu_message)
-			ddjvu_message_pop(self.ddjvu_context)
-			if message is None:
-				raise SystemError
-			# XXX Order of branches below is *crucial*. Do not change.
-			if message._job is not None:
-				job = message._job
-				job._queue.put(message)
-				if job.is_done:
-					job.__clear()
-			elif message._page_job is not None:
-				raise SystemError # should not happen
-			elif message._document is not None:
-				document = message._document
-				document._queue.put(message)
-				if document.decoding_done:
-					document.__clear()
-			else:
-				self._queue.put(message)
+			try:
+				try:
+					message = Message_from_c(ddjvu_message)
+				finally:
+					ddjvu_message_pop(self.ddjvu_context)
+				if message is None:
+					raise SystemError
+				# XXX Order of branches below is *crucial*. Do not change.
+				if message._job is not None:
+					job = message._job
+					job._queue.put(message)
+					if job.is_done:
+						job.__clear()
+				elif message._page_job is not None:
+					raise SystemError # should not happen
+				elif message._document is not None:
+					document = message._document
+					document._queue.put(message)
+					if document.decoding_done:
+						document.__clear()
+				else:
+					self._queue.put(message)
+			except KeyboardInterrupt:
+				raise
+			except SystemExit:
+				raise
+			except Exception, ex:
+				write_unraisable_exception(ex)
 
 	property cache_size:
 
