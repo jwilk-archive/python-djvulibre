@@ -2,6 +2,8 @@
 
 '''
 DjVuLibre bindings: module for efficiently decoding and displaying DjVu documents.
+
+(API of this module is a subject to change. You have been warned.)
 '''
 
 include 'common.pxi'
