@@ -287,8 +287,10 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 
 cdef class Context
 
+cdef class Document
+
 cdef class DocumentExtension:
-	cdef object _document_weakref
+	cdef Document _document
 
 cdef class DocumentPages(DocumentExtension):
 	pass
@@ -310,8 +312,7 @@ cdef class _SexprWrapper:
 	cdef object _document_weakref
 	cdef cexpr_t _cexpr
 
-cdef class DocumentOutline:
-	cdef Document _document
+cdef class DocumentOutline(DocumentExtension):
 	cdef _SexprWrapper _sexpr
 
 cdef class Annotations:

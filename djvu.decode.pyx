@@ -78,7 +78,7 @@ cdef class DocumentExtension:
 		'''
 
 		def __get__(self):
-			return self._document_weakref()
+			return self._document
 	
 cdef class DocumentPages(DocumentExtension):
 
@@ -92,7 +92,7 @@ cdef class DocumentPages(DocumentExtension):
 
 	def __cinit__(self, Document document not None, **kwargs):
 		check_sentinel(self, kwargs)
-		self._document_weakref = weakref.ref(document)
+		self._document = document
 	
 	def __len__(self):
 		return ddjvu_document_get_pagenum((<Document>self.document).ddjvu_document)
@@ -310,7 +310,7 @@ cdef class DocumentFiles(DocumentExtension):
 
 	def __cinit__(self, Document document not None, **kwargs):
 		check_sentinel(self, kwargs)
-		self._document_weakref = weakref.ref(document)
+		self._document = document
 	
 	def __len__(self):
 		return ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
@@ -1738,7 +1738,7 @@ cdef _SexprWrapper wrap_sexpr(Document document, cexpr_t cexpr):
 	result._cexpr = cexpr
 	return result
 
-cdef class DocumentOutline:
+cdef class DocumentOutline(DocumentExtension):
 
 	def __cinit__(self, Document document not None):
 		self._document = document
@@ -1747,10 +1747,6 @@ cdef class DocumentOutline:
 	property sexpr:
 		def __get__(self):
 			return self._sexpr()
-	
-	property document:
-		def __get__(self):
-			return self._document
 	
 	def __repr__(self):
 		return '%s.%s(%r)' % (self.__class__.__module__, self.__class__.__name__, self._document)
