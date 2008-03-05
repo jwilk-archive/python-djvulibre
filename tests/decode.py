@@ -155,9 +155,7 @@ class DocumentTest:
 	
 	def test_save(self):
 		r'''
-		>>> class MyContext(Context):
-		...   def handle_message(self, message): pass
-		>>> context = MyContext()
+		>>> context = Context()
 		>>> document = context.new_document(FileURI('t-alpha.djvu'))
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
@@ -294,9 +292,7 @@ class DocumentTest:
 	def test_export_ps(self):
 		r'''
 		>>> import sys
-		>>> class MyContext(Context):
-		...   def handle_message(self, message): pass
-		>>> context = MyContext()
+		>>> context = Context()
 		>>> document = context.new_document(FileURI('t-alpha.djvu'))
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
@@ -416,10 +412,7 @@ class PageJobTest:
 	
 	def test_decode():
 		r'''
-		>>> class MyContext(Context):
-		...   def handle_message(self, message): pass
-
-		>>> context = MyContext()
+		>>> context = Context()
 		>>> document = context.new_document(FileURI('t-gamma.djvu'))
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
@@ -471,10 +464,7 @@ class PageJobTest:
 class ThumbnailTest:
 
 	r'''
-	>>> class MyContext(Context):
-	...   def handle_message(self, message): pass
-
-	>>> context = MyContext()
+	>>> context = Context()
 	>>> document = context.new_document(FileURI('t-gamma.djvu'))
 	>>> message = document.get_message()
 	>>> type(message) == DocInfoMessage
