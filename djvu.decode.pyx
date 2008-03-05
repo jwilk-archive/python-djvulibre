@@ -27,11 +27,10 @@ from djvu.sexpr import Symbol
 cdef object the_sentinel
 the_sentinel = object()
 
-cdef object _context_loft, _document_loft, _job_loft, _page_job_loft, loft_lock
+cdef object _context_loft, _document_loft, _job_loft, loft_lock
 _context_loft = {}
 _document_loft = {} # TODO: remove when decoding is done
 _job_loft = {} # TODO: remove when decoding is done
-_page_job_loft = {} # TODO: remove when decoding is done
 loft_lock = thread.allocate_lock()
 
 DDJVU_VERSION = ddjvu_code_get_version()
@@ -961,7 +960,6 @@ cdef class PageJob(Job):
 
 	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
 		Job.__init(self, context, ddjvu_job)
-		_page_job_loft[<long> ddjvu_job] = self
 	
 	property width:
 		'''
@@ -1109,16 +1107,9 @@ cdef class PageJob(Job):
 		self.ddjvu_job = NULL
 
 cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
-	cdef PageJob result
-	if ddjvu_page == NULL:
-		result = None
-	else:
-		loft_lock.acquire()
-		try:
-			result = _page_job_loft.get(<long> ddjvu_page)
-		finally:
-			loft_lock.release()
-	return result
+	cdef PageJob job
+	job = Job_from_c(<ddjvu_job_t*> ddjvu_page)
+	return job
 
 cdef class Job:
 
