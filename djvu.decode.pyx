@@ -27,10 +27,12 @@ from djvu.sexpr import Symbol
 cdef object the_sentinel
 the_sentinel = object()
 
-cdef object _context_loft, _document_loft, _job_loft, loft_lock
+cdef object _context_loft, _document_loft, _document_weak_loft, _job_loft, _job_weak_loft, loft_lock
 _context_loft = {}
-_document_loft = {} # TODO: remove when decoding is done
-_job_loft = {} # TODO: remove when decoding is done
+_document_loft = set()
+_document_weak_loft = weakref.WeakValueDictionary()
+_job_loft = set()
+_job_weak_loft = weakref.WeakValueDictionary()
 loft_lock = thread.allocate_lock()
 
 DDJVU_VERSION = ddjvu_code_get_version()
@@ -318,7 +320,15 @@ cdef class Document:
 		assert context != None and ddjvu_document != NULL
 		self.ddjvu_document = ddjvu_document
 		self._context = context
-		_document_loft[<long> ddjvu_document] = self
+		_document_loft.add(self)
+		_document_weak_loft[<long> ddjvu_document] = self
+
+	cdef object __clear(self):
+		loft_lock.acquire()
+		try:
+			_document_loft.discard(self)
+		finally:
+			loft_lock.release()
 
 	property decoding_status:
 		def __get__(self):
@@ -522,7 +532,7 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	if ddjvu_document == NULL:
 		result = None
 	else:
-		result = _document_loft.get(<long> ddjvu_document)
+		result = _document_weak_loft.get(<long> ddjvu_document)
 	return result
 
 cdef class PageInfo:
@@ -651,12 +661,15 @@ cdef class Context:
 			if message._job is not None:
 				job = message._job
 				job._queue.put(message)
+				if job.is_done:
+					job.__clear()
 			elif message._page_job is not None:
-				page_job = self._page_job
-				page_job._queue.put(message)
+				raise SystemError # should not happen
 			elif message._document is not None:
 				document = message._document
 				document._queue.put(message)
+				if document.decoding_done:
+					document.__clear()
 			else:
 				self._queue.put(message)
 
@@ -1125,7 +1138,15 @@ cdef class Job:
 			raise SystemError
 		self._context = context
 		self.ddjvu_job = ddjvu_job
-		_job_loft[<int> ddjvu_job] = self
+		_job_loft.add(self)
+		_job_weak_loft[<int> ddjvu_job] = self
+	
+	cdef object __clear(self):
+		loft_lock.acquire()
+		try:
+			_job_loft.discard(self)
+		finally:
+			loft_lock.release()
 
 	property status:
 		def __get__(self):
@@ -1171,7 +1192,7 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	else:
 		loft_lock.acquire()
 		try:
-			result = _job_loft.get(<long> ddjvu_job)
+			result = _job_weak_loft.get(<long> ddjvu_job)
 		finally:
 			loft_lock.release()
 	return result

@@ -304,6 +304,7 @@ cdef class Document:
 	cdef object _queue
 	cdef object __weakref__
 	cdef object __init(self, Context context, ddjvu_document_t* ddjvu_document)
+	cdef object __clear(self)
 
 cdef class _SexprWrapper:
 	cdef object _document_weakref
@@ -383,6 +384,7 @@ cdef class Job:
 	cdef ddjvu_job_t* ddjvu_job
 	cdef object _queue
 	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job)
+	cdef object __clear(self)
 	cdef object __weakref__
 
 cdef class PageJob(Job):
