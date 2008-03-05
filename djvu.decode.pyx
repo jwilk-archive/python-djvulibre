@@ -142,27 +142,27 @@ cdef class Page:
 		# FIXME: fix concurrency issues
 		'''
 		Attempt to obtain information about the page without decoding the page.
+
 		If the information is available, return a `PageInfo`.
 
 		Otherwise, raise `NotAvailable` exception. Then start fetching the page
 		data, which causes emition of `PageInfoMessage` messages with empty
 		`page_job`.
 
-		Raise `JobFail` in case of an error.
+		In case of an error, `JobFail` is raised.
 		'''
 		def __get__(self):
 			cdef ddjvu_status_t status
 			cdef PageInfo page_info
 			page_info = PageInfo(self._document, sentinel = the_sentinel)
-			while True:
-				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
-				ex = JobException_from_c(status)
-				if ex == JobOK:
-					return page_info
-				elif ex == JobStarted:
-					raise NotAvailable
-				else:
-					raise ex
+			status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
+			ex = JobException_from_c(status)
+			if ex == JobOK:
+				return page_info
+			elif ex == JobStarted:
+				raise NotAvailable
+			else:
+				raise ex
 
 	property dump:
 		'''
@@ -190,7 +190,7 @@ cdef class Page:
 
 		If `wait == True`, wait until the job is done.
 
-		If the method is called brefore receiving the `DocInfoMessage`,
+		If the method is called before receiving the `DocInfoMessage`,
 		`NotAvailable` exception may be raised.
 		'''
 		cdef PageJob job
@@ -224,7 +224,11 @@ cdef class Page:
 
 cdef class Thumbnail:
 
-	'''Thumbnail for a page.'''
+	'''
+	Thumbnail for a page.
+	
+	Use `page.thumbnail` to obtain instances of this class.
+	'''
 
 	def __cinit__(self, Page page not None):
 		self._page = page
@@ -296,6 +300,14 @@ cdef class Thumbnail:
 
 cdef class DocumentFiles(DocumentExtension):
 
+	'''
+	Component files of a document.
+
+	Use `document.files` to obtain instances of this class.
+	
+	File indexing is zero-based, i.e. `files[0]` stands for the very first file.
+	'''
+
 	def __cinit__(self, Document document not None, **kwargs):
 		check_sentinel(self, kwargs)
 		self._document_weakref = weakref.ref(document)
@@ -308,32 +320,53 @@ cdef class DocumentFiles(DocumentExtension):
 
 cdef class File:
 
+	'''
+	Component file of a document.
+
+	Use `document.files[N]` to obtain instances of this class.
+	'''
+
 	def __cinit__(self, Document document not None, int n, **kwargs):
 		check_sentinel(self, kwargs)
 		self._document = document
 		self._n = n
 	
 	property document:
+		'''Return the `Document` which includes the component file.'''
 		def __get__(self):
 			return self._document
 
 	property n:
+		'''
+		Return the component file number.
+		
+		File indexing is zero-based, i.e. `0` stands for the very first file.
+		'''
 		def __get__(self):
 			return self._n
 
 	property info:
+		'''
+		Return information about the component file, i.e. a `FileInfo`.
+
+		If the method is called before receiving the `DocInfoMessage`,
+		`NotAvailable` exception may be raised.
+
+		In case of an error, `JobFail` is raised.
+		'''
+		# FIXME: fix concurrency issues
 		def __get__(self):
 			cdef ddjvu_status_t status
 			cdef FileInfo file_info
 			file_info = FileInfo(self._document, sentinel = the_sentinel)
-			while True:
-				status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
-				ex = JobException_from_c(status)
-				if ex == JobOK:
-					# FIXME: fix concurrency issues
-					return file_info
-				else:
-					raise ex
+			status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
+			ex = JobException_from_c(status)
+			if ex == JobOK:
+				return file_info
+			elif ex == JobStarted:
+				raise NotAvailable
+			else:
+				raise ex
 
 	property dump:
 		'''
