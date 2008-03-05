@@ -373,7 +373,7 @@ cdef class File:
 		Return a text describing the contents of the file using the same format
 		as the ``djvudump`` command. 
 
-		If the information is not available, raise ``NotAvailable`` exception.
+		If the information is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
@@ -417,13 +417,24 @@ PRINT_BOOKLET_YES = 'yes'
 PRINT_BOOKLET_RECTO = 'recto'
 PRINT_BOOKLET_VERSO = 'verso'
 
-
 cdef class SaveJob(Job):
+
+	'''
+	Document saving job.
+
+	Use `document.save(...)` to obtain instances of this class.
+	'''
 
 	def __cinit__(self, **kwargs):
 		self._file = None
 
 cdef class DocumentDecodingJob(Job):
+
+	'''
+	Document decoding job.
+
+	Use `document.decode(...)` to obtain instances of this class.
+	'''
 
 	cdef object __init_ddj(self, Document document):
 		self._context = document._context
@@ -437,6 +448,12 @@ cdef class DocumentDecodingJob(Job):
 		return '<%s for %r>' % (get_type_name(DocumentDecodingJob), self._document)
 
 cdef class Document:
+
+	'''
+	DjVu document.
+
+	Use `context.new_document(...)` to obtain instances of this class.
+	'''
 
 	def __cinit__(self, **kwargs):
 		self.ddjvu_document = NULL
@@ -463,18 +480,30 @@ cdef class Document:
 			loft_lock.release()
 
 	property decoding_status:
+		'''
+		Return a `JobException` subclass indicating the decoding job status.
+		'''
 		def __get__(self):
 			return JobException_from_c(ddjvu_document_decoding_status(self.ddjvu_document))
 
 	property decoding_error:
+		'''
+		Indicate whether the decoding job failed.
+		'''
 		def __get__(self):
 			return bool(ddjvu_document_decoding_error(self.ddjvu_document))
 	
 	property decoding_done:
+		'''
+		Indicate whether the decoding job is done.
+		'''
 		def __get__(self):
 			return bool(ddjvu_document_decoding_done(self.ddjvu_document))
 	
 	property decoding_job:
+		'''
+		Return the `DocumentDecodingJob`.
+		'''
 		def __get__(self):
 			cdef DocumentDecodingJob job
 			job = DocumentDecodingJob(sentinel = the_sentinel)
@@ -482,22 +511,47 @@ cdef class Document:
 			return job
 
 	property type:
+		'''
+		Return the type of the document.
+
+		The following values are possible:
+		* `DOCUMENT_TYPE_UNKNOWN`;
+		* `DOCUMENT_TYPE_SINGLE_PAGE`: single-page document;
+		* `DOCUMENT_TYPE_BUNDLED`: bundled mutli-page document;
+		* `DOCUMENT_TYPE_INDIRECT`: indirect multi-page document;
+		* (obsolete) `DOCUMENT_TYPE_OLD_BUNDLED`,
+		* (obsolete) `DOCUMENT_TYPE_OLD_INDEXED`.
+
+		Before receiving the `DocInfoMessage`, `DOCUMENT_TYPE_UNKNOWN` may be returned.
+		'''
 		def __get__(self):
 			return ddjvu_document_get_type(self.ddjvu_document)
 
 	property pages:
+		'''
+		Return the `DocumentPages`.
+		'''
 		def __get__(self):
 			return self._pages
 	
 	property files:
+		'''
+		Return the `DocumentPages`.
+		'''
 		def __get__(self):
 			return self._files
 	
 	property outline:
+		'''
+		Return the `DocumentOutline`.
+		'''
 		def __get__(self):
 			return DocumentOutline(self)
 	
 	property annotations:
+		'''
+		Return the `DocumentAnnotations`.
+		'''	
 		def __get__(self):
 			return DocumentAnnotations(self)
 
