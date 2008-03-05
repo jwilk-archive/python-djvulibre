@@ -1139,7 +1139,7 @@ cdef class Job:
 		self._context = context
 		self.ddjvu_job = ddjvu_job
 		_job_loft.add(self)
-		_job_weak_loft[<int> ddjvu_job] = self
+		_job_weak_loft[<long> ddjvu_job] = self
 	
 	cdef object __clear(self):
 		loft_lock.acquire()
