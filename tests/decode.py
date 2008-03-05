@@ -77,7 +77,7 @@ class DocumentTest:
 		True
 		>>> file_info.type
 		'P'
-		>>> file_info.npage
+		>>> file_info.n_page
 		0
 		>>> file_info.size
 		>>> file_info.id

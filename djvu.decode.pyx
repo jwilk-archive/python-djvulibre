@@ -54,6 +54,10 @@ loft_lock = thread.allocate_lock()
 
 DDJVU_VERSION = ddjvu_code_get_version()
 
+FILE_TYPE_PAGE = 'P'
+FILE_TYPE_THUMBNAILS = 'T'
+FILE_TYPE_INCLUDE = 'I'
+
 DOCUMENT_TYPE_UNKNOWN = DDJVU_DOCTYPE_UNKNOWN
 DOCUMENT_TYPE_SINGLE_PAGE = DDJVU_DOCTYPE_SINGLEPAGE
 DOCUMENT_TYPE_BUNDLED = DDJVU_DOCTYPE_BUNDLED
@@ -834,6 +838,12 @@ cdef class Document:
 		return job
 
 	def get_message(self, wait = True):
+		'''
+		D.get_message(wait=True) -> a `Message` or `None`.
+
+		Get message from the internal document queue.
+		Return `None` if `wait` is false and no message is available.
+		'''
 		try:
 			return self._queue.get(wait)
 		except Empty:
@@ -860,51 +870,93 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 
 cdef class PageInfo:
 
+	'''
+	Rudimentary page information.
+
+	Use `page.info` to obtain instances of this class.
+	'''
+
 	def __cinit__(self, Document document not None, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise_instantiation_error(type(self))
 		self._document = document
 	
 	property document:
+		'''
+		Return the `Document` which includes the page.
+		'''
 		def __get__(self):
 			return self._document
 	
 	property width:
+		'''
+		Return the page width, in pixels.
+		'''
 		def __get__(self):
 			return self.ddjvu_pageinfo.width
 	
 	property height:
+		'''
+		Return the page height, in pixels.
+		'''
 		def __get__(self):
 			return self.ddjvu_pageinfo.height
 	
 	property dpi:
+		'''
+		Return the page resolution, in dpi (dots per inch).
+		'''
 		def __get__(self):
 			return self.ddjvu_pageinfo.dpi
 	
 	property rotation:
+		'''
+		Return the initial page rotation, in degrees.
+		'''
 		def __get__(self):
 			return self.ddjvu_pageinfo.rotation * 90
 
 	property version:
+		'''
+		Return the page version.
+		'''
 		def __get__(self):
 			return self.ddjvu_pageinfo.version
 
 cdef class FileInfo:
 
+	'''
+	Rudimentary compund file information.
+	'''
+
 	def __cinit__(self, Document document not None, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise_instantiation_error(type(self))
 		self._document = document
 	
 	property document:
+		'''
+		Return the `Document` which includes the compound file.
+		'''
 		def __get__(self):
 			return self._document
 	
 	property type:
+		'''
+		Return the type of the compound file:
+		* `FILE_TYPE_PAGE`,
+		* `FILE_TYPE_THUMBNAILS`,
+		* `FILE_TYPE_INCLUDE`.
+		'''
 		def __get__(self):
 			return charp_to_string(&self.ddjvu_fileinfo.type, 1)
 	
-	property npage:
+	property n_page:
+		'''
+		Return the page number, or None when not applicable.
+
+		Page indexing is zero-based, i.e. `0` stands for the very first page.
+		'''	
 		def __get__(self):
 			if self.ddjvu_fileinfo.pageno < 0:
 				return
@@ -912,6 +964,9 @@ cdef class FileInfo:
 				return self.ddjvu_fileinfo.pageno
 	
 	property size:
+		'''
+		Return the compound file size, or None when unknown.
+		'''
 		def __get__(self):
 			if self.ddjvu_fileinfo.size < 0:
 				return
@@ -919,6 +974,9 @@ cdef class FileInfo:
 				return self.ddjvu_fileinfo.size
 	
 	property id:
+		'''
+		Return the compound file identifier, or None.
+		'''
 		def __get__(self):
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.id
@@ -928,6 +986,9 @@ cdef class FileInfo:
 				return decode_utf8(result)
 
 	property name:
+		'''
+		Return the compound file name, or None.
+		'''
 		def __get__(self):
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.name
@@ -937,6 +998,9 @@ cdef class FileInfo:
 				return decode_utf8(result)
 
 	property title:
+		'''
+		Return the compound file title, or None.
+		'''
 		def __get__(self):
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.title
@@ -1030,6 +1094,12 @@ cdef class Context:
 		pass
 
 	def get_message(self, wait = True):
+		'''
+		C.get_message(wait=True) -> a `Message` or `None`.
+
+		Get message from the internal context queue.
+		Return `None` if `wait` is false and no message is available.
+		'''
 		try:
 			return self._queue.get(wait)
 		except Empty:
@@ -1461,6 +1531,10 @@ cdef PageJob PageJob_from_c(ddjvu_page_t* ddjvu_page):
 
 cdef class Job:
 
+	'''
+	A job.
+	'''
+
 	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
 			raise_instantiation_error(type(self))
@@ -1504,6 +1578,12 @@ cdef class Job:
 		ddjvu_job_stop(self.ddjvu_job)
 
 	def get_message(self, wait = True):
+		'''
+		J.get_message(wait=True) -> a `Message` or `None`.
+
+		Get message from the internal job queue.
+		Return `None` if `wait` is false and no message is available.
+		'''
 		try:
 			return self._queue.get(wait)
 		except Empty:
