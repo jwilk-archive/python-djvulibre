@@ -173,11 +173,25 @@ cdef class Page:
 				libc_free(s)
 
 	def decode(self, wait = True):
+		'''
+		page.decode(wait = True) -> a `PageJob`.
+
+		Initiate data transfer and decoding threads for the page.
+
+		If `wait == True`, wait until the job is done.
+
+		If the method is called brefore receiving the `DocInfoMessage`,
+		`NotAvailable` exception may be raised.
+		'''
 		cdef PageJob job
+		cdef ddjvu_job_t* ddjvu_job
 		loft_lock.acquire()
 		try:
+			ddjvu_job = <ddjvu_job_t*> ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n)
+			if ddjvu_job == NULL:
+				raise NotAvailable
 			job = PageJob(sentinel = the_sentinel)
-			job.__init(self._document._context, <ddjvu_job_t*>ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n))
+			job.__init(self._document._context, ddjvu_job)
 		finally:
 			loft_lock.release()
 		if wait:
