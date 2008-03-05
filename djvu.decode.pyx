@@ -1010,7 +1010,9 @@ cdef class FileInfo:
 				return decode_utf8(result)
 
 class FileURI(str):
-	pass
+	'''
+	See the `Document.new_document()` method.
+	'''
 
 cdef object Context_message_distributor
 def _Context_message_distributor(Context self not None, sentinel):
@@ -1085,13 +1087,25 @@ cdef class Context:
 			return ddjvu_cache_get_size(self.ddjvu_context)
 
 	def handle_message(self, message):
-		pass
+		'''
+		C.handle_message(message).
+
+		XXX
+		'''
 	
 	def handle_job_message(self, message):
-		pass
+		'''
+		C.handle_job_message(message).
+
+		XXX
+		'''
 	
 	def handle_document_message(self, message):
-		pass
+		'''
+		C.handle_document_message(message).
+
+		XXX
+		'''
 
 	def get_message(self, wait = True):
 		'''
@@ -1106,6 +1120,11 @@ cdef class Context:
 			return
 
 	def new_document(self, uri, cache = True):
+		'''
+		C.new_document(uri, cache=True).
+
+		XXX
+		'''
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
 		loft_lock.acquire()
@@ -1129,6 +1148,9 @@ cdef class Context:
 		return self.get_message()
 
 	def clear_cache(self):
+		'''
+		C.clear_cache().
+		'''
 		ddjvu_cache_clear(self.ddjvu_context)
 
 	def __dealloc__(self):
@@ -1163,6 +1185,12 @@ PAGE_TYPE_COMPOUND = DDJVU_PAGETYPE_COMPOUND
 
 cdef class PixelFormat:
 
+	'''
+	Abstract pixel format.
+
+	Don't use this class directly, use one of its subclass.
+	'''
+
 	def __cinit__(self, *args, **kwargs):
 		self._row_order = 0
 		self._y_direction = 0
@@ -1175,6 +1203,9 @@ cdef class PixelFormat:
 		raise_instantiation_error(type(self))
 	
 	property rows_top_to_bottom:
+		'''
+		XXX
+		'''
 
 		def __get__(self):
 			return bool(self._row_order)
@@ -1183,6 +1214,9 @@ cdef class PixelFormat:
 			ddjvu_format_set_row_order(self.ddjvu_format, not not value)
 
 	property y_top_to_bottom:
+		'''
+		XXX
+		'''
 
 		def __get__(self):
 			return bool(self._row_order)
@@ -1191,10 +1225,16 @@ cdef class PixelFormat:
 			ddjvu_format_set_y_direction(self.ddjvu_format, not not value)
 	
 	property bpp:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._bpp
 	
 	property dither_bpp:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._dither_bpp
 
@@ -1206,6 +1246,9 @@ cdef class PixelFormat:
 				raise ValueError
 	
 	property gamma:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._gamma
 
@@ -1224,6 +1267,12 @@ cdef class PixelFormat:
 
 cdef class PixelFormatRgb(PixelFormat):
 
+	'''
+	RGB/BGR 24-bit pixel format.
+
+	XXX
+	'''
+
 	def __cinit__(self, char *byte_order = 'RGB', unsigned int bpp = 24):
 		cdef unsigned int _format
 		if strcmp(byte_order, 'RGB') == 0:
@@ -1240,6 +1289,9 @@ cdef class PixelFormatRgb(PixelFormat):
 		self.ddjvu_format = ddjvu_format_create(_format, 0, NULL)
 	
 	property byte_order:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			if self._rgb:
 				return 'RGB'
@@ -1255,6 +1307,10 @@ cdef class PixelFormatRgb(PixelFormat):
 		)
 	
 cdef class PixelFormatRgbMask(PixelFormat):
+
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xor_value = 0, unsigned int bpp = 16):
 		cdef unsigned int _format
@@ -1281,6 +1337,12 @@ cdef class PixelFormatRgbMask(PixelFormat):
 	
 cdef class PixelFormatGrey(PixelFormat):
 
+	'''
+	8-bit, grey pixel format.
+
+	XXX
+	'''
+
 	def __cinit__(self, unsigned int bpp = 8):
 		cdef unsigned int params[4]
 		if bpp != 8:
@@ -1292,6 +1354,12 @@ cdef class PixelFormatGrey(PixelFormat):
 		return '%s.%s(bpp = %d)' % (self.__class__.__module__, self.__class__.__name__, self.bpp)
 
 cdef class PixelFormatPalette(PixelFormat):
+
+	'''
+	Palette pixel format.
+
+	XXX
+	'''
 
 	def __cinit__(self, palette, unsigned int bpp = 8):
 		cdef int i
@@ -1322,6 +1390,11 @@ cdef class PixelFormatPalette(PixelFormat):
 		return io.getvalue()
 
 cdef class PixelFormatPackedBits(PixelFormat):
+
+	'''
+	Bitonal, 1bpp pixel format.
+	'''
+
 	def __cinit__(self, char *endianess):
 		cdef int _format
 		if strcmp(endianess, '<') == 0:
@@ -1375,6 +1448,10 @@ cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size
 	return buffer
 
 cdef class PageJob(Job):
+
+	'''
+	XXX
+	'''
 
 	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
 		Job.__init(self, context, ddjvu_job)
@@ -1460,10 +1537,16 @@ cdef class PageJob(Job):
 			return type
 
 	property initial_rotation:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return 90 * <int> ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job)
 
 	property rotation:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return 90 * <int> ddjvu_page_get_rotation(<ddjvu_page_t*> self.ddjvu_job)
 	
@@ -1559,22 +1642,41 @@ cdef class Job:
 			loft_lock.release()
 
 	property status:
+		'''
+		Return a `JobException` subclass indicating the job status.
+		'''
 		def __get__(self):
 			return JobException_from_c(ddjvu_job_status(self.ddjvu_job))
 
 	property is_error:
+		'''
+		Indicate whether the job failed.
+		'''
 		def __get__(self):
 			return bool(ddjvu_job_error(self.ddjvu_job))
 	
 	property is_done:
+		'''
+		Indicate whether the decoding job is done.
+		'''
 		def __get__(self):
 			return bool(ddjvu_job_done(self.ddjvu_job))
 
 	def wait(self):
+		'''
+		J.wait()
+
+		XXX
+		'''
 		while not ddjvu_job_done(self.ddjvu_job):
 			self._context.handle_job_message(self._queue.get())
 
 	def stop(self):
+		'''
+		J.stop()
+
+		XXX
+		'''
 		ddjvu_job_stop(self.ddjvu_job)
 
 	def get_message(self, wait = True):
@@ -1614,6 +1716,11 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	return result
 
 cdef class AffineTransform:
+
+	'''
+	XXX
+	'''
+
 	def __cinit__(self, input, output):
 		cdef ddjvu_rect_t c_input
 		cdef ddjvu_rect_t c_output
@@ -1623,6 +1730,9 @@ cdef class AffineTransform:
 		self.ddjvu_rectmapper = ddjvu_rectmapper_create(&c_input, &c_output)
 
 	def rotate(self, int n):
+		'''
+		A.rotate(n).
+		'''
 		if n % 90:
 			raise ValueError
 		else:
@@ -1655,9 +1765,21 @@ cdef class AffineTransform:
 		return (rect.x, rect.y, int(rect.w), int(rect.h))
 
 	def apply(self, value):
+		'''
+		A.apply((x0, y0)) -> (x1, y1).
+		A.apply((x0, y0, w0, h0)) -> (x1, y1, w1, h1).
+
+		XXX
+		'''
 		return self(value)
 
 	def reverse(self, value):
+		'''
+		A.reverse((x0, y0)) -> (x1, y1).
+		A.reverse((x0, y0, w0, h0)) -> (x1, y1, w1, h1).
+
+		XXX
+		'''
 		cdef ddjvu_rect_t rect
 		next = iter(value).next
 		try:
@@ -1684,9 +1806,19 @@ cdef class AffineTransform:
 		return (rect.x, rect.y, int(rect.w), int(rect.h))
 
 	def mirror_x(self):
+		'''
+		A.mirror_x()
+
+		XXX
+		'''
 		ddjvu_rectmapper_modify(self.ddjvu_rectmapper, 0, 1, 0)
 	
 	def mirror_y(self):
+		'''
+		A.mirror_y()
+
+		XXX
+		'''
 		ddjvu_rectmapper_modify(self.ddjvu_rectmapper, 0, 0, 1)
 
 	def __dealloc__(self):
@@ -1694,6 +1826,9 @@ cdef class AffineTransform:
 			ddjvu_rectmapper_release(self.ddjvu_rectmapper)
 
 cdef class Message:
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
@@ -1709,22 +1844,37 @@ cdef class Message:
 		self._job = Job_from_c(self.ddjvu_message.m_any.job)
 	
 	property context:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._context
 
 	property document:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._document
 
 	property page_job:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._page_job
 
 	property job:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._job
 
 cdef class ErrorMessage(Message):
+	'''
+	XXX
+	'''
 
 	cdef object __init(self):
 		Message.__init(self)
@@ -1737,10 +1887,16 @@ cdef class ErrorMessage(Message):
 		)
 
 	property message:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._message
 	
 	property location:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._location
 
@@ -1751,16 +1907,25 @@ cdef class ErrorMessage(Message):
 		return '<%s.%s: %r at %r>' % (self.__class__.__module__, self.__class__.__name__, self.message, self.location)
 
 cdef class InfoMessage(Message):
+	'''
+	XXX
+	'''
 
 	cdef object __init(self):
 		Message.__init(self)
 		self._message = self.ddjvu_message.m_error.message
 	
 	property message:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._message
 	
 cdef class Stream:
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, Document document not None, int streamid, **kwargs):
 		if kwargs.get('sentinel') is not the_sentinel:
@@ -1770,20 +1935,42 @@ cdef class Stream:
 		self._open = 1
 
 	def close(self):
+		'''
+		S.close().
+
+		XXX
+		'''
 		ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 0)
 		self._open = 0
 	
 	def abort(self):
+		'''
+		S.abort().
+
+		XXX
+		'''
 		ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 1)
 		self._open = 0
 	
 	def flush(self):
-		pass
+		'''
+		S.flush().
+
+		XXX
+		'''
 
 	def read(self, size = None):
+		'''
+		S.read([size]).
+
+		XXX
+		'''
 		raise IOError
 	
 	def write(self, data):
+		'''
+		S.write(data).
+		'''
 		cdef char* raw_data
 		cdef Py_ssize_t length
 		if self._open:
@@ -1800,6 +1987,10 @@ cdef class Stream:
 
 cdef class NewStreamMessage(Message):
 
+	'''
+	XXX
+	'''
+
 	cdef object __init(self):
 		Message.__init(self)
 		self._stream = Stream(self.document, self.ddjvu_message.m_newstream.streamid, sentinel = the_sentinel)
@@ -1807,43 +1998,71 @@ cdef class NewStreamMessage(Message):
 		self._uri = self.ddjvu_message.m_newstream.url
 
 	property stream:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._stream
 	
 	property name:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._name
 	
 	property uri:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._uri
 
 cdef class DocInfoMessage(Message):
-	pass
+	'''
+	XXX
+	'''
 
 cdef class PageInfoMessage(Message):
-	pass
+	'''
+	XXX
+	'''
 
 cdef class RelayoutMessage(Message):
-	pass
+	'''
+	XXX
+	'''
 
 cdef class RedisplayMessage(Message):
-	pass
+	'''
+	XXX
+	'''
 
 cdef class ChunkMessage(Message):
-	pass
+	'''
+	XXX
+	'''
 
 cdef class ThumbnailMessage(Message):
+	'''
+	XXX
+	'''
 
 	cdef object __init(self):
 		Message.__init(self)
 		self._page_no = self.ddjvu_message.m_thumbnail.pagenum
 	
 	property n:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._page_no
 
 cdef class ProgressMessage(Message):
+	'''
+	XXX
+	'''
 
 	cdef object __init(self):
 		Message.__init(self)
@@ -1851,10 +2070,16 @@ cdef class ProgressMessage(Message):
 		self._status = self.ddjvu_message.m_progress.status
 	
 	property percent:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._percent
 	
 	property status:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._status
 
@@ -1895,28 +2120,44 @@ cdef JobException_from_c(ddjvu_status_t code):
 		raise SystemError
 
 class JobException(Exception):
-	pass
+	'''
+	XXX
+	'''
 
 class JobNotDone(JobException):
-	pass
+	'''
+	XXX
+	'''
 
 class JobNotStarted(JobNotDone):
-	pass
+	'''
+	XXX
+	'''
 
 class JobStarted(JobNotDone):
-	pass
+	'''
+	XXX
+	'''
 
 class JobDone(JobException):
-	pass
+	'''
+	XXX
+	'''
 
 class JobOK(JobDone):
-	pass
+	'''
+	XXX
+	'''
 
 class JobFailed(JobDone):
-	pass
+	'''
+	XXX
+	'''
 
 class JobStopped(JobFailed):
-	pass
+	'''
+	XXX
+	'''
 
 JOB_EXCEPTION_MAP = \
 {
@@ -1952,12 +2193,18 @@ cdef _SexprWrapper wrap_sexpr(Document document, cexpr_t cexpr):
 	return result
 
 cdef class DocumentOutline(DocumentExtension):
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, Document document not None):
 		self._document = document
 		self._sexpr = wrap_sexpr(document, ddjvu_document_get_outline(document.ddjvu_document))
 	
 	property sexpr:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._sexpr()
 	
@@ -1965,6 +2212,9 @@ cdef class DocumentOutline(DocumentExtension):
 		return '%s.%s(%r)' % (self.__class__.__module__, self.__class__.__name__, self._document)
 
 cdef class Annotations:
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, *args, **kwargs):
 		if typecheck(self, DocumentAnnotations):
@@ -1974,10 +2224,16 @@ cdef class Annotations:
 		raise_instantiation_error(type(self))
 
 	property sexpr:
+		'''
+		Return the associated S-expression.
+		'''
 		def __get__(self):
 			return self._sexpr()
 	
 	property background_color:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			cdef char* result
 			result = ddjvu_anno_get_bgcolor(self._sexpr._cexpr)
@@ -1986,6 +2242,9 @@ cdef class Annotations:
 			return result
 
 	property zoom:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			cdef char* result
 			result = ddjvu_anno_get_zoom(self._sexpr._cexpr)
@@ -1994,6 +2253,9 @@ cdef class Annotations:
 			return result
 
 	property mode:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			cdef char* result
 			result = ddjvu_anno_get_mode(self._sexpr._cexpr)
@@ -2002,6 +2264,9 @@ cdef class Annotations:
 			return result
 
 	property horizontal_align:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			cdef char* result
 			result = ddjvu_anno_get_horizalign(self._sexpr._cexpr)
@@ -2010,6 +2275,9 @@ cdef class Annotations:
 			return result
 
 	property vertical_align:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			cdef char* result
 			result = ddjvu_anno_get_vertalign(self._sexpr._cexpr)
@@ -2018,20 +2286,32 @@ cdef class Annotations:
 			return result
 	
 	property hyperlinks:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return Hyperlinks(self)
 	
 	property metadata:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return Metadata(self)
 
 cdef class DocumentAnnotations(Annotations):
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, Document document not None, compat = True):
 		self._document = document
 		self._sexpr = wrap_sexpr(document, ddjvu_document_get_anno(document.ddjvu_document, compat))
 
 	property document:
+		'''
+		Return the concerned `Document`.
+		'''
 		def __get__(self):
 			return self._document
 	
@@ -2043,10 +2323,16 @@ cdef class PageAnnotations(Annotations):
 		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pageanno(page._document.ddjvu_document, page._n))
 	
 	property page:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._page
 
 	property sexpr:
+		'''
+		Return the associated S-expression.
+		'''
 		def __get__(self):
 			return self._sexpr()
 
@@ -2056,6 +2342,9 @@ TEXT_DETAILS_PARAGRAPH = 'para'
 TEXT_DETAILS_LINE = 'line'
 
 cdef class PageText:
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, Page page not None, details = TEXT_DETAILS_LINE):
 		if not is_string(details):
@@ -2066,14 +2355,23 @@ cdef class PageText:
 		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pagetext(page._document.ddjvu_document, page._n, details))
 	
 	property page:
+		'''
+		XXX
+		'''
 		def __get__(self):
 			return self._page
 
 	property sexpr:
+		'''
+		Return the associated S-expression.
+		'''
 		def __get__(self):
 			return self._sexpr()
 
 cdef class Hyperlinks:
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, Annotations annotations not None):
 		cdef cexpr_t* all
@@ -2097,6 +2395,9 @@ cdef class Hyperlinks:
 		return self._sexpr[n]()
 
 cdef class Metadata:
+	'''
+	XXX
+	'''
 
 	def __cinit__(self, Annotations annotations not None):
 		cdef cexpr_t* all
