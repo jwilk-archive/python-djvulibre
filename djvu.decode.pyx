@@ -317,6 +317,7 @@ cdef class Document:
 		self._queue = Queue()
 	
 	cdef object __init(self, Context context, ddjvu_document_t *ddjvu_document):
+		# Assumption: `loft_lock` is already acquired. 
 		assert context != None and ddjvu_document != NULL
 		self.ddjvu_document = ddjvu_document
 		self._context = context
@@ -532,7 +533,11 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	if ddjvu_document == NULL:
 		result = None
 	else:
-		result = _document_weak_loft.get(<long> ddjvu_document)
+		loft_lock.acquire()
+		try:
+			result = _document_weak_loft.get(<long> ddjvu_document)
+		finally:
+			loft_lock.release()
 	return result
 
 cdef class PageInfo:
@@ -1146,6 +1151,7 @@ cdef class Job:
 		self._queue = Queue()
 	
 	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
+		# Assumption: `loft_lock` is already acquired. 
 		if context is None:
 			raise SystemError
 		self._context = context
