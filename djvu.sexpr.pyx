@@ -274,7 +274,7 @@ cdef object BaseExpression_richcmp(object left, object right, int op):
 
 cdef class BaseExpression:
 	'''
-	Don't use this class directly. Use the ``Expression`` class instead.
+	Don't use this class directly. Use the `Expression` class instead.
 	'''
 
 	cdef _WrappedCExpr wexpr

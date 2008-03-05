@@ -121,8 +121,8 @@ cdef class Page:
 		Return a text describing the contents of the page using the same format
 		as the ``djvudump`` command. 
 
-		If the information is not available, raise ``NotAvailable`` exception.
-		Then, ``PageInfoMessage`` messages with empty ``page_job`` may be
+		If the information is not available, raise `NotAvailable` exception.
+		Then, `PageInfoMessage` messages with empty `page_job` may be
 		emitted.
 		'''
 		def __get__(self):
@@ -242,8 +242,7 @@ cdef class File:
 		as the ``djvudump`` command. 
 
 		If the information is not available, raise ``NotAvailable`` exception.
-		Then, ``PageInfoMessage`` messages with empty ``page_job`` may be
-		emitted.
+		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
 			cdef char* s
@@ -995,7 +994,7 @@ cdef class PageJob(Job):
 		'''
 		Return the page width in pixels.
 
-		Before receiving a ``PageInfoMessage``, raise ``NotAvailable``.
+		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
 		'''
 		def __get__(self):
 			cdef int width
@@ -1009,7 +1008,7 @@ cdef class PageJob(Job):
 		'''
 		Return the page height in pixels.
 
-		Before receiving a ``PageInfoMessage``, raise ``NotAvailable``.
+		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
 		'''
 		def __get__(self):
 			cdef int height
@@ -1023,7 +1022,7 @@ cdef class PageJob(Job):
 		'''
 		Return the page resolution in pixels per inch (dpi).
 
-		Before receiving a ``PageInfoMessage``, raise ``NotAvailable``.
+		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
 		'''
 		def __get__(self):
 			cdef int resolution
@@ -1037,7 +1036,7 @@ cdef class PageJob(Job):
 		'''
 		Return the gamma of the display for which this page was designed.
 
-		Before receiving a ``PageInfoMessage``, return a meaningless but plausible value.
+		Before receiving a `PageInfoMessage`, return a meaningless but plausible value.
 		'''
 		def __get__(self):
 			return ddjvu_page_get_gamma(<ddjvu_page_t*> self.ddjvu_job)
@@ -1046,7 +1045,7 @@ cdef class PageJob(Job):
 		'''
 		Return the version of the DjVu file format.
 
-		Before receiving a ``PageInfoMessage``, return a meaningless but plausible value.
+		Before receiving a `PageInfoMessage`, return a meaningless but plausible value.
 		'''
 		def __get__(self):
 			return ddjvu_page_get_version(<ddjvu_page_t*> self.ddjvu_job)
@@ -1059,7 +1058,7 @@ cdef class PageJob(Job):
 		* PAGE_TYPE_PHOTO,
 		* PAGE_TYPE_COMPOUND.
 
-		Before receiving a ``PageInfoMessage``, raise ``NotAvailable``.
+		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
 		'''
 		def __get__(self):
 			cdef ddjvu_page_type_t type
@@ -1098,19 +1097,19 @@ cdef class PageJob(Job):
 
 	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned int row_alignment = 0):
 		'''
-		Render a segment of a page with arbitrary scale. ``mode`` indicates
+		Render a segment of a page with arbitrary scale. `mode` indicates
 		what image layers should be rendered. 
 		
 		Conceptually this method renders the full page into a rectangle
-		``page_rect`` and copies the pixels specified by rectangle
-		``render_rect`` into a buffer. The actual code is much more efficient
+		`page_rect` and copies the pixels specified by rectangle
+		`render_rect` into a buffer. The actual code is much more efficient
 		than that.
 		
-		``pixel_format`` specifies the expected pixel format.
-		``row_alignment`` XXX.
+		`pixel_format` specifies the expected pixel format.
+		`row_alignment` XXX.
 		
 		This method makes a best effort to compute an image that reflects the
-		most recently decoded data. It might raise ``NotAvailable`` to indicate
+		most recently decoded data. It might raise `NotAvailable` to indicate
 		that no image could be computed at this point.
 		'''
 		cdef ddjvu_rect_t c_page_rect
