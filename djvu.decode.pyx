@@ -2126,7 +2126,7 @@ cdef class NewStreamMessage(Message):
 
 	property stream:
 		'''
-		XXX
+		Return the concerned `Stream`.
 		'''
 		def __get__(self):
 			return self._stream
