@@ -2200,19 +2200,23 @@ cdef class RedisplayMessage(ChunkMessage):
 
 cdef class ThumbnailMessage(Message):
 	'''
-	XXX
+	A `ThumbnailMessage` is sent when additional thumbnails are available.
 	'''
 
 	cdef object __init(self):
 		Message.__init(self)
 		self._page_no = self.ddjvu_message.m_thumbnail.pagenum
 	
-	property n:
+	property thumbnail:
 		'''
-		XXX
+		Return the `Thumbnail`.
+
+		Raise `NotAvailable` if the `Document` has been garbage-collected.
 		'''
 		def __get__(self):
-			return self._page_no
+			if self._document is None:
+				raise NotAvailable
+			return self._document[self._page_no].thumbnail
 
 cdef class ProgressMessage(Message):
 	'''
