@@ -283,7 +283,7 @@ cdef class Thumbnail:
 
 	def render(self, size, PixelFormat pixel_format not None, unsigned long row_alignment = 0, dry_run = False):
 		'''
-		T.render((w0, h0), pixel_format, row_alignment=0, dry_run=False) -> (w1, h1, row_size), data.
+		T.render((w0, h0), pixel_format, row_alignment=1, dry_run=False) -> ((w1, h1, row_size), data).
 
 		Render the thumbnail:
 		* not larger than `w0` x `h0` pixels;
@@ -1646,6 +1646,8 @@ cdef class PageJob(Job):
 
 	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned int row_alignment = 0):
 		'''
+		J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1) -> data.
+
 		Render a segment of a page with arbitrary scale. `mode` indicates
 		what image layers should be rendered. 
 		
@@ -1654,8 +1656,8 @@ cdef class PageJob(Job):
 		`render_rect` into a buffer. The actual code is much more efficient
 		than that.
 		
-		`pixel_format` specifies the expected pixel format.
-		`row_alignment` XXX.
+		`pixel_format` specifies the expected pixel format. Each row will start
+		at `row_alignment` bytes boundary.
 		
 		This method makes a best effort to compute an image that reflects the
 		most recently decoded data. It might raise `NotAvailable` to indicate
@@ -1741,8 +1743,9 @@ cdef class Job:
 
 	def wait(self):
 		'''
-		J.wait()
+		J.wait().
 
+		Wait until the job is done.
 		XXX
 		'''
 		while not ddjvu_job_done(self.ddjvu_job):
@@ -1750,9 +1753,12 @@ cdef class Job:
 
 	def stop(self):
 		'''
-		J.stop()
+		J.stop().
 
-		XXX
+		Attempt to cancel the job.
+		
+		This is a best effort method. There no guarantee that the job will
+		actually stop.
 		'''
 		ddjvu_job_stop(self.ddjvu_job)
 
@@ -1795,7 +1801,11 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 cdef class AffineTransform:
 
 	'''
-	XXX
+	AffineTransform((x0, y0, w0, h0), (x1, y0, w1, h1)) 
+	  -> an affine coordinate transformation.
+
+	The object represents an affine coordinate tranformation that maps points
+	from rectangle `(x0, y0, w0, h0)` to rectangle `(x1, y0, w1, h1)`.
 	'''
 
 	def __cinit__(self, input, output):
@@ -1809,6 +1819,8 @@ cdef class AffineTransform:
 	def rotate(self, int n):
 		'''
 		A.rotate(n).
+
+		Rotate the output rectangle counter-clockwise by <n> degrees. 
 		'''
 		if n % 90:
 			raise ValueError
@@ -1846,7 +1858,7 @@ cdef class AffineTransform:
 		A.apply((x0, y0)) -> (x1, y1).
 		A.apply((x0, y0, w0, h0)) -> (x1, y1, w1, h1).
 
-		XXX
+		Apply the coordinate transform to a point or a rectangle.
 		'''
 		return self(value)
 
@@ -1855,7 +1867,7 @@ cdef class AffineTransform:
 		A.reverse((x0, y0)) -> (x1, y1).
 		A.reverse((x0, y0, w0, h0)) -> (x1, y1, w1, h1).
 
-		XXX
+		Apply the inverse coordinate transform to a point or a rectangle.
 		'''
 		cdef ddjvu_rect_t rect
 		next = iter(value).next
@@ -1886,7 +1898,7 @@ cdef class AffineTransform:
 		'''
 		A.mirror_x()
 
-		XXX
+		Reverse the X coordinates of the output rectangle.
 		'''
 		ddjvu_rectmapper_modify(self.ddjvu_rectmapper, 0, 1, 0)
 	
@@ -1894,7 +1906,7 @@ cdef class AffineTransform:
 		'''
 		A.mirror_y()
 
-		XXX
+		Reverse the Y coordinates of the output rectangle.
 		'''
 		ddjvu_rectmapper_modify(self.ddjvu_rectmapper, 0, 0, 1)
 
