@@ -2159,22 +2159,37 @@ cdef class NewStreamMessage(Message):
 
 cdef class DocInfoMessage(Message):
 	'''
-	XXX
+	A `DocInfoMessage` indicates that basic information about the document has
+	been obtained and decoded. Not much can be done before this happens.
+	
+	Call `Document.decoding_status()` to determine whether the operation was
+	successful.
 	'''
 
 cdef class PageInfoMessage(Message):
 	'''
-	XXX
+	The page decoding process generates a `PageInfoMessage`:
+	- when basic page information is available and 
+	  before any `RelayoutMessage` or `RedisplayMessage`,
+	- when the page decoding thread terminates.
+	You can distinguish both cases using `PageJob.decoding_status()`.
+
+	A `PageInfoMessage` may be also generated as a consequence of reading
+	`Page.info` and `Page.dump` properties. 
 	'''
 
 cdef class RelayoutMessage(Message):
 	'''
-	XXX
+	A `RelayoutMessage` is generated when a DjVu viewer should recompute the
+	layout of the page viewer because the page size and resolution information
+	has been updated.
 	'''
 
 cdef class RedisplayMessage(Message):
 	'''
-	XXX
+	A `RedisplayMessage` is generated when a DjVu viewer should call
+	`PageJob.render()` and redisplay the page. This happens, for instance, when
+	newly decoded DjVu data provides a better image.
 	'''
 
 cdef class ChunkMessage(Message):
