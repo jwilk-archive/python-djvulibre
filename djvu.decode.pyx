@@ -2355,8 +2355,9 @@ cdef _SexprWrapper wrap_sexpr(Document document, cexpr_t cexpr):
 	return result
 
 cdef class DocumentOutline(DocumentExtension):
+	# FIXME: fix and document concurrency issues
 	'''
-	XXX
+	DocumentOutline(document) -> a document outline
 	'''
 
 	def __cinit__(self, Document document not None):
@@ -2365,7 +2366,7 @@ cdef class DocumentOutline(DocumentExtension):
 	
 	property sexpr:
 		'''
-		XXX
+		Return the associated S-expression.
 		'''
 		def __get__(self):
 			return self._sexpr()
@@ -2375,7 +2376,9 @@ cdef class DocumentOutline(DocumentExtension):
 
 cdef class Annotations:
 	'''
-	XXX
+	Abstract annotations.
+
+	Don't use this class directly, use one of its subclass.
 	'''
 
 	def __cinit__(self, *args, **kwargs):
@@ -2394,7 +2397,11 @@ cdef class Annotations:
 	
 	property background_color:
 		'''
-		XXX
+		Parse the annotations and extract the desired background color as 
+		a color string ('#FFFFFF'). See `(background ...)` in the ``djvused``
+		manual page.
+
+		Return None if this information is not specified.
 		'''
 		def __get__(self):
 			cdef char* result
@@ -2405,7 +2412,10 @@ cdef class Annotations:
 
 	property zoom:
 		'''
-		XXX
+		Parse the annotations and extract the desired zoom factor. See 
+		``(zoom ...)`` in the ``djvused`` manual page.
+
+		Return None if this information is not specified.
 		'''
 		def __get__(self):
 			cdef char* result
@@ -2416,7 +2426,10 @@ cdef class Annotations:
 
 	property mode:
 		'''
-		XXX
+		Parse the annotations and extract the desired display mode. See 
+		``(mode ...)`` in the ``djvused`` manual page.
+
+		Return zero if this information is not specified.
 		'''
 		def __get__(self):
 			cdef char* result
@@ -2427,7 +2440,10 @@ cdef class Annotations:
 
 	property horizontal_align:
 		'''
-		XXX
+		Parse the annotations and extract how the page image should be aligned
+		horizontally. See ``(align ...)`` in the ``djvused`` manual page.
+
+		Return None if this information is not specified.
 		'''
 		def __get__(self):
 			cdef char* result
@@ -2438,7 +2454,10 @@ cdef class Annotations:
 
 	property vertical_align:
 		'''
-		XXX
+		Parse the annotations and extract how the page image should be aligned
+		vertically. See ``(align ...)`` in the ``djvused`` manual page.
+
+		Return None if this information is not specified.
 		'''
 		def __get__(self):
 			cdef char* result
@@ -2449,20 +2468,22 @@ cdef class Annotations:
 	
 	property hyperlinks:
 		'''
-		XXX
+		Return an associated `Hyperlinks` object.
 		'''
 		def __get__(self):
 			return Hyperlinks(self)
 	
 	property metadata:
 		'''
-		XXX
+		Return an associated `Metadata` object.
 		'''
 		def __get__(self):
 			return Metadata(self)
 
 cdef class DocumentAnnotations(Annotations):
 	'''
+	DocumentAnnotations(document, compat=True) -> document annotations
+
 	XXX
 	'''
 
@@ -2479,6 +2500,12 @@ cdef class DocumentAnnotations(Annotations):
 	
 cdef class PageAnnotations(Annotations):
 
+	'''
+	PageAnnotation(page) -> page annotations
+
+	XXX
+	'''
+
 	def __cinit__(self, Page page not None):
 		self._document = page._document
 		self._page = page
@@ -2486,7 +2513,7 @@ cdef class PageAnnotations(Annotations):
 	
 	property page:
 		'''
-		XXX
+		Return the concerned page.
 		'''
 		def __get__(self):
 			return self._page
@@ -2505,6 +2532,14 @@ TEXT_DETAILS_LINE = 'line'
 
 cdef class PageText:
 	'''
+	PageText(page, details=TEXT_DETAILS_LINE) -> wrapper around page text
+
+	`details` controls the level of detail in the returned S-expression:
+	- `TEXT_DETAILS_PAGE`,
+	- `TEXT_DETAILS_REGION`,
+	- `TEXT_DETAILS_PARAGRAPH`,
+	- `TEXT_DETAILS_LINE`.
+
 	XXX
 	'''
 
@@ -2518,7 +2553,7 @@ cdef class PageText:
 	
 	property page:
 		'''
-		XXX
+		Return the concerned page.
 		'''
 		def __get__(self):
 			return self._page
@@ -2532,7 +2567,12 @@ cdef class PageText:
 
 cdef class Hyperlinks:
 	'''
-	XXX
+	Hyperlinks(annotations) -> sequence of hyperlinks
+
+	Parse the annotations and returns a sequence of
+	``(maparea ...)`` S-expressions.
+
+	See also ``(maparea ...)`` in the ``djvused`` manual page.
 	'''
 
 	def __cinit__(self, Annotations annotations not None):
@@ -2558,7 +2598,12 @@ cdef class Hyperlinks:
 
 cdef class Metadata:
 	'''
-	XXX
+	Metadata(annotations) -> mapping of metadata
+
+	Parse the annotations and return a mapping of metadata.
+	a zero terminated 
+
+	See also ``(metadata ...)`` in the ``djvused`` manual page.
 	'''
 
 	def __cinit__(self, Annotations annotations not None):
@@ -2591,15 +2636,24 @@ cdef class Metadata:
 		return decode_utf8(s)
 	
 	def keys(self):
+		'''
+		M.keys() -> sequence of M keys
+		'''
 		return self._keys
 	
 	def iterkeys(self):
+		'''
+		M.iterkeys() -> an iterator over the keys of M
+		'''
 		return iter(self)
 
 	def __iter__(self):
 		return iter(self._keys)
 	
 	def has_key(self, k):
+		'''
+		M.has_key(k) -> True if D has a key k, else False
+		'''
 		return k in self
 	
 	def __contains__(self, k):
