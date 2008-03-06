@@ -167,7 +167,7 @@ cdef class Page:
 		If the information is available, return a `PageInfo`.
 
 		Otherwise, raise `NotAvailable` exception. Then start fetching the page
-		data, which causes emition of `PageInfoMessage` messages with empty
+		data, which causes emission of `PageInfoMessage` messages with empty
 		`page_job`.
 
 		In case of an error, `JobFail` is raised.
@@ -671,19 +671,23 @@ cdef class Document:
 			but the oldest PostScript printers. Level 1 can be used as a last
 			resort option.
 		`orientation`
-			Specifies whether pages should be printed using the:
-			* automatic (`PRINT_ORIENTATION_AUTO`), or
-			* portrait (`PRINT_ORIENTATION_PORTRAIT`), or
-			* landscape (`PRINT_ORIENTATION_LANDSCAPE`)
-			orientation.
+			Specifies the pages orientation:
+			`PRINT_ORIENTATION_AUTO`
+				automatic
+			`PRINT_ORIENTATION_PORTRAIT`
+				portrait
+			`PRINT_ORIENTATION_LANDSCAPE`
+				landscape
 		`mode`
-			Specifies how pages should be decoded. The default mode,
-			`DDJVU_RENDER_COLOR`, renders all the layers of the DjVu documents.
-			Mode `DDJVU_RENDER_BLACK` only renders the foreground layer mask.
-			This mode does not work with DjVuPhoto images because these files
-			have no foreground layer mask. Modes `DDJVU_RENDER_FOREGROUND` and
-			`DDJVU_RENDER_BACKGROUND` only render the foreground layer or the
-			background layer of a DjVuDocument image.
+			Specifies how pages should be decoded:
+			`RENDER_COLOR`
+				render all the layers of the DjVu documents
+			`RENDER_BLACK`
+				render only the foreground layer mask
+			`RENDER_FOREGROUND`
+				render only the foreground layer
+			`RENDER_BACKGROUND`
+				redner only the background layer
 		`zoom`
 			Specifies a zoom factor. The default zoom factor scales the image to
 			fit the page.
@@ -714,7 +718,7 @@ cdef class Document:
 		`cropmarks`
 			If true, generate crop marks indicating where pages should be cut. 
 		`text`
-			Generate hidden text. See the wanrning below.
+			Generate hidden text. See the warning below.
 		`booklet`
 			* PRINT_BOOKLET_NO
 				Disable booklet mode. This is the default.
@@ -926,7 +930,7 @@ cdef class PageInfo:
 cdef class FileInfo:
 
 	'''
-	Rudimentary compund file information.
+	Rudimentary compound file information.
 	'''
 
 	def __cinit__(self, Document document not None, **kwargs):
@@ -1252,7 +1256,7 @@ cdef class PixelFormat:
 	property y_top_to_bottom:
 		'''
 		Flag indicating whether the *y* coordinates in the drawing area are
-		oriented from bottom to top, or from top to botttom.
+		oriented from bottom to top, or from top to bottom.
 		
 		The default is bottom to top, similar to PostScript. This is the
 		opposite of the X11 convention.
@@ -1649,8 +1653,20 @@ cdef class PageJob(Job):
 		J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1) -> data.
 
 		Render a segment of a page with arbitrary scale. `mode` indicates
-		what image layers should be rendered. 
-		
+		what image layers should be rendered:
+		`RENDER_COLOR`
+			color page or stencil
+		`RENDER_BLACK`
+			stencil or color page
+		`RENDER_COLOR_ONLY`
+			color page or fail
+		`RENDER_MASK_ONLY`
+			stencil or fail
+		`RENDER_BACKGROUND`
+			color background layer
+		`RENDER_FOREGROUND`
+			foreground background layer
+
 		Conceptually this method renders the full page into a rectangle
 		`page_rect` and copies the pixels specified by rectangle
 		`render_rect` into a buffer. The actual code is much more efficient
@@ -1804,7 +1820,7 @@ cdef class AffineTransform:
 	AffineTransform((x0, y0, w0, h0), (x1, y0, w1, h1)) 
 	  -> an affine coordinate transformation.
 
-	The object represents an affine coordinate tranformation that maps points
+	The object represents an affine coordinate transformation that maps points
 	from rectangle `(x0, y0, w0, h0)` to rectangle `(x1, y0, w1, h1)`.
 	'''
 
@@ -1916,7 +1932,7 @@ cdef class AffineTransform:
 
 cdef class Message:
 	'''
-	XXX
+	An abstract message.
 	'''
 
 	def __cinit__(self, **kwargs):
@@ -1934,35 +1950,37 @@ cdef class Message:
 	
 	property context:
 		'''
-		XXX
+		Return the concerned `Context`.
 		'''
 		def __get__(self):
 			return self._context
 
 	property document:
 		'''
-		XXX
+		Return the concerned `Document` or None.
 		'''
 		def __get__(self):
 			return self._document
 
 	property page_job:
 		'''
-		XXX
+		Return the concerned `PageJob` or None.
 		'''
 		def __get__(self):
 			return self._page_job
 
 	property job:
 		'''
-		XXX
+		Return the concerned `Job` or None.
 		'''
 		def __get__(self):
 			return self._job
 
 cdef class ErrorMessage(Message):
 	'''
-	XXX
+	An `ErrorMessage` is generated whenever the decoder or the DDJVU API
+	encounters an error condition. All errors are reported as error messages
+	because they can occur asynchronously.
 	'''
 
 	cdef object __init(self):
@@ -1977,14 +1995,15 @@ cdef class ErrorMessage(Message):
 
 	property message:
 		'''
-		XXX
+		Return the actual error message, as text.
 		'''
 		def __get__(self):
 			return self._message
 	
 	property location:
 		'''
-		XXX
+		Return the place (a `(function, filename, line_no)` tuple) where the
+		error was detected.
 		'''
 		def __get__(self):
 			return self._location
@@ -1997,7 +2016,8 @@ cdef class ErrorMessage(Message):
 
 cdef class InfoMessage(Message):
 	'''
-	XXX
+	A `InfoMessage` provides informational text indicating the progress of the
+	decoding process. This might be displayed in the browser status bar.
 	'''
 
 	cdef object __init(self):
@@ -2006,14 +2026,16 @@ cdef class InfoMessage(Message):
 	
 	property message:
 		'''
-		XXX
+		Return the actual information message, as text.
 		'''
 		def __get__(self):
 			return self._message
 	
 cdef class Stream:
 	'''
-	XXX
+	Data stream.
+
+	Use `new_stream_message.stream` to obtain instances of this class.
 	'''
 
 	def __cinit__(self, Document document not None, int streamid, **kwargs):
@@ -2025,9 +2047,9 @@ cdef class Stream:
 
 	def close(self):
 		'''
-		S.close().
+		S.close() -> None
 
-		XXX
+		Indicate that no more data will be provided on the particular stream.
 		'''
 		ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 0)
 		self._open = 0
@@ -2036,29 +2058,39 @@ cdef class Stream:
 		'''
 		S.abort().
 
-		XXX
+		Indicate that no more data will be provided on the particular stream,
+		because the user has interrupted the data transfer (for instance by
+		pressing the stop button of a browser) and that the decoding threads
+		should be stopped as soon as feasible.
 		'''
 		ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 1)
 		self._open = 0
 	
 	def flush(self):
 		'''
-		S.flush().
+		S.flush() -> None
 
-		XXX
+		Do nothing. (This method is provided solely to implement Python's
+		file-like interface.)
 		'''
 
 	def read(self, size = None):
 		'''
-		S.read([size]).
+		S.read([size])
 
-		XXX
+		Raise `IOError`. (This method is provided solely to implement Python's
+		file-like interface.)
 		'''
 		raise IOError
 	
 	def write(self, data):
 		'''
-		S.write(data).
+		S.write(data) -> None
+
+		Provide raw data to the DjVu decoder.
+		
+		This method should be called as soon as the data is available, for
+		instance when receiving DjVu data from a network connection.
 		'''
 		cdef char* raw_data
 		cdef Py_ssize_t length
@@ -2077,7 +2109,13 @@ cdef class Stream:
 cdef class NewStreamMessage(Message):
 
 	'''
-	XXX
+	A `NewStreamMessage` is generated whenever the decoder needs to access raw
+	DjVu data. The caller must then provide the requested data using the
+	`.stream` file-like object.
+	
+	In the case of indirect documents, a single decoder might simultaneously
+	request several streams of data.
+	
 	'''
 
 	cdef object __init(self):
@@ -2095,14 +2133,26 @@ cdef class NewStreamMessage(Message):
 	
 	property name:
 		'''
-		XXX
+		The first `NewStreamMessage` message always has `.name` set to None.
+		It indicates that the decoder needs to access the data in the main DjVu
+		file.
+		
+		Further NewStreamMessage` messages messages are generated to access the
+		auxiliary files of indirect or indexed DjVu documents. `.name` then
+		provides the base name of the auxiliary file.
 		'''
 		def __get__(self):
 			return self._name
 	
 	property uri:
 		'''
-		XXX
+		Return the requrested URI.
+
+		URI is is set according to the url argument provided to function
+		`Context.new_document()`. The first `NewMessageStream` message always
+		contain the URI passed to `Context.new_documnet()`. Subsequent
+		`NewMessageStream`messages contain the URI of the auxiliary files for
+		indirect or indexed DjVu documents.
 		'''
 		def __get__(self):
 			return self._uri
