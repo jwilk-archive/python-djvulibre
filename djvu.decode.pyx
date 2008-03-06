@@ -2287,42 +2287,42 @@ cdef JobException_from_c(ddjvu_status_t code):
 
 class JobException(Exception):
 	'''
-	XXX
+	Status of a job. Possibly, but not necessarily, exceptional.
 	'''
 
 class JobNotDone(JobException):
 	'''
-	XXX
+	Operation is not yet done.
 	'''
 
 class JobNotStarted(JobNotDone):
 	'''
-	XXX
+	Operation was not even started.
 	'''
 
 class JobStarted(JobNotDone):
 	'''
-	XXX
+	Operation is in progress.
 	'''
 
 class JobDone(JobException):
 	'''
-	XXX
+	Operation finished.
 	'''
 
 class JobOK(JobDone):
 	'''
-	XXX
+	Operation finished successfully.
 	'''
 
 class JobFailed(JobDone):
 	'''
-	XXX
+	Operation failed because of an error.
 	'''
 
 class JobStopped(JobFailed):
 	'''
-	XXX
+	Operation was interrupted by user.
 	'''
 
 JOB_EXCEPTION_MAP = \
