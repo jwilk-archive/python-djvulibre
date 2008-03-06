@@ -2533,6 +2533,6 @@ cdef class Metadata:
 		return k in self._keys
 	
 __author__ = 'Jakub Wilk <ubanus@users.sf.net>'
-__version__ = '0.1.1/%d' % DDJVU_VERSION
+__version__ = '%s/%d' % (PYTHON_DJVULIBRE_VERSION, DDJVU_VERSION)
 
 # vim:ts=4 sw=4 noet ft=pyrex

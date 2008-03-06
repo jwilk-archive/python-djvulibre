@@ -4,6 +4,18 @@ from Pyrex.Distutils import build_ext
 
 EXT_MODULES = ('decode', 'sexpr')
 
+def get_version():
+	from sys import path
+	from os.path import join as path_join
+	from re import match
+	changelog = file(path_join(path[0], 'ChangeLog'))
+	try:
+		line = changelog.readline()
+		m = match('python-djvulibre [(]([0-9.]+)[)]', line)
+		return m.group(1)
+	finally:
+		changelog.close()
+
 setup(
 	name = 'python-djvulibre',
 	version = '0.1',
@@ -16,6 +28,7 @@ setup(
 	[
 		Extension(name, ['djvu.%s.pyx' % name],
 			libraries = ['djvulibre'],
+			define_macros = [('PYTHON_DJVULIBRE_VERSION', '"%s"' % get_version())]
 		)
 		for name in EXT_MODULES
 	],

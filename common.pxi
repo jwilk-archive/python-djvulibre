@@ -1,5 +1,10 @@
 # Copyright (c) 2008 Jakub Wilk <ubanus@users.sf.net>
 
+# python-distutils preprocessor macros
+
+cdef extern from *:
+	char* PYTHON_DJVULIBRE_VERSION
+
 # C library
 
 ctypedef int size_t
