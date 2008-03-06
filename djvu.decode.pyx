@@ -1764,6 +1764,7 @@ cdef class Job:
 		J.wait() -> None
 
 		Wait until the job is done.
+
 		XXX
 		'''
 		while not ddjvu_job_done(self.ddjvu_job):
