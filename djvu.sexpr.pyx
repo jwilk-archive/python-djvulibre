@@ -584,7 +584,7 @@ class ListExpression(Expression):
 		return _ListExpressionIterator(self)
 	
 	def __hash__(self):
-		raise TypeError('unhashable type: \'%s.%s\'' % (self.__module__, self.__class__.__name__))
+		raise TypeError('unhashable type: \'%s\'' % (get_type_name(type(self)),))
 
 	def _get_value(BaseExpression self not None):
 		cdef cexpr_t current

@@ -1320,7 +1320,7 @@ cdef class PixelFormat:
 			ddjvu_format_release(self.ddjvu_format)
 
 	def __repr__(self):
-		return '%s.%s()' % (self.__class__.__module__, self.__class__.__name__)
+		return '%s()' % (get_type_name(type(self)),)
 
 cdef class PixelFormatRgb(PixelFormat):
 
@@ -1361,9 +1361,9 @@ cdef class PixelFormatRgb(PixelFormat):
 				return 'BGR'
 
 	def __repr__(self):
-		return '%s.%s(byte_order = %r, bpp = %d)' % \
+		return '%s(byte_order = %r, bpp = %d)' % \
 		(
-			self.__class__.__module__, self.__class__.__name__,
+			get_type_name(PixelFormatRgb),
 			self.byte_order,
 			self.bpp
 		)
@@ -1389,9 +1389,9 @@ cdef class PixelFormatRgbMask(PixelFormat):
 		self.ddjvu_format = ddjvu_format_create(_format, 4, self._params)
 	
 	def __repr__(self):
-		return '%s.%s(red_mask = 0x%0*x, green_mask = 0x%0*x, blue_mask = 0x%0*x, xor_value = 0x%0*x, bpp = %d)' % \
+		return '%s(red_mask = 0x%0*x, green_mask = 0x%0*x, blue_mask = 0x%0*x, xor_value = 0x%0*x, bpp = %d)' % \
 		(
-			self.__class__.__module__, self.__class__.__name__,
+			get_type_name(PixelFormatRgbMask),
 			self.bpp/4, self._params[0],
 			self.bpp/4, self._params[1],
 			self.bpp/4, self._params[2],
@@ -1415,7 +1415,7 @@ cdef class PixelFormatGrey(PixelFormat):
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_GREY8, 0, NULL)
 
 	def __repr__(self):
-		return '%s.%s(bpp = %d)' % (self.__class__.__module__, self.__class__.__name__, self.bpp)
+		return '%s(bpp = %d)' % (get_type_name(PixelFormatGrey), self.bpp)
 
 cdef class PixelFormatPalette(PixelFormat):
 
@@ -1449,7 +1449,7 @@ cdef class PixelFormatPalette(PixelFormat):
 	def __repr__(self):
 		cdef int i
 		io = StringIO()
-		io.write('%s.%s([' % (self.__class__.__module__, self.__class__.__name__))
+		io.write('%s([' % (get_type_name(PixelFormatPalette),))
 		for i from 0 <= i < 215:
 			io.write('0x%02x, ' % self._palette[i])
 		io.write('0x%02x], bpp = %d)' % (self._palette[215], self.bpp))
@@ -1492,11 +1492,7 @@ cdef class PixelFormatPackedBits(PixelFormat):
 				return '>'
 	
 	def __repr__(self):
-		return '%s.%s(%r)' % \
-		(
-			self.__class__.__module__, self.__class__.__name__,
-			self.endianness
-		)
+		return '%s(%r)' % (get_type_name(PixelFormatPackedBits), self.endianness)
 
 cdef unsigned long calculate_row_size(unsigned long width, unsigned long row_alignment, int bpp):
 	if bpp == 1:
@@ -2018,7 +2014,7 @@ cdef class ErrorMessage(Message):
 		return self.message
 
 	def __repr__(self):
-		return '<%s.%s: %r at %r>' % (self.__class__.__module__, self.__class__.__name__, self.message, self.location)
+		return '<%s: %r at %r>' % (get_type_name(ErrorMessage), self.message, self.location)
 
 cdef class InfoMessage(Message):
 	'''
@@ -2375,7 +2371,7 @@ cdef class DocumentOutline(DocumentExtension):
 			return self._sexpr()
 	
 	def __repr__(self):
-		return '%s.%s(%r)' % (self.__class__.__module__, self.__class__.__name__, self._document)
+		return '%s(%r)' % (get_type_name(DocumentOutline), self._document)
 
 cdef class Annotations:
 	'''

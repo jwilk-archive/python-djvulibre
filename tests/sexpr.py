@@ -196,7 +196,7 @@ class ListExpressionTest:
 	>>> hash(x)
 	Traceback (most recent call last):
 	...
-	TypeError: unhashable type: 'djvu.sexpr.ListExpression'
+	TypeError: unhashable type: 'ListExpression'
 	
 	'''
 
