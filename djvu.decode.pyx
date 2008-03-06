@@ -1143,23 +1143,23 @@ cdef class Context:
 		method returns immediately. The decoding job then generates messages to
 		request the raw data and to indicate the state of the decoding process.
 		
-		`url` specifies an optional URL for the document. The URL follows the
+		`uri` specifies an optional URI for the document. The URI follows the
 		usual syntax (``protocol://machine/path``). It should not end with 
 		a slash. It only serves two purposes:
-		- The URL is used as a key for the cache of decoded pages.
-		- The URL is used to document `NewStreamMessage` messages.
+		- The URI is used as a key for the cache of decoded pages.
+		- The URI is used to document `NewStreamMessage` messages.
 		
 		Setting argument `cache` to a true vaule indicates that decoded pages
 		should be cached when possible.
 		
-		It is important to understand that the URL is not used to access the
+		It is important to understand that the URI is not used to access the
 		data. The document generates `NewStreamMessage` messages to indicate
 		which data is needed. The caller must then provide the raw data using 
 		a `NewStereamMessage.stream` object.
 
-		To open a local file, provide a `FileURI` instance as an `url`.
+		To open a local file, provide a `FileURI` instance as an `uri`.
 		
-		Localized characters in `url` should be in URL-encoded.
+		Localized characters in `uri` should be in URI-encoded.
 		'''
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
@@ -2148,7 +2148,7 @@ cdef class NewStreamMessage(Message):
 		'''
 		Return the requrested URI.
 
-		URI is is set according to the url argument provided to function
+		URI is is set according to the `uri` argument provided to function
 		`Context.new_document()`. The first `NewMessageStream` message always
 		contain the URI passed to `Context.new_documnet()`. Subsequent
 		`NewMessageStream`messages contain the URI of the auxiliary files for
