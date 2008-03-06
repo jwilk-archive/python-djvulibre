@@ -432,13 +432,13 @@ cdef class DocInfoMessage(Message):
 cdef class PageInfoMessage(Message):
 	pass
 
-cdef class RelayoutMessage(Message):
-	pass
-
-cdef class RedisplayMessage(Message):
-	pass
-
 cdef class ChunkMessage(Message):
+	pass
+
+cdef class RelayoutMessage(ChunkMessage):
+	pass
+
+cdef class RedisplayMessage(ChunkMessage):
 	pass
 
 cdef class ThumbnailMessage(Message):

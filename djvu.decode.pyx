@@ -2178,23 +2178,24 @@ cdef class PageInfoMessage(Message):
 	`Page.info` and `Page.dump` properties. 
 	'''
 
-cdef class RelayoutMessage(Message):
+cdef class ChunkMessage(Message):
+	'''
+	A `ChunkMessage` indicates that an additional chunk of DjVu data has been
+	decoded.
+	'''
+
+cdef class RelayoutMessage(ChunkMessage):
 	'''
 	A `RelayoutMessage` is generated when a DjVu viewer should recompute the
 	layout of the page viewer because the page size and resolution information
 	has been updated.
 	'''
 
-cdef class RedisplayMessage(Message):
+cdef class RedisplayMessage(ChunkMessage):
 	'''
 	A `RedisplayMessage` is generated when a DjVu viewer should call
 	`PageJob.render()` and redisplay the page. This happens, for instance, when
 	newly decoded DjVu data provides a better image.
-	'''
-
-cdef class ChunkMessage(Message):
-	'''
-	XXX
 	'''
 
 cdef class ThumbnailMessage(Message):
