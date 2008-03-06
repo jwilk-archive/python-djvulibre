@@ -205,7 +205,7 @@ cdef class Page:
 
 	def decode(self, wait = True):
 		'''
-		P.decode(wait=True) -> a `PageJob`.
+		P.decode(wait=True) -> a `PageJob`
 
 		Initiate data transfer and decoding threads for the page.
 
@@ -274,7 +274,7 @@ cdef class Thumbnail:
 	
 	def calculate(self):
 		'''
-		T.calculate() -> a `JobException`.
+		T.calculate() -> a `JobException`
 
 		Determine whether the thumbnail is available. If it's not, initiate the
 		thumbnail calculating job. Regardless of its success, the completion of
@@ -286,7 +286,7 @@ cdef class Thumbnail:
 
 	def render(self, size, PixelFormat pixel_format not None, unsigned long row_alignment = 0, dry_run = False):
 		'''
-		T.render((w0, h0), pixel_format, row_alignment=1, dry_run=False) -> ((w1, h1, row_size), data).
+		T.render((w0, h0), pixel_format, row_alignment=1, dry_run=False) -> ((w1, h1, row_size), data)
 
 		Render the thumbnail:
 		* not larger than `w0` x `h0` pixels;
@@ -591,7 +591,7 @@ cdef class Document:
 	
 	def save(self, file = None, indirect = None, pages = None, wait = True):
 		'''
-		D.save(file=None, indirect=None, pages=<all-pages>, wait=True) -> a `SaveJob`.
+		D.save(file=None, indirect=None, pages=<all-pages>, wait=True) -> a `SaveJob`
 
 		Saves the document as:
 		* a bundled DjVu `file` or;
@@ -651,7 +651,7 @@ cdef class Document:
 	
 	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, cropmarks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
 		'''
-		D.export_ps(file, pages=<all-pages>, ..., wait=True) -> a `Job`.
+		D.export_ps(file, pages=<all-pages>, ..., wait=True) -> a `Job`
 
 		Convert the document into PostScript.
 
@@ -849,7 +849,7 @@ cdef class Document:
 
 	def get_message(self, wait = True):
 		'''
-		D.get_message(wait=True) -> a `Message` or `None`.
+		D.get_message(wait=True) -> a `Message` or `None`
 
 		Get message from the internal document queue.
 		Return `None` if `wait` is false and no message is available.
@@ -1098,7 +1098,7 @@ cdef class Context:
 
 	def handle_message(self, message):
 		'''
-		C.handle_message(message).
+		C.handle_message(message) -> None
 
 		Synchronous versions (`wait=True`) of some methods calls this method for
 		each received message, unless it's related to a job or a document.
@@ -1109,7 +1109,7 @@ cdef class Context:
 	
 	def handle_job_message(self, message):
 		'''
-		C.handle_job_message(message).
+		C.handle_job_message(message) -> None
 
 		Synchronous versions (`wait=True`) of some methods calls this method for
 		each received message related to a job.
@@ -1120,7 +1120,7 @@ cdef class Context:
 	
 	def handle_document_message(self, message):
 		'''
-		C.handle_document_message(message).
+		C.handle_document_message(message) -> None
 
 		Synchronous versions (`wait=True`) of some methods calls this method for
 		each received message related to a document.
@@ -1131,7 +1131,7 @@ cdef class Context:
 
 	def get_message(self, wait = True):
 		'''
-		C.get_message(wait=True) -> a `Message` or `None`.
+		C.get_message(wait=True) -> a `Message` or `None`
 
 		Get message from the internal context queue.
 		Return `None` if `wait` is false and no message is available.
@@ -1143,7 +1143,7 @@ cdef class Context:
 
 	def new_document(self, uri, cache = True):
 		'''
-		C.new_document(uri, cache=True).
+		C.new_document(uri, cache=True) -> a `Document`
 
 		Creates a decoder for a DjVu document and starts decoding. This
 		method returns immediately. The decoding job then generates messages to
@@ -1191,7 +1191,7 @@ cdef class Context:
 
 	def clear_cache(self):
 		'''
-		C.clear_cache().
+		C.clear_cache() -> None
 		'''
 		ddjvu_cache_clear(self.ddjvu_context)
 
@@ -1325,7 +1325,7 @@ cdef class PixelFormat:
 cdef class PixelFormatRgb(PixelFormat):
 
 	'''
-	PixelFormatRgb(byteorder='RGB') -> a pixel format.
+	PixelFormatRgb(byteorder='RGB') -> a pixel format
 
 	24-bit pixel format, with:
 	- RGB (`byteorder='RGB'`) or
@@ -1371,7 +1371,7 @@ cdef class PixelFormatRgb(PixelFormat):
 cdef class PixelFormatRgbMask(PixelFormat):
 
 	'''
-	PixelFormatRgbMask(red_mask, green_mask, blue_mask[, xor_value]) -> a pixel format.
+	PixelFormatRgbMask(red_mask, green_mask, blue_mask[, xor_value]) -> a pixel format
 
 	XXX
 	'''
@@ -1402,7 +1402,7 @@ cdef class PixelFormatRgbMask(PixelFormat):
 cdef class PixelFormatGrey(PixelFormat):
 
 	'''
-	PixelFormatGrey() -> a pixel format.
+	PixelFormatGrey() -> a pixel format
 	
 	8-bit, grey pixel format.
 	'''
@@ -1420,7 +1420,7 @@ cdef class PixelFormatGrey(PixelFormat):
 cdef class PixelFormatPalette(PixelFormat):
 
 	'''
-	PixelFormatPalette(palette) -> a pixel format.
+	PixelFormatPalette(palette) -> a pixel format
 
 	Palette pixel format.
 
@@ -1458,7 +1458,7 @@ cdef class PixelFormatPalette(PixelFormat):
 cdef class PixelFormatPackedBits(PixelFormat):
 
 	'''
-	PixelFormatPackedBits(endianess) -> a pixel format.
+	PixelFormatPackedBits(endianess) -> a pixel format
 
 	Bitonal, 1bpp pixel format with:
 	- most significant bits on the left (`endianess='>'`) or
@@ -1652,7 +1652,7 @@ cdef class PageJob(Job):
 
 	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned int row_alignment = 0):
 		'''
-		J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1) -> data.
+		J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1) -> data
 
 		Render a segment of a page with arbitrary scale. `mode` indicates
 		what image layers should be rendered:
@@ -1761,7 +1761,7 @@ cdef class Job:
 
 	def wait(self):
 		'''
-		J.wait().
+		J.wait() -> None
 
 		Wait until the job is done.
 		XXX
@@ -1771,7 +1771,7 @@ cdef class Job:
 
 	def stop(self):
 		'''
-		J.stop().
+		J.stop() -> None
 
 		Attempt to cancel the job.
 		
@@ -1782,7 +1782,7 @@ cdef class Job:
 
 	def get_message(self, wait = True):
 		'''
-		J.get_message(wait=True) -> a `Message` or `None`.
+		J.get_message(wait=True) -> a `Message` or `None`
 
 		Get message from the internal job queue.
 		Return `None` if `wait` is false and no message is available.
@@ -1820,7 +1820,7 @@ cdef class AffineTransform:
 
 	'''
 	AffineTransform((x0, y0, w0, h0), (x1, y0, w1, h1)) 
-	  -> an affine coordinate transformation.
+	  -> an affine coordinate transformation
 
 	The object represents an affine coordinate transformation that maps points
 	from rectangle `(x0, y0, w0, h0)` to rectangle `(x1, y0, w1, h1)`.
@@ -1836,7 +1836,7 @@ cdef class AffineTransform:
 
 	def rotate(self, int n):
 		'''
-		A.rotate(n).
+		A.rotate(n) -> None
 
 		Rotate the output rectangle counter-clockwise by <n> degrees. 
 		'''
@@ -1873,8 +1873,8 @@ cdef class AffineTransform:
 
 	def apply(self, value):
 		'''
-		A.apply((x0, y0)) -> (x1, y1).
-		A.apply((x0, y0, w0, h0)) -> (x1, y1, w1, h1).
+		A.apply((x0, y0)) -> (x1, y1)
+		A.apply((x0, y0, w0, h0)) -> (x1, y1, w1, h1)
 
 		Apply the coordinate transform to a point or a rectangle.
 		'''
@@ -1882,8 +1882,8 @@ cdef class AffineTransform:
 
 	def inverse(self, value):
 		'''
-		A.inverse((x0, y0)) -> (x1, y1).
-		A.inverse((x0, y0, w0, h0)) -> (x1, y1, w1, h1).
+		A.inverse((x0, y0)) -> (x1, y1)
+		A.inverse((x0, y0, w0, h0)) -> (x1, y1, w1, h1)
 
 		Apply the inverse coordinate transform to a point or a rectangle.
 		'''
@@ -2058,7 +2058,7 @@ cdef class Stream:
 	
 	def abort(self):
 		'''
-		S.abort().
+		S.abort() -> None
 
 		Indicate that no more data will be provided on the particular stream,
 		because the user has interrupted the data transfer (for instance by

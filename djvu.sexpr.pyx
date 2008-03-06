@@ -169,7 +169,7 @@ class Symbol(str):
 
 def Expression__new__(cls, value):
 	'''
-	Expression(value) -> an expression.
+	Expression(value) -> an expression
 	'''
 	if is_int(value):
 		return IntExpression(value)
@@ -189,7 +189,7 @@ def Expression__new__(cls, value):
 
 def Expression_from_stream(stdin):
 	'''
-	Expression.from_stream(stream) -> an expression.
+	Expression.from_stream(stream) -> an expression
 
 	Read an expression from a stream.
 	'''
@@ -205,7 +205,7 @@ def Expression_from_stream(stdin):
 
 def Expression_from_string(str):
 	'''
-	Expression.from_string(s) -> an expression.
+	Expression.from_string(s) -> an expression
 
 	Read an expression from a string.
 	'''
@@ -284,7 +284,7 @@ cdef class BaseExpression:
 
 	def print_into(self, stdout, width = None):
 		'''
-		expr.print_into(file[, width]).
+		expr.print_into(file[, width]) -> None
 		
 		Print the expression into the file.
 		'''
@@ -292,7 +292,7 @@ cdef class BaseExpression:
 
 	def as_string(self, width = None):
 		'''
-		expr.as_string([width]).
+		expr.as_string([width]) -> a string
 
 		Return a string representation of the expression.
 		'''
@@ -319,7 +319,7 @@ cdef class BaseExpression:
 
 def IntExpression__new__(cls, value):
 	'''
-	IntExpression(n) -> an integer expression.
+	IntExpression(n) -> an integer expression
 	'''
 	cdef BaseExpression self
 	self = BaseExpression.__new__(cls)
@@ -364,7 +364,7 @@ del IntExpression__new__
 
 def SymbolExpression__new__(cls, value):
 	'''
-	SymbolExpression(Symbol(s)) -> a symbol expression.
+	SymbolExpression(Symbol(s)) -> a symbol expression
 	'''
 	cdef BaseExpression self
 	self = BaseExpression.__new__(cls)
@@ -393,7 +393,7 @@ del SymbolExpression__new__
 
 def StringExpression__new__(cls, value):
 	'''
-	SymbolExpression(s) -> a string expression.
+	SymbolExpression(s) -> a string expression
 	'''
 	cdef BaseExpression self
 	self = BaseExpression.__new__(cls)
@@ -473,7 +473,7 @@ cdef _WrappedCExpr _build_list_cexpr(object items):
 
 def ListExpression__new__(cls, items):
 	'''
-	ListExpression(iterable) -> a list expression.
+	ListExpression(iterable) -> a list expression
 	'''
 	cdef BaseExpression self
 	self = BaseExpression.__new__(cls)
