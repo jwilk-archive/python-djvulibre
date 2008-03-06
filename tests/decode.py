@@ -477,7 +477,7 @@ class ThumbnailTest:
 	>>> message = document.get_message()
 	>>> type(message) == ThumbnailMessage
 	True
-	>>> message.n
+	>>> message.thumbnail.page.n
 	0
 	>>> thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
 	((5, 3, 5L), None)

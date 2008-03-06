@@ -242,6 +242,9 @@ cdef class Page:
 		'''
 		def __get__(self):
 			return PageText(self)
+	
+	def __repr__(self):
+		return '%s(%r, %r)' % (get_type_name(Page), self._document, self._n)
 
 cdef class Thumbnail:
 
@@ -320,6 +323,9 @@ cdef class Thumbnail:
 				raise NotAvailable
 		finally:
 			py_free(buffer)
+	
+	def __repr__(self):
+		return '%s(%r)' % (get_type_name(Thumbnail), self._page)
 
 cdef class DocumentFiles(DocumentExtension):
 
@@ -2216,7 +2222,7 @@ cdef class ThumbnailMessage(Message):
 		def __get__(self):
 			if self._document is None:
 				raise NotAvailable
-			return self._document[self._page_no].thumbnail
+			return self._document.pages[self._page_no].thumbnail
 
 cdef class ProgressMessage(Message):
 	'''
