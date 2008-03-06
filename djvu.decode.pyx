@@ -456,7 +456,7 @@ cdef class DocumentDecodingJob(Job):
 	'''
 	Document decoding job.
 
-	Use `document.decode(...)` to obtain instances of this class.
+	Use `document.decoding_job` to obtain instances of this class.
 	'''
 
 	cdef object __init_ddj(self, Document document):
@@ -1090,21 +1090,33 @@ cdef class Context:
 		'''
 		C.handle_message(message).
 
-		XXX
+		Synchronous versions (`wait=True`) of some methods calls this method for
+		each received message, unless it's related to a job or a document.
+		
+		By default, does nothing. You may want to override this method to
+		change this behaviour.
 		'''
 	
 	def handle_job_message(self, message):
 		'''
 		C.handle_job_message(message).
 
-		XXX
+		Synchronous versions (`wait=True`) of some methods calls this method for
+		each received message related to a job.
+
+		By default, does nothing. You may want to override this method to
+		change this behaviour.
 		'''
 	
 	def handle_document_message(self, message):
 		'''
 		C.handle_document_message(message).
 
-		XXX
+		Synchronous versions (`wait=True`) of some methods calls this method for
+		each received message related to a document.
+
+		By default, does nothing. You may want to override this method to
+		change this behaviour.
 		'''
 
 	def get_message(self, wait = True):
@@ -1123,7 +1135,27 @@ cdef class Context:
 		'''
 		C.new_document(uri, cache=True).
 
-		XXX
+		Creates a decoder for a DjVu document and starts decoding. This
+		method returns immediately. The decoding job then generates messages to
+		request the raw data and to indicate the state of the decoding process.
+		
+		`url` specifies an optional URL for the document. The URL follows the
+		usual syntax (``protocol://machine/path``). It should not end with 
+		a slash. It only serves two purposes:
+		- The URL is used as a key for the cache of decoded pages.
+		- The URL is used to document `NewStreamMessage` messages.
+		
+		Setting argument `cache` to a true vaule indicates that decoded pages
+		should be cached when possible.
+		
+		It is important to understand that the URL is not used to access the
+		data. The document generates `NewStreamMessage` messages to indicate
+		which data is needed. The caller must then provide the raw data using 
+		a `NewStereamMessage.stream` object.
+
+		To open a local file, provide a `FileURI` instance as an `url`.
+		
+		Localized characters in `url` should be in URL-encoded.
 		'''
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
@@ -1204,7 +1236,11 @@ cdef class PixelFormat:
 	
 	property rows_top_to_bottom:
 		'''
-		XXX
+		Flag indicating whether the rows in the pixel buffer are stored
+		starting from the top or the bottom of the image.
+		
+		Default ordering starts from the bottom of the image. This is the
+		opposite of the X11 convention.
 		'''
 
 		def __get__(self):
@@ -1215,7 +1251,11 @@ cdef class PixelFormat:
 
 	property y_top_to_bottom:
 		'''
-		XXX
+		Flag indicating whether the *y* coordinates in the drawing area are
+		oriented from bottom to top, or from top to botttom.
+		
+		The default is bottom to top, similar to PostScript. This is the
+		opposite of the X11 convention.
 		'''
 
 		def __get__(self):
@@ -1226,14 +1266,17 @@ cdef class PixelFormat:
 	
 	property bpp:
 		'''
-		XXX
+		Return the depth of the image, in bits per pixel.
 		'''
 		def __get__(self):
 			return self._bpp
 	
 	property dither_bpp:
 		'''
-		XXX
+		The final depth of the image on the screen. This is used to decide
+		which dithering algorithm should be used.
+		
+		The default is usually appropriate.
 		'''
 		def __get__(self):
 			return self._dither_bpp
@@ -1247,7 +1290,11 @@ cdef class PixelFormat:
 	
 	property gamma:
 		'''
-		XXX
+		Gamma of the display for which the pixels are intended. This will be
+		combined with the gamma stored in DjVu documents in order to compute 
+		a suitable color correction.
+		
+		The default value is ``2.2``.
 		'''
 		def __get__(self):
 			return self._gamma
@@ -1268,9 +1315,12 @@ cdef class PixelFormat:
 cdef class PixelFormatRgb(PixelFormat):
 
 	'''
-	RGB/BGR 24-bit pixel format.
+	PixelFormatRgb(byteorder='RGB') -> a pixel format.
 
-	XXX
+	24-bit pixel format, with:
+	- RGB (`byteorder='RGB'`) or
+	- BGR (`byteorder='BGR'`)
+	byte order.
 	'''
 
 	def __cinit__(self, char *byte_order = 'RGB', unsigned int bpp = 24):
@@ -1290,7 +1340,9 @@ cdef class PixelFormatRgb(PixelFormat):
 	
 	property byte_order:
 		'''
-		XXX
+		Return the byte order:
+		- 'RGB' or
+		- 'BGR'.
 		'''
 		def __get__(self):
 			if self._rgb:
@@ -1309,6 +1361,8 @@ cdef class PixelFormatRgb(PixelFormat):
 cdef class PixelFormatRgbMask(PixelFormat):
 
 	'''
+	PixelFormatRgbMask(red_mask, green_mask, blue_mask[, xor_value]) -> a pixel format.
+
 	XXX
 	'''
 
@@ -1338,9 +1392,9 @@ cdef class PixelFormatRgbMask(PixelFormat):
 cdef class PixelFormatGrey(PixelFormat):
 
 	'''
+	PixelFormatGrey() -> a pixel format.
+	
 	8-bit, grey pixel format.
-
-	XXX
 	'''
 
 	def __cinit__(self, unsigned int bpp = 8):
@@ -1356,6 +1410,8 @@ cdef class PixelFormatGrey(PixelFormat):
 cdef class PixelFormatPalette(PixelFormat):
 
 	'''
+	PixelFormatPalette(palette) -> a pixel format.
+
 	Palette pixel format.
 
 	XXX
@@ -1392,7 +1448,11 @@ cdef class PixelFormatPalette(PixelFormat):
 cdef class PixelFormatPackedBits(PixelFormat):
 
 	'''
-	Bitonal, 1bpp pixel format.
+	PixelFormatPackedBits(endianess) -> a pixel format.
+
+	Bitonal, 1bpp pixel format with:
+	- most significant bits on the left (`endianess='>'`) or
+	- least significant bits on the left (`endianess='<'`).
 	'''
 
 	def __cinit__(self, char *endianess):
@@ -1410,6 +1470,11 @@ cdef class PixelFormatPackedBits(PixelFormat):
 		self.ddjvu_format = ddjvu_format_create(_format, 0, NULL)
 	
 	property endianness:
+		'''
+		The endianess:
+		- '<' (most significant bits on the left) or
+		- '>' (least significant bits on the left).
+		'''
 		def __get__(self):
 			if self._little_endian:
 				return '<'
@@ -1450,7 +1515,9 @@ cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size
 cdef class PageJob(Job):
 
 	'''
-	XXX
+	A page decoding job.
+
+	Use `page.decode(...)` to obtain instances of this class.
 	'''
 
 	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
@@ -1538,14 +1605,24 @@ cdef class PageJob(Job):
 
 	property initial_rotation:
 		'''
-		XXX
+		Returns the counter-clockwise page rotation angle (in degrees)
+		specified by the orientation flags in the DjVu file.
+
+		Brain damage warning
+		--------------------
+		This is useful because ``maparea`` coordinates in the annotation chunks
+		are expressed relative to the rotated coordinates whereas text
+		coordinates in the hidden text data are expressed relative to the
+		unrotated coordinates.
 		'''
 		def __get__(self):
 			return 90 * <int> ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job)
 
 	property rotation:
 		'''
-		XXX
+		The counter-clockwise rotation angle (in degrees) for the page. The
+		rotation is automatically taken into account by `render(...)` method
+		and `width` and `height` properties. 
 		'''
 		def __get__(self):
 			return 90 * <int> ddjvu_page_get_rotation(<ddjvu_page_t*> self.ddjvu_job)
