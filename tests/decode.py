@@ -526,21 +526,21 @@ class AffineTransformTest:
 	True
 	>>> af.apply((12, 34, 56, 78)) == af((12, 34, 56, 78))
 	True
-	>>> af.reverse((17, 42))
+	>>> af.inverse((17, 42))
 	(0, 0)
-	>>> af.reverse((17, 142))
+	>>> af.inverse((17, 142))
 	(0, 10)
-	>>> af.reverse((59, 42))
+	>>> af.inverse((59, 42))
 	(10, 0)
-	>>> af.reverse((59, 142))
+	>>> af.inverse((59, 142))
 	(10, 10)
-	>>> af.reverse((17, 42, 42, 100))
+	>>> af.inverse((17, 42, 42, 100))
 	(0, 0, 10, 10)
-	>>> af.reverse(x for x in (17, 42, 42, 100))
+	>>> af.inverse(x for x in (17, 42, 42, 100))
 	(0, 0, 10, 10)
-	>>> af.reverse(af((234, 567))) == (234, 567)
+	>>> af.inverse(af((234, 567))) == (234, 567)
 	True
-	>>> af.reverse(af((23, 45, 67, 78))) == (23, 45, 67, 78)
+	>>> af.inverse(af((23, 45, 67, 78))) == (23, 45, 67, 78)
 	True
 	'''
 

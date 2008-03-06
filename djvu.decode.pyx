@@ -1862,10 +1862,10 @@ cdef class AffineTransform:
 		'''
 		return self(value)
 
-	def reverse(self, value):
+	def inverse(self, value):
 		'''
-		A.reverse((x0, y0)) -> (x1, y1).
-		A.reverse((x0, y0, w0, h0)) -> (x1, y1, w1, h1).
+		A.inverse((x0, y0)) -> (x1, y1).
+		A.inverse((x0, y0, w0, h0)) -> (x1, y1, w1, h1).
 
 		Apply the inverse coordinate transform to a point or a rectangle.
 		'''
