@@ -2226,7 +2226,8 @@ cdef class ThumbnailMessage(Message):
 
 cdef class ProgressMessage(Message):
 	'''
-	XXX
+	A `ProgressMessage` is generated to indicate progress towards the
+	completion of a print or save job.
 	'''
 
 	cdef object __init(self):
@@ -2236,17 +2237,17 @@ cdef class ProgressMessage(Message):
 	
 	property percent:
 		'''
-		XXX
+		Return the percent of the job done.
 		'''
 		def __get__(self):
 			return self._percent
 	
 	property status:
 		'''
-		XXX
+		Return a `JobException` subclass indicating the current job status.
 		'''
 		def __get__(self):
-			return self._status
+			return JobException_from_c(self._status)
 
 cdef object MESSAGE_MAP
 MESSAGE_MAP = \

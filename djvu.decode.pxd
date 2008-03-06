@@ -446,7 +446,7 @@ cdef class ThumbnailMessage(Message):
 
 cdef class ProgressMessage(Message):
 	cdef int _percent
-	cdef int _status
+	cdef ddjvu_status_t _status
 
 cdef class Thumbnail:
 	cdef Page _page
