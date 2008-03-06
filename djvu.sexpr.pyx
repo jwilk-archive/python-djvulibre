@@ -218,8 +218,8 @@ def Expression_from_string(str):
 class Expression(BaseExpression):
 
 	'''
-	Notes about the textual represenation of S-expressions
-	------------------------------------------------------
+	Notes about the textual representation of S-expressions
+	-------------------------------------------------------
 
 	Special characters are:
 
@@ -229,13 +229,13 @@ class Expression(BaseExpression):
 	
 	Symbols are represented by their name. Vertical bars ``|`` can be used to
 	delimit names that contain blanks, special characters, non printable
-	characters, non ascii characters, or can be confused as a number.
+	characters, non-ASCII characters, or can be confused as a number.
 	
 	Numbers follow the syntax specified by the C function ``strtol()`` with
 	``base=0``.
 	
 	Strings are delimited by double quotes. All C string escapes are
-	recognized. Non-printable ascii characters must be escaped.
+	recognized. Non-printable ASCII characters must be escaped.
 	
 	List are represented by an open parenthesis ``(`` followed by the space
 	separated list elements, followed by a closing parenthesis ``)``.
