@@ -2530,24 +2530,26 @@ TEXT_DETAILS_PAGE = 'page'
 TEXT_DETAILS_REGION = 'region'
 TEXT_DETAILS_PARAGRAPH = 'para'
 TEXT_DETAILS_LINE = 'line'
+TEXT_DETAILS_ALL = 'all'
 
 cdef class PageText:
 	'''
-	PageText(page, details=TEXT_DETAILS_LINE) -> wrapper around page text
+	PageText(page, details=TEXT_DETAILS_ALL) -> wrapper around page text
 
 	`details` controls the level of detail in the returned S-expression:
 	- `TEXT_DETAILS_PAGE`,
 	- `TEXT_DETAILS_REGION`,
 	- `TEXT_DETAILS_PARAGRAPH`,
-	- `TEXT_DETAILS_LINE`.
+	- `TEXT_DETAILS_LINE`,
+	- `TEXT_DETAILS_ALL`.
 
 	XXX
 	'''
 
-	def __cinit__(self, Page page not None, details = TEXT_DETAILS_LINE):
+	def __cinit__(self, Page page not None, details = TEXT_DETAILS_ALL):
 		if not is_string(details):
 			raise TypeError
-		if details not in (TEXT_DETAILS_PAGE, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE):
+		if details not in (TEXT_DETAILS_PAGE, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE, TEXT_DETAILS_ALL):
 			raise ValueError
 		self._page = page
 		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pagetext(page._document.ddjvu_document, page._n, details))
