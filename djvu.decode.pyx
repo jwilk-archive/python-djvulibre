@@ -309,20 +309,15 @@ cdef class Thumbnail:
 			raise ValueError
 		row_size = calculate_row_size(w, row_alignment, pixel_format._bpp)
 		if dry_run:
+			result = None
 			buffer = NULL
 		else:
-			buffer = allocate_image_buffer(row_size, h, &buffer_size)
-		try:
-			if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &w, &h, pixel_format.ddjvu_format, row_size, buffer):
-				if dry_run:
-					pybuffer = None
-				else:
-					pybuffer = charp_to_string(buffer, buffer_size)
-				return (w, h, row_size), pybuffer
-			else:
-				raise NotAvailable
-		finally:
-			py_free(buffer)
+			result = allocate_image_buffer(row_size, h)
+			buffer = string_to_charp(result)
+		if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &w, &h, pixel_format.ddjvu_format, row_size, buffer):
+			return (w, h, row_size), result
+		else:
+			raise NotAvailable
 	
 	def __repr__(self):
 		return '%s(%r)' % (get_type_name(Thumbnail), self._page)
@@ -1505,18 +1500,14 @@ cdef unsigned long calculate_row_size(unsigned long width, unsigned long row_ali
 		row_alignment = 1
 	return ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
 
-cdef char* allocate_image_buffer(unsigned long width, unsigned long height, size_t* buffer_size) except NULL:
-	cdef char *buffer
+cdef object allocate_image_buffer(unsigned long width, unsigned long height):
+	cdef Py_ssize_t c_buffer_size
 	py_buffer_size = int(width) * int(height)
 	try:
-		buffer_size[0] = py_buffer_size
+		c_buffer_size = py_buffer_size
 	except OverflowError:
-		buffer = NULL
-	else:
-		buffer = <char*> py_malloc(buffer_size[0])
-	if buffer == NULL:
 		raise MemoryError('Unable to alocate %d bytes for an image buffer' % py_buffer_size)
-	return buffer
+	return charp_to_string(NULL, c_buffer_size)
 
 cdef class PageJob(Job):
 
@@ -1683,20 +1674,16 @@ cdef class PageJob(Job):
 		'''
 		cdef ddjvu_rect_t c_page_rect
 		cdef ddjvu_rect_t c_render_rect
-		cdef size_t buffer_size
+		cdef Py_ssize_t buffer_size
 		cdef unsigned long row_size
 		cdef int bpp
-		cdef char* buffer
 		(c_page_rect.x, c_page_rect.y, c_page_rect.w, c_page_rect.h) = page_rect
 		(c_render_rect.x, c_render_rect.y, c_render_rect.w, c_render_rect.h) = render_rect
 		row_size = calculate_row_size(c_render_rect.w, row_alignment, pixel_format._bpp)
-		buffer = allocate_image_buffer(row_size, c_render_rect.h, &buffer_size)
-		try:
-			if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, buffer) == 0:
-				raise NotAvailable
-			return charp_to_string(buffer, buffer_size)
-		finally:
-			py_free(buffer)
+		result = allocate_image_buffer(row_size, c_render_rect.h)
+		if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, string_to_charp(result)) == 0:
+			raise NotAvailable
+		return result
 
 	def __dealloc__(self):
 		if self.ddjvu_job == NULL:
