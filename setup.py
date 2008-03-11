@@ -1,6 +1,7 @@
 from distutils.core import setup
 from distutils.extension import Extension
 from Pyrex.Distutils import build_ext
+from subprocess import Popen, PIPE
 
 EXT_MODULES = ('decode', 'sexpr')
 
@@ -16,6 +17,20 @@ def get_version():
 	finally:
 		changelog.close()
 
+PKG_CONFIG_FLAG_MAP = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
+
+def pkg_config(*packages, **kwargs):
+	arguments = Popen(['pkg-config', '--libs', '--cflags'] + list(packages), stdout=PIPE).communicate()[0].split()
+	for argument in arguments:
+		key = argument[:2]
+		try:
+			value = argument[2:]
+			kwargs.setdefault(PKG_CONFIG_FLAG_MAP[key], []).append(value)
+		except KeyError:
+			kwargs.setdefault('extra_link_args', []).append(argument)
+			kwargs.setdefault('extra_compile_args', []).append(argument)
+	return kwargs
+
 setup(
 	name = 'python-djvulibre',
 	version = '0.1',
@@ -26,9 +41,12 @@ setup(
 	ext_package = 'djvu',
 	ext_modules = \
 	[
-		Extension(name, ['djvu.%s.pyx' % name],
-			libraries = ['djvulibre'],
-			define_macros = [('PYTHON_DJVULIBRE_VERSION', '"%s"' % get_version())]
+		Extension(
+			name, ['djvu.%s.pyx' % name],
+			**pkg_config(
+				'ddjvuapi',
+				define_macros = [('PYTHON_DJVULIBRE_VERSION', '"%s"' % get_version())]
+			)
 		)
 		for name in EXT_MODULES
 	],
