@@ -20,8 +20,14 @@ def get_version():
 PKG_CONFIG_FLAG_MAP = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
 def pkg_config(*packages, **kwargs):
-	arguments = Popen(['pkg-config', '--libs', '--cflags'] + list(packages), stdout=PIPE).communicate()[0].split()
-	for argument in arguments:
+	pkgconfig = Popen(
+		['pkg-config', '--libs', '--cflags'] + list(packages),
+		stdout = PIPE, stderr = PIPE
+	)
+	stdout, stderr = pkgconfig.communicate()
+	if pkgconfig.returncode:
+		raise IOError('[pkg-config] ' + stderr.strip())
+	for argument in stdout.split():
 		key = argument[:2]
 		try:
 			value = argument[2:]
