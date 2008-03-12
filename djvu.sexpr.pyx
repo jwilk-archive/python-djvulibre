@@ -198,7 +198,7 @@ def Expression_from_stream(stdin):
 		myio_stdin = stdin
 		try:
 			return _c2py(cexpr_read())
-		except _InvalidExpression:
+		except InvalidExpression:
 			raise ExpressionSyntaxError
 	finally:
 		myio_reset()
@@ -420,7 +420,7 @@ class StringExpression(Expression):
 
 del StringExpression__new__
 
-class _InvalidExpression(ValueError):
+class InvalidExpression(ValueError):
 	pass
 
 class ExpressionSyntaxError(Exception):
@@ -441,7 +441,7 @@ cdef object public_c2py(cexpr_t cexpr):
 
 cdef BaseExpression _c2py(cexpr_t cexpr):
 	if cexpr == cexpr_dummy:
-		raise _InvalidExpression
+		raise InvalidExpression
 	_wexpr = wexpr(cexpr)
 	if cexpr_is_int(cexpr):
 		result = IntExpression(_wexpr)
@@ -622,7 +622,7 @@ cdef object ExpressionType
 SymbolType = Symbol
 ExpressionType = Expression
 
-__all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'ExpressionSyntaxError')
+__all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'InvalidExpression', 'ExpressionSyntaxError')
 __author__ = 'Jakub Wilk <ubanus@users.sf.net>'
 __version__ = PYTHON_DJVULIBRE_VERSION
 
