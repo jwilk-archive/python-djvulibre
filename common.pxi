@@ -1,4 +1,4 @@
-# Copyright (c) 2008 Jakub Wilk <ubanus@users.sf.net>
+# Copyright © 2008 Jakub Wilk <ubanus@users.sf.net>
 
 # python-distutils preprocessor macros
 

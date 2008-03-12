@@ -1,3 +1,5 @@
+# Copyright © 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
+
 cdef extern from 'libdjvu/miniexp.h':
 	struct cexpr_s 'miniexp_s'
 	ctypedef cexpr_s* cexpr_t 'miniexp_t'

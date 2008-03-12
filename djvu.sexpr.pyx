@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
+# Copyright ©  2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
 '''
 DjVuLibre bindings: module for handling Lisp S-expressions
