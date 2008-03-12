@@ -28,6 +28,9 @@ import thread
 cdef object Queue, Empty
 from Queue import Queue, Empty
 
+cdef object Semaphore
+from threading import Semaphore
+
 cdef object imap
 from itertools import imap
 
@@ -487,6 +490,7 @@ cdef class Document:
 		self._files = DocumentFiles(self, sentinel = the_sentinel)
 		self._context = None
 		self._queue = Queue()
+		self._semaphore = Semaphore()
 	
 	cdef object __init(self, Context context, ddjvu_document_t *ddjvu_document):
 		# Assumption: `loft_lock` is already acquired. 
@@ -842,6 +846,13 @@ cdef class Document:
 			job.wait()
 		return job
 
+	property message_queue:
+		'''
+		Return the internal message queue.
+		'''
+		def __get__(self):
+			return self._queue
+
 	def get_message(self, wait = True):
 		'''
 		D.get_message(wait=True) -> a `Message` or `None`
@@ -859,7 +870,6 @@ cdef class Document:
 
 	def __next__(self):
 		return self.get_message()
-
 
 cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	cdef Document result
@@ -1042,18 +1052,17 @@ def _Context_message_distributor(Context self not None, sentinel):
 			# XXX Order of branches below is *crucial*. Do not change.
 			if message._job is not None:
 				job = message._job
-				job._queue.put(message)
+				job._semaphore.release()
 				if job.is_done:
 					job.__clear()
 			elif message._page_job is not None:
 				raise SystemError # should not happen
 			elif message._document is not None:
 				document = message._document
-				document._queue.put(message)
+				document._semaphore.release()
 				if document.decoding_done:
 					document.__clear()
-			else:
-				self._queue.put(message)
+			self.handle_message(message)
 		except KeyboardInterrupt:
 			raise
 		except SystemExit:
@@ -1091,38 +1100,42 @@ cdef class Context:
 		def __get__(self):
 			return ddjvu_cache_get_size(self.ddjvu_context)
 
-	def handle_message(self, message):
+	def handle_message(self, Message message not None):
 		'''
 		C.handle_message(message) -> None
 
-		Synchronous versions (`wait=True`) of some methods calls this method for
-		each received message, unless it's related to a job or a document.
+		This method is called, in a separate thread, for every received
+		message.
+
+		By default do something roughly equivalent to::
+
+			if message.job is not None:
+				message.job.message_queue.put(message)
+			elif message.document is not None:
+				message.document.message_queue.put(message)
+			else:
+				message.context.message_queue.put(message)
 		
-		By default, does nothing. You may want to override this method to
-		change this behaviour.
+		You may want to override this method to change this behaviour.
+
+		All exceptions raised by this method will be ignored.
 		'''
+
+		if message._job is not None:
+			message._job._queue.put(message)
+		elif message._page_job is not None:
+			raise SystemError # should not happen
+		elif message._document is not None:
+			message._document._queue.put(message)
+		else:
+			message._context._queue.put(message)
 	
-	def handle_job_message(self, message):
+	property message_queue:
 		'''
-		C.handle_job_message(message) -> None
-
-		Synchronous versions (`wait=True`) of some methods calls this method for
-		each received message related to a job.
-
-		By default, does nothing. You may want to override this method to
-		change this behaviour.
+		Return the internal message queue.
 		'''
-	
-	def handle_document_message(self, message):
-		'''
-		C.handle_document_message(message) -> None
-
-		Synchronous versions (`wait=True`) of some methods calls this method for
-		each received message related to a document.
-
-		By default, does nothing. You may want to override this method to
-		change this behaviour.
-		'''
+		def __get__(self):
+			return self._queue
 
 	def get_message(self, wait = True):
 		'''
@@ -1707,6 +1720,7 @@ cdef class Job:
 			raise_instantiation_error(type(self))
 		self._context = None
 		self.ddjvu_job = NULL
+		self._semaphore = Semaphore()
 		self._queue = Queue()
 	
 	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
@@ -1755,7 +1769,7 @@ cdef class Job:
 		XXX
 		'''
 		while not ddjvu_job_done(self.ddjvu_job):
-			self._context.handle_job_message(self._queue.get())
+			self._semaphore.acquire()
 
 	def stop(self):
 		'''
@@ -1767,6 +1781,13 @@ cdef class Job:
 		actually stop.
 		'''
 		ddjvu_job_stop(self.ddjvu_job)
+
+	property message_queue:
+		'''
+		Return the internal message queue.
+		'''
+		def __get__(self):
+			return self._queue
 
 	def get_message(self, wait = True):
 		'''

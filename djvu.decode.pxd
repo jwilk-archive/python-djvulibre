@@ -304,6 +304,7 @@ cdef class Document:
 	cdef DocumentPages _pages
 	cdef DocumentFiles _files
 	cdef object _queue
+	cdef object _semaphore
 	cdef object __weakref__
 	cdef object __init(self, Context context, ddjvu_document_t* ddjvu_document)
 	cdef object __clear(self)
@@ -384,6 +385,7 @@ cdef class Job:
 	cdef Context _context
 	cdef ddjvu_job_t* ddjvu_job
 	cdef object _queue
+	cdef object _semaphore
 	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job)
 	cdef object __clear(self)
 	cdef object __weakref__
