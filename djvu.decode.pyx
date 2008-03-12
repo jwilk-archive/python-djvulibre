@@ -42,8 +42,8 @@ from traceback import format_exc
 cdef object StringIO
 from cStringIO import StringIO
 
-cdef object Symbol
-from djvu.sexpr import Symbol
+cdef object Symbol, InvalidExpression
+from djvu.sexpr import Symbol, InvalidExpression
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -166,11 +166,13 @@ cdef class Page:
 		def __get__(self):
 			return Thumbnail(self)
 
-	property info:
-		# FIXME: fix concurrency issues
+	def get_info(self, wait=True):
 		'''
+		P.get_info(wait=True) -> a `PageInfo`
+
 		Attempt to obtain information about the page without decoding the page.
 
+		If `wait` is true, wait until the information is available.
 		If the information is available, return a `PageInfo`.
 
 		Otherwise, raise `NotAvailable` exception. Then start fetching the page
@@ -179,18 +181,32 @@ cdef class Page:
 
 		In case of an error, `JobFail` is raised.
 		'''
+		cdef ddjvu_status_t status
+		cdef PageInfo page_info
+		page_info = PageInfo(self._document, sentinel = the_sentinel)
+		while True:
+			self._document._condition.acquire()
+			try:
+				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
+				ex = JobException_from_c(status)
+				if ex == JobOK:
+					return page_info
+				elif ex == JobStarted:
+					if wait:
+						self._document._condition.wait()
+					else:
+						raise NotAvailable
+				else:
+					raise ex
+			finally:
+				self._document._condition.release()
+	
+	property info:
+		'''
+		Equivalent to `PageJob.get_info(wait=False)`.
+		'''
 		def __get__(self):
-			cdef ddjvu_status_t status
-			cdef PageInfo page_info
-			page_info = PageInfo(self._document, sentinel = the_sentinel)
-			status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
-			ex = JobException_from_c(status)
-			if ex == JobOK:
-				return page_info
-			elif ex == JobStarted:
-				raise NotAvailable
-			else:
-				raise ex
+			return self.get_info()
 
 	property dump:
 		'''
@@ -376,28 +392,45 @@ cdef class File:
 		def __get__(self):
 			return self._n
 
-	property info:
+	def get_info(self, wait=True):
 		'''
-		Return information about the component file, i.e. a `FileInfo`.
+		F.get_info(wait=True) -> a `FileInfo`.
 
-		If the method is called before receiving the `DocInfoMessage`,
-		`NotAvailable` exception may be raised.
+		Attempt to obtain information about the component file.
+
+		If `wait` is true, wait until the information is available.
+		If the information is available, return a `FileInfo`.
+
+		Otherwise, raise `NotAvailable` exception. 
 
 		In case of an error, `JobFail` is raised.
 		'''
-		# FIXME: fix concurrency issues
+		cdef ddjvu_status_t status
+		cdef FileInfo file_info
+		file_info = FileInfo(self._document, sentinel = the_sentinel)
+		while True:
+			self._document._condition.acquire()
+			try:
+				status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
+				ex = JobException_from_c(status)
+				if ex == JobOK:
+					return file_info
+				elif ex == JobStarted:
+					if wait:
+						self._document._condition.wait()
+					else:
+						raise NotAvailable
+				else:
+					raise ex
+			finally:
+				self._document._condition.release()
+
+	property info:
+		'''
+		Equivalent to `File.get_info(wait=False)`.
+		'''
 		def __get__(self):
-			cdef ddjvu_status_t status
-			cdef FileInfo file_info
-			file_info = FileInfo(self._document, sentinel = the_sentinel)
-			status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
-			ex = JobException_from_c(status)
-			if ex == JobOK:
-				return file_info
-			elif ex == JobStarted:
-				raise NotAvailable
-			else:
-				raise ex
+			return self.get_info()
 
 	property dump:
 		'''
@@ -2383,7 +2416,6 @@ cdef _SexprWrapper wrap_sexpr(Document document, cexpr_t cexpr):
 	return result
 
 cdef class DocumentOutline(DocumentExtension):
-	# FIXME: fix and document concurrency issues
 	'''
 	DocumentOutline(document) -> a document outline
 	'''
@@ -2391,13 +2423,37 @@ cdef class DocumentOutline(DocumentExtension):
 	def __cinit__(self, Document document not None):
 		self._document = document
 		self._sexpr = wrap_sexpr(document, ddjvu_document_get_outline(document.ddjvu_document))
+
+	def wait(self):
+		'''
+		O.wait() -> None
+
+		Wait until the associated S-expression is available.
+		'''
+		while True:
+			self._document._condition.acquire()
+			try:
+				try:
+					self.sexpr
+					return
+				except NotAvailable:
+					pass
+			finally:
+				self._document._condition.release()
 	
 	property sexpr:
 		'''
-		Return the associated S-expression.
+		Return the associated S-expression. See ``print-outline`` in the
+		``djvused`` manual page.
+
+		If the S-expression is not available, raise `NotAvailable` exception.
+		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
-			return self._sexpr()
+			try:
+				return self._sexpr()
+			except InvalidExpression:
+				raise NotAvailable
 	
 	def __repr__(self):
 		return '%s(%r)' % (get_type_name(DocumentOutline), self._document)
@@ -2416,18 +2472,42 @@ cdef class Annotations:
 			return
 		raise_instantiation_error(type(self))
 
+	def wait(self):
+		'''
+		A.wait() -> None
+
+		Wait until the associated S-expression is available.
+		'''
+		while True:
+			self._document._condition.acquire()
+			try:
+				try:
+					self.sexpr
+					return
+				except NotAvailable:
+					pass
+			finally:
+				self._document._condition.release()
+
 	property sexpr:
 		'''
-		Return the associated S-expression.
+		Return the associated S-expression. See ``print-ant`` in the
+		``djvused`` manual page.
+
+		If the S-expression is not available, raise `NotAvailable` exception.
+		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
-			return self._sexpr()
+			try:
+				return self._sexpr()
+			except InvalidExpression:
+				raise NotAvailable
 	
 	property background_color:
 		'''
 		Parse the annotations and extract the desired background color as 
-		a color string ('#FFFFFF'). See `(background ...)` in the ``djvused``
-		manual page.
+		a color string (``#FFFFFF``). See ``(background ...)`` in the
+		``djvused`` manual page.
 
 		Return None if this information is not specified.
 		'''
@@ -2530,8 +2610,6 @@ cdef class PageAnnotations(Annotations):
 
 	'''
 	PageAnnotation(page) -> page annotations
-
-	XXX
 	'''
 
 	def __cinit__(self, Page page not None):
@@ -2545,13 +2623,6 @@ cdef class PageAnnotations(Annotations):
 		'''
 		def __get__(self):
 			return self._page
-
-	property sexpr:
-		'''
-		Return the associated S-expression.
-		'''
-		def __get__(self):
-			return self._sexpr()
 
 TEXT_DETAILS_PAGE = 'page'
 TEXT_DETAILS_REGION = 'region'
@@ -2580,7 +2651,13 @@ cdef class PageText:
 			raise ValueError
 		self._page = page
 		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pagetext(page._document.ddjvu_document, page._n, details))
-	
+
+	def wait(self):
+		'''
+		PT.wait() -> None
+
+		Wait until the associated S-expression is available.
+		'''
 	property page:
 		'''
 		Return the concerned page.
@@ -2591,16 +2668,22 @@ cdef class PageText:
 	property sexpr:
 		'''
 		Return the associated S-expression.
+
+		If the S-expression is not available, raise `NotAvailable` exception.
+		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
-			return self._sexpr()
+			try:
+				return self._sexpr()
+			except InvalidExpression:
+				raise NotAvailable
 
 cdef class Hyperlinks:
 	'''
 	Hyperlinks(annotations) -> sequence of hyperlinks
 
-	Parse the annotations and returns a sequence of
-	``(maparea ...)`` S-expressions.
+	Parse the annotations and return a sequence of ``(maparea ...)``
+	S-expressions.
 
 	See also ``(maparea ...)`` in the ``djvused`` manual page.
 	'''

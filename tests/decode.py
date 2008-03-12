@@ -70,7 +70,7 @@ class DocumentTest:
 		>>> decoding_job.status == JobOK
 		True
 
-		>>> file_info = document.files[0].info
+		>>> file_info = document.files[0].get_info()
 		>>> type(file_info) == FileInfo
 		True
 		>>> file_info.document is document
@@ -92,7 +92,7 @@ class DocumentTest:
 		u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
 		u'    Sjbz [53]         JB2 bilevel data'
 
-		>>> page_info = document.pages[0].info
+		>>> page_info = document.pages[0].get_info()
 		>>> type(page_info) == PageInfo
 		True
 		>>> page_info.document is document
@@ -118,7 +118,7 @@ class DocumentTest:
 		>>> context.get_message(wait = False) is None
 		True
 		
-		>>> document.files[-1].info
+		>>> document.files[-1].get_info()
 		Traceback (most recent call last):
 		...
 		JobFailed
@@ -132,12 +132,12 @@ class DocumentTest:
 		>>> context.get_message(wait = False) is None
 		True
 		
-		>>> document.pages[-1].info
+		>>> document.pages[-1].get_info()
 		Traceback (most recent call last):
 		...
 		ValueError
 
-#		>>> document.pages[1].info
+#		>>> document.pages[1].get_info()
 #		Traceback (most recent call last):
 #		...
 #		JobFailed
@@ -570,6 +570,23 @@ class StreamTest:
 	'dummy://dummy.djvu'
 	>>> type(message.stream) == Stream
 	True
+
+	>>> document.outline.sexpr
+	Traceback (most recent call last):
+	...
+	NotAvailable
+	>>> document.annotations.sexpr
+	Traceback (most recent call last):
+	...
+	NotAvailable
+	>>> document.pages[0].text.sexpr
+	Traceback (most recent call last):
+	...
+	NotAvailable
+	>>> document.pages[0].annotations.sexpr
+	Traceback (most recent call last):
+	...
+	NotAvailable
 	
 	>>> try:
 	...   message.stream.write(file('t-gamma.djvu').read())
@@ -583,6 +600,23 @@ class StreamTest:
 	>>> message = document.get_message()
 	>>> type(message) == DocInfoMessage
 	True
+
+	>>> outline = document.outline
+	>>> outline.wait()
+	>>> outline.sexpr
+	Expression(())
+	>>> anno = document.annotations
+	>>> anno.wait()
+	>>> anno.sexpr
+	Expression(())
+	>>> text = document.pages[0].text
+	>>> text.wait()
+	>>> text.sexpr
+	Expression(())
+	>>> anno = document.pages[0].annotations
+	>>> anno.wait()
+	>>> anno.sexpr
+	Expression(())
 	'''
 
 class SexprTest:
