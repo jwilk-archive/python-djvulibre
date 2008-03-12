@@ -28,8 +28,8 @@ import thread
 cdef object Queue, Empty
 from Queue import Queue, Empty
 
-cdef object Semaphore
-from threading import Semaphore
+cdef object Condition
+from threading import Condition
 
 cdef object imap
 from itertools import imap
@@ -494,7 +494,7 @@ cdef class Document:
 		self._files = DocumentFiles(self, sentinel = the_sentinel)
 		self._context = None
 		self._queue = Queue()
-		self._semaphore = Semaphore()
+		self._condition = Condition()
 	
 	cdef object __init(self, Context context, ddjvu_document_t *ddjvu_document):
 		# Assumption: `loft_lock` is already acquired. 
@@ -1056,14 +1056,22 @@ def _Context_message_distributor(Context self not None, sentinel):
 			# XXX Order of branches below is *crucial*. Do not change.
 			if message._job is not None:
 				job = message._job
-				job._semaphore.release()
+				job._condition.acquire()
+				try:
+					job._condition.notifyAll()
+				finally:
+					job._condition.release()
 				if job.is_done:
 					job.__clear()
 			elif message._page_job is not None:
 				raise SystemError # should not happen
 			elif message._document is not None:
 				document = message._document
-				document._semaphore.release()
+				document._condition.acquire()
+				try:
+					document._condition.notifyAll()
+				finally:
+					document._condition.release()
 				if document.decoding_done:
 					document.__clear()
 			self.handle_message(message)
@@ -1125,6 +1133,7 @@ cdef class Context:
 		All exceptions raised by this method will be ignored.
 		'''
 
+		# XXX Order of branches below is *crucial*. Do not change.
 		if message._job is not None:
 			message._job._queue.put(message)
 		elif message._page_job is not None:
@@ -1724,7 +1733,7 @@ cdef class Job:
 			raise_instantiation_error(type(self))
 		self._context = None
 		self.ddjvu_job = NULL
-		self._semaphore = Semaphore()
+		self._condition = Condition()
 		self._queue = Queue()
 	
 	cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
@@ -1772,8 +1781,14 @@ cdef class Job:
 
 		XXX
 		'''
-		while not ddjvu_job_done(self.ddjvu_job):
-			self._semaphore.acquire()
+		while True:
+			self._condition.acquire()
+			try:
+				if ddjvu_job_done(self.ddjvu_job):
+					break
+				self._condition.wait()
+			finally:
+				self._condition.release()
 
 	def stop(self):
 		'''
