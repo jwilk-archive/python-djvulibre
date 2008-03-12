@@ -34,9 +34,10 @@ from threading import Semaphore
 cdef object imap
 from itertools import imap
 
-cdef object sys, devnull
+cdef object sys, devnull, format_exc
 import sys
 from os import devnull
+from traceback import format_exc
 
 cdef object StringIO
 from cStringIO import StringIO
@@ -71,6 +72,9 @@ DOCUMENT_TYPE_OLD_INDEXED = DDJVU_DOCTYPE_OLD_INDEXED
 cdef object check_sentinel(self, kwargs):
 	if kwargs.get('sentinel') is not the_sentinel:
 		raise_instantiation_error(type(self))
+
+cdef object write_unraisable_exception(object cause):
+	sys.stderr.write('Unhandled exception in thread started by %r\n%s\n' % (cause, format_exc()))
 
 class NotAvailable(Exception):
 	'''
@@ -1067,8 +1071,8 @@ def _Context_message_distributor(Context self not None, sentinel):
 			raise
 		except SystemExit:
 			raise
-		except Exception, ex:
-			write_unraisable_exception(ex)
+		except Exception:
+			write_unraisable_exception(self)
 Context_message_distributor = _Context_message_distributor
 del _Context_message_distributor
 
