@@ -709,16 +709,16 @@ class SexprTest:
 	>>> type(text) == PageText
 	True
 	>>> text_s = text.sexpr
-	>>> text_s_detail = [PageText(page, details).sexpr for details in (TEXT_DETAILS_PAGE, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE, TEXT_DETAILS_ALL)]
+	>>> text_s_detail = [PageText(page, details).sexpr for details in (TEXT_DETAILS_PAGE, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE, TEXT_DETAILS_WORD, TEXT_DETAILS_CHARACTER, TEXT_DETAILS_ALL)]
 	>>> text_s_detail[0] == text_s_detail[1] == text_s_detail[2]
 	True
 	>>> text_s_detail[0]
 	Expression((Symbol('page'), 0, 0, 2550, 3300, '4 Background with image, black foreground \n4.1 Hyperlinks \n4.1.1 Reference \n\xe2\x86\x921 \n4.1.2 HTTP URI \nhttp://jw209508.hopto.org/ \n4.2 Photographic image \n4 \n'))
 	>>> text_s_detail[3]
 	Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 461, 2712, 2061, 2798, '4 Background with image, black foreground '), (Symbol('line'), 461, 2590, 936, 2661, '4.1 Hyperlinks '), (Symbol('line'), 461, 2509, 872, 2559, '4.1.1 Reference '), (Symbol('line'), 461, 2418, 551, 2467, '\xe2\x86\x921 '), (Symbol('line'), 461, 2287, 916, 2337, '4.1.2 HTTP URI '), (Symbol('line'), 461, 2184, 1127, 2244, 'http://jw209508.hopto.org/ '), (Symbol('line'), 461, 2039, 1202, 2110, '4.2 Photographic image '), (Symbol('line'), 1259, 375, 1283, 424, '4 ')))
-	>>> text_s_detail[4] == text_s
+	>>> text_s_detail[4] = text_s_detail[5] == text_s_detail[6] == text_s
 	True
-	>>> text_s_detail[4]
+	>>> text_s
 	Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 461, 2712, 2061, 2798, (Symbol('word'), 461, 2727, 501, 2798, '4'), (Symbol('word'), 582, 2712, 1003, 2798, 'Background'), (Symbol('word'), 1030, 2727, 1186, 2798, 'with'), (Symbol('word'), 1214, 2712, 1442, 2798, 'image,'), (Symbol('word'), 1470, 2726, 1652, 2798, 'black'), (Symbol('word'), 1679, 2712, 2061, 2798, 'foreground')), (Symbol('line'), 461, 2590, 936, 2661, (Symbol('word'), 461, 2602, 547, 2661, '4.1'), (Symbol('word'), 615, 2590, 936, 2661, 'Hyperlinks')), (Symbol('line'), 461, 2509, 872, 2559, (Symbol('word'), 461, 2510, 577, 2559, '4.1.1'), (Symbol('word'), 633, 2509, 872, 2559, 'Reference')), (Symbol('line'), 461, 2418, 551, 2467, (Symbol('word'), 461, 2418, 551, 2467, '\xe2\x86\x921')), (Symbol('line'), 461, 2287, 916, 2337, (Symbol('word'), 461, 2288, 577, 2337, '4.1.2'), (Symbol('word'), 633, 2288, 792, 2337, 'HTTP'), (Symbol('word'), 811, 2287, 916, 2337, 'URI')), (Symbol('line'), 461, 2184, 1127, 2244, (Symbol('word'), 461, 2184, 1127, 2244, 'http://jw209508.hopto.org/')), (Symbol('line'), 461, 2039, 1202, 2110, (Symbol('word'), 461, 2051, 547, 2110, '4.2'), (Symbol('word'), 615, 2039, 1007, 2110, 'Photographic'), (Symbol('word'), 1031, 2039, 1202, 2110, 'image')), (Symbol('line'), 1259, 375, 1283, 424, (Symbol('word'), 1259, 375, 1283, 424, '4'))))
 	>>> PageText(page, 'foobar')
 	Traceback (most recent call last):

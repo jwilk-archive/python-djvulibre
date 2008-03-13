@@ -2628,7 +2628,20 @@ TEXT_DETAILS_PAGE = 'page'
 TEXT_DETAILS_REGION = 'region'
 TEXT_DETAILS_PARAGRAPH = 'para'
 TEXT_DETAILS_LINE = 'line'
+TEXT_DETAILS_WORD = 'word'
+TEXT_DETAILS_CHARACTER = 'char'
 TEXT_DETAILS_ALL = 'all'
+
+cdef object TEXT_DETAILS
+TEXT_DETAILS = set((
+	TEXT_DETAILS_PAGE,
+	TEXT_DETAILS_REGION,
+	TEXT_DETAILS_PARAGRAPH,
+	TEXT_DETAILS_LINE,
+	TEXT_DETAILS_WORD,
+	TEXT_DETAILS_CHARACTER,
+	TEXT_DETAILS_ALL
+))
 
 cdef class PageText:
 	'''
@@ -2639,6 +2652,8 @@ cdef class PageText:
 	- `TEXT_DETAILS_REGION`,
 	- `TEXT_DETAILS_PARAGRAPH`,
 	- `TEXT_DETAILS_LINE`,
+	- `TEXT_DETAILS_WORD`,
+	- `TEXT_DETAILS_CHARACTER`,
 	- `TEXT_DETAILS_ALL`.
 
 	XXX
@@ -2647,7 +2662,7 @@ cdef class PageText:
 	def __cinit__(self, Page page not None, details = TEXT_DETAILS_ALL):
 		if not is_string(details):
 			raise TypeError
-		if details not in (TEXT_DETAILS_PAGE, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE, TEXT_DETAILS_ALL):
+		if details not in TEXT_DETAILS:
 			raise ValueError
 		self._page = page
 		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pagetext(page._document.ddjvu_document, page._n, details))
