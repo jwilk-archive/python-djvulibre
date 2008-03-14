@@ -956,7 +956,7 @@ cdef class PageInfo:
 	
 	property dpi:
 		'''
-		Return the page resolution, in dpi (dots per inch).
+		Return the page resolution, in pixels per inch.
 		'''
 		def __get__(self):
 			return self.ddjvu_pageinfo.dpi
@@ -1607,19 +1607,19 @@ cdef class PageJob(Job):
 			else:
 				return height
 
-	property resolution:
+	property dpi:
 		'''
-		Return the page resolution in pixels per inch (dpi).
+		Return the page resolution in pixels per inch.
 
 		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
 		'''
 		def __get__(self):
-			cdef int resolution
-			resolution = ddjvu_page_get_resolution(<ddjvu_page_t*> self.ddjvu_job)
-			if resolution == 0:
+			cdef int dpi
+			dpi = ddjvu_page_get_resolution(<ddjvu_page_t*> self.ddjvu_job)
+			if dpi == 0:
 				raise NotAvailable
 			else:
-				return resolution
+				return dpi
 
 	property gamma:
 		'''
