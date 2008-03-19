@@ -206,7 +206,7 @@ cdef class Page:
 		Equivalent to `PageJob.get_info(wait=False)`.
 		'''
 		def __get__(self):
-			return self.get_info()
+			return self.get_info(wait=False)
 
 	property dump:
 		'''
@@ -430,7 +430,7 @@ cdef class File:
 		Equivalent to `File.get_info(wait=False)`.
 		'''
 		def __get__(self):
-			return self.get_info()
+			return self.get_info(wait=False)
 
 	property dump:
 		'''
