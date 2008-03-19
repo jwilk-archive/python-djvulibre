@@ -31,8 +31,8 @@ from Queue import Queue, Empty
 cdef object Condition
 from threading import Condition
 
-cdef object imap
-from itertools import imap
+cdef object imap, izip
+from itertools import imap, izip
 
 cdef object sys, devnull, format_exc
 import sys
@@ -2765,7 +2765,7 @@ cdef class Metadata:
 	
 	def keys(self):
 		'''
-		M.keys() -> sequence of M keys
+		M.keys() -> sequence of M's keys
 		'''
 		return self._keys
 	
@@ -2778,6 +2778,30 @@ cdef class Metadata:
 	def __iter__(self):
 		return iter(self._keys)
 	
+	def values(self):
+		'''
+		M.values() -> list of M's values
+		'''
+		return map(self.__getitem__, self._keys)
+	
+	def itervalues(self):
+		'''
+		M.itervalues() -> an iterator over values of M
+		'''
+		return imap(self.__getitem__, self._keys)
+	
+	def items(self):
+		'''
+		M.items() -> list of M's (key, value) pairs, as 2-tuples
+		'''
+		return zip(self._keys, imap(self.__getitem__, self._keys))
+	
+	def iteritems(self):
+		'''
+		M.iteritems() -> an iterator over the (key, value) items of M
+		'''
+		return izip(self._keys, imap(self.__getitem__, self._keys))
+
 	def has_key(self, k):
 		'''
 		M.has_key(k) -> True if D has a key k, else False

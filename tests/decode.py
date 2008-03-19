@@ -653,6 +653,16 @@ class SexprTest:
 	5
 	>>> sorted(metadata.keys())
 	[u'Author', u'CreationDate', u'Creator', u'ModDate', u'Producer']
+	>>> sorted(metadata.iterkeys()) == sorted(metadata.keys())
+	True
+	>>> sorted(metadata.values())
+	[u'2008-03-02 23:56:13+01:00', u'2008-03-02 23:56:13+01:00', u'Jakub Wilk', u'LaTeX with hyperref package', u'pdfTeX-1.40.3\npdf2djvu 0.4.5 (DjVuLibre 3.5.20, poppler 0.6.4)']
+	>>> sorted(metadata.itervalues()) == sorted(metadata.values())
+	True
+	>>> sorted(metadata.items())
+	[(u'Author', u'Jakub Wilk'), (u'CreationDate', u'2008-03-02 23:56:13+01:00'), (u'Creator', u'LaTeX with hyperref package'), (u'ModDate', u'2008-03-02 23:56:13+01:00'), (u'Producer', u'pdfTeX-1.40.3\npdf2djvu 0.4.5 (DjVuLibre 3.5.20, poppler 0.6.4)')]
+	>>> sorted(metadata.iteritems()) == sorted(metadata.items())
+	True
 	>>> k = 'ModDate'
 	>>> k in metadata
 	True
