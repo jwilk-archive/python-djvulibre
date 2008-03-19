@@ -432,7 +432,7 @@ class PageJobTest:
 		64
 		>>> page_job.height
 		48
-		>>> page_job.resolution
+		>>> page_job.dpi
 		300
 		>>> page_job.gamma
 		2.2000000000000002
