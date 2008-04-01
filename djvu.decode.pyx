@@ -1880,11 +1880,11 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 cdef class AffineTransform:
 
 	'''
-	AffineTransform((x0, y0, w0, h0), (x1, y0, w1, h1)) 
+	AffineTransform((x0, y0, w0, h0), (x1, y1, w1, h1)) 
 	  -> an affine coordinate transformation
 
 	The object represents an affine coordinate transformation that maps points
-	from rectangle `(x0, y0, w0, h0)` to rectangle `(x1, y0, w1, h1)`.
+	from rectangle `(x0, y0, w0, h0)` to rectangle `(x1, y1, w1, h1)`.
 	'''
 
 	def __cinit__(self, input, output):
