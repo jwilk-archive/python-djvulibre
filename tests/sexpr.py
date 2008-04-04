@@ -50,6 +50,27 @@ class IntExpressionTest:
 
 	'''
 
+class SymbolTest:
+	'''
+	>>> x = Symbol('foobar')
+	>>> x
+	Symbol('foobar')
+	>>> type(x)
+	<class 'djvu.sexpr.Symbol'>
+	
+	>>> str(x)
+	'foobar'
+
+	>>> x == Symbol('foobar')
+	True
+	>>> x is Symbol('foobar')
+	True
+	>>> x == 'foobar'
+	False
+	>>> hash(x) == hash('foobar')
+	True
+	'''	
+
 class SymbolExpressionTest:
 	'''
 	>>> x = Expression(Symbol('foobar'))

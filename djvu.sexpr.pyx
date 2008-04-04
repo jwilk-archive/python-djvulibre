@@ -57,6 +57,12 @@ import sys
 cdef object StringIO
 from cStringIO import StringIO
 
+cdef object weakref
+import weakref
+
+cdef object symbol_dict
+symbol_dict = weakref.WeakValueDictionary()
+
 cdef object myio_stdin
 cdef object myio_stdout
 cdef int myio_buffer
@@ -153,19 +159,51 @@ cdef class _MissingCExpr(_WrappedCExpr):
 cdef _MissingCExpr wexpr_missing():
 	return _MissingCExpr(the_sentinel)
 
-class Symbol(str):
+
+cdef class BaseSymbol:
+
+	cdef object __weakref__
+	cdef object value
+
+	def __cinit__(self, value):
+		value = str(value)
+		self.value = value
 
 	def __repr__(self):
-		return '%s(%s)' % (get_type_name(SymbolType), str.__repr__(self))
+		return '%s(%r)' % (get_type_name(SymbolType), self.value)
 	
 	def __eq__(self, other):
-		if not typecheck(other, Symbol):
+		cdef BaseSymbol _other
+		if not typecheck(other, BaseSymbol):
 			return False
-		else:
-			return str.__eq__(self, other)
+		_other = other
+		return bool(self.value == _other.value)
 	
 	def __neq__(self, other):
-		return not self.__eq__(other)
+		return not self == other
+	
+	def __hash__(self):
+		return hash(self.value)
+	
+	def __str__(self):
+		return self.value
+	
+def Symbol__new__(cls, name):
+	'''
+	Symbol(name) -> a symbol
+	'''
+	try:
+		self = symbol_dict[name]
+	except KeyError:
+		name = str(name)
+		self = BaseSymbol.__new__(cls, name)
+		symbol_dict[name] = self
+	return self
+
+class Symbol(BaseSymbol):
+	__new__ = staticmethod(Symbol__new__)
+
+del Symbol__new__
 
 def Expression__new__(cls, value):
 	'''
@@ -173,7 +211,7 @@ def Expression__new__(cls, value):
 	'''
 	if is_int(value):
 		return IntExpression(value)
-	elif typecheck(value, Symbol):
+	elif typecheck(value, SymbolType):
 		return SymbolExpression(value)
 	elif is_unicode(value):
 		return StringExpression(encode_utf8(value))
@@ -367,11 +405,13 @@ def SymbolExpression__new__(cls, value):
 	SymbolExpression(Symbol(s)) -> a symbol expression
 	'''
 	cdef BaseExpression self
+	cdef BaseSymbol symbol
 	self = BaseExpression.__new__(cls)
 	if typecheck(value, _WrappedCExpr):
 		self.wexpr = value
-	elif typecheck(value, str):
-		self.wexpr = wexpr(symbol_to_cexpr(value))
+	elif typecheck(value, SymbolType):
+		symbol = value
+		self.wexpr = wexpr(symbol_to_cexpr(symbol.value))
 	else:
 		raise TypeError
 	return self
