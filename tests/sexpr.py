@@ -52,80 +52,80 @@ class IntExpressionTest:
 
 class SymbolTest:
 	'''
-	>>> x = Symbol('foobar')
+	>>> x = Symbol('eggs')
 	>>> x
-	Symbol('foobar')
+	Symbol('eggs')
 	>>> type(x)
 	<class 'djvu.sexpr.Symbol'>
 	
 	>>> str(x)
-	'foobar'
+	'eggs'
 
-	>>> x == Symbol('foobar')
+	>>> x == Symbol('eggs')
 	True
-	>>> x is Symbol('foobar')
+	>>> x is Symbol('eggs')
 	True
-	>>> x == 'foobar'
+	>>> x == 'eggs'
 	False
-	>>> hash(x) == hash('foobar')
+	>>> hash(x) == hash('eggs')
 	True
 	'''	
 
 class SymbolExpressionTest:
 	'''
-	>>> x = Expression(Symbol('foobar'))
+	>>> x = Expression(Symbol('eggs'))
 	>>> x
-	Expression(Symbol('foobar'))
+	Expression(Symbol('eggs'))
 
 	>>> x.value
-	Symbol('foobar')
+	Symbol('eggs')
 
 	>>> str(x)
-	'foobar'
+	'eggs'
 	
 	>>> repr(x) == repr(Expression.from_string(str(x)))
 	True
 
-	>>> x == Expression(Symbol('foobar'))
+	>>> x == Expression(Symbol('eggs'))
 	True
-	>>> x == Expression('foobar')
+	>>> x == Expression('eggs')
 	False
-	>>> x == Symbol('foobar')
+	>>> x == Symbol('eggs')
 	False
-	>>> hash(x) == hash('foobar')
+	>>> hash(x) == hash('eggs')
 	True
 	'''
 
 class StringExpressionTest:
 	'''
-	>>> x = Expression('foobar')
+	>>> x = Expression('eggs')
 	>>> x
-	Expression('foobar')
+	Expression('eggs')
 
 	>>> x.value
-	'foobar'
+	'eggs'
 
 	>>> str(x)
-	'"foobar"'
+	'"eggs"'
 	
 	>>> repr(x) == repr(Expression.from_string(str(x)))
 	True
 	
-	>>> x == Expression('foobar')
+	>>> x == Expression('eggs')
 	True
-	>>> x == Expression(Symbol('foobar'))
+	>>> x == Expression(Symbol('eggs'))
 	False
-	>>> x == 'foobar'
+	>>> x == 'eggs'
 	False
-	>>> hash(x) == hash('foobar')
+	>>> hash(x) == hash('eggs')
 	True
 	'''
 
 class UnicodeExpressionTest:
 	r'''
-	>>> x = Expression(u'foobar')
+	>>> x = Expression(u'eggs')
 	>>> x
-	Expression('foobar')
+	Expression('eggs')
 
 	>>> x = Expression(u'\u017c\xf3\u0142w')
 	>>> x
