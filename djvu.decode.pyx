@@ -2048,13 +2048,19 @@ cdef class ErrorMessage(Message):
 
 	cdef object __init(self):
 		Message.__init(self)
-		self._message = self.ddjvu_message.m_error.message
-		self._location = \
-		(
-			self.ddjvu_message.m_error.function,
-			self.ddjvu_message.m_error.filename,
-			self.ddjvu_message.m_error.lineno
-		)
+		if self.ddjvu_message.m_error.message != NULL:
+			self._message = self.ddjvu_message.m_error.message
+		else:
+			self._message = None
+		if self.ddjvu_message.m_error.function != NULL:
+			function = self.ddjvu_message.m_error.function
+		else:
+			function = None
+		if self.ddjvu_message.m_error.filename != NULL:
+			filename = self.ddjvu_message.m_error.filename
+		else:
+			filename = None
+		self._location = (function, filename, self.ddjvu_message.m_error.lineno)
 
 	property message:
 		'''
