@@ -2428,7 +2428,15 @@ cdef class DocumentOutline(DocumentExtension):
 
 	def __cinit__(self, Document document not None):
 		self._document = document
-		self._sexpr = wrap_sexpr(document, ddjvu_document_get_outline(document.ddjvu_document))
+		self._sexpr = None
+	
+	cdef object _update_sexpr(self):
+		if self._sexpr is not None:
+			return
+		self._sexpr = wrap_sexpr(
+			self._document,
+			ddjvu_document_get_outline(self._document.ddjvu_document)
+		)
 
 	def wait(self):
 		'''
@@ -2443,7 +2451,7 @@ cdef class DocumentOutline(DocumentExtension):
 					self.sexpr
 					return
 				except NotAvailable:
-					pass
+					self._document._condition.wait()
 			finally:
 				self._document._condition.release()
 	
@@ -2456,9 +2464,11 @@ cdef class DocumentOutline(DocumentExtension):
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
+			self._update_sexpr()
 			try:
 				return self._sexpr()
 			except InvalidExpression:
+				self._sexpr = None
 				raise NotAvailable
 	
 	def __repr__(self):
@@ -2477,6 +2487,9 @@ cdef class Annotations:
 		if typecheck(self, PageAnnotations):
 			return
 		raise_instantiation_error(type(self))
+	
+	cdef object _update_sexpr(self):
+		raise NotImplementedError
 
 	def wait(self):
 		'''
@@ -2491,7 +2504,7 @@ cdef class Annotations:
 					self.sexpr
 					return
 				except NotAvailable:
-					pass
+					self._document._condition.wait()
 			finally:
 				self._document._condition.release()
 
@@ -2504,9 +2517,11 @@ cdef class Annotations:
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
+			self._update_sexpr()
 			try:
 				return self._sexpr()
 			except InvalidExpression:
+				self._sexpr = None
 				raise NotAvailable
 	
 	property background_color:
@@ -2603,7 +2618,16 @@ cdef class DocumentAnnotations(Annotations):
 
 	def __cinit__(self, Document document not None, compat = True):
 		self._document = document
-		self._sexpr = wrap_sexpr(document, ddjvu_document_get_anno(document.ddjvu_document, compat))
+		self._compat = compat
+		self._sexpr = None
+
+	cdef object _update_sexpr(self):
+		if self._sexpr is not None:
+			return
+		self._sexpr = wrap_sexpr(
+			self._document,
+			ddjvu_document_get_anno(self._document.ddjvu_document, self._compat)
+		)
 
 	property document:
 		'''
@@ -2621,7 +2645,15 @@ cdef class PageAnnotations(Annotations):
 	def __cinit__(self, Page page not None):
 		self._document = page._document
 		self._page = page
-		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pageanno(page._document.ddjvu_document, page._n))
+		self._sexpr = None
+	
+	cdef object _update_sexpr(self):
+		if self._sexpr is not None:
+			return
+		self._sexpr = wrap_sexpr(
+			self._page._document,
+			ddjvu_document_get_pageanno(self._page._document.ddjvu_document, self._page._n)
+		)
 	
 	property page:
 		'''
@@ -2671,7 +2703,15 @@ cdef class PageText:
 		if details not in TEXT_DETAILS:
 			raise ValueError
 		self._page = page
-		self._sexpr = wrap_sexpr(page._document, ddjvu_document_get_pagetext(page._document.ddjvu_document, page._n, details))
+		self._sexpr = None
+		self._details = details
+	
+	cdef object _update_sexpr(self):
+		if self._sexpr is None:
+			self._sexpr = wrap_sexpr(
+				self._page._document,
+				ddjvu_document_get_pagetext(self._page._document.ddjvu_document, self._page._n, self._details)
+			)
 
 	def wait(self):
 		'''
@@ -2679,6 +2719,17 @@ cdef class PageText:
 
 		Wait until the associated S-expression is available.
 		'''
+		while True:
+			self._page._document._condition.acquire()
+			try:
+				try:
+					self.sexpr
+					return
+				except NotAvailable:
+					self._page._document._condition.wait()
+			finally:
+				self._page._document._condition.release()
+
 	property page:
 		'''
 		Return the concerned page.
@@ -2694,9 +2745,11 @@ cdef class PageText:
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 		'''
 		def __get__(self):
+			self._update_sexpr()
 			try:
 				return self._sexpr()
 			except InvalidExpression:
+				self._sexpr = None
 				raise NotAvailable
 
 cdef class Hyperlinks:

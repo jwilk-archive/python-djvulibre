@@ -632,12 +632,14 @@ class SexprTest:
 	>>> anno = DocumentAnnotations(document, compat = False)
 	>>> type(anno) == DocumentAnnotations
 	True
+	>>> anno.wait()
 	>>> anno.sexpr
 	Expression(())
 
 	>>> anno = document.annotations
 	>>> type(anno) == DocumentAnnotations
 	True
+	>>> anno.wait()
 	>>> anno.background_color
 	>>> anno.horizontal_align
 	>>> anno.vertical_align
@@ -684,6 +686,7 @@ class SexprTest:
 	>>> outline = document.outline
 	>>> type(outline) == DocumentOutline
 	True
+	>>> outline.wait()
 	>>> outline.sexpr
 	Expression((Symbol('bookmarks'), ('Black and white', '#1', ('Different font sizes', '#1'), ('Equation', '#1')), ('White background, colorful foreground', '#2'), ('Colorful solid background, black foreground', '#3'), ('Background with image, black foreground', '#4', ('Hyperlinks', '#4', ('Reference', '#4'), ('HTTP URI', '#4')), ('Photographic image', '#4'))))
 
@@ -691,6 +694,7 @@ class SexprTest:
 	>>> anno = page.annotations
 	>>> type(anno) == PageAnnotations
 	True
+	>>> anno.wait()
 	>>> anno.background_color
 	>>> anno.horizontal_align
 	>>> anno.vertical_align
@@ -718,6 +722,7 @@ class SexprTest:
 	>>> text = page.text
 	>>> type(text) == PageText
 	True
+	>>> text.wait()
 	>>> text_s = text.sexpr
 	>>> text_s_detail = [PageText(page, details).sexpr for details in (TEXT_DETAILS_PAGE, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE, TEXT_DETAILS_WORD, TEXT_DETAILS_CHARACTER, TEXT_DETAILS_ALL)]
 	>>> text_s_detail[0] == text_s_detail[1] == text_s_detail[2]

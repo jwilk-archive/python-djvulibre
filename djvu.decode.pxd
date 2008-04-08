@@ -315,13 +315,15 @@ cdef class _SexprWrapper:
 
 cdef class DocumentOutline(DocumentExtension):
 	cdef _SexprWrapper _sexpr
+	cdef object _update_sexpr(self)
 
 cdef class Annotations:
 	cdef _SexprWrapper _sexpr
+	cdef object _update_sexpr(self)
 	cdef Document _document
 
 cdef class DocumentAnnotations(Annotations):
-	pass
+	cdef int _compat
 
 cdef class Hyperlinks:
 	cdef object _sexpr
@@ -343,7 +345,9 @@ cdef class PageAnnotations(Annotations):
 
 cdef class PageText:
 	cdef Page _page
+	cdef object _details
 	cdef _SexprWrapper _sexpr
+	cdef object _update_sexpr(self)
 
 cdef class FileInfo:
 	cdef ddjvu_fileinfo_t ddjvu_fileinfo
