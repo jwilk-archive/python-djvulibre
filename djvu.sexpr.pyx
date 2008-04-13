@@ -581,8 +581,6 @@ class ListExpression(Expression):
 		cdef BaseExpression pyexpr
 		cexpr = self.wexpr.cexpr()
 		pyexpr = Expression(value)
-		if pyexpr is None:
-			raise TypeError
 		new_cexpr = pyexpr.wexpr.cexpr()
 		if is_int(key):
 			n = key
