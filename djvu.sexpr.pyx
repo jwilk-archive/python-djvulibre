@@ -209,6 +209,8 @@ def Expression__new__(cls, value):
 	'''
 	Expression(value) -> an expression
 	'''
+	if typecheck(value, Expression) and (not typecheck(value, ListExpression) or not value):
+		return value
 	if is_int(value):
 		return IntExpression(value)
 	elif typecheck(value, SymbolType):
@@ -218,12 +220,7 @@ def Expression__new__(cls, value):
 	elif is_string(value):
 		return StringExpression(str(value))
 	else:
-		try:
-			it = iter(value)
-		except TypeError:
-			raise
-		else:
-			return ListExpression(it)
+		return ListExpression(iter(value))
 
 def Expression_from_stream(stdin):
 	'''
@@ -502,7 +499,10 @@ cdef _WrappedCExpr _build_list_cexpr(object items):
 	try:
 		cexpr = cexpr_nil
 		for item in items:
-			citem = Expression(item)
+			if typecheck(item, BaseExpression):
+				citem = item
+			else:
+				citem = Expression(item)
 			if citem is None:
 				raise TypeError
 			cexpr = pair_to_cexpr(citem.wexpr.cexpr(), cexpr)

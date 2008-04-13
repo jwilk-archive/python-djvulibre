@@ -6,6 +6,9 @@ class IntExpressionTest:
 	>>> x
 	Expression(3)
 
+	>>> x is Expression(x)
+	True
+
 	>>> x.value
 	3
 
@@ -77,6 +80,9 @@ class SymbolExpressionTest:
 	>>> x
 	Expression(Symbol('eggs'))
 
+	>>> x is Expression(x)
+	True
+
 	>>> x.value
 	Symbol('eggs')
 
@@ -102,6 +108,9 @@ class StringExpressionTest:
 	>>> x
 	Expression('eggs')
 
+	>>> x is Expression(x)
+	True
+
 	>>> x.value
 	'eggs'
 
@@ -126,6 +135,8 @@ class UnicodeExpressionTest:
 	>>> x = Expression(u'eggs')
 	>>> x
 	Expression('eggs')
+	>>> x is Expression(x)
+	True
 
 	>>> x = Expression(u'\u017c\xf3\u0142w')
 	>>> x
@@ -137,6 +148,10 @@ class ListExpressionTest:
 	>>> x = Expression(())
 	>>> x
 	Expression(())
+
+	>>> y = Expression(x)
+	>>> x is y
+	True
 
 	>>> x.value
 	()
@@ -153,6 +168,11 @@ class ListExpressionTest:
 	>>> x = Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
 	>>> x
 	Expression(((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
+	>>> y = Expression(x)
+	>>> repr(x) == repr(y)
+	True
+	>>> x is y
+	False
 
 	>>> x.value
 	((1, 2), 3, (4, 5, Symbol('baz')), ('quux',))
