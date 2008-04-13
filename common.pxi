@@ -43,6 +43,8 @@ cdef extern from 'Python.h':
 
 	FILE* file_to_cfile 'PyFile_AsFile'(object)
 
+	int list_append 'PyList_Append'(object, object) except -1
+
 cdef extern from 'object.h':
 	ctypedef struct PyTypeObject:
 		char *tp_name

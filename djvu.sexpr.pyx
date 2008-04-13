@@ -628,9 +628,8 @@ class ListExpression(Expression):
 		cdef cexpr_t current
 		current = self.wexpr.cexpr()
 		result = []
-		append = result.append
 		while current != cexpr_nil:
-			append(_c2py(cexpr_head(current))._get_value())
+			list_append(result, _c2py(cexpr_head(current))._get_value())
 			current = cexpr_tail(current)
 		return tuple(result)
 

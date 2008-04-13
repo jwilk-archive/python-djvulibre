@@ -801,65 +801,65 @@ cdef class Document:
 			raise TypeError
 		output = file_to_cfile(file)
 		if pages is not None:
-			options.append(pages_to_opt(pages, 0))
+			list_append(options, pages_to_opt(pages, 0))
 		if eps:
-			options.append('--format=eps')
+			list_append(options, '--format=eps')
 		if level is not None:
 			if not is_int(level):
 				raise TypeError
-			options.append('--level=%d' % level)
+			list_append(options, '--level=%d' % level)
 		if orientation is not None:
 			if not is_string(booklet):
 				raise TypeError
-			options.append('--orientation=' + orientation)
+			list_append(options, '--orientation=' + orientation)
 		if not is_int(mode):
 			raise TypeError
 		try:
 			mode = PRINT_RENDER_MODE_MAP[mode]
 			if mode is not None:
-				options.append('--mode=' + mode)
+				list_append(options, '--mode=' + mode)
 		except KeyError:
 			raise ValueError
 		if zoom is not None:
 			if not is_int(zoom):
 				raise TypeError
-			options.append('--zoom=%d' % zoom)
+			list_append(options, '--zoom=%d' % zoom)
 		if not color:
-			options.append('--color=no')
+			list_append(options, '--color=no')
 		if not srgb:
-			options.append('--srgb=no')
+			list_append(options, '--srgb=no')
 		if gamma is not None:
 			if not is_int(gamma) and not is_float(gamma):
 				raise TypeError
-			options.append('--gamma=%.16f' % gamma)
+			list_append(options, '--gamma=%.16f' % gamma)
 		if not is_int(copies):
 			raise TypeError
 		if copies != 1:
-			options.append('--options=%d' % copies)
+			list_append(options, '--options=%d' % copies)
 		if frame:
-			options.append('--frame')
+			list_append(options, '--frame')
 		if cropmarks:
-			options.append('--cropmarks')
+			list_append(options, '--cropmarks')
 		if text:
-			options.append('--text')
+			list_append(options, '--text')
 		if booklet is not None:
 			if not is_string(booklet):
 				raise TypeError
-			options.append('--booklet=' + booklet)
+			list_append(options, '--booklet=' + booklet)
 		if not is_int(booklet_max):
 			raise TypeError
 		if booklet_max:
-			options.append('--bookletmax=%d' % booklet_max)
+			list_append(options, '--bookletmax=%d' % booklet_max)
 		if not is_int(booklet_align):
 			raise TypeError
 		if booklet_align:
-			options.append('--bookletalign=%d' % booklet_align)
+			list_append(options, '--bookletalign=%d' % booklet_align)
 		if is_int(booklet_fold):
-			options.append('--bookletfold=%d' % booklet_fold)
+			list_append(options, '--bookletfold=%d' % booklet_fold)
 		else:
 			fold_base, fold_incr = booklet_fold
 			if not is_int(fold_base) or not is_int(fold_incr):
-				options.append('--bookletfold=%d+%d' % (fold_base, fold_incr))
+				list_append(options, '--bookletfold=%d+%d' % (fold_base, fold_incr))
 		cdef char **optv
 		cdef int optc
 		optc = 0
@@ -2772,7 +2772,7 @@ cdef class Hyperlinks:
 			current = all
 			self._sexpr = []
 			while current[0]:
-				self._sexpr.append(wrap_sexpr(annotations._document, current[0]))
+				list_append(self._sexpr, wrap_sexpr(annotations._document, current[0]))
 				current = current + 1
 		finally:
 			libc_free(all)
@@ -2804,7 +2804,7 @@ cdef class Metadata:
 			current = all
 			keys = []
 			while current[0]:
-				keys.append(unicode(wrap_sexpr(annotations._document, current[0])()))
+				list_append(keys, unicode(wrap_sexpr(annotations._document, current[0])()))
 				current = current + 1
 			self._keys = frozenset(keys)
 		finally:
