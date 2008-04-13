@@ -352,6 +352,16 @@ cdef class BaseExpression:
 	def __repr__(self):
 		return '%s(%r)' % (get_type_name(ExpressionType), self.value)
 
+	def __copy__(self):
+		# Most of S-expressions are immutable.
+		# Mutable S-expressions should override this method.
+		return self
+	
+	def __deepcopy__(self, memo):
+		# Most of S-expressions are immutable.
+		# Mutable S-expressions should override this method.
+		return self
+
 def IntExpression__new__(cls, value):
 	'''
 	IntExpression(n) -> an integer expression
@@ -632,6 +642,12 @@ class ListExpression(Expression):
 			list_append(result, _c2py(cexpr_head(current))._get_value())
 			current = cexpr_tail(current)
 		return tuple(result)
+	
+	def __copy__(self):
+		return Expression(self)
+	
+	def __deepcopy__(self, memo):
+		return Expression(self._get_value())
 
 del ListExpression__new__
 

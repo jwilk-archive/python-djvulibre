@@ -241,6 +241,52 @@ class ListExpressionTest:
 	
 	'''
 
+class ListExpressionCopyTest:
+
+	'''
+	>>> from copy import copy, deepcopy
+
+	>>> x = Expression([1, [2], 3])
+	>>> y = Expression(x)
+	>>> x[1][0] = 0
+	>>> x
+	Expression((1, (0,), 3))
+	>>> y
+	Expression((1, (0,), 3))
+	>>> x[1] = 0
+	>>> x
+	Expression((1, 0, 3))
+	>>> y
+	Expression((1, (0,), 3))
+
+	>>> x = Expression([1, [2], 3])
+	>>> y = copy(x)
+	>>> x[1][0] = 0
+	>>> x
+	Expression((1, (0,), 3))
+	>>> y
+	Expression((1, (0,), 3))
+	>>> x[1] = 0
+	>>> x
+	Expression((1, 0, 3))
+	>>> y
+	Expression((1, (0,), 3))
+
+
+	>>> x = Expression([1, [2], 3])
+	>>> y = deepcopy(x)
+	>>> x[1][0] = 0
+	>>> x
+	Expression((1, (0,), 3))
+	>>> y
+	Expression((1, (2,), 3))
+	>>> x[1] = 0
+	>>> x
+	Expression((1, 0, 3))
+	>>> y
+	Expression((1, (2,), 3))
+	'''
+
 class ExpressionParser:
 	'''
 	>>> Expression.from_string('(1')
