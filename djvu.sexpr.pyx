@@ -652,6 +652,9 @@ cdef class _ListExpressionIterator:
 		self.cexpr = cexpr_tail(cexpr)
 		cexpr = cexpr_head(cexpr)
 		return _c2py(cexpr)
+	
+	def __iter__(self):
+		return self
 
 cdef object SymbolType
 cdef object ExpressionType
