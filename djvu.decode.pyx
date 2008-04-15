@@ -324,12 +324,16 @@ cdef class Thumbnail:
 		* `data` is `None` if `dry_run` is true; otherwise is contains the
 		  actual image data.
 		'''
+		cdef int iw, ih
 		cdef long w, h, row_size
 		cdef char* buffer
 		cdef size_t buffer_size
 		w, h = size
 		if w <= 0 or h <= 0:
 			raise ValueError('size')
+		iw, ih = w, h
+		if iw != w or ih != h:
+			raise OverflowError('size')
 		row_size = calculate_row_size(w, row_alignment, pixel_format._bpp)
 		if dry_run:
 			result = None
@@ -337,8 +341,8 @@ cdef class Thumbnail:
 		else:
 			result = allocate_image_buffer(row_size, h)
 			buffer = string_to_charp(result)
-		if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &w, &h, pixel_format.ddjvu_format, row_size, buffer):
-			return (w, h, row_size), result
+		if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &iw, &ih, pixel_format.ddjvu_format, row_size, buffer):
+			return (iw, ih, row_size), result
 		else:
 			raise NotAvailable
 	
