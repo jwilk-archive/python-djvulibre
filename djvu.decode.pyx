@@ -307,7 +307,7 @@ cdef class Thumbnail:
 		'''
 		return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 1))
 
-	def render(self, size, PixelFormat pixel_format not None, unsigned long row_alignment = 0, dry_run = False):
+	def render(self, size, PixelFormat pixel_format not None, long row_alignment = 0, dry_run = False):
 		'''
 		T.render((w0, h0), pixel_format, row_alignment=1, dry_run=False) -> ((w1, h1, row_size), data)
 
@@ -324,12 +324,12 @@ cdef class Thumbnail:
 		* `data` is `None` if `dry_run` is true; otherwise is contains the
 		  actual image data.
 		'''
-		cdef int w, h
+		cdef long w, h, row_size
 		cdef char* buffer
 		cdef size_t buffer_size
-		(w, h) = size
+		w, h = size
 		if w <= 0 or h <= 0:
-			raise ValueError
+			raise ValueError('size')
 		row_size = calculate_row_size(w, row_alignment, pixel_format._bpp)
 		if dry_run:
 			result = None
@@ -1548,7 +1548,8 @@ cdef class PixelFormatPackedBits(PixelFormat):
 	def __repr__(self):
 		return '%s(%r)' % (get_type_name(PixelFormatPackedBits), self.endianness)
 
-cdef unsigned long calculate_row_size(unsigned long width, unsigned long row_alignment, int bpp):
+cdef object calculate_row_size(long width, long row_alignment, int bpp):
+	cdef long result
 	if bpp == 1:
 		row_size = (width + 7) >> 3
 	elif bpp & 7 == 0:
@@ -1557,9 +1558,12 @@ cdef unsigned long calculate_row_size(unsigned long width, unsigned long row_ali
 		raise SystemError
 	if row_alignment == 0:
 		row_alignment = 1
-	return ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
+	result = ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
+	if result < width or result <= 0:
+		raise OverflowError('row_size')
+	return result
 
-cdef object allocate_image_buffer(unsigned long width, unsigned long height):
+cdef object allocate_image_buffer(long width, long height):
 	cdef Py_ssize_t c_buffer_size
 	py_buffer_size = int(width) * int(height)
 	try:
@@ -1700,7 +1704,7 @@ cdef class PageJob(Job):
 		def __del__(self):
 			ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job))
 
-	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, unsigned int row_alignment = 0):
+	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, long row_alignment = 0):
 		'''
 		J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1) -> data
 
@@ -1734,10 +1738,23 @@ cdef class PageJob(Job):
 		cdef ddjvu_rect_t c_page_rect
 		cdef ddjvu_rect_t c_render_rect
 		cdef Py_ssize_t buffer_size
-		cdef unsigned long row_size
+		cdef long row_size
 		cdef int bpp
-		(c_page_rect.x, c_page_rect.y, c_page_rect.w, c_page_rect.h) = page_rect
-		(c_render_rect.x, c_render_rect.y, c_render_rect.w, c_render_rect.h) = render_rect
+		cdef long x, y, w, h
+		if row_alignment < 0:
+			raise ValueError('row_alignment')
+		x, y, w, h = page_rect
+		if w <= 0 or h <= 0:
+			raise ValueError('page_rect')
+		c_page_rect.x, c_page_rect.y, c_page_rect.w, c_page_rect.h = x, y, w, h
+		if c_page_rect.x != x or c_page_rect.y != y or c_page_rect.w != w or c_page_rect.h != h:
+			raise OverflowError('page_rect')
+		x, y, w, h = render_rect
+		if w <= 0 or h <= 0:
+			raise ValueError('render_rect')
+		c_render_rect.x, c_render_rect.y, c_render_rect.w, c_render_rect.h = x, y, w, h
+		if c_render_rect.x != x or c_render_rect.y != y or c_render_rect.w != w or c_render_rect.h != h:
+			raise OverflowError('render_rect')
 		row_size = calculate_row_size(c_render_rect.w, row_alignment, pixel_format._bpp)
 		result = allocate_image_buffer(row_size, c_render_rect.h)
 		if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, string_to_charp(result)) == 0:

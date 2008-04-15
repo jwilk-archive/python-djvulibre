@@ -453,6 +453,19 @@ class PageJobTest:
 		>>> page_job.rotation, page_job.initial_rotation
 		(0, 0)
 
+		>>> page_job.render(RENDER_COLOR, (0, 0, -1, -1), (0, 0, 10, 10), PixelFormatRgb())
+		Traceback (most recent call last):
+		...
+		ValueError: page_rect
+		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, -1, -1), PixelFormatRgb())
+		Traceback (most recent call last):
+		...
+		ValueError: render_rect
+		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
+		Traceback (most recent call last):
+		...
+		ValueError: row_alignment
+
 		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 100000, 100000), PixelFormatRgb(), 8)
 		Traceback (most recent call last):
 		...
@@ -480,10 +493,10 @@ class ThumbnailTest:
 	>>> message.thumbnail.page.n
 	0
 	>>> thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
-	((5, 3, 5L), None)
+	((5, 3, 5), None)
 	>>> (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey())
 	>>> w, h, r
-	(5, 3, 5L)
+	(5, 3, 5)
 	>>> pixels[:15]
 	'\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
 	'''
