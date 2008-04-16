@@ -126,10 +126,10 @@ cdef class DocumentPages(DocumentExtension):
 	def __getitem__(self, key):
 		if is_int(key):
 			if key < 0:
-				raise ValueError
+				raise IndexError('page number out of range')
 			return Page(self.document, key)
 		else:
-			raise TypeError
+			raise TypeError('page numbers must be integers')
 
 cdef class Page:
 
@@ -461,9 +461,9 @@ cdef object pages_to_opt(object pages, int sort_uniq):
 		pages = list(pages)
 	for i from 0 <= i < len(pages):
 		if not is_int(pages[i]):
-			raise TypeError
+			raise TypeError('page numbers must be integers')
 		if pages[i] < 0:
-			raise ValueError
+			raise ValueError('page number out of range')
 		pages[i] = pages[i] + 1
 	return '--pages=' + (','.join(imap(str, pages)))
 
@@ -484,6 +484,9 @@ PRINT_BOOKLET_NO = None
 PRINT_BOOKLET_YES = 'yes'
 PRINT_BOOKLET_RECTO = 'recto'
 PRINT_BOOKLET_VERSO = 'verso'
+
+cdef object PRINT_BOOKLET_OPTIONS
+PRINT_BOOKLET_OPTIONS = (PRINT_BOOKLET_NO, PRINT_BOOKLET_YES, PRINT_BOOKLET_RECTO, PRINT_BOOKLET_VERSO)
 
 cdef class SaveJob(Job):
 
@@ -525,8 +528,7 @@ cdef class Document:
 
 	def __cinit__(self, **kwargs):
 		self.ddjvu_document = NULL
-		if kwargs.get('sentinel') is not the_sentinel:
-			raise_instantiation_error(type(self))
+		check_sentinel(self, kwargs)
 		self._pages = DocumentPages(self, sentinel = the_sentinel)
 		self._files = DocumentFiles(self, sentinel = the_sentinel)
 		self._context = None
@@ -654,13 +656,13 @@ cdef class Document:
 		cdef Py_ssize_t i
 		if indirect is None:
 			if not is_file(file):
-				raise TypeError
+				raise TypeError('`file` must be a real file object')
 			output = file_to_cfile(file)
 		else:
 			if file is not None:
-				raise TypeError
+				raise TypeError('`file` must be None if `indirect` is specified')
 			if not is_string(indirect):
-				raise TypeError
+				raise TypeError('`indirect` must be a byte string')
 			# XXX ddjvu API documentation says that output should by NULL,
 			# but we'd like to spot the DjVuLibre bug
 			open(indirect, 'wb').close()
@@ -802,7 +804,7 @@ cdef class Document:
 		cdef SaveJob job
 		options = []
 		if not is_file(file):
-			raise TypeError
+			raise TypeError('`file` must be a real file object')
 		output = file_to_cfile(file)
 		if pages is not None:
 			list_append(options, pages_to_opt(pages, 0))
@@ -810,23 +812,23 @@ cdef class Document:
 			list_append(options, '--format=eps')
 		if level is not None:
 			if not is_int(level):
-				raise TypeError
+				raise TypeError('`level` must be an integer')
 			list_append(options, '--level=%d' % level)
 		if orientation is not None:
-			if not is_string(booklet):
-				raise TypeError
+			if not is_string(orientation):
+				raise TypeError('`orientation` must be a byte string or none')
 			list_append(options, '--orientation=' + orientation)
 		if not is_int(mode):
-			raise TypeError
+			raise TypeError('`mode` must be an integer')
 		try:
 			mode = PRINT_RENDER_MODE_MAP[mode]
 			if mode is not None:
 				list_append(options, '--mode=' + mode)
 		except KeyError:
-			raise ValueError
+			raise ValueError('`mode` must be equal to RENDER_COLOR, or RENDER_BLACK, or RENDER_FOREGROUND, or RENDER_BACKGROUND')
 		if zoom is not None:
 			if not is_int(zoom):
-				raise TypeError
+				raise TypeError('`zoom` must be an integer or none')
 			list_append(options, '--zoom=%d' % zoom)
 		if not color:
 			list_append(options, '--color=no')
@@ -834,10 +836,10 @@ cdef class Document:
 			list_append(options, '--srgb=no')
 		if gamma is not None:
 			if not is_int(gamma) and not is_float(gamma):
-				raise TypeError
+				raise TypeError('`gamma` must be a number or none')
 			list_append(options, '--gamma=%.16f' % gamma)
 		if not is_int(copies):
-			raise TypeError
+			raise TypeError('`copies` must be an integer')
 		if copies != 1:
 			list_append(options, '--options=%d' % copies)
 		if frame:
@@ -848,28 +850,36 @@ cdef class Document:
 			list_append(options, '--text')
 		if booklet is not None:
 			if not is_string(booklet):
-				raise TypeError
+				raise TypeError('`booklet` must be a byte string or none')
+			if options not in PRINT_BOOKLET_OPTIONS:
+				raise ValueError('`booklet` must be equal to `PRINT_BOOKLET_NO`, or `PRINT_BOOKLET_YES`, or `PRINT_BOOKLET_VERSO`, or `PRINT_BOOKLET_RECTO`')
 			list_append(options, '--booklet=' + booklet)
 		if not is_int(booklet_max):
-			raise TypeError
+			raise TypeError('`booklet_max` must be an integer')
 		if booklet_max:
 			list_append(options, '--bookletmax=%d' % booklet_max)
 		if not is_int(booklet_align):
-			raise TypeError
+			raise TypeError('`booklet_align` must be an integer')
 		if booklet_align:
 			list_append(options, '--bookletalign=%d' % booklet_align)
 		if is_int(booklet_fold):
 			list_append(options, '--bookletfold=%d' % booklet_fold)
 		else:
-			fold_base, fold_incr = booklet_fold
-			if not is_int(fold_base) or not is_int(fold_incr):
-				list_append(options, '--bookletfold=%d+%d' % (fold_base, fold_incr))
+			try:
+				fold_base, fold_incr = booklet_fold
+				if not is_int(fold_base) or not is_int(fold_incr):
+					raise TypeError
+			except TypeError:
+				raise TypeError('`booklet_fold` must a be an integer or a pair of integers')
+			list_append(options, '--bookletfold=%d+%d' % (fold_base, fold_incr))
 		cdef char **optv
 		cdef int optc
+		cdef size_t buffer_size
 		optc = 0
-		optv = <char**> py_malloc(len(options) * sizeof (char*))
+		buffer_size = len(options) * sizeof (char*)
+		optv = <char**> py_malloc(buffer_size)
 		if optv == NULL:
-			raise MemoryError
+			raise MemoryError('Unable to allocate %d bytes for print options' % buffer_size)
 		try:
 			for option in options:
 				optv[optc] = option
@@ -933,8 +943,7 @@ cdef class PageInfo:
 	'''
 
 	def __cinit__(self, Document document not None, **kwargs):
-		if kwargs.get('sentinel') is not the_sentinel:
-			raise_instantiation_error(type(self))
+		check_sentinel(self, kwargs)
 		self._document = document
 	
 	property document:
@@ -986,8 +995,7 @@ cdef class FileInfo:
 	'''
 
 	def __cinit__(self, Document document not None, **kwargs):
-		if kwargs.get('sentinel') is not the_sentinel:
-			raise_instantiation_error(type(self))
+		check_sentinel(self, kwargs)
 		self._document = document
 	
 	property document:
@@ -1071,15 +1079,14 @@ class FileURI(str):
 	'''
 
 cdef object Context_message_distributor
-def _Context_message_distributor(Context self not None, sentinel):
+def _Context_message_distributor(Context self not None, **kwargs):
 	cdef Message message
 	cdef Document document
 	cdef Job job
 	cdef PageJob page_job
 	cdef ddjvu_message_t* ddjvu_message
 
-	if sentinel is not the_sentinel:
-		raise RuntimeError
+	check_sentinel(self, kwargs)
 	while True:
 		with nogil:
 			ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
@@ -1130,12 +1137,12 @@ cdef class Context:
 		try:
 			self.ddjvu_context = ddjvu_context_create(argv0)
 			if self.ddjvu_context == NULL:
-				raise MemoryError
+				raise MemoryError('Unable to create DjVu context')
 			_context_loft[<long> self.ddjvu_context] = self
 		finally:
 			loft_lock.release()
 		self._queue = Queue()
-		thread.start_new_thread(Context_message_distributor, (self, the_sentinel))
+		thread.start_new_thread(Context_message_distributor, (self,), {'sentinel': the_sentinel})
 	
 	property cache_size:
 
@@ -1144,7 +1151,7 @@ cdef class Context:
 			if 0 < value < (1L << (8 * sizeof(unsigned long))):
 				ddjvu_cache_set_size(self.ddjvu_context, value)
 			else:
-				raise ValueError('0 < cache_size < 2 * (sys.maxint + 1) is not satisfied')
+				raise ValueError('`0 < cache_size < 2 * (sys.maxint + 1)` must be satisfied')
 
 		def __get__(self):
 			return ddjvu_cache_get_size(self.ddjvu_context)
@@ -1350,11 +1357,11 @@ cdef class PixelFormat:
 			return self._dither_bpp
 
 		def __set__(self, int value):
-			if (value > 0 and value < 64):
+			if (0 < value < 64):
 				ddjvu_format_set_ditherbits(self.ddjvu_format, value)
 				self._dither_bpp = value
 			else:
-				raise ValueError
+				raise ValueError('`0 < value < 64` must be satisfied')
 	
 	property gamma:
 		'''
@@ -1368,10 +1375,10 @@ cdef class PixelFormat:
 			return self._gamma
 
 		def __set__(self, double value):
-			if (value >= 0.5 and value <= 5.0):
+			if (0.5 <= value <= 5.0):
 				ddjvu_format_set_gamma(self.ddjvu_format, value)
 			else:
-				raise ValueError
+				raise ValueError('`0.5 <= value <= 5.0` must be satisfied')
 	
 	def __dealloc__(self):
 		if self.ddjvu_format != NULL:
@@ -1400,9 +1407,9 @@ cdef class PixelFormatRgb(PixelFormat):
 			self._rgb = 0
 			_format = DDJVU_FORMAT_BGR24
 		else:
-			raise ValueError
+			raise ValueError("`byte_order` must be equal to 'RGB' or 'BGR'")
 		if bpp != 24:
-			raise ValueError
+			raise ValueError('`bpp` must be equal to 24')
 		self._bpp = 24
 		self.ddjvu_format = ddjvu_format_create(_format, 0, NULL)
 	
@@ -1783,8 +1790,7 @@ cdef class Job:
 	'''
 
 	def __cinit__(self, **kwargs):
-		if kwargs.get('sentinel') is not the_sentinel:
-			raise_instantiation_error(type(self))
+		check_sentinel(self, kwargs)
 		self._context = None
 		self.ddjvu_job = NULL
 		self._condition = Condition()
@@ -2020,8 +2026,7 @@ cdef class Message:
 	'''
 
 	def __cinit__(self, **kwargs):
-		if kwargs.get('sentinel') is not the_sentinel:
-			raise_instantiation_error(type(self))
+		check_sentinel(self, kwargs)
 		self.ddjvu_message = NULL
 	
 	cdef object __init(self):
@@ -2129,8 +2134,7 @@ cdef class Stream:
 	'''
 
 	def __cinit__(self, Document document not None, int streamid, **kwargs):
-		if kwargs.get('sentinel') is not the_sentinel:
-			raise_instantiation_error(type(self))
+		check_sentinel(self, kwargs)
 		self._streamid = streamid
 		self._document = document
 		self._open = 1

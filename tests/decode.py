@@ -135,7 +135,7 @@ class DocumentTest:
 		>>> document.pages[-1].get_info()
 		Traceback (most recent call last):
 		...
-		ValueError
+		IndexError: page number out of range
 
 #		>>> document.pages[1].get_info()
 #		Traceback (most recent call last):
