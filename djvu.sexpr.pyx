@@ -305,21 +305,7 @@ cdef object BaseExpression_richcmp(object left, object right, int op):
 		return NotImplemented
 	elif not typecheck(right, BaseExpression):
 		return NotImplemented
-	elif op == 0:
-		result = left.value <  right.value
-	elif op == 1:
-		result = left.value <= right.value
-	elif op == 2:
-		result = left.value == right.value
-	elif op == 3:
-		result = left.value != right.value
-	elif op == 4:
-		result = left.value >  right.value
-	elif op == 5:
-		result = left.value >= right.value
-	else:
-		raise SystemError
-	return bool(result)
+	return richcmp(left.value, right.value, op)
 
 cdef class BaseExpression:
 	'''
