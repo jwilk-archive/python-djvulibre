@@ -40,11 +40,11 @@ class IntExpressionTest:
 	>>> Expression(1 << 29)
 	Traceback (most recent call last):
 	...
-	ValueError
+	ValueError: value not in range(-2 ** 29, 2 ** 29)
 	>>> Expression((-1 << 29) - 1)
 	Traceback (most recent call last):
 	...
-	ValueError
+	ValueError: value not in range(-2 ** 29, 2 ** 29)
 
 	>>> Expression(1) and 42
 	42
@@ -191,7 +191,12 @@ class ListExpressionTest:
 
 	>>> tuple(x)
 	(Expression((1, 2)), Expression(3), Expression((4, 5, Symbol('baz'))), Expression(('quux',)))
-	
+
+	>>> x[object()]
+	Traceback (most recent call last):
+	...
+	TypeError: key must be an integer or a slice
+
 	>>> x[1]
 	Expression(3)
 	
@@ -209,7 +214,7 @@ class ListExpressionTest:
 	
 	>>> x[:].value == x.value
 	True
-	
+
 	>>> x[1:]
 	Expression((3, (4, 5, Symbol('baz')), ('quux',)))
 	>>> x[-2:]
@@ -227,6 +232,27 @@ class ListExpressionTest:
 	>>> x[3:] = 7,
 	>>> x
 	Expression((1, 3, 5, 7))
+
+	>>> x[object():]
+	Traceback (most recent call last):
+	...
+	NotImplementedError: only [n:] slices are supported
+	>>> x[:2]
+	Traceback (most recent call last):
+	...
+	NotImplementedError: only [n:] slices are supported
+	>>> x[object():] = []
+	Traceback (most recent call last):
+	...
+	NotImplementedError: only [n:] slices are supported
+	>>> x[:2] = []
+	Traceback (most recent call last):
+	...
+	NotImplementedError: only [n:] slices are supported
+	>>> x[:] = 0
+	Traceback (most recent call last):
+	...
+	TypeError: can only assign a list expression
 
 	>>> x == Expression((1, 3, 5, 7))
 	True

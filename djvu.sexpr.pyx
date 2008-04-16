@@ -131,9 +131,9 @@ cdef class _WrappedCExpr:
 		if width is None:
 			pass
 		elif not is_int(width):
-			raise TypeError
+			raise TypeError('width must be an integer')
 		elif width <= 0:
-			raise ValueError
+			raise ValueError('width <= 0')
 		cexpr = self.cexpr()
 		myio_set(None, stdout)
 		try:
@@ -388,9 +388,9 @@ def IntExpression__new__(cls, value):
 		if -1 << 29 <= value < 1 << 29:
 			self.wexpr = wexpr(int_to_cexpr(value))
 		else:
-			raise ValueError
+			raise ValueError('value not in range(-2 ** 29, 2 ** 29)')
 	else:
-		raise TypeError
+		raise TypeError('value must be an integer')
 	return self
 
 class IntExpression(Expression):
@@ -434,7 +434,7 @@ def SymbolExpression__new__(cls, value):
 		symbol = value
 		self.wexpr = wexpr(symbol_to_cexpr(symbol.value))
 	else:
-		raise TypeError
+		raise TypeError('value must be a Symbol')
 	return self
 
 class SymbolExpression(Expression):
@@ -463,7 +463,7 @@ def StringExpression__new__(cls, value):
 	elif is_string(value):
 		self.wexpr = wexpr(str_to_cexpr(value))
 	else:
-		raise TypeError
+		raise TypeError('value must be a byte string')
 	return self
 
 class StringExpression(Expression):
@@ -584,7 +584,7 @@ class ListExpression(Expression):
 					cexpr = cexpr_head(cexpr)
 					break
 		elif is_slice(key):
-			if is_int(key.start) or key.start is None and key.stop is None and key.step is None:
+			if (is_int(key.start) or key.start is None) and key.stop is None and key.step is None:
 				n = key.start or 0
 				if n < 0:
 					n = n + len(self)
@@ -594,7 +594,7 @@ class ListExpression(Expression):
 			else:
 				raise NotImplementedError('only [n:] slices are supported')
 		else:
-			raise TypeError
+			raise TypeError('key must be an integer or a slice')
 		return _c2py(cexpr)
 
 	def __setitem__(BaseExpression self not None, key, value):
@@ -623,8 +623,8 @@ class ListExpression(Expression):
 					break
 		elif is_slice(key):
 			if not cexpr_is_list(new_cexpr):
-				raise TypeError
-			if is_slice(key) or key.start is None and key.stop is None and key.step is None:
+				raise TypeError('can only assign a list expression')
+			if (is_int(key.start) or key.start is None) and key.stop is None and key.step is None:
 				n = key.start or 0
 				if n < 0:
 					n = n + len(self)
@@ -640,7 +640,7 @@ class ListExpression(Expression):
 			else:
 				raise NotImplementedError('only [n:] slices are supported')
 		else:
-			raise TypeError
+			raise TypeError('key must be an integer or a slice')
 
 	def __iter__(self):
 		return _ListExpressionIterator(self)
