@@ -45,6 +45,8 @@ cdef extern from 'Python.h':
 
 	int list_append 'PyList_Append'(object, object) except -1
 
+	cdef object richcmp 'PyObject_RichCompare'(object, object, int)
+
 cdef extern from 'object.h':
 	ctypedef struct PyTypeObject:
 		char *tp_name
