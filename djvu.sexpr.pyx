@@ -183,6 +183,8 @@ cdef class BaseSymbol:
 		return not self == other
 	
 	def __hash__(self):
+		# XXX Due to a pyrex bug, this might not be an actual hash(self.value).
+		# But we don't care since symbols never compare equal with strings.
 		return hash(self.value)
 	
 	def __str__(self):
