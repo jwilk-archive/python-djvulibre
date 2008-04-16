@@ -1,4 +1,5 @@
 from djvu.decode import *
+from djvu.sexpr import *
 import unittest
 import doctest
 
@@ -751,7 +752,15 @@ class SexprTest:
 	>>> PageText(page, 'eggs')
 	Traceback (most recent call last):
 	...
-	ValueError
+	TypeError: `details` must be a symbol or none
+	>>> PageText(page, Symbol('eggs'))
+	Traceback (most recent call last):
+	...
+	ValueError: `details` must be equal to `TEXT_DETAILS_PAGE`, or `TEXT_DETAILS_REGION`, or `TEXT_DETAILS_PARAGRAPH`, or `TEXT_DETAILS_LINE`, or `TEXT_DETAILS_WORD`, or `TEXT_DETAILS_CHARACTER` or `TEXT_DETAILS_ALL`
+
+	>>> zones = (TEXT_ZONE_PAGE, TEXT_ZONE_REGION, TEXT_ZONE_PARAGRAPH, TEXT_ZONE_LINE, TEXT_ZONE_WORD, TEXT_ZONE_CHARACTER)
+	>>> [[cmp_text_zone(z1, z2) for z1 in zones] for z2 in zones] 
+	[[0, -1, -1, -1, -1, -1], [1, 0, -1, -1, -1, -1], [1, 1, 0, -1, -1, -1], [1, 1, 1, 0, -1, -1], [1, 1, 1, 1, 0, -1], [1, 1, 1, 1, 1, 0]]
 	'''
 
 if __name__ == '__main__':

@@ -2687,30 +2687,55 @@ cdef class PageAnnotations(Annotations):
 		def __get__(self):
 			return self._page
 
-TEXT_DETAILS_PAGE = 'page'
-TEXT_DETAILS_REGION = 'region'
-TEXT_DETAILS_PARAGRAPH = 'para'
-TEXT_DETAILS_LINE = 'line'
-TEXT_DETAILS_WORD = 'word'
-TEXT_DETAILS_CHARACTER = 'char'
-TEXT_DETAILS_ALL = 'all'
+TEXT_DETAILS_PAGE = TEXT_ZONE_PAGE = Symbol('page')
+TEXT_DETAILS_REGION = TEXT_ZONE_REGION = Symbol('region')
+TEXT_DETAILS_PARAGRAPH = TEXT_ZONE_PARAGRAPH = Symbol('para')
+TEXT_DETAILS_LINE = TEXT_ZONE_LINE = Symbol('line')
+TEXT_DETAILS_WORD = TEXT_ZONE_WORD = Symbol('word')
+TEXT_DETAILS_CHARACTER = TEXT_ZONE_CHARACTER = Symbol('char')
+TEXT_DETAILS_ALL = None
 
 cdef object TEXT_DETAILS
-TEXT_DETAILS = set((
-	TEXT_DETAILS_PAGE,
-	TEXT_DETAILS_REGION,
-	TEXT_DETAILS_PARAGRAPH,
-	TEXT_DETAILS_LINE,
-	TEXT_DETAILS_WORD,
-	TEXT_DETAILS_CHARACTER,
-	TEXT_DETAILS_ALL
-))
+TEXT_DETAILS = {
+	TEXT_DETAILS_PAGE: 6,
+	TEXT_DETAILS_REGION: 5,
+	TEXT_DETAILS_PARAGRAPH: 4,
+	TEXT_DETAILS_LINE: 3,
+	TEXT_DETAILS_WORD: 2,
+	TEXT_DETAILS_CHARACTER: 1,
+}
+
+def cmp_text_zone(zone1, zone2):
+	'''
+	cmp_text_zone(zone1, zone2) -> integer
+
+	Return:
+	- negative if `zone1` is more concrete than `zone2`;
+	- zero if `zone1 == zone2`;
+	- positive if `zone1` is more general than `zone2`.
+
+	Possible zones:
+	- `TEXT_ZONE_PAGE`,
+	- `TEXT_ZONE_REGION`,
+	- `TEXT_ZONE_PARAGRAPH`,
+	- `TEXT_ZONE_LINE`,
+	- `TEXT_ZONE_WORD`,
+	- `TEXT_ZONE_CHARACTER`.
+	'''
+	if not typecheck(zone1, Symbol) or not typecheck(zone2, Symbol):
+		raise TypeError('zone must be a symbol')
+	try:
+		n1 = TEXT_DETAILS[zone1]
+		n2 = TEXT_DETAILS[zone2]
+	except KeyError:
+		raise ValueError('zone must be equal to `TEXT_ZONE_PAGE`, or `TEXT_ZONE_REGION`, or `TEXT_ZONE_PARAGRAPH`, or `TEXT_ZONE_LINE`, or `TEXT_ZONE_WORD`, or `TEXT_ZONE_CHARACTER`')
+	return cmp(n1, n2)
 
 cdef class PageText:
 	'''
 	PageText(page, details=TEXT_DETAILS_ALL) -> wrapper around page text
 
-	`details` controls the level of detail in the returned S-expression:
+	`details` controls the level of details in the returned S-expression:
 	- `TEXT_DETAILS_PAGE`,
 	- `TEXT_DETAILS_REGION`,
 	- `TEXT_DETAILS_PARAGRAPH`,
@@ -2723,13 +2748,16 @@ cdef class PageText:
 	'''
 
 	def __cinit__(self, Page page not None, details = TEXT_DETAILS_ALL):
-		if not is_string(details):
-			raise TypeError
-		if details not in TEXT_DETAILS:
-			raise ValueError
+		if details is None:
+			self._details = ''
+		elif not typecheck(details, Symbol):
+			raise TypeError('`details` must be a symbol or none')
+		elif details not in TEXT_DETAILS:
+			raise ValueError('`details` must be equal to `TEXT_DETAILS_PAGE`, or `TEXT_DETAILS_REGION`, or `TEXT_DETAILS_PARAGRAPH`, or `TEXT_DETAILS_LINE`, or `TEXT_DETAILS_WORD`, or `TEXT_DETAILS_CHARACTER` or `TEXT_DETAILS_ALL`')
+		else:
+			self._details = str(details)
 		self._page = page
 		self._sexpr = None
-		self._details = details
 	
 	cdef object _update_sexpr(self):
 		if self._sexpr is None:
