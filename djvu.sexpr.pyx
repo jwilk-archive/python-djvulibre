@@ -54,6 +54,9 @@ cdef extern from 'stdio.h':
 cdef object sys
 import sys
 
+cdef object thread
+import thread
+
 cdef object StringIO
 from cStringIO import StringIO
 
@@ -63,43 +66,52 @@ import weakref
 cdef object symbol_dict
 symbol_dict = weakref.WeakValueDictionary()
 
-cdef object myio_stdin
-cdef object myio_stdout
-cdef int myio_buffer
-myio_buffer = -1
+cdef object _myio_lock
+_myio_lock = thread.allocate_lock()
+cdef object _myio_stdin
+cdef object _myio_stdout
+cdef int _myio_buffer
+_myio_buffer = -1
+
+cdef void myio_set(stdin, stdout):
+	global _myio_stdin, _myio_stdout
+	_myio_lock.acquire()
+	_myio_stdin = stdin
+	_myio_stdout = stdout
 
 cdef void myio_reset():
-	global myio_stdin, myio_stdout
-	myio_stdin = sys.stdin
-	myio_stdout = sys.stdout
-	myio_buffer = -1
+	global _myio_stdin, _myio_stdout
+	_myio_stdin = sys.stdin
+	_myio_stdout = sys.stdout
+	_myio_buffer = -1
+	_myio_lock.release()
 
-cdef int myio_puts(char *s):
-	myio_stdout.write(s)
+cdef int _myio_puts(char *s):
+	_myio_stdout.write(s)
 
-cdef int myio_getc():
-	global myio_buffer
+cdef int _myio_getc():
+	global _myio_buffer
 	cdef int result
-	result = myio_buffer
+	result = _myio_buffer
 	if result >= 0:
-		myio_buffer = -1
+		_myio_buffer = -1
 	else:
-		s = myio_stdin.read(1)
+		s = _myio_stdin.read(1)
 		if s:
 			result = ord(s)
 		else:
 			result = EOF
 	return result
 
-cdef int myio_ungetc(int c):
-	global myio_buffer
-	if myio_buffer >= 0:
-		raise RuntimeError
-	myio_buffer = c
+cdef int _myio_ungetc(int c):
+	global _myio_buffer
+	if _myio_buffer >= 0:
+		raise SystemError('ungetc() before getc()')
+	_myio_buffer = c
 
-io_puts = myio_puts
-io_getc = myio_getc
-io_ungetc = myio_ungetc
+io_puts = _myio_puts
+io_getc = _myio_getc
+io_ungetc = _myio_ungetc
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -116,7 +128,6 @@ cdef class _WrappedCExpr:
 
 	cdef object print_into(self, object stdout, object width):
 		cdef cexpr_t cexpr
-		global myio_stdout
 		if width is None:
 			pass
 		elif not is_int(width):
@@ -124,12 +135,14 @@ cdef class _WrappedCExpr:
 		elif width <= 0:
 			raise ValueError
 		cexpr = self.cexpr()
-		myio_stdout = stdout
-		if width is None:
-			cexpr_print(cexpr)
-		else:
-			cexpr_printw(cexpr, width)
-		myio_reset()
+		myio_set(None, stdout)
+		try:
+			if width is None:
+				cexpr_print(cexpr)
+			else:
+				cexpr_printw(cexpr, width)
+		finally:
+			myio_reset()
 
 	cdef object as_string(self, object width):
 		stdout = StringIO()
@@ -230,9 +243,8 @@ def Expression_from_stream(stdin):
 
 	Read an expression from a stream.
 	'''
-	global myio_stdin
 	try:
-		myio_stdin = stdin
+		myio_set(stdin, None)
 		try:
 			return _c2py(cexpr_read())
 		except InvalidExpression:
