@@ -2688,6 +2688,7 @@ cdef class PageAnnotations(Annotations):
 			return self._page
 
 TEXT_DETAILS_PAGE = TEXT_ZONE_PAGE = Symbol('page')
+TEXT_DETAILS_COLUMN = TEXT_ZONE_COLUMN = Symbol('column')
 TEXT_DETAILS_REGION = TEXT_ZONE_REGION = Symbol('region')
 TEXT_DETAILS_PARAGRAPH = TEXT_ZONE_PARAGRAPH = Symbol('para')
 TEXT_DETAILS_LINE = TEXT_ZONE_LINE = Symbol('line')
@@ -2697,7 +2698,8 @@ TEXT_DETAILS_ALL = None
 
 cdef object TEXT_DETAILS
 TEXT_DETAILS = {
-	TEXT_DETAILS_PAGE: 6,
+	TEXT_DETAILS_PAGE: 7,
+	TEXT_DETAILS_COLUMN: 6,
 	TEXT_DETAILS_REGION: 5,
 	TEXT_DETAILS_PARAGRAPH: 4,
 	TEXT_DETAILS_LINE: 3,
@@ -2716,6 +2718,7 @@ def cmp_text_zone(zone1, zone2):
 
 	Possible zones:
 	- `TEXT_ZONE_PAGE`,
+	- `TEXT_ZONE_COLUMN`,
 	- `TEXT_ZONE_REGION`,
 	- `TEXT_ZONE_PARAGRAPH`,
 	- `TEXT_ZONE_LINE`,
@@ -2728,7 +2731,7 @@ def cmp_text_zone(zone1, zone2):
 		n1 = TEXT_DETAILS[zone1]
 		n2 = TEXT_DETAILS[zone2]
 	except KeyError:
-		raise ValueError('zone must be equal to `TEXT_ZONE_PAGE`, or `TEXT_ZONE_REGION`, or `TEXT_ZONE_PARAGRAPH`, or `TEXT_ZONE_LINE`, or `TEXT_ZONE_WORD`, or `TEXT_ZONE_CHARACTER`')
+		raise ValueError('zone must be equal to `TEXT_ZONE_PAGE`, or `TEXT_ZONE_COLUMN`, or `TEXT_ZONE_REGION`, or `TEXT_ZONE_PARAGRAPH`, or `TEXT_ZONE_LINE`, or `TEXT_ZONE_WORD`, or `TEXT_ZONE_CHARACTER`')
 	return cmp(n1, n2)
 
 cdef class PageText:
@@ -2737,6 +2740,7 @@ cdef class PageText:
 
 	`details` controls the level of details in the returned S-expression:
 	- `TEXT_DETAILS_PAGE`,
+	- `TEXT_DETAILS_COLUMN`,
 	- `TEXT_DETAILS_REGION`,
 	- `TEXT_DETAILS_PARAGRAPH`,
 	- `TEXT_DETAILS_LINE`,
@@ -2753,7 +2757,7 @@ cdef class PageText:
 		elif not typecheck(details, Symbol):
 			raise TypeError('`details` must be a symbol or none')
 		elif details not in TEXT_DETAILS:
-			raise ValueError('`details` must be equal to `TEXT_DETAILS_PAGE`, or `TEXT_DETAILS_REGION`, or `TEXT_DETAILS_PARAGRAPH`, or `TEXT_DETAILS_LINE`, or `TEXT_DETAILS_WORD`, or `TEXT_DETAILS_CHARACTER` or `TEXT_DETAILS_ALL`')
+			raise ValueError('`details` must be equal to `TEXT_DETAILS_PAGE`, or `TEXT_DETAILS_COLUMN`, or `TEXT_DETAILS_REGION`, or `TEXT_DETAILS_PARAGRAPH`, or `TEXT_DETAILS_LINE`, or `TEXT_DETAILS_WORD`, or `TEXT_DETAILS_CHARACTER` or `TEXT_DETAILS_ALL`')
 		else:
 			self._details = str(details)
 		self._page = page
