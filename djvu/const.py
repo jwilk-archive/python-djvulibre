@@ -13,7 +13,7 @@ METADATA_PDFINFO_KEYS = set(('Author', 'CreationDate', 'Creator', 'Keywords', 'M
 
 METADATA_KEYS = METADATA_BIBTEX_KEYS | METADATA_PDFINFO_KEYS
 
-class ZoneType(djvu.sexpr.Symbol):
+class TextZoneType(djvu.sexpr.Symbol):
 
 	__cache = {}
 
@@ -23,7 +23,7 @@ class ZoneType(djvu.sexpr.Symbol):
 
 	def __new__(cls, value, rank):
 		self = djvu.sexpr.Symbol.__new__(cls, value)
-		ZoneType.__cache[self] = self
+		TextZoneType.__cache[self] = self
 		return self
 
 	def __init__(self, value, rank):
@@ -32,23 +32,23 @@ class ZoneType(djvu.sexpr.Symbol):
 	def __cmp__(self, other):
 		if self == other:
 			return 0
-		if not isinstance(other, ZoneType):
+		if not isinstance(other, TextZoneType):
 			return NotImplemented
 		return cmp(self.__rank, other.__rank)
 	
 	def __repr__(self):
 		return '<%s.%s: %s>' % (self.__module__, self.__class__.__name__, self)
 
-TEXT_ZONE_PAGE = ZoneType('page', 7)
-TEXT_ZONE_COLUMN = ZoneType('column', 6)
-TEXT_ZONE_REGION = ZoneType('region', 5)
-TEXT_ZONE_PARAGRAPH = ZoneType('para', 4)
-TEXT_ZONE_LINE = ZoneType('line', 3)
-TEXT_ZONE_WORD = ZoneType('word', 2)
-TEXT_ZONE_CHARACTER = ZoneType('char', 1)
+TEXT_ZONE_PAGE = TextZoneType('page', 7)
+TEXT_ZONE_COLUMN = TextZoneType('column', 6)
+TEXT_ZONE_REGION = TextZoneType('region', 5)
+TEXT_ZONE_PARAGRAPH = TextZoneType('para', 4)
+TEXT_ZONE_LINE = TextZoneType('line', 3)
+TEXT_ZONE_WORD = TextZoneType('word', 2)
+TEXT_ZONE_CHARACTER = TextZoneType('char', 1)
 
-def get_zone_from_symbol(symbol):
-	return ZoneType.from_symbol(symbol)
+def get_text_zone_type(symbol):
+	return TextZoneType.from_symbol(symbol)
 
 TEXT_ZONE_SEPARATORS = \
 {
@@ -66,7 +66,7 @@ __all__ = \
 	'METADATA_BIBTEX_KEYS', 'METADATA_PDFINFO_KEYS', 'METADATA_KEYS',
 	'TEXT_ZONE_SEPARATORS',
 	'TEXT_ZONE_PAGE', 'TEXT_ZONE_COLUMN', 'TEXT_ZONE_REGION', 'TEXT_ZONE_PARAGRAPH', 'TEXT_ZONE_LINE', 'TEXT_ZONE_WORD', 'TEXT_ZONE_CHARACTER',
-	'get_zone_from_symbol'
+	'get_text_zone_type'
 )
 
 # vim:ts=4 sw=4 noet
