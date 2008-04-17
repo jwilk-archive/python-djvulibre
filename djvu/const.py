@@ -15,8 +15,16 @@ METADATA_KEYS = METADATA_BIBTEX_KEYS | METADATA_PDFINFO_KEYS
 
 class ZoneType(djvu.sexpr.Symbol):
 
-	def __new__(self, value, rank):
-		return djvu.sexpr.Symbol.__new__(self, value)
+	__cache = {}
+
+	@classmethod
+	def from_symbol(cls, symbol):
+		return cls.__cache[symbol]
+
+	def __new__(cls, value, rank):
+		self = djvu.sexpr.Symbol.__new__(cls, value)
+		ZoneType.__cache[self] = self
+		return self
 
 	def __init__(self, value, rank):
 		self.__rank = rank
@@ -39,6 +47,9 @@ TEXT_ZONE_LINE = ZoneType('line', 3)
 TEXT_ZONE_WORD = ZoneType('word', 2)
 TEXT_ZONE_CHARACTER = ZoneType('char', 1)
 
+def get_zone_from_symbol(symbol):
+	return ZoneType.from_symbol(symbol)
+
 TEXT_ZONE_SEPARATORS = \
 {
 	TEXT_ZONE_PAGE:      '\f',   # Form Feed (FF)
@@ -54,7 +65,8 @@ __all__ = \
 (
 	'METADATA_BIBTEX_KEYS', 'METADATA_PDFINFO_KEYS', 'METADATA_KEYS',
 	'TEXT_ZONE_SEPARATORS',
-	'TEXT_ZONE_PAGE', 'TEXT_ZONE_COLUMN', 'TEXT_ZONE_REGION', 'TEXT_ZONE_PARAGRAPH', 'TEXT_ZONE_LINE', 'TEXT_ZONE_WORD', 'TEXT_ZONE_CHARACTER'
+	'TEXT_ZONE_PAGE', 'TEXT_ZONE_COLUMN', 'TEXT_ZONE_REGION', 'TEXT_ZONE_PARAGRAPH', 'TEXT_ZONE_LINE', 'TEXT_ZONE_WORD', 'TEXT_ZONE_CHARACTER',
+	'get_zone_from_symbol'
 )
 
 # vim:ts=4 sw=4 noet
