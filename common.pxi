@@ -13,11 +13,11 @@ cdef extern from 'stdio.h':
 	ctypedef struct FILE
 
 cdef extern from 'stdlib.h':
-	void libc_free 'free'(void* ptr)
+	void libc_free 'free'(void* ptr) nogil
 
 cdef extern from 'string.h':
-	int strcmp(char *s1, char *s2)
-	size_t strlen(char *s)
+	int strcmp(char *s1, char *s2) nogil
+	size_t strlen(char *s) nogil
 
 # Python library
 

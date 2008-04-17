@@ -7,43 +7,43 @@ DjVuLibre bindings: module for handling Lisp S-expressions
 include 'common.pxi'
 
 cdef extern from 'libdjvu/miniexp.h':
-	int cexpr_is_int 'miniexp_numberp'(cexpr_t sexp)
-	int cexpr_to_int 'miniexp_to_int'(cexpr_t sexp)
-	cexpr_t int_to_cexpr 'miniexp_number'(int n)
+	int cexpr_is_int 'miniexp_numberp'(cexpr_t sexp) nogil
+	int cexpr_to_int 'miniexp_to_int'(cexpr_t sexp) nogil
+	cexpr_t int_to_cexpr 'miniexp_number'(int n) nogil
 	
-	int cexpr_is_symbol 'miniexp_symbolp'(cexpr_t sexp)
-	char* cexpr_to_symbol 'miniexp_to_name'(cexpr_t sexp)
-	cexpr_t symbol_to_cexpr 'miniexp_symbol'(char* name)
+	int cexpr_is_symbol 'miniexp_symbolp'(cexpr_t sexp) nogil
+	char* cexpr_to_symbol 'miniexp_to_name'(cexpr_t sexp) nogil
+	cexpr_t symbol_to_cexpr 'miniexp_symbol'(char* name) nogil
 
 	cexpr_t cexpr_nil 'miniexp_nil'
 	cexpr_t cexpr_dummy 'miniexp_dummy'
-	int cexpr_is_list 'miniexp_listp'(cexpr_t exp)
-	int cexpr_is_nonempty_list 'miniexp_consp'(cexpr_t exp)
-	int cexpr_length 'miniexp_length'(cexpr_t exp)
-	cexpr_t cexpr_head 'miniexp_car'(cexpr_t exp)
-	cexpr_t cexpr_tail 'miniexp_cdr'(cexpr_t exp)
-	cexpr_t cexpr_nth 'miniexp_nth'(int n, cexpr_t exp)
-	cexpr_t pair_to_cexpr 'miniexp_cons'(cexpr_t head, cexpr_t tail)
-	cexpr_t cexpr_replace_head 'miniexp_rplaca'(cexpr_t exp, cexpr_t new_head)
-	cexpr_t cexpr_replace_tail 'miniexp_rplacd'(cexpr_t exp, cexpr_t new_tail)
-	cexpr_t cexpr_reverse_list 'miniexp_reverse'(cexpr_t exp)
+	int cexpr_is_list 'miniexp_listp'(cexpr_t exp) nogil
+	int cexpr_is_nonempty_list 'miniexp_consp'(cexpr_t exp) nogil
+	int cexpr_length 'miniexp_length'(cexpr_t exp) nogil
+	cexpr_t cexpr_head 'miniexp_car'(cexpr_t exp) nogil
+	cexpr_t cexpr_tail 'miniexp_cdr'(cexpr_t exp) nogil
+	cexpr_t cexpr_nth 'miniexp_nth'(int n, cexpr_t exp) nogil
+	cexpr_t pair_to_cexpr 'miniexp_cons'(cexpr_t head, cexpr_t tail) nogil
+	cexpr_t cexpr_replace_head 'miniexp_rplaca'(cexpr_t exp, cexpr_t new_head) nogil
+	cexpr_t cexpr_replace_tail 'miniexp_rplacd'(cexpr_t exp, cexpr_t new_tail) nogil
+	cexpr_t cexpr_reverse_list 'miniexp_reverse'(cexpr_t exp) nogil
 
-	int cexpr_is_str 'miniexp_stringp'(cexpr_t cexpr)
-	char* cexpr_to_str 'miniexp_to_str'(cexpr_t cexpr)
-	cexpr_t str_to_cexpr 'miniexp_string'(char* s)
-	cexpr_t cexpr_substr 'miniexp_substring'(char* s, int n)
-	cexpr_t cexpr_concat 'miniexp_concat'(cexpr_t cexpr_list)
+	int cexpr_is_str 'miniexp_stringp'(cexpr_t cexpr) nogil
+	char* cexpr_to_str 'miniexp_to_str'(cexpr_t cexpr) nogil
+	cexpr_t str_to_cexpr 'miniexp_string'(char* s) nogil
+	cexpr_t cexpr_substr 'miniexp_substring'(char* s, int n) nogil
+	cexpr_t cexpr_concat 'miniexp_concat'(cexpr_t cexpr_list) nogil
 
-	cexpr_t lock_gc 'minilisp_acquire_gc_lock'(cexpr_t cexpr)
-	cexpr_t unlock_gc 'minilisp_release_gc_lock'(cexpr_t cexpr)
+	cexpr_t lock_gc 'minilisp_acquire_gc_lock'(cexpr_t cexpr) nogil
+	cexpr_t unlock_gc 'minilisp_release_gc_lock'(cexpr_t cexpr) nogil
 	
-	cvar_t* cvar_new 'minivar_alloc'()
-	void cvar_free 'minivar_free'(cvar_t* v)
-	cexpr_t* cvar_ptr 'minivar_pointer'(cvar_t* v)
+	cvar_t* cvar_new 'minivar_alloc'() nogil
+	void cvar_free 'minivar_free'(cvar_t* v) nogil
+	cexpr_t* cvar_ptr 'minivar_pointer'(cvar_t* v) nogil
 
-	int (*io_puts 'minilisp_puts')(char *s)
-	int (*io_getc 'minilisp_getc')()
-	int (*io_ungetc 'minilisp_ungetc')(int c)
+	int (*io_puts 'minilisp_puts')(char *s) nogil
+	int (*io_getc 'minilisp_getc')() nogil
+	int (*io_ungetc 'minilisp_ungetc')(int c) nogil
 	cexpr_t cexpr_read 'miniexp_read'()
 	cexpr_t cexpr_print 'miniexp_prin'(cexpr_t cexpr)
 	cexpr_t cexpr_printw 'miniexp_pprin'(cexpr_t cexpr, int width)
@@ -207,9 +207,13 @@ def Symbol__new__(cls, name):
 	'''
 	Symbol(name) -> a symbol
 	'''
+	self = None
 	try:
-		self = symbol_dict[name]
+		if cls is Symbol:
+			self = symbol_dict[name]
 	except KeyError:
+		pass
+	if self is None:
 		name = str(name)
 		self = BaseSymbol.__new__(cls, name)
 		if cls is Symbol:
