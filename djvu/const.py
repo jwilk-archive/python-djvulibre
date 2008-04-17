@@ -33,7 +33,7 @@ class TextZoneType(djvu.sexpr.Symbol):
 		if self == other:
 			return 0
 		if not isinstance(other, TextZoneType):
-			return NotImplemented
+			raise TypeError('cannot compare a text zone type with other object')
 		return cmp(self.__rank, other.__rank)
 	
 	def __repr__(self):
