@@ -2687,13 +2687,13 @@ cdef class PageAnnotations(Annotations):
 		def __get__(self):
 			return self._page
 
-TEXT_DETAILS_PAGE = TEXT_ZONE_PAGE = Symbol('page')
-TEXT_DETAILS_COLUMN = TEXT_ZONE_COLUMN = Symbol('column')
-TEXT_DETAILS_REGION = TEXT_ZONE_REGION = Symbol('region')
-TEXT_DETAILS_PARAGRAPH = TEXT_ZONE_PARAGRAPH = Symbol('para')
-TEXT_DETAILS_LINE = TEXT_ZONE_LINE = Symbol('line')
-TEXT_DETAILS_WORD = TEXT_ZONE_WORD = Symbol('word')
-TEXT_DETAILS_CHARACTER = TEXT_ZONE_CHARACTER = Symbol('char')
+TEXT_DETAILS_PAGE = Symbol('page')
+TEXT_DETAILS_COLUMN = Symbol('column')
+TEXT_DETAILS_REGION = Symbol('region')
+TEXT_DETAILS_PARAGRAPH = Symbol('para')
+TEXT_DETAILS_LINE = Symbol('line')
+TEXT_DETAILS_WORD = Symbol('word')
+TEXT_DETAILS_CHARACTER = Symbol('char')
 TEXT_DETAILS_ALL = None
 
 cdef object TEXT_DETAILS
