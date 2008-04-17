@@ -212,7 +212,8 @@ def Symbol__new__(cls, name):
 	except KeyError:
 		name = str(name)
 		self = BaseSymbol.__new__(cls, name)
-		symbol_dict[name] = self
+		if cls is Symbol:
+			symbol_dict[name] = self
 	return self
 
 class Symbol(BaseSymbol):
