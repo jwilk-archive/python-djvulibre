@@ -179,7 +179,7 @@ cdef class Page:
 		data, which causes emission of `PageInfoMessage` messages with empty
 		`page_job`.
 
-		In case of an error, `JobFail` is raised.
+		In case of an error, `JobFailed` is raised.
 		'''
 		cdef ddjvu_status_t status
 		cdef PageInfo page_info
@@ -407,7 +407,7 @@ cdef class File:
 
 		Otherwise, raise `NotAvailable` exception. 
 
-		In case of an error, `JobFail` is raised.
+		In case of an error, `JobFailed` is raised.
 		'''
 		cdef ddjvu_status_t status
 		cdef FileInfo file_info
