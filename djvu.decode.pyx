@@ -42,8 +42,8 @@ from traceback import format_exc
 cdef object StringIO
 from cStringIO import StringIO
 
-cdef object Symbol, InvalidExpression
-from djvu.sexpr import Symbol, InvalidExpression
+cdef object Symbol, SymbolExpression, InvalidExpression
+from djvu.sexpr import Symbol, SymbolExpression, InvalidExpression
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -2366,6 +2366,17 @@ cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
 	return message
 
 cdef object JOB_EXCEPTION_MAP
+cdef object JOB_FAILED_SYMBOL, JOB_STOPPED_SYMBOL
+
+JOB_FAILED_SYMBOL = Symbol('failed')
+JOB_STOPPED_SYMBOL = Symbol('stopped')
+
+cdef object JobException_from_sexpr(object sexpr):
+	if typecheck(sexpr, SymbolExpression):
+		if sexpr.value is JOB_FAILED_SYMBOL:
+			raise JobFailed
+		elif sexpr.valu is JOB_STOPPED_SYMBOL:
+			raise JobStopped
 
 cdef JobException_from_c(ddjvu_status_t code):
 	try:
@@ -2487,11 +2498,17 @@ cdef class DocumentOutline(DocumentExtension):
 
 		If the S-expression is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
+
+		In case of an error, `JobFailed` is raised.
 		'''
 		def __get__(self):
 			self._update_sexpr()
 			try:
-				return self._sexpr()
+				sexpr = self._sexpr()
+				exception = JobException_from_sexpr(sexpr)
+				if exception is not None:
+					raise exception
+				return sexpr
 			except InvalidExpression:
 				self._sexpr = None
 				raise NotAvailable
@@ -2540,11 +2557,17 @@ cdef class Annotations:
 
 		If the S-expression is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
+
+		In case of an error, `JobFailed` is raised.
 		'''
 		def __get__(self):
 			self._update_sexpr()
 			try:
-				return self._sexpr()
+				sexpr = self._sexpr()
+				exception = JobException_from_sexpr(sexpr)
+				if exception is not None:
+					raise exception
+				return sexpr
 			except InvalidExpression:
 				self._sexpr = None
 				raise NotAvailable
@@ -2800,11 +2823,17 @@ cdef class PageText:
 
 		If the S-expression is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
+
+		In case of an error, `JobFailed` is raised.
 		'''
 		def __get__(self):
 			self._update_sexpr()
 			try:
-				return self._sexpr()
+				sexpr = self._sexpr()
+				exception = JobException_from_sexpr(sexpr)
+				if exception is not None:
+					raise exception
+				return sexpr
 			except InvalidExpression:
 				self._sexpr = None
 				raise NotAvailable
