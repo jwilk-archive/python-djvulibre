@@ -190,16 +190,16 @@ class DocumentTest:
 		''
 		>>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
 		...
-		'  FORM:DJVM [26874] '
+		'  FORM:DJVM [26888] '
 		'    DIRM [82]         Document directory (bundled, 5 files 4 pages)'
 		'    NAVM [173] '
-		'    FORM:DJVU [5678] {p0001.djvu}'
+		'    FORM:DJVU [5669] {p0001.djvu}'
 		'      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
 		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
 		'      Sjbz [4868]       JB2 bilevel data'
-		'      TXTz [748]        Hidden text (text, etc.)'
-		'    FORM:DJVI [183] {shared_anno.iff}'
-		'      ANTz [171]        Page annotation (hyperlinks, etc.)'
+		'      TXTz [739]        Hidden text (text, etc.)'
+		'    FORM:DJVI [204] {shared_anno.iff}'
+		'      ANTz [192]        Page annotation (hyperlinks, etc.)'
 		'    FORM:DJVU [3095] {p0002.djvu}'
 		'      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
 		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
@@ -207,14 +207,14 @@ class DocumentTest:
 		'      FGbz [715]        JB2 colors data, v0, 216 colors'
 		'      BG44 [87]         IW4 data #1, 97 slices, v1.2 (b&w), 213x275'
 		'      TXTz [249]        Hidden text (text, etc.)'
-		'    FORM:DJVU [3080] {p0003.djvu}'
+		'    FORM:DJVU [3079] {p0003.djvu}'
 		'      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
 		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
 		'      Sjbz [1604]       JB2 bilevel data'
 		'      FGbz [661]        JB2 colors data, v0, 216 colors'
 		'      BG44 [208]        IW4 data #1, 97 slices, v1.2 (color), 213x275'
-		'      TXTz [528]        Hidden text (text, etc.)'
-		'    FORM:DJVU [14520] {p0004.djvu}'
+		'      TXTz [527]        Hidden text (text, etc.)'
+		'    FORM:DJVU [14522] {p0004.djvu}'
 		'      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
 		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
 		'      Sjbz [2122]       JB2 bilevel data'
@@ -223,7 +223,7 @@ class DocumentTest:
 		'      BG44 [1840]       IW4 data #2, 11 slices'
 		'      BG44 [2257]       IW4 data #3, 10 slices'
 		'      BG44 [4334]       IW4 data #4, 10 slices'
-		'      ANTz [100]        Page annotation (hyperlinks, etc.)'
+		'      ANTz [101]        Page annotation (hyperlinks, etc.)'
 		'      TXTz [338]        Hidden text (text, etc.)'
 		>>> del tmp
 
@@ -238,15 +238,15 @@ class DocumentTest:
 		''
 		>>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
 		...
-		'  FORM:DJVM [5941] '
-		'    DIRM [52]         Document directory (bundled, 2 files 1 pages)'
-		'    FORM:DJVU [5678] {p0001.djvu}'
+		'  FORM:DJVM [5956] '
+		'    DIRM [53]         Document directory (bundled, 2 files 1 pages)'
+		'    FORM:DJVU [5669] {p0001.djvu}'
 		'      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
 		'      INCL [15]         Indirection chunk --> {shared_anno.iff}'
 		'      Sjbz [4868]       JB2 bilevel data'
-		'      TXTz [748]        Hidden text (text, etc.)'
-		'    FORM:DJVI [183] {shared_anno.iff}'
-		'      ANTz [171]        Page annotation (hyperlinks, etc.)'
+		'      TXTz [739]        Hidden text (text, etc.)'
+		'    FORM:DJVI [204] {shared_anno.iff}'
+		'      ANTz [192]        Page annotation (hyperlinks, etc.)'
 		>>> del tmp
 		
 		>>> tmpdir = mkdtemp()
@@ -283,8 +283,8 @@ class DocumentTest:
 		''
 		>>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
 		...
-		'  FORM:DJVM [56] '
-		'    DIRM [44]         Document directory (indirect, 2 files 1 pages)'
+		'  FORM:DJVM [57] '
+		'    DIRM [45]         Document directory (indirect, 2 files 1 pages)'
 		'      p0001.djvu -> p0001.djvu'
 		'      shared_anno.iff -> shared_anno.iff'
 		>>> rmtree(tmpdir)
@@ -660,7 +660,7 @@ class SexprTest:
 	>>> anno.mode
 	>>> anno.zoom
 	>>> anno.sexpr
-	Expression(((Symbol('metadata'), (Symbol('ModDate'), '2008-03-02 23:56:13+01:00'), (Symbol('CreationDate'), '2008-03-02 23:56:13+01:00'), (Symbol('Producer'), 'pdfTeX-1.40.3\npdf2djvu 0.4.5 (DjVuLibre 3.5.20, poppler 0.6.4)'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')),))
+	Expression(((Symbol('metadata'), (Symbol('ModDate'), '2008-03-02 23:56:13+01:00'), (Symbol('CreationDate'), '2008-03-02 23:56:13+01:00'), (Symbol('Producer'), 'pdfTeX-1.40.3\npdf2djvu 0.4.9 (DjVuLibre 3.5.21, poppler 0.6.4, GraphicsMagick++ 1.1.10)'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')),))
 
 	>>> metadata = anno.metadata
 	>>> type(metadata) == Metadata
@@ -672,11 +672,11 @@ class SexprTest:
 	>>> sorted(metadata.iterkeys()) == sorted(metadata.keys())
 	True
 	>>> sorted(metadata.values())
-	[u'2008-03-02 23:56:13+01:00', u'2008-03-02 23:56:13+01:00', u'Jakub Wilk', u'LaTeX with hyperref package', u'pdfTeX-1.40.3\npdf2djvu 0.4.5 (DjVuLibre 3.5.20, poppler 0.6.4)']
+	[u'2008-03-02 23:56:13+01:00', u'2008-03-02 23:56:13+01:00', u'Jakub Wilk', u'LaTeX with hyperref package', u'pdfTeX-1.40.3\npdf2djvu 0.4.9 (DjVuLibre 3.5.21, poppler 0.6.4, GraphicsMagick++ 1.1.10)']
 	>>> sorted(metadata.itervalues()) == sorted(metadata.values())
 	True
 	>>> sorted(metadata.items())
-	[(u'Author', u'Jakub Wilk'), (u'CreationDate', u'2008-03-02 23:56:13+01:00'), (u'Creator', u'LaTeX with hyperref package'), (u'ModDate', u'2008-03-02 23:56:13+01:00'), (u'Producer', u'pdfTeX-1.40.3\npdf2djvu 0.4.5 (DjVuLibre 3.5.20, poppler 0.6.4)')]
+	[(u'Author', u'Jakub Wilk'), (u'CreationDate', u'2008-03-02 23:56:13+01:00'), (u'Creator', u'LaTeX with hyperref package'), (u'ModDate', u'2008-03-02 23:56:13+01:00'), (u'Producer', u'pdfTeX-1.40.3\npdf2djvu 0.4.9 (DjVuLibre 3.5.21, poppler 0.6.4, GraphicsMagick++ 1.1.10)')]
 	>>> sorted(metadata.iteritems()) == sorted(metadata.items())
 	True
 	>>> k = 'ModDate'
@@ -715,7 +715,7 @@ class SexprTest:
 	>>> anno.mode
 	>>> anno.zoom
 	>>> anno.sexpr
-	Expression(((Symbol('metadata'), (Symbol('ModDate'), '2008-03-02 23:56:13+01:00'), (Symbol('CreationDate'), '2008-03-02 23:56:13+01:00'), (Symbol('Producer'), 'pdfTeX-1.40.3\npdf2djvu 0.4.5 (DjVuLibre 3.5.20, poppler 0.6.4)'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('maparea'), '#1', '', (Symbol('rect'), 524, 2413, 33, 41), (Symbol('border'), Symbol('#ff0000'))), (Symbol('maparea'), 'http://jw209508.hopto.org/', '', (Symbol('rect'), 458, 2180, 675, 54), (Symbol('border'), Symbol('#ff0000')))))
+	Expression(((Symbol('metadata'), (Symbol('ModDate'), '2008-03-02 23:56:13+01:00'), (Symbol('CreationDate'), '2008-03-02 23:56:13+01:00'), (Symbol('Producer'), 'pdfTeX-1.40.3\npdf2djvu 0.4.9 (DjVuLibre 3.5.21, poppler 0.6.4, GraphicsMagick++ 1.1.10)'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('maparea'), '#1', '', (Symbol('rect'), 524, 2413, 33, 41), (Symbol('border'), Symbol('#ff0000'))), (Symbol('maparea'), 'http://jw209508.hopto.org/', '', (Symbol('rect'), 458, 2180, 675, 54), (Symbol('border'), Symbol('#00ffff')))))
 
 	>>> page_metadata = anno.metadata
 	>>> type(page_metadata) == Metadata
@@ -731,7 +731,7 @@ class SexprTest:
 	>>> len(hyperlinks)
 	2
 	>>> list(hyperlinks)
-	[Expression((Symbol('maparea'), '#1', '', (Symbol('rect'), 524, 2413, 33, 41), (Symbol('border'), Symbol('#ff0000')))), Expression((Symbol('maparea'), 'http://jw209508.hopto.org/', '', (Symbol('rect'), 458, 2180, 675, 54), (Symbol('border'), Symbol('#ff0000'))))]
+	[Expression((Symbol('maparea'), '#1', '', (Symbol('rect'), 524, 2413, 33, 41), (Symbol('border'), Symbol('#ff0000')))), Expression((Symbol('maparea'), 'http://jw209508.hopto.org/', '', (Symbol('rect'), 458, 2180, 675, 54), (Symbol('border'), Symbol('#00ffff'))))]
 
 	>>> text = page.text
 	>>> type(text) == PageText
