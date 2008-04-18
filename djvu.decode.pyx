@@ -1448,7 +1448,7 @@ cdef class PixelFormatRgbMask(PixelFormat):
 		elif bpp == 32:
 			_format = DDJVU_FORMAT_RGBMASK32
 		else:
-			raise ValueError
+			raise ValueError('`bpp` must be equal to 16 or 32')
 		self._bpp = self._dither_bpp = bpp
 		(self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xor_value)
 		self.ddjvu_format = ddjvu_format_create(_format, 4, self._params)
@@ -1475,7 +1475,7 @@ cdef class PixelFormatGrey(PixelFormat):
 	def __cinit__(self, unsigned int bpp = 8):
 		cdef unsigned int params[4]
 		if bpp != 8:
-			raise ValueError
+			raise ValueError('`bpp` must be equal to 8')
 		self._bpp = self._dither_bpp = bpp
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_GREY8, 0, NULL)
 
@@ -1499,15 +1499,15 @@ cdef class PixelFormatPalette(PixelFormat):
 			try:
 				self._palette[i] = palette_next()
 			except StopIteration:
-				raise ValueError
+				raise ValueError('`palette` must be a sequence of 216 integers')
 		try:
 			palette_next()
 		except StopIteration:
 			pass
 		else:
-			raise ValueError
+			raise ValueError('`palette` must be a sequence of 216 integers')
 		if bpp != 8:
-			raise ValueError
+			raise ValueError('`bpp` must be equal to 8')
 		self._bpp = self._dither_bpp = bpp
 		self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_PALETTE8, 216, self._palette)
 
@@ -1539,7 +1539,7 @@ cdef class PixelFormatPackedBits(PixelFormat):
 			self._little_endian = 0
 			_format = DDJVU_FORMAT_MSBTOLSB
 		else:
-			raise ValueError
+			raise ValueError("`endianness` must be equal to '<' or '>'")
 		self._bpp = 1
 		self._dither_bpp = 1
 		self.ddjvu_format = ddjvu_format_create(_format, 0, NULL)
@@ -1709,7 +1709,7 @@ cdef class PageJob(Job):
 			elif value == 270:
 				rotation = DDJVU_ROTATE_180
 			else:
-				raise ValueError
+				raise ValueError('`rotation` must be equal to 0, 90, 180, or 270')
 			ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, rotation)
 	
 		def __del__(self):
@@ -1926,10 +1926,10 @@ cdef class AffineTransform:
 		'''
 		A.rotate(n) -> None
 
-		Rotate the output rectangle counter-clockwise by <n> degrees. 
+		Rotate the output rectangle counter-clockwise by `n` degrees. 
 		'''
 		if n % 90:
-			raise ValueError
+			raise ValueError('`n` must a multiple of 90')
 		else:
 			ddjvu_rectmapper_modify(self.ddjvu_rectmapper, n/90, 0, 0)
 
@@ -1940,7 +1940,7 @@ cdef class AffineTransform:
 			rect.x = next()
 			rect.y = next()
 		except StopIteration:
-			raise ValueError
+			raise ValueError('`value` must be a pair or a 4-tuple')
 		try:
 			rect.w = next()
 		except StopIteration:
@@ -1949,13 +1949,13 @@ cdef class AffineTransform:
 		try:
 			rect.h = next()
 		except StopIteration:
-			raise ValueError
+			raise ValueError('`value` must be a pair or a 4-tuple')
 		try:
 			next()
 		except StopIteration:
 			pass
 		else:
-			raise ValueError
+			raise ValueError('`value` must be a pair or a 4-tuple')
 		ddjvu_map_rect(self.ddjvu_rectmapper, &rect)
 		return (rect.x, rect.y, int(rect.w), int(rect.h))
 
@@ -1981,7 +1981,7 @@ cdef class AffineTransform:
 			rect.x = next()
 			rect.y = next()
 		except StopIteration:
-			raise ValueError
+			raise ValueError('`value` must be a pair or a 4-tuple')
 		try:
 			rect.w = next()
 		except StopIteration:
@@ -1990,13 +1990,13 @@ cdef class AffineTransform:
 		try:
 			rect.h = next()
 		except StopIteration:
-			raise ValueError
+			raise ValueError('`value` must be a pair or a 4-tuple')
 		try:
 			next()
 		except StopIteration:
 			pass
 		else:
-			raise ValueError
+			raise ValueError('`value` must be a pair or a 4-tuple')
 		ddjvu_unmap_rect(self.ddjvu_rectmapper, &rect)
 		return (rect.x, rect.y, int(rect.w), int(rect.h))
 
@@ -2175,7 +2175,7 @@ cdef class Stream:
 		Raise `IOError`. (This method is provided solely to implement Python's
 		file-like interface.)
 		'''
-		raise IOError
+		raise IOError('write-only data stream')
 	
 	def write(self, data):
 		'''
