@@ -5,6 +5,8 @@
 
 import djvu.sexpr
 
+EMPTY_LIST = djvu.sexpr.Expression([])
+
 METADATA_BIBTEX_KEYS = set(('address', 'author', 'booktitle', 'chapter', 'edition', 'editor', 'howpublished', 'institution', 'journal', 'key', 'month', 'note', 'number', 'organization', 'pages', 'publisher', 'school', 'series', 'title', 'type', 'volume', 'year'))
 # Retrieved from <http://nwalsh.com/tex/texhelp/bibtx-7.html>
 
@@ -63,6 +65,7 @@ TEXT_ZONE_SEPARATORS = \
 
 __all__ = \
 (
+	'EMPTY_LIST',
 	'METADATA_BIBTEX_KEYS', 'METADATA_PDFINFO_KEYS', 'METADATA_KEYS',
 	'TEXT_ZONE_SEPARATORS',
 	'TEXT_ZONE_PAGE', 'TEXT_ZONE_COLUMN', 'TEXT_ZONE_REGION', 'TEXT_ZONE_PARAGRAPH', 'TEXT_ZONE_LINE', 'TEXT_ZONE_WORD', 'TEXT_ZONE_CHARACTER',
