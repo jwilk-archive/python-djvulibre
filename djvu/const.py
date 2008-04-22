@@ -64,6 +64,23 @@ TEXT_ZONE_SEPARATORS = \
 	TEXT_ZONE_CHARACTER: ''
 }
 
+MAPAREA_SHAPE_RECTANGLE = djvu.sexpr.Symbol('rect')
+MAPAREA_SHAPE_OVAL      = djvu.sexpr.Symbol('oval')
+MAPAREA_SHAPE_POLYGON   = djvu.sexpr.Symbol('poly')
+MAPAREA_SHAPE_LINE      = djvu.sexpr.Symbol('line')
+MAPAREA_SHAPE_TEXT      = djvu.sexpr.Symbol('text')
+
+MAPAREA_BORDER_NONE        = djvu.sexpr.Symbol('none')
+MAPAREA_BORDER_XOR         = djvu.sexpr.Symbol('xor')
+MAPAREA_BORDER_SOLID_COLOR = djvu.sexpr.Symbol('border')
+
+MAPAREA_BORDER_SHADOW_IN  = djvu.sexpr.Symbol('shadow_in')
+MAPAREA_BORDER_SHADOW_OUT = djvu.sexpr.Symbol('shadow_out')
+MAPAREA_BORDER_ETCHED_IN  = djvu.sexpr.Symbol('shadow_ein')
+MAPAREA_BORDER_ETCHED_OUT = djvu.sexpr.Symbol('shadow_eout')
+
+MAPAREA_BORDER_ALWAYS_VISIBLE = djvu.sexpr.Symbol('border_avis')
+
 __all__ = \
 (
 	'EMPTY_LIST', 'EMPTY_OUTLINE',
