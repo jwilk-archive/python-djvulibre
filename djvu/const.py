@@ -8,10 +8,41 @@ import djvu.sexpr
 EMPTY_LIST = djvu.sexpr.Expression([])
 EMPTY_OUTLINE = djvu.sexpr.Expression([djvu.sexpr.Symbol('bookmarks')])
 
-METADATA_BIBTEX_KEYS = set(('address', 'author', 'booktitle', 'chapter', 'edition', 'editor', 'howpublished', 'institution', 'journal', 'key', 'month', 'note', 'number', 'organization', 'pages', 'publisher', 'school', 'series', 'title', 'type', 'volume', 'year'))
+METADATA_BIBTEX_KEYS = frozenset(map(djvu.sexpr.Symbol, '''\
+address
+author
+booktitle
+chapter
+edition
+editor
+howpublished
+institution
+journal
+key
+month
+note
+number
+organization
+pages
+publisher
+school
+series
+title
+type
+volume
+year'''.split()))
 # Retrieved from <http://nwalsh.com/tex/texhelp/bibtx-7.html>
 
-METADATA_PDFINFO_KEYS = set(('Author', 'CreationDate', 'Creator', 'Keywords', 'ModDate', 'Producer', 'Subject', 'Title', 'Trapped'))
+METADATA_PDFINFO_KEYS = frozenset(map(djvu.sexpr.Symbol, '''\
+Author
+CreationDate
+Creator
+Keywords
+ModDate
+Producer
+Subject
+Title
+Trapped'''.split()))
 # Retrived from the PDF specification
 
 METADATA_KEYS = METADATA_BIBTEX_KEYS | METADATA_PDFINFO_KEYS
