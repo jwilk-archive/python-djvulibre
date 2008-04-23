@@ -78,7 +78,17 @@ MAPAREA_BORDER_SHADOW_IN  = djvu.sexpr.Symbol('shadow_in')
 MAPAREA_BORDER_SHADOW_OUT = djvu.sexpr.Symbol('shadow_out')
 MAPAREA_BORDER_ETCHED_IN  = djvu.sexpr.Symbol('shadow_ein')
 MAPAREA_BORDER_ETCHED_OUT = djvu.sexpr.Symbol('shadow_eout')
+MAPAREA_SHADOW_BORDERS = (MAPAREA_BORDER_SHADOW_IN, MAPAREA_BORDER_SHADOW_OUT, MAPAREA_BORDER_ETCHED_IN, MAPAREA_BORDER_ETCHED_OUT)
 
 MAPAREA_BORDER_ALWAYS_VISIBLE = djvu.sexpr.Symbol('border_avis')
+
+MAPAREA_HREF = djvu.sexpr.Symbol('href')
+
+ANNOTATION_BACKGROUND = djvu.sexpr.Symbol('background')
+ANNOTATION_ZOOM       = djvu.sexpr.Symbol('zoom')
+ANNOTATION_MODE       = djvu.sexpr.Symbol('mode')
+ANNOTATION_ALIGN      = djvu.sexpr.Symbol('align')
+ANNOTATION_MAPAREA    = djvu.sexpr.Symbol('maparea')
+ANNOTATION_METADATA   = djvu.sexpr.Symbol('metadata')
 
 # vim:ts=4 sw=4 noet
