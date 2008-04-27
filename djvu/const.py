@@ -120,8 +120,8 @@ MAPAREA_SHADOW_BORDERS = (MAPAREA_BORDER_SHADOW_IN, MAPAREA_BORDER_SHADOW_OUT, M
 MAPAREA_BORDER_ALWAYS_VISIBLE = djvu.sexpr.Symbol('border_avis')
 
 # 8.3.4.2.3.1.3 Highlight color and opacity:
-MAPAREA_HIGHLIGHT = djvu.sexpr.Symbol('hilite')
-MAPAREA_OPACITY   = djvu.sexpr.Symbol('opacity')
+MAPAREA_HIGHLIGHT_COLOR = djvu.sexpr.Symbol('hilite')
+MAPAREA_OPACITY         = djvu.sexpr.Symbol('opacity')
 
 # 8.3.4.2.3.1.4 Line and Text parameters:
 MAPAREA_ARROW            = djvu.sexpr.Symbol('arrow')
