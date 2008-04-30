@@ -115,6 +115,8 @@ MAPAREA_BORDER_SHADOW_OUT = djvu.sexpr.Symbol('shadow_out')
 MAPAREA_BORDER_ETCHED_IN  = djvu.sexpr.Symbol('shadow_ein')
 MAPAREA_BORDER_ETCHED_OUT = djvu.sexpr.Symbol('shadow_eout')
 MAPAREA_SHADOW_BORDERS = (MAPAREA_BORDER_SHADOW_IN, MAPAREA_BORDER_SHADOW_OUT, MAPAREA_BORDER_ETCHED_IN, MAPAREA_BORDER_ETCHED_OUT)
+MAPAREA_SHADOW_BORDER_MIN_WIDTH = 1
+MAPAREA_SHADOW_BORDER_MAX_WIDTH = 32
 
 # 8.3.4.2.3.1.2 Border always visible
 MAPAREA_BORDER_ALWAYS_VISIBLE = djvu.sexpr.Symbol('border_avis')
@@ -128,6 +130,7 @@ MAPAREA_OPACITY_DEFAULT = 50
 MAPAREA_ARROW            = djvu.sexpr.Symbol('arrow')
 MAPAREA_LINE_WIDTH       = djvu.sexpr.Symbol('width')
 MAPAREA_LINE_COLOR       = djvu.sexpr.Symbol('lineclr')
+MAPAREA_LINE_MIN_WIDTH = 1
 MAPAREA_LINE_COLOR_DEFAULT = '#000000'
 
 # 8.3.4.2.3.1.4 Line and Text parameters:
