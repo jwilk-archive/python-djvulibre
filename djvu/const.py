@@ -102,7 +102,7 @@ MAPAREA_SHAPE_POLYGON   = djvu.sexpr.Symbol('poly')
 MAPAREA_SHAPE_LINE      = djvu.sexpr.Symbol('line')
 MAPAREA_SHAPE_TEXT      = djvu.sexpr.Symbol('text')
 
-MAPAREA_URL = djvu.sexpr.Symbol('url')
+MAPAREA_URI = MAPAREA_URL = djvu.sexpr.Symbol('url')
 
 # 8.3.4.2.3.1.1 Border type:
 MAPAREA_BORDER_NONE        = djvu.sexpr.Symbol('none')
