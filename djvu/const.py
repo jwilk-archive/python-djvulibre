@@ -122,16 +122,19 @@ MAPAREA_BORDER_ALWAYS_VISIBLE = djvu.sexpr.Symbol('border_avis')
 # 8.3.4.2.3.1.3 Highlight color and opacity:
 MAPAREA_HIGHLIGHT_COLOR = djvu.sexpr.Symbol('hilite')
 MAPAREA_OPACITY         = djvu.sexpr.Symbol('opacity')
+MAPAREA_OPACTIY_DEFAULT = 50
 
 # 8.3.4.2.3.1.4 Line and Text parameters:
 MAPAREA_ARROW            = djvu.sexpr.Symbol('arrow')
 MAPAREA_LINE_WIDTH       = djvu.sexpr.Symbol('width')
 MAPAREA_LINE_COLOR       = djvu.sexpr.Symbol('lineclr')
+MAPAREA_LINE_COLOR_DEFAULT = '#000000'
 
 # 8.3.4.2.3.1.4 Line and Text parameters:
 MAPAREA_BACKGROUND_COLOR = djvu.sexpr.Symbol('backclr')
 MAPAREA_TEXT_COLOR       = djvu.sexpr.Symbol('textclr')
 MAPAREA_PUSHPIN          = djvu.sexpr.Symbol('pushpin')
+MAPAREA_TEXT_COLOR_DEFAULT = '#000000'
 
 # 8.3.4.1 Initial Document View :
 ANNOTATION_BACKGROUND = djvu.sexpr.Symbol('background')  # 8.3.4.1.1 Background Color
