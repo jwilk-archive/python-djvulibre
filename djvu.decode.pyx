@@ -507,6 +507,19 @@ cdef class File:
 			else:
 				return self.ddjvu_fileinfo.pageno
 	
+	property page:
+		'''
+		Return the page, or None when not applicable.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			if self.ddjvu_fileinfo.pageno < 0:
+				return
+			else:
+				return self._document.pages[self.ddjvu_fileinfo.pageno]
+	
 	property size:
 		'''
 		Return the compound file size, or None when unknown.

@@ -73,12 +73,21 @@ class DocumentTest:
 		True
 
 		>>> file = document.files[0]
+		>>> type(file) is File
+		True
 		>>> file.document is document
 		True
 		>>> file.get_info()
 		>>> file.type
 		'P'
 		>>> file.n_page
+		0
+		>>> page = file.page
+		>>> type(page) is Page
+		True
+		>>> page.document is document
+		True
+		>>> page.n
 		0
 		>>> file.size
 		>>> file.id
@@ -94,6 +103,8 @@ class DocumentTest:
 		u'    Sjbz [53]         JB2 bilevel data'
 
 		>>> page = document.pages[0]
+		>>> type(page) is Page
+		True
 		>>> page.document is document
 		True
 		>>> page.get_info()
