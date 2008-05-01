@@ -124,7 +124,9 @@ MAPAREA_BORDER_ALWAYS_VISIBLE = djvu.sexpr.Symbol('border_avis')
 # 8.3.4.2.3.1.3 Highlight color and opacity:
 MAPAREA_HIGHLIGHT_COLOR = djvu.sexpr.Symbol('hilite')
 MAPAREA_OPACITY         = djvu.sexpr.Symbol('opacity')
+MAPAREA_OPACITY_MIN     = 0
 MAPAREA_OPACITY_DEFAULT = 50
+MAPAREA_OPACITY_MAX     = 100
 
 # 8.3.4.2.3.1.4 Line and Text parameters:
 MAPAREA_ARROW            = djvu.sexpr.Symbol('arrow')
