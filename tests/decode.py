@@ -34,8 +34,9 @@ class DocumentTest:
 		'''
 		>>> context = Context()
 		>>> document = context.new_document(FileURI('__nonexistent__'))
-		>>> document is None
-		True
+		Traceback (most recent call last):
+		...
+		JobFailed
 		>>> message = context.get_message()
 		>>> type(message) == ErrorMessage
 		True

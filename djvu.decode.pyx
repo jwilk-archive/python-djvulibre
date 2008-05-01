@@ -1231,6 +1231,8 @@ cdef class Context:
 		To open a local file, provide a `FileURI` instance as an `uri`.
 		
 		Localized characters in `uri` should be in URI-encoded.
+
+		In case of an error, `JobFailed` is raised.
 		'''
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
@@ -1241,7 +1243,7 @@ cdef class Context:
 			else:
 				ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
 			if ddjvu_document == NULL:
-				return
+				raise JobFailed
 			document = Document(sentinel = the_sentinel)
 			document.__init(self, ddjvu_document)
 		finally:
