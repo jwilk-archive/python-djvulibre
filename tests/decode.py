@@ -118,6 +118,11 @@ class DocumentTest:
 		0
 		>>> page.version
 		24
+		>>> file = page.file
+		>>> type(file) is File
+		True
+		>>> file.id
+		u't-gamma.djvu'
 		
 		>>> for line in document.pages[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
 		u'  FORM:DJVU [83] '
