@@ -334,10 +334,14 @@ cdef class Metadata:
 
 cdef class File:
 	cdef int _n
+	cdef int _have_info
+	cdef ddjvu_fileinfo_t ddjvu_fileinfo
 	cdef Document _document
 
 cdef class Page:
 	cdef Document _document
+	cdef ddjvu_pageinfo_t ddjvu_pageinfo
+	cdef int _have_info
 	cdef int _n
 
 cdef class PageAnnotations(Annotations):
@@ -348,14 +352,6 @@ cdef class PageText:
 	cdef object _details
 	cdef _SexprWrapper _sexpr
 	cdef object _update_sexpr(self)
-
-cdef class FileInfo:
-	cdef ddjvu_fileinfo_t ddjvu_fileinfo
-	cdef Document _document
-
-cdef class PageInfo:
-	cdef ddjvu_pageinfo_t ddjvu_pageinfo
-	cdef Document _document
 
 cdef class Context:
 	cdef ddjvu_context_t* ddjvu_context

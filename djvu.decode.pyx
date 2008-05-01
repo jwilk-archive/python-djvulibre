@@ -143,6 +143,7 @@ cdef class Page:
 
 	def __cinit__(self, Document document not None, int n):
 		self._document = document
+		self._have_info = 0
 		self._n = n
 
 	property document:
@@ -170,29 +171,29 @@ cdef class Page:
 
 	def get_info(self, wait=True):
 		'''
-		P.get_info(wait=True) -> a `PageInfo`
+		P.get_info(wait=True) -> None
 
 		Attempt to obtain information about the page without decoding the page.
 
 		If `wait` is true, wait until the information is available.
-		If the information is available, return a `PageInfo`.
 
-		Otherwise, raise `NotAvailable` exception. Then start fetching the page
-		data, which causes emission of `PageInfoMessage` messages with empty
-		`page_job`.
+		If the information is not avaiable, raise `NotAvailable` exception.
+		Then, start fetching the page data, which causes emission of
+		`PageInfoMessage` messages with empty `page_job`.
 
 		In case of an error, `JobFailed` is raised.
 		'''
 		cdef ddjvu_status_t status
-		cdef PageInfo page_info
-		page_info = PageInfo(self._document, sentinel = the_sentinel)
+		if self._have_info:
+			return
 		while True:
 			self._document._condition.acquire()
 			try:
-				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &page_info.ddjvu_pageinfo)
+				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &self.ddjvu_pageinfo)
 				ex = JobException_from_c(status)
 				if ex == JobOK:
-					return page_info
+					self._have_info = 1
+					return
 				elif ex == JobStarted:
 					if wait:
 						self._document._condition.wait()
@@ -203,12 +204,60 @@ cdef class Page:
 			finally:
 				self._document._condition.release()
 	
-	property info:
+	property width:
 		'''
-		Equivalent to `PageJob.get_info(wait=False)`.
+		Return the page width, in pixels.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		See `Page.get_info()` for details.
 		'''
 		def __get__(self):
-			return self.get_info(wait=False)
+			self.get_info(wait=False)
+			return self.ddjvu_pageinfo.width
+	
+	property height:
+		'''
+		Return the page height, in pixels.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		See `Page.get_info()` for details.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			return self.ddjvu_pageinfo.height
+	
+	property dpi:
+		'''
+		Return the page resolution, in pixels per inch.
+	
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		See `Page.get_info()` for details.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			return self.ddjvu_pageinfo.dpi
+	
+	property rotation:
+		'''
+		Return the initial page rotation, in degrees.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		See `Page.get_info()` for details.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			return self.ddjvu_pageinfo.rotation * 90
+
+	property version:
+		'''
+		Return the page version.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		See `Page.get_info()` for details.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			return self.ddjvu_pageinfo.version
 
 	property dump:
 		'''
@@ -382,6 +431,7 @@ cdef class File:
 	def __cinit__(self, Document document not None, int n, **kwargs):
 		check_sentinel(self, kwargs)
 		self._document = document
+		self._have_info = 0
 		self._n = n
 	
 	property document:
@@ -400,27 +450,25 @@ cdef class File:
 
 	def get_info(self, wait=True):
 		'''
-		F.get_info(wait=True) -> a `FileInfo`.
+		F.get_info(wait=True) -> None.
 
 		Attempt to obtain information about the component file.
 
 		If `wait` is true, wait until the information is available.
-		If the information is available, return a `FileInfo`.
 
-		Otherwise, raise `NotAvailable` exception. 
-
-		In case of an error, `JobFailed` is raised.
+		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		cdef ddjvu_status_t status
-		cdef FileInfo file_info
-		file_info = FileInfo(self._document, sentinel = the_sentinel)
+		if self._have_info:
+			return
 		while True:
 			self._document._condition.acquire()
 			try:
-				status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &file_info.ddjvu_fileinfo)
+				status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &self.ddjvu_fileinfo)
 				ex = JobException_from_c(status)
 				if ex == JobOK:
-					return file_info
+					self._have_info = 1
+					return
 				elif ex == JobStarted:
 					if wait:
 						self._document._condition.wait()
@@ -431,12 +479,92 @@ cdef class File:
 			finally:
 				self._document._condition.release()
 
-	property info:
+	property type:
 		'''
-		Equivalent to `File.get_info(wait=False)`.
+		Return the type of the compound file:
+		* `FILE_TYPE_PAGE`,
+		* `FILE_TYPE_THUMBNAILS`,
+		* `FILE_TYPE_INCLUDE`.
+	
+		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
-			return self.get_info(wait=False)
+			self.get_info(wait=False)
+			return charp_to_string(&self.ddjvu_fileinfo.type, 1)
+	
+	property n_page:
+		'''
+		Return the page number, or None when not applicable.
+
+		Page indexing is zero-based, i.e. `0` stands for the very first page.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		'''	
+		def __get__(self):
+			self.get_info(wait=False)
+			if self.ddjvu_fileinfo.pageno < 0:
+				return
+			else:
+				return self.ddjvu_fileinfo.pageno
+	
+	property size:
+		'''
+		Return the compound file size, or None when unknown.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			if self.ddjvu_fileinfo.size < 0:
+				return
+			else:
+				return self.ddjvu_fileinfo.size
+	
+	property id:
+		'''
+		Return the compound file identifier, or None.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			cdef char* result
+			result = <char*> self.ddjvu_fileinfo.id
+			if result == NULL:
+				return
+			else:
+				return decode_utf8(result)
+
+	property name:
+		'''
+		Return the compound file name, or None.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			cdef char* result
+			result = <char*> self.ddjvu_fileinfo.name
+			if result == NULL:
+				return
+			else:
+				return decode_utf8(result)
+
+	property title:
+		'''
+		Return the compound file title, or None.
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		'''
+		def __get__(self):
+			self.get_info(wait=False)
+			cdef char* result
+			result = <char*> self.ddjvu_fileinfo.title
+			if result == NULL:
+				return
+			else:
+				return decode_utf8(result)
+
 
 	property dump:
 		'''
@@ -955,125 +1083,6 @@ cdef class PageInfo:
 		def __get__(self):
 			return self._document
 	
-	property width:
-		'''
-		Return the page width, in pixels.
-		'''
-		def __get__(self):
-			return self.ddjvu_pageinfo.width
-	
-	property height:
-		'''
-		Return the page height, in pixels.
-		'''
-		def __get__(self):
-			return self.ddjvu_pageinfo.height
-	
-	property dpi:
-		'''
-		Return the page resolution, in pixels per inch.
-		'''
-		def __get__(self):
-			return self.ddjvu_pageinfo.dpi
-	
-	property rotation:
-		'''
-		Return the initial page rotation, in degrees.
-		'''
-		def __get__(self):
-			return self.ddjvu_pageinfo.rotation * 90
-
-	property version:
-		'''
-		Return the page version.
-		'''
-		def __get__(self):
-			return self.ddjvu_pageinfo.version
-
-cdef class FileInfo:
-
-	'''
-	Rudimentary compound file information.
-	'''
-
-	def __cinit__(self, Document document not None, **kwargs):
-		check_sentinel(self, kwargs)
-		self._document = document
-	
-	property document:
-		'''
-		Return the `Document` which includes the compound file.
-		'''
-		def __get__(self):
-			return self._document
-	
-	property type:
-		'''
-		Return the type of the compound file:
-		* `FILE_TYPE_PAGE`,
-		* `FILE_TYPE_THUMBNAILS`,
-		* `FILE_TYPE_INCLUDE`.
-		'''
-		def __get__(self):
-			return charp_to_string(&self.ddjvu_fileinfo.type, 1)
-	
-	property n_page:
-		'''
-		Return the page number, or None when not applicable.
-
-		Page indexing is zero-based, i.e. `0` stands for the very first page.
-		'''	
-		def __get__(self):
-			if self.ddjvu_fileinfo.pageno < 0:
-				return
-			else:
-				return self.ddjvu_fileinfo.pageno
-	
-	property size:
-		'''
-		Return the compound file size, or None when unknown.
-		'''
-		def __get__(self):
-			if self.ddjvu_fileinfo.size < 0:
-				return
-			else:
-				return self.ddjvu_fileinfo.size
-	
-	property id:
-		'''
-		Return the compound file identifier, or None.
-		'''
-		def __get__(self):
-			cdef char* result
-			result = <char*> self.ddjvu_fileinfo.id
-			if result == NULL:
-				return
-			else:
-				return decode_utf8(result)
-
-	property name:
-		'''
-		Return the compound file name, or None.
-		'''
-		def __get__(self):
-			cdef char* result
-			result = <char*> self.ddjvu_fileinfo.name
-			if result == NULL:
-				return
-			else:
-				return decode_utf8(result)
-
-	property title:
-		'''
-		Return the compound file title, or None.
-		'''
-		def __get__(self):
-			cdef char* result
-			result = <char*> self.ddjvu_fileinfo.title
-			if result == NULL:
-				return
-			else:
-				return decode_utf8(result)
 
 class FileURI(str):
 	'''

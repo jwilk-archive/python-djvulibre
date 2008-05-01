@@ -72,21 +72,20 @@ class DocumentTest:
 		>>> decoding_job.status == JobOK
 		True
 
-		>>> file_info = document.files[0].get_info()
-		>>> type(file_info) == FileInfo
+		>>> file = document.files[0]
+		>>> file.document is document
 		True
-		>>> file_info.document is document
-		True
-		>>> file_info.type
+		>>> file.get_info()
+		>>> file.type
 		'P'
-		>>> file_info.n_page
+		>>> file.n_page
 		0
-		>>> file_info.size
-		>>> file_info.id
+		>>> file.size
+		>>> file.id
 		u't-gamma.djvu'
-		>>> file_info.name
+		>>> file.name
 		u't-gamma.djvu'
-		>>> file_info.title
+		>>> file.title
 		u't-gamma.djvu'
 
 		>>> for line in document.files[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
@@ -94,20 +93,19 @@ class DocumentTest:
 		u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
 		u'    Sjbz [53]         JB2 bilevel data'
 
-		>>> page_info = document.pages[0].get_info()
-		>>> type(page_info) == PageInfo
+		>>> page = document.pages[0]
+		>>> page.document is document
 		True
-		>>> page_info.document is document
-		True
-		>>> page_info.width
+		>>> page.get_info()
+		>>> page.width
 		64
-		>>> page_info.height
+		>>> page.height
 		48
-		>>> page_info.dpi
+		>>> page.dpi
 		300
-		>>> page_info.rotation
+		>>> page.rotation
 		0
-		>>> page_info.version
+		>>> page.version
 		24
 		
 		>>> for line in document.pages[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
