@@ -1529,8 +1529,16 @@ cdef class PixelFormatRgbMask(PixelFormat):
 		cdef unsigned int _format
 		if bpp == 16:
 			_format = DDJVU_FORMAT_RGBMASK16
+			red_mask = red_mask & ((1 << 16) - 1)
+			blue_mask = blue_mask & ((1 << 16) - 1)
+			green_mask = green_mask & ((1 << 16) - 1)
+			xor_value = xor_value & ((1 << 16) - 1)
 		elif bpp == 32:
 			_format = DDJVU_FORMAT_RGBMASK32
+			red_mask = red_mask & ((1 << 32) - 1)
+			blue_mask = blue_mask & ((1 << 32) - 1)
+			green_mask = green_mask & ((1 << 32) - 1)
+			xor_value = xor_value & ((1 << 32) - 1)
 		else:
 			raise ValueError('`bpp` must be equal to 16 or 32')
 		self._bpp = self._dither_bpp = bpp
@@ -1577,19 +1585,14 @@ cdef class PixelFormatPalette(PixelFormat):
 	'''
 
 	def __cinit__(self, palette, unsigned int bpp = 8):
-		cdef int i
-		palette_next = iter(palette).next
-		for i from 0 <= i < 216:
-			try:
-				self._palette[i] = palette_next()
-			except StopIteration:
-				raise ValueError('`palette` must be a sequence of 216 integers')
-		try:
-			palette_next()
-		except StopIteration:
-			pass
-		else:
-			raise ValueError('`palette` must be a sequence of 216 integers')
+		cdef int i, j, k, n
+		for i from 0 <= i < 6:
+			for j from 0 <= j < 6:
+				for k from 0 <= k < 6:
+					n = palette[(i, j, k)]
+					if not 0 <= n < 0x100:
+						raise ValueError('palette entries must be in `range(0, 0x100)`')
+					self._palette[i*6*6 + j*6 + k] = n
 		if bpp != 8:
 			raise ValueError('`bpp` must be equal to 8')
 		self._bpp = self._dither_bpp = bpp
@@ -1598,10 +1601,13 @@ cdef class PixelFormatPalette(PixelFormat):
 	def __repr__(self):
 		cdef int i
 		io = StringIO()
-		io.write('%s([' % (get_type_name(PixelFormatPalette),))
-		for i from 0 <= i < 215:
-			io.write('0x%02x, ' % self._palette[i])
-		io.write('0x%02x], bpp = %d)' % (self._palette[215], self.bpp))
+		io.write('%s({' % (get_type_name(PixelFormatPalette),))
+		for i from 0 <= i < 6:
+			for j from 0 <= j < 6:
+				for k from 0 <= k < 6:
+					io.write('(%d, %d, %d): 0x%02x, ' % (i, j, k, self._palette[i*6*6 + j + k]))
+		io.seek(-2, 1)
+		io.write('}, bpp = %d)' % self.bpp)
 		return io.getvalue()
 
 cdef class PixelFormatPackedBits(PixelFormat):
