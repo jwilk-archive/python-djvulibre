@@ -153,6 +153,13 @@ cdef class Page:
 		def __get__(self):
 			return self._document
 	
+	property file:
+		'''
+		Return a `File` associated with the page.
+		'''
+		def __get__(self):
+			return self._document.files[self]
+	
 	property n:
 		'''
 		Return the page number.
@@ -420,17 +427,43 @@ cdef class DocumentFiles(DocumentExtension):
 	Use `document.files` to obtain instances of this class.
 	
 	File indexing is zero-based, i.e. `files[0]` stands for the very first file.
+
+	`len(pages)` might raise `NotAvailable` when called before receiving a `DocInfoMessages`.
 	'''
 
 	def __cinit__(self, Document document not None, **kwargs):
 		check_sentinel(self, kwargs)
+		self._page_map = None
 		self._document = document
 	
 	def __len__(self):
-		return ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
+		cdef int result
+		result = ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
+		if result is None:
+			raise NotAvailable
+		return result
 
 	def __getitem__(self, key):
-		return File(self.document, key, sentinel = the_sentinel)
+		cdef int i
+		if is_int(key):
+			return File(self._document, key, sentinel = the_sentinel)
+		elif typecheck(key, Page):
+			if (<Page>key)._document is not self._document:
+				raise KeyError(key)
+			if self._page_map is None:
+				self._page_map = {}
+				for i from 0 <= i < len(self):
+					file = File(self._document, i, sentinel = the_sentinel)
+					n_page = file.n_page
+					if n_page is not None:
+						self._page_map[n_page] = file
+			try:
+				return self._page_map[(<Page>key)._n]
+			except KeyError:
+				raise KeyError(key)
+		else:
+			raise TypeError('`DocumentFiles` indices must be integers or `Page` instances')
+
 
 cdef class File:
 
