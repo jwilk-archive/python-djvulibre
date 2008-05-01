@@ -337,12 +337,14 @@ cdef class File:
 	cdef int _have_info
 	cdef ddjvu_fileinfo_t ddjvu_fileinfo
 	cdef Document _document
+	cdef object _get_info(self)
 
 cdef class Page:
 	cdef Document _document
 	cdef ddjvu_pageinfo_t ddjvu_pageinfo
 	cdef int _have_info
 	cdef int _n
+	cdef object _get_info(self)
 
 cdef class PageAnnotations(Annotations):
 	cdef Page _page

@@ -169,6 +169,19 @@ cdef class Page:
 		def __get__(self):
 			return Thumbnail(self)
 
+	cdef object _get_info(self):
+		cdef ddjvu_status_t status
+		if self._have_info:
+			return
+		status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &self.ddjvu_pageinfo)
+		ex = JobException_from_c(status)
+		if ex is JobOK:
+			return
+		elif ex is JobStarted:
+			raise NotAvailable
+		else:
+			raise ex
+
 	def get_info(self, wait=True):
 		'''
 		P.get_info(wait=True) -> None
@@ -186,19 +199,18 @@ cdef class Page:
 		cdef ddjvu_status_t status
 		if self._have_info:
 			return
+		if not wait:
+			return self._get_info()
 		while True:
 			self._document._condition.acquire()
 			try:
 				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &self.ddjvu_pageinfo)
 				ex = JobException_from_c(status)
-				if ex == JobOK:
+				if ex is JobOK:
 					self._have_info = 1
 					return
-				elif ex == JobStarted:
-					if wait:
-						self._document._condition.wait()
-					else:
-						raise NotAvailable
+				elif ex is JobStarted:
+					self._document._condition.wait()
 				else:
 					raise ex
 			finally:
@@ -212,7 +224,7 @@ cdef class Page:
 		See `Page.get_info()` for details.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			return self.ddjvu_pageinfo.width
 	
 	property height:
@@ -223,7 +235,7 @@ cdef class Page:
 		See `Page.get_info()` for details.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			return self.ddjvu_pageinfo.height
 	
 	property dpi:
@@ -234,7 +246,7 @@ cdef class Page:
 		See `Page.get_info()` for details.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			return self.ddjvu_pageinfo.dpi
 	
 	property rotation:
@@ -245,7 +257,7 @@ cdef class Page:
 		See `Page.get_info()` for details.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			return self.ddjvu_pageinfo.rotation * 90
 
 	property version:
@@ -256,7 +268,7 @@ cdef class Page:
 		See `Page.get_info()` for details.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			return self.ddjvu_pageinfo.version
 
 	property dump:
@@ -448,9 +460,22 @@ cdef class File:
 		def __get__(self):
 			return self._n
 
+	cdef object _get_info(self):
+		cdef ddjvu_status_t status
+		if self._have_info:
+			return
+		status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &self.ddjvu_fileinfo)
+		ex = JobException_from_c(status)
+		if ex is JobOK:
+			return
+		elif ex is JobStarted:
+			raise NotAvailable
+		else:
+			raise ex
+
 	def get_info(self, wait=True):
 		'''
-		F.get_info(wait=True) -> None.
+		F.get_info(wait=True) -> None
 
 		Attempt to obtain information about the component file.
 
@@ -461,19 +486,18 @@ cdef class File:
 		cdef ddjvu_status_t status
 		if self._have_info:
 			return
+		if not wait:
+			return self._get_info()
 		while True:
 			self._document._condition.acquire()
 			try:
 				status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &self.ddjvu_fileinfo)
 				ex = JobException_from_c(status)
-				if ex == JobOK:
+				if ex is JobOK:
 					self._have_info = 1
 					return
-				elif ex == JobStarted:
-					if wait:
-						self._document._condition.wait()
-					else:
-						raise NotAvailable
+				elif ex is JobStarted:
+					self._document._condition.wait()
 				else:
 					raise ex
 			finally:
@@ -489,7 +513,7 @@ cdef class File:
 		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			return charp_to_string(&self.ddjvu_fileinfo.type, 1)
 	
 	property n_page:
@@ -501,7 +525,7 @@ cdef class File:
 		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''	
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			if self.ddjvu_fileinfo.pageno < 0:
 				return
 			else:
@@ -514,7 +538,7 @@ cdef class File:
 		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			if self.ddjvu_fileinfo.pageno < 0:
 				return
 			else:
@@ -527,7 +551,7 @@ cdef class File:
 		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			if self.ddjvu_fileinfo.size < 0:
 				return
 			else:
@@ -540,7 +564,7 @@ cdef class File:
 		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.id
 			if result == NULL:
@@ -555,7 +579,7 @@ cdef class File:
 		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.name
 			if result == NULL:
@@ -570,7 +594,7 @@ cdef class File:
 		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
-			self.get_info(wait=False)
+			self._get_info()
 			cdef char* result
 			result = <char*> self.ddjvu_fileinfo.title
 			if result == NULL:
