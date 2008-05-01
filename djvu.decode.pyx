@@ -114,6 +114,8 @@ cdef class DocumentPages(DocumentExtension):
 	Use `document.pages` to obtain instances of this class.
 	
 	Page indexing is zero-based, i.e. `pages[0]` stands for the very first page.
+	
+	`len(pages)` might return 1 when called before receiving a `DocInfoMessages`.
 	'''
 
 	def __cinit__(self, Document document not None, **kwargs):
