@@ -296,7 +296,7 @@ cdef class DocumentPages(DocumentExtension):
 	pass
 
 cdef class DocumentFiles(DocumentExtension):
-	pass
+	cdef object _page_map
 
 cdef class Document:
 	cdef ddjvu_document_t* ddjvu_document
