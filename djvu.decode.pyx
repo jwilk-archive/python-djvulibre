@@ -933,7 +933,8 @@ cdef class Document:
 		`cropmarks`
 			If true, generate crop marks indicating where pages should be cut. 
 		`text`
-			Generate hidden text. See the warning below.
+			Generate hidden text. This option is deprecated. See also the
+			warning below.
 		`booklet`
 			* PRINT_BOOKLET_NO
 				Disable booklet mode. This is the default.
