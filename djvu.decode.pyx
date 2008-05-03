@@ -400,10 +400,10 @@ cdef class Thumbnail:
 		cdef size_t buffer_size
 		w, h = size
 		if w <= 0 or h <= 0:
-			raise ValueError('size')
+			raise ValueError('`size` width/height must a positive integer')
 		iw, ih = w, h
 		if iw != w or ih != h:
-			raise OverflowError('size')
+			raise OverflowError('`size` width/height is too large')
 		row_size = calculate_row_size(w, row_alignment, pixel_format._bpp)
 		if dry_run:
 			result = None
@@ -1843,19 +1843,26 @@ cdef class PageJob(Job):
 		cdef int bpp
 		cdef long x, y, w, h
 		if row_alignment < 0:
-			raise ValueError('row_alignment')
+			raise ValueError('`row_alignment` must be a positive integer')
 		x, y, w, h = page_rect
 		if w <= 0 or h <= 0:
-			raise ValueError('page_rect')
+			raise ValueError('`page_rect` width/height must be a positive integer')
 		c_page_rect.x, c_page_rect.y, c_page_rect.w, c_page_rect.h = x, y, w, h
 		if c_page_rect.x != x or c_page_rect.y != y or c_page_rect.w != w or c_page_rect.h != h:
-			raise OverflowError('page_rect')
+			raise OverflowError('`render_rect` coordinates are too large')
 		x, y, w, h = render_rect
 		if w <= 0 or h <= 0:
-			raise ValueError('render_rect')
+			raise ValueError('`render_rect` width/height must be a positive integer')
 		c_render_rect.x, c_render_rect.y, c_render_rect.w, c_render_rect.h = x, y, w, h
 		if c_render_rect.x != x or c_render_rect.y != y or c_render_rect.w != w or c_render_rect.h != h:
-			raise OverflowError('render_rect')
+			raise OverflowError('`render_rect` coordinates are too large')
+		if (
+			c_page_rect.x > c_render_rect.x or
+			c_page_rect.y > c_render_rect.y or
+			c_page_rect.x + c_page_rect.w < c_render_rect.x + c_render_rect.w or
+			c_page_rect.y + c_page_rect.h < c_render_rect.y + c_render_rect.h
+		):
+			raise ValueError('`render_rect` must be inside `page_rect`')
 		row_size = calculate_row_size(c_render_rect.w, row_alignment, pixel_format._bpp)
 		result = allocate_image_buffer(row_size, c_render_rect.h)
 		if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, string_to_charp(result)) == 0:

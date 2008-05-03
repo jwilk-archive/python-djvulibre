@@ -469,17 +469,24 @@ class PageJobTest:
 		>>> page_job.render(RENDER_COLOR, (0, 0, -1, -1), (0, 0, 10, 10), PixelFormatRgb())
 		Traceback (most recent call last):
 		...
-		ValueError: page_rect
+		ValueError: `page_rect` width/height must be a positive integer
+
 		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, -1, -1), PixelFormatRgb())
 		Traceback (most recent call last):
 		...
-		ValueError: render_rect
+		ValueError: `render_rect` width/height must be a positive integer
+
+		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (2, 2, 10, 10), PixelFormatRgb())
+		Traceback (most recent call last):
+		...
+		ValueError: `render_rect` must be inside `page_rect`
+
 		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
 		Traceback (most recent call last):
 		...
-		ValueError: row_alignment
+		ValueError: `row_alignment` must be a positive integer
 
-		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 100000, 100000), PixelFormatRgb(), 8)
+		>>> page_job.render(RENDER_COLOR, (0, 0, 100000, 100000), (0, 0, 100000, 100000), PixelFormatRgb(), 8)
 		Traceback (most recent call last):
 		...
 		MemoryError: Unable to alocate 30000000000 bytes for an image buffer
