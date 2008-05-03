@@ -201,7 +201,7 @@ cdef class Page:
 		Then, start fetching the page data, which causes emission of
 		`PageInfoMessage` messages with empty `page_job`.
 
-		In case of an error, `JobFailed` is raised.
+		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		cdef ddjvu_status_t status
 		if self._have_info:
@@ -285,6 +285,8 @@ cdef class Page:
 
 		If the information is not available, raise `NotAvailable` exception.
 		Then `PageInfoMessage` messages with empty `page_job` may be emitted.
+
+		Possible exceptions: `NotAvailable`.
 		'''
 		def __get__(self):
 			cdef char* s
@@ -304,8 +306,8 @@ cdef class Page:
 
 		If `wait` is true, wait until the job is done.
 
-		If the method is called before receiving the `DocInfoMessage`,
-		`NotAvailable` exception may be raised.
+		Possible execptions: `NotAvailable` (if called before receiving the
+		`DocInfoMessage`).
 		'''
 		cdef PageJob job
 		cdef ddjvu_job_t* ddjvu_job
@@ -428,7 +430,8 @@ cdef class DocumentFiles(DocumentExtension):
 	
 	File indexing is zero-based, i.e. `files[0]` stands for the very first file.
 
-	`len(pages)` might raise `NotAvailable` when called before receiving a `DocInfoMessages`.
+	`len(pages)` might raise `NotAvailable` when called before receiving
+	a `DocInfoMessage`.
 	'''
 
 	def __cinit__(self, Document document not None, **kwargs):
@@ -643,6 +646,8 @@ cdef class File:
 
 		If the information is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
+
+		Possible exceptions: `NotAvailable`.
 		'''
 		def __get__(self):
 			cdef char* s
@@ -1314,7 +1319,7 @@ cdef class Context:
 		
 		Localized characters in `uri` should be in URI-encoded.
 
-		In case of an error, `JobFailed` is raised.
+		Possible exceptions: `JobFailed`.
 		'''
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
@@ -1520,9 +1525,17 @@ cdef class PixelFormatRgb(PixelFormat):
 cdef class PixelFormatRgbMask(PixelFormat):
 
 	'''
-	PixelFormatRgbMask(red_mask, green_mask, blue_mask[, xor_value]) -> a pixel format
+	PixelFormatRgbMask(red_mask, green_mask, blue_mask[, xor_value], bpp=16) -> a pixel format
+	PixelFormatRgbMask(red_mask, green_mask, blue_mask[, xor_value], bpp=32) -> a pixel format
 
-	XXX
+	`red_mask`, `green_mask` and `blue_mask` are bit masks for color components
+	for each pixel.	The resulting color is then xored with the `xor_value`.
+
+	For example, `PixelFormatRgbMask(0xf800, 0x07e0, 0x001f, bpp=16)` is a
+	Highcolor format with:
+	- 5 (most significant) bits for red,
+	- 6 bits for green,
+	- 5 (least significant) bits for blue.
 	'''
 
 	def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xor_value = 0, unsigned int bpp = 16):
@@ -1615,7 +1628,7 @@ cdef class PixelFormatPackedBits(PixelFormat):
 	'''
 	PixelFormatPackedBits(endianess) -> a pixel format
 
-	Bitonal, 1bpp pixel format with:
+	Bitonal, 1 bit per pixel format with:
 	- most significant bits on the left (`endianess='>'`) or
 	- least significant bits on the left (`endianess='<'`).
 	'''
@@ -1688,7 +1701,8 @@ cdef class PageJob(Job):
 		'''
 		Return the page width in pixels.
 
-		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
+		Possible exceptions: `NotAvailable` (before receiving a
+		`PageInfoMessage`).
 		'''
 		def __get__(self):
 			cdef int width
@@ -1702,7 +1716,8 @@ cdef class PageJob(Job):
 		'''
 		Return the page height in pixels.
 
-		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
+		Possible exceptions: `NotAvailable` (before receiving
+		a `PageInfoMessage`).
 		'''
 		def __get__(self):
 			cdef int height
@@ -1716,7 +1731,8 @@ cdef class PageJob(Job):
 		'''
 		Return the page resolution in pixels per inch.
 
-		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
+		Possible exceptions: `NotAvailable` (before receiving
+		a `PageInfoMessage`).
 		'''
 		def __get__(self):
 			cdef int dpi
@@ -1730,7 +1746,8 @@ cdef class PageJob(Job):
 		'''
 		Return the gamma of the display for which this page was designed.
 
-		Before receiving a `PageInfoMessage`, return a meaningless but plausible value.
+		Possible exceptions: `NotAvailable` (before receiving
+		a `PageInfoMessage`).
 		'''
 		def __get__(self):
 			return ddjvu_page_get_gamma(<ddjvu_page_t*> self.ddjvu_job)
@@ -1739,7 +1756,8 @@ cdef class PageJob(Job):
 		'''
 		Return the version of the DjVu file format.
 
-		Before receiving a `PageInfoMessage`, return a meaningless but plausible value.
+		Possible exceptions: `NotAvailable` (before receiving
+		a `PageInfoMessage`).
 		'''
 		def __get__(self):
 			return ddjvu_page_get_version(<ddjvu_page_t*> self.ddjvu_job)
@@ -1752,7 +1770,8 @@ cdef class PageJob(Job):
 		* PAGE_TYPE_PHOTO,
 		* PAGE_TYPE_COMPOUND.
 
-		Before receiving a `PageInfoMessage`, raise `NotAvailable`.
+		Possible exceptions: `NotAvailable` (before receiving
+		a `PageInfoMessage`).
 		'''
 		def __get__(self):
 			cdef ddjvu_page_type_t type
@@ -1833,8 +1852,10 @@ cdef class PageJob(Job):
 		at `row_alignment` bytes boundary.
 		
 		This method makes a best effort to compute an image that reflects the
-		most recently decoded data. It might raise `NotAvailable` to indicate
-		that no image could be computed at this point.
+		most recently decoded data.
+		
+		Possible exceptions: `NotAvailable` (to indicate that no image could be
+		computed at this point.)
 		'''
 		cdef ddjvu_rect_t c_page_rect
 		cdef ddjvu_rect_t c_render_rect
@@ -2596,7 +2617,7 @@ cdef class DocumentOutline(DocumentExtension):
 		If the S-expression is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 
-		In case of an error, `JobFailed` is raised.
+		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
 			self._update_sexpr()
@@ -2655,7 +2676,7 @@ cdef class Annotations:
 		If the S-expression is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 
-		In case of an error, `JobFailed` is raised.
+		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
 			self._update_sexpr()
@@ -2921,7 +2942,7 @@ cdef class PageText:
 		If the S-expression is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
 
-		In case of an error, `JobFailed` is raised.
+		Possible exceptions: `NotAvailable`, `JobFailed`.
 		'''
 		def __get__(self):
 			self._update_sexpr()
