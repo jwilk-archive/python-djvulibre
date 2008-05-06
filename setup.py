@@ -40,9 +40,11 @@ def pkg_config(*packages, **kwargs):
 			kwargs.setdefault('extra_compile_args', []).append(argument)
 	return kwargs
 
+__version__ = get_version()
+
 setup(
 	name = 'python-djvulibre',
-	version = '0.1',
+	version = __version__,
 	author = 'Jakub Wilk',
 	author_email = 'ubanus@users.sf.net',
 	license = 'GNU GPL 2',
@@ -54,11 +56,12 @@ setup(
 			name, ['djvu.%s.pyx' % name],
 			**pkg_config(
 				'ddjvuapi',
-				define_macros = [('PYTHON_DJVULIBRE_VERSION', '"%s"' % get_version())]
+				define_macros = [('PYTHON_DJVULIBRE_VERSION', '"%s"' % __version__)]
 			)
 		)
 		for name in EXT_MODULES
 	],
+	py_modules = ['djvu.const'],
 	cmdclass = dict(build_ext = build_ext)
 )
 
