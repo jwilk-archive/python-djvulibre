@@ -153,15 +153,15 @@ class DocumentTest:
 		...
 		IndexError: page number out of range
 
-#		>>> document.pages[1].get_info()
-#		Traceback (most recent call last):
-#		...
-#		JobFailed
-#		>>> message = context.get_message()
-#		>>> message.message
-#		'[1-13001] Page number is too big.'
-#		>>> type(message) == ErrorMessage
-#		True
+		>>> document.pages[1].get_info()
+		Traceback (most recent call last):
+		...
+		JobFailed
+		>>> message = document.get_message()
+		>>> message.message
+		'[1-12403] Page number is too big.'
+		>>> type(message) == ErrorMessage
+		True
 
 		>>> document.get_message(wait = False) is None
 		True
@@ -489,7 +489,7 @@ class PageJobTest:
 		>>> page_job.render(RENDER_COLOR, (0, 0, 100000, 100000), (0, 0, 100000, 100000), PixelFormatRgb(), 8)
 		Traceback (most recent call last):
 		...
-		MemoryError: Unable to alocate 30000000000 bytes for an image buffer
+		MemoryError: Unable to allocate 30000000000 bytes for an image buffer
 		>>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1)
 		'\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8'
 		'''
@@ -662,7 +662,7 @@ class SexprTest:
 	>>> type(message) == DocInfoMessage
 	True
 
-	>>> anno = DocumentAnnotations(document, compat = False)
+	>>> anno = DocumentAnnotations(document, shared=False)
 	>>> type(anno) == DocumentAnnotations
 	True
 	>>> anno.wait()

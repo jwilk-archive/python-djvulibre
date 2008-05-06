@@ -11,10 +11,6 @@ Images can be displayed as soon as sufficient data is available. A higher
 quality image might later be displayed when further data is available. The DjVu
 library achieves this using a complicated scheme involving multiple threads.
 The DDJVU API hides this complexity with a familiar event model.
-
-Warning
--------
-API of this module is a subject to change. You have been warned.
 '''
 
 include 'common.pxi'
@@ -197,7 +193,7 @@ cdef class Page:
 
 		If `wait` is true, wait until the information is available.
 
-		If the information is not avaiable, raise `NotAvailable` exception.
+		If the information is not available, raise `NotAvailable` exception.
 		Then, start fetching the page data, which causes emission of
 		`PageInfoMessage` messages with empty `page_job`.
 
@@ -896,7 +892,7 @@ cdef class Document:
 				raise DjVuLibreBug(467282)
 		return job
 	
-	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, cropmarks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
+	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, crop_marks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
 		'''
 		D.export_ps(file, pages=<all-pages>, ..., wait=True) -> a `Job`
 
@@ -914,7 +910,7 @@ cdef class Document:
 			files are suitable for embedding images into other documents.
 			Encapsulated PostScript file can only contain a single page.
 			Setting this option overrides the options `copies`, `orientation`,
-			`zoom`, `cropmarks`, and `booklet`.
+			`zoom`, `crop_marks`, and `booklet`.
 		`level`
 			Selects the language level of the generated PostScript. Valid
 			language levels are 1, 2, and 3. Level 3 produces the most compact
@@ -968,7 +964,7 @@ cdef class Document:
 		`frame`, 
 			If true, generate a thin gray border representing the boundaries of
 			the document pages.
-		`cropmarks`
+		`crop_marks`
 			If true, generate crop marks indicating where pages should be cut. 
 		`text`
 			Generate hidden text. This option is deprecated. See also the
@@ -989,7 +985,7 @@ cdef class Document:
 			of pages and ensures that the printout will produce
 			a single booklet. This is the default.
 		`booklet_align`
-			Specifies a positive or negative offset applied  o the verso of
+			Specifies a positive or negative offset applied to the verso of
 			each sheet. The argument is expressed in points[1]_. This is useful
 			with certain printers to ensure that both recto and verso are
 			properly aligned. The default value is 0.
@@ -1050,7 +1046,7 @@ cdef class Document:
 			list_append(options, '--options=%d' % copies)
 		if frame:
 			list_append(options, '--frame')
-		if cropmarks:
+		if crop_marks:
 			list_append(options, '--cropmarks')
 		if text:
 			list_append(options, '--text')
@@ -1594,7 +1590,10 @@ cdef class PixelFormatPalette(PixelFormat):
 
 	Palette pixel format.
 
-	XXX
+	`palette` must be a dictionary which contains 216 (6 * 6 * 6) entries of
+	a web color cube, such that:
+	- for each key `(r, g, b)`: `r in range(0, 6)`, `g in range(0, 6)` etc.;
+	- for each value `v`: `v in range(0, 0x100)`.
 	'''
 
 	def __cinit__(self, palette, unsigned int bpp = 8):
@@ -1683,7 +1682,7 @@ cdef object allocate_image_buffer(long width, long height):
 	try:
 		c_buffer_size = py_buffer_size
 	except OverflowError:
-		raise MemoryError('Unable to alocate %d bytes for an image buffer' % py_buffer_size)
+		raise MemoryError('Unable to allocate %d bytes for an image buffer' % py_buffer_size)
 	return charp_to_string(NULL, c_buffer_size)
 
 cdef class PageJob(Job):
@@ -1956,8 +1955,6 @@ cdef class Job:
 		J.wait() -> None
 
 		Wait until the job is done.
-
-		XXX
 		'''
 		while True:
 			self._condition.acquire()
@@ -2611,8 +2608,8 @@ cdef class DocumentOutline(DocumentExtension):
 	
 	property sexpr:
 		'''
-		Return the associated S-expression. See ``print-outline`` in the
-		``djvused`` manual page.
+		Return the associated S-expression. See "Outline/Bookmark syntax" in
+		the ``djvused`` manual page.
 
 		If the S-expression is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
@@ -2670,7 +2667,7 @@ cdef class Annotations:
 
 	property sexpr:
 		'''
-		Return the associated S-expression. See ``print-ant`` in the
+		Return the associated S-expression. See "Annotation syntax" in the
 		``djvused`` manual page.
 
 		If the S-expression is not available, raise `NotAvailable` exception.
@@ -2777,14 +2774,18 @@ cdef class Annotations:
 
 cdef class DocumentAnnotations(Annotations):
 	'''
-	DocumentAnnotations(document, compat=True) -> document annotations
+	DocumentAnnotations(document, shared=True) -> document-wide annotations
+	
+	If `shared` is true and no document-wide annotations are available, shared
+	annotations are considered document-wide.
 
-	XXX
+	See also "Document annotations and metadata" in the ``djvuchanges.txt`` file.
+
 	'''
 
-	def __cinit__(self, Document document not None, compat = True):
+	def __cinit__(self, Document document not None, shared = True):
 		self._document = document
-		self._compat = compat
+		self._compat = shared
 		self._sexpr = None
 
 	cdef object _update_sexpr(self):
@@ -2888,8 +2889,6 @@ cdef class PageText:
 	- `TEXT_DETAILS_WORD`,
 	- `TEXT_DETAILS_CHARACTER`,
 	- `TEXT_DETAILS_ALL`.
-
-	XXX
 	'''
 
 	def __cinit__(self, Page page not None, details = TEXT_DETAILS_ALL):
@@ -2937,7 +2936,8 @@ cdef class PageText:
 
 	property sexpr:
 		'''
-		Return the associated S-expression.
+		Return the associated S-expression. See "Hidden text syntax" in the
+		``djvused`` manual page.
 
 		If the S-expression is not available, raise `NotAvailable` exception.
 		Then, `PageInfoMessage` messages with empty `page_job` may be emitted.
@@ -2992,7 +2992,6 @@ cdef class Metadata:
 	Metadata(annotations) -> mapping of metadata
 
 	Parse the annotations and return a mapping of metadata.
-	a zero terminated 
 
 	See also ``(metadata ...)`` in the ``djvused`` manual page.
 	'''
