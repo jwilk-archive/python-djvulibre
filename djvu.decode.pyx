@@ -1156,10 +1156,12 @@ cdef class PageInfo:
 			return self._document
 	
 
-class FileURI(str):
+class FileUri(str):
 	'''
 	See the `Document.new_document()` method.
 	'''
+
+FileURI = FileUri
 
 cdef object Context_message_distributor
 def _Context_message_distributor(Context self not None, **kwargs):
@@ -1311,7 +1313,7 @@ cdef class Context:
 		which data is needed. The caller must then provide the raw data using 
 		a `NewStreamMessage.stream` object.
 
-		To open a local file, provide a `FileURI` instance as an `uri`.
+		To open a local file, provide a `FileUri` instance as an `uri`.
 		
 		Localized characters in `uri` should be in URI-encoded.
 
@@ -1321,7 +1323,7 @@ cdef class Context:
 		cdef ddjvu_document_t* ddjvu_document
 		loft_lock.acquire()
 		try:
-			if typecheck(uri, FileURI):
+			if typecheck(uri, FileUri):
 				ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
 			else:
 				ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)

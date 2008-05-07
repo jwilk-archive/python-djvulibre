@@ -33,7 +33,7 @@ class DocumentTest:
 	def test_nonexistent(self):
 		'''
 		>>> context = Context()
-		>>> document = context.new_document(FileURI('__nonexistent__'))
+		>>> document = context.new_document(FileUri('__nonexistent__'))
 		Traceback (most recent call last):
 		...
 		JobFailed
@@ -47,7 +47,7 @@ class DocumentTest:
 	def test_new_document(self):
 		'''
 		>>> context = Context()
-		>>> document = context.new_document(FileURI('t-gamma.djvu'))
+		>>> document = context.new_document(FileUri('t-gamma.djvu'))
 		>>> type(document) == Document
 		True
 		>>> message = document.get_message()
@@ -172,7 +172,7 @@ class DocumentTest:
 	def test_save(self):
 		r'''
 		>>> context = Context()
-		>>> document = context.new_document(FileURI('t-alpha.djvu'))
+		>>> document = context.new_document(FileUri('t-alpha.djvu'))
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
@@ -309,7 +309,7 @@ class DocumentTest:
 		r'''
 		>>> import sys
 		>>> context = Context()
-		>>> document = context.new_document(FileURI('t-alpha.djvu'))
+		>>> document = context.new_document(FileUri('t-alpha.djvu'))
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
@@ -426,7 +426,7 @@ class PageJobTest:
 	def test_decode():
 		r'''
 		>>> context = Context()
-		>>> document = context.new_document(FileURI('t-gamma.djvu'))
+		>>> document = context.new_document(FileUri('t-gamma.djvu'))
 		>>> message = document.get_message()
 		>>> type(message) == DocInfoMessage
 		True
@@ -498,7 +498,7 @@ class ThumbnailTest:
 
 	r'''
 	>>> context = Context()
-	>>> document = context.new_document(FileURI('t-gamma.djvu'))
+	>>> document = context.new_document(FileUri('t-gamma.djvu'))
 	>>> message = document.get_message()
 	>>> type(message) == DocInfoMessage
 	True
@@ -655,7 +655,7 @@ class StreamTest:
 class SexprTest:
 	r'''
 	>>> context = Context()
-	>>> document = context.new_document(FileURI('t-alpha.djvu'))
+	>>> document = context.new_document(FileUri('t-alpha.djvu'))
 	>>> type(document) == Document
 	True
 	>>> message = document.get_message()
