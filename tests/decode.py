@@ -112,6 +112,8 @@ class DocumentTest:
 		64
 		>>> page.height
 		48
+		>>> page.size
+		(64, 48)
 		>>> page.dpi
 		300
 		>>> page.rotation
@@ -434,6 +436,8 @@ class PageJobTest:
 		64
 		>>> page_job.height
 		48
+		>>> page_job.size
+		(64, 48)
 		>>> page_job.dpi
 		300
 		>>> page_job.gamma

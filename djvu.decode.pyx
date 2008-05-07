@@ -241,6 +241,17 @@ cdef class Page:
 			self._get_info()
 			return self.ddjvu_pageinfo.height
 	
+	property size:
+		'''
+		`page.size == (page.width, page.height)`
+
+		Possible exceptions: `NotAvailable`, `JobFailed`.
+		See `Page.get_info()` for details.
+		'''
+		def __get__(self):
+			self._get_info()
+			return self.ddjvu_pageinfo.width, self.ddjvu_pageinfo.height
+	
 	property dpi:
 		'''
 		Return the page resolution, in pixels per inch.
@@ -1731,6 +1742,23 @@ cdef class PageJob(Job):
 				raise NotAvailable
 			else:
 				return height
+	
+	property size:
+		'''
+		`page_job.size == (page_job.width, page_job.height)`
+
+		Possible exceptions: `NotAvailable` (before receiving
+		a `PageInfoMessage`).
+		'''
+		def __get__(self):
+			cdef int width
+			cdef int height
+			width = ddjvu_page_get_width(<ddjvu_page_t*> self.ddjvu_job)
+			height = ddjvu_page_get_height(<ddjvu_page_t*> self.ddjvu_job)
+			if width == 0 or height == 0:
+				raise NotAvailable
+			else:
+				return width, height
 
 	property dpi:
 		'''
