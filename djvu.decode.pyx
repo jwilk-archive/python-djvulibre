@@ -111,7 +111,7 @@ cdef class DocumentPages(DocumentExtension):
 	
 	Page indexing is zero-based, i.e. `pages[0]` stands for the very first page.
 	
-	`len(pages)` might return 1 when called before receiving a `DocInfoMessages`.
+	`len(pages)` might return 1 when called before receiving a `DocInfoMessage`.
 	'''
 
 	def __cinit__(self, Document document not None, **kwargs):
