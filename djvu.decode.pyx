@@ -426,7 +426,7 @@ cdef class DocumentFiles(DocumentExtension):
 	
 	File indexing is zero-based, i.e. `files[0]` stands for the very first file.
 
-	`len(pages)` might raise `NotAvailable` when called before receiving
+	`len(files)` might raise `NotAvailable` when called before receiving
 	a `DocInfoMessage`.
 	'''
 
