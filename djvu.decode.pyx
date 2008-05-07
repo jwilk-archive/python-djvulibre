@@ -1309,7 +1309,7 @@ cdef class Context:
 		It is important to understand that the URI is not used to access the
 		data. The document generates `NewStreamMessage` messages to indicate
 		which data is needed. The caller must then provide the raw data using 
-		a `NewStereamMessage.stream` object.
+		a `NewStreamMessage.stream` object.
 
 		To open a local file, provide a `FileURI` instance as an `uri`.
 		
