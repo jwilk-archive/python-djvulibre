@@ -386,7 +386,7 @@ cdef class Thumbnail:
 		'''
 		return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 1))
 
-	def render(self, size, PixelFormat pixel_format not None, long row_alignment = 0, dry_run = False):
+	def render(self, size, PixelFormat pixel_format not None, long row_alignment = 1, dry_run = False):
 		'''
 		T.render((w0, h0), pixel_format, row_alignment=1, dry_run=False) -> ((w1, h1, row_size), data)
 
@@ -407,6 +407,8 @@ cdef class Thumbnail:
 		cdef long w, h, row_size
 		cdef char* buffer
 		cdef size_t buffer_size
+		if row_alignment <= 0:
+			raise ValueError('`row_alignment` must be a positive integer')
 		w, h = size
 		if w <= 0 or h <= 0:
 			raise ValueError('`size` width/height must a positive integer')
@@ -1680,17 +1682,15 @@ cdef class PixelFormatPackedBits(PixelFormat):
 
 cdef object calculate_row_size(long width, long row_alignment, int bpp):
 	cdef long result
+	cdef object row_size
 	if bpp == 1:
-		row_size = (width + 7) >> 3
+		row_size = (width >> 3) + ((width & 7) != 0)
 	elif bpp & 7 == 0:
-		row_size = width * (bpp >> 3)
+		row_size = width
+		row_size = row_size * (bpp >> 3)
 	else:
 		raise SystemError
-	if row_alignment == 0:
-		row_alignment = 1
 	result = ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
-	if result < width or result <= 0:
-		raise OverflowError('row_size')
 	return result
 
 cdef object allocate_image_buffer(long width, long height):
@@ -1857,7 +1857,7 @@ cdef class PageJob(Job):
 		def __del__(self):
 			ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job))
 
-	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, long row_alignment = 0):
+	def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, long row_alignment = 1):
 		'''
 		J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1) -> data
 
@@ -1896,7 +1896,7 @@ cdef class PageJob(Job):
 		cdef long row_size
 		cdef int bpp
 		cdef long x, y, w, h
-		if row_alignment < 0:
+		if row_alignment <= 0:
 			raise ValueError('`row_alignment` must be a positive integer')
 		x, y, w, h = page_rect
 		if w <= 0 or h <= 0:
