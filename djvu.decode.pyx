@@ -711,6 +711,8 @@ cdef class DocumentDecodingJob(Job):
 	cdef object __init_ddj(self, Document document):
 		self._context = document._context
 		self._document = document
+		self._condition = document._condition
+		self._queue = document._queue
 		self.ddjvu_job = <ddjvu_job_t*> document.ddjvu_document
 
 	def __dealloc__(self):
