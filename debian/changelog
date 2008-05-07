@@ -1,3 +1,9 @@
+python-djvulibre (0.1.5) UNRELEASED; urgency=low
+
+  * Fix a race condition in `DocumentDecodingJob.wait()`. 
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Wed, 07 May 2008 13:05:57 +0200
+
 python-djvulibre (0.1.4) unstable; urgency=low
 
   * Initial release.
