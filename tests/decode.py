@@ -137,31 +137,20 @@ class DocumentTest:
 		>>> document.files[-1].get_info()
 		Traceback (most recent call last):
 		...
-		JobFailed
-		>>> message = document.get_message(wait = False)
-		>>> type(message) == ErrorMessage
-		True
-		>>> message.message
-		'Illegal file number'
+		IndexError: file number out of range
 		>>> document.get_message(wait = False) is None
 		True
 		>>> context.get_message(wait = False) is None
 		True
 		
-		>>> document.pages[-1].get_info()
+		>>> document.pages[-1]
 		Traceback (most recent call last):
 		...
 		IndexError: page number out of range
-
-		>>> document.pages[1].get_info()
+		>>> document.pages[1]
 		Traceback (most recent call last):
 		...
-		JobFailed
-		>>> message = document.get_message()
-		>>> message.message
-		'[1-12403] Page number is too big.'
-		>>> type(message) == ErrorMessage
-		True
+		IndexError: page number out of range
 
 		>>> document.get_message(wait = False) is None
 		True

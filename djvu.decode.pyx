@@ -123,7 +123,7 @@ cdef class DocumentPages(DocumentExtension):
 
 	def __getitem__(self, key):
 		if is_int(key):
-			if key < 0:
+			if key < 0 or key >= len(self):
 				raise IndexError('page number out of range')
 			return Page(self.document, key)
 		else:
@@ -445,6 +445,8 @@ cdef class DocumentFiles(DocumentExtension):
 	def __getitem__(self, key):
 		cdef int i
 		if is_int(key):
+			if key < 0 or key >= len(self):
+				raise IndexError('file number out of range')
 			return File(self._document, key, sentinel = the_sentinel)
 		elif typecheck(key, Page):
 			if (<Page>key)._document is not self._document:
