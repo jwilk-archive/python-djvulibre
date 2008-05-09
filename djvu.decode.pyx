@@ -1225,9 +1225,9 @@ def _Context_message_distributor(Context self not None, **kwargs):
 				if document.decoding_done:
 					document.__clear()
 		except KeyboardInterrupt:
-			raise
+			return
 		except SystemExit:
-			raise
+			return
 		except Exception:
 			write_unraisable_exception(self)
 Context_message_distributor = _Context_message_distributor
