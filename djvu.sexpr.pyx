@@ -180,7 +180,7 @@ cdef class BaseSymbol:
 		self.value = value
 
 	def __repr__(self):
-		return '%s(%r)' % (get_type_name(SymbolType), self.value)
+		return '%s(%r)' % (get_type_name(_Symbol_), self.value)
 	
 	def __eq__(self, other):
 		cdef BaseSymbol _other
@@ -220,6 +220,9 @@ def Symbol__new__(cls, name):
 class Symbol(BaseSymbol):
 	__new__ = staticmethod(Symbol__new__)
 
+cdef object _Symbol_
+_Symbol_ = Symbol
+
 del Symbol__new__
 
 def Expression__new__(cls, value):
@@ -230,7 +233,7 @@ def Expression__new__(cls, value):
 		return value
 	if is_int(value):
 		return IntExpression(value)
-	elif typecheck(value, SymbolType):
+	elif typecheck(value, _Symbol_):
 		return SymbolExpression(value)
 	elif is_unicode(value):
 		return StringExpression(encode_utf8(value))
@@ -300,6 +303,9 @@ class Expression(BaseExpression):
 	from_string = staticmethod(Expression_from_string)
 	from_stream = staticmethod(Expression_from_stream)
 
+cdef object _Expression_
+_Expression_ = Expression
+
 del Expression__new__, Expression_from_string, Expression_from_stream
 
 cdef object BaseExpression_richcmp(object left, object right, int op):
@@ -352,7 +358,7 @@ cdef class BaseExpression:
 		return BaseExpression_richcmp(self, other, op)
 
 	def __repr__(self):
-		return '%s(%r)' % (get_type_name(ExpressionType), self.value)
+		return '%s(%r)' % (get_type_name(_Expression_), self.value)
 
 	def __copy__(self):
 		# Most of S-expressions are immutable.
@@ -418,7 +424,7 @@ def SymbolExpression__new__(cls, value):
 	self = BaseExpression.__new__(cls)
 	if typecheck(value, _WrappedCExpr):
 		self.wexpr = value
-	elif typecheck(value, SymbolType):
+	elif typecheck(value, _Symbol_):
 		symbol = value
 		self.wexpr = wexpr(symbol_to_cexpr(symbol.value))
 	else:
@@ -480,7 +486,7 @@ class ExpressionSyntaxError(Exception):
 
 cdef _WrappedCExpr public_py2c(object o):
 	cdef BaseExpression pyexpr
-	pyexpr = Expression(o)
+	pyexpr = _Expression_(o)
 	if pyexpr is None:
 		raise TypeError
 	return pyexpr.wexpr
@@ -514,7 +520,7 @@ cdef _WrappedCExpr _build_list_cexpr(object items):
 			if typecheck(item, BaseExpression):
 				citem = item
 			else:
-				citem = Expression(item)
+				citem = _Expression_(item)
 			if citem is None:
 				raise TypeError
 			cexpr = pair_to_cexpr(citem.wexpr.cexpr(), cexpr)
@@ -535,7 +541,7 @@ def ListExpression__new__(cls, items):
 		self.wexpr = _build_list_cexpr(items)
 	return self
 
-class ListExpression(Expression):
+class ListExpression(_Expression_):
 
 	__new__ = staticmethod(ListExpression__new__)
 
@@ -592,7 +598,7 @@ class ListExpression(Expression):
 		cdef int n
 		cdef BaseExpression pyexpr
 		cexpr = self.wexpr.cexpr()
-		pyexpr = Expression(value)
+		pyexpr = _Expression_(value)
 		new_cexpr = pyexpr.wexpr.cexpr()
 		if is_int(key):
 			n = key
@@ -646,10 +652,10 @@ class ListExpression(Expression):
 		return tuple(result)
 	
 	def __copy__(self):
-		return Expression(self)
+		return _Expression_(self)
 	
 	def __deepcopy__(self, memo):
-		return Expression(self._get_value())
+		return _Expression_(self._get_value())
 
 del ListExpression__new__
 
@@ -674,11 +680,6 @@ cdef class _ListExpressionIterator:
 	def __iter__(self):
 		return self
 
-cdef object SymbolType
-cdef object ExpressionType
-
-SymbolType = Symbol
-ExpressionType = Expression
 
 __all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'InvalidExpression', 'ExpressionSyntaxError')
 __author__ = 'Jakub Wilk <ubanus@users.sf.net>'
