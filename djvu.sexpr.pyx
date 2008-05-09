@@ -562,7 +562,7 @@ class ListExpression(Expression):
 				n = n + len(self)
 			if n < 0:
 				raise IndexError('list index of out range')
-			while True:
+			while 1:
 				if cexpr == cexpr_nil:
 					raise IndexError('list index of out range')
 				if n > 0:
@@ -600,7 +600,7 @@ class ListExpression(Expression):
 				n = n + len(self)
 			if n < 0:
 				raise IndexError('list index of out range')
-			while True:
+			while 1:
 				if cexpr == cexpr_nil:
 					raise IndexError('list index of out range')
 				if n > 0:

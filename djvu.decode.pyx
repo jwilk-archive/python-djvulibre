@@ -192,7 +192,7 @@ cdef class Page:
 		else:
 			raise ex
 
-	def get_info(self, wait=True):
+	def get_info(self, wait=1):
 		'''
 		P.get_info(wait=True) -> None
 
@@ -211,7 +211,7 @@ cdef class Page:
 			return
 		if not wait:
 			return self._get_info()
-		while True:
+		while 1:
 			self._document._condition.acquire()
 			try:
 				status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &self.ddjvu_pageinfo)
@@ -312,7 +312,7 @@ cdef class Page:
 			finally:
 				libc_free(s)
 
-	def decode(self, wait = True):
+	def decode(self, wait=1):
 		'''
 		P.decode(wait=True) -> a `PageJob`
 
@@ -396,7 +396,7 @@ cdef class Thumbnail:
 		'''
 		return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 1))
 
-	def render(self, size, PixelFormat pixel_format not None, long row_alignment = 1, dry_run = False):
+	def render(self, size, PixelFormat pixel_format not None, long row_alignment = 1, dry_run=0):
 		'''
 		T.render((w0, h0), pixel_format, row_alignment=1, dry_run=False) -> ((w1, h1, row_size), data)
 
@@ -530,7 +530,7 @@ cdef class File:
 		else:
 			raise ex
 
-	def get_info(self, wait=True):
+	def get_info(self, wait=1):
 		'''
 		F.get_info(wait=True) -> None
 
@@ -545,7 +545,7 @@ cdef class File:
 			return
 		if not wait:
 			return self._get_info()
-		while True:
+		while 1:
 			self._document._condition.acquire()
 			try:
 				status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &self.ddjvu_fileinfo)
@@ -859,7 +859,7 @@ cdef class Document:
 			return
 		ddjvu_document_release(self.ddjvu_document)
 	
-	def save(self, file = None, indirect = None, pages = None, wait = True):
+	def save(self, file = None, indirect = None, pages = None, wait=1):
 		'''
 		D.save(file=None, indirect=None, pages=<all-pages>, wait=True) -> a `SaveJob`
 
@@ -919,7 +919,7 @@ cdef class Document:
 				raise DjVuLibreBug(467282)
 		return job
 	
-	def export_ps(self, file, pages = None, eps = False, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = True, srgb = True, gamma = None, copies = 1, frame = False, crop_marks = False, text = False, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = True):
+	def export_ps(self, file, pages = None, eps = 0, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = 1, srgb = 1, gamma = None, copies = 1, frame = 0, crop_marks = 0, text = 0, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = 1):
 		'''
 		D.export_ps(file, pages=<all-pages>, ..., wait=True) -> a `Job`
 
@@ -1133,7 +1133,7 @@ cdef class Document:
 		def __get__(self):
 			return self._queue
 
-	def get_message(self, wait = True):
+	def get_message(self, wait=1):
 		'''
 		D.get_message(wait=True) -> a `Message` or `None`
 
@@ -1199,7 +1199,7 @@ def _Context_message_distributor(Context self not None, **kwargs):
 	cdef ddjvu_message_t* ddjvu_message
 
 	check_sentinel(self, kwargs)
-	while True:
+	while 1:
 		with nogil:
 			ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
 		try:
@@ -1306,7 +1306,7 @@ cdef class Context:
 		def __get__(self):
 			return self._queue
 
-	def get_message(self, wait = True):
+	def get_message(self, wait=1):
 		'''
 		C.get_message(wait=True) -> a `Message` or `None`
 
@@ -1318,7 +1318,7 @@ cdef class Context:
 		except Empty:
 			return
 
-	def new_document(self, uri, cache = True):
+	def new_document(self, uri, cache=1):
 		'''
 		C.new_document(uri, cache=True) -> a `Document`
 
@@ -2000,7 +2000,7 @@ cdef class Job:
 
 		Wait until the job is done.
 		'''
-		while True:
+		while 1:
 			self._condition.acquire()
 			try:
 				if ddjvu_job_done(self.ddjvu_job):
@@ -2027,7 +2027,7 @@ cdef class Job:
 		def __get__(self):
 			return self._queue
 
-	def get_message(self, wait = True):
+	def get_message(self, wait=1):
 		'''
 		J.get_message(wait=True) -> a `Message` or `None`
 
@@ -2639,7 +2639,7 @@ cdef class DocumentOutline(DocumentExtension):
 
 		Wait until the associated S-expression is available.
 		'''
-		while True:
+		while 1:
 			self._document._condition.acquire()
 			try:
 				try:
@@ -2698,7 +2698,7 @@ cdef class Annotations:
 
 		Wait until the associated S-expression is available.
 		'''
-		while True:
+		while 1:
 			self._document._condition.acquire()
 			try:
 				try:
@@ -2827,7 +2827,7 @@ cdef class DocumentAnnotations(Annotations):
 
 	'''
 
-	def __cinit__(self, Document document not None, shared = True):
+	def __cinit__(self, Document document not None, shared=1):
 		self._document = document
 		self._compat = shared
 		self._sexpr = None
@@ -2960,7 +2960,7 @@ cdef class PageText:
 
 		Wait until the associated S-expression is available.
 		'''
-		while True:
+		while 1:
 			self._page._document._condition.acquire()
 			try:
 				try:
