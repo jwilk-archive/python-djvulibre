@@ -1,3 +1,9 @@
+python-djvulibre (0.1.6) UNRELEASED; urgency=low
+
+  * Call `Context.handle_message()` _before_ any blocking method finishes.
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Fri, 09 May 2008 14:43:50 +0200
+
 python-djvulibre (0.1.5) unstable; urgency=low
 
   * Fix a race condition in `DocumentDecodingJob.wait()`. 

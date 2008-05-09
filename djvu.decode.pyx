@@ -1199,6 +1199,7 @@ def _Context_message_distributor(Context self not None, **kwargs):
 				ddjvu_message_pop(self.ddjvu_context)
 			if message is None:
 				raise SystemError
+			self.handle_message(message)
 			# XXX Order of branches below is *crucial*. Do not change.
 			if message._job is not None:
 				job = message._job
@@ -1220,7 +1221,6 @@ def _Context_message_distributor(Context self not None, **kwargs):
 					document._condition.release()
 				if document.decoding_done:
 					document.__clear()
-			self.handle_message(message)
 		except KeyboardInterrupt:
 			raise
 		except SystemExit:
@@ -1263,7 +1263,7 @@ cdef class Context:
 		C.handle_message(message) -> None
 
 		This method is called, in a separate thread, for every received
-		message.
+		message, *before* any blocking method finishes.
 
 		By default do something roughly equivalent to::
 
