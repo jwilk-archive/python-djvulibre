@@ -313,8 +313,9 @@ cdef class Page:
 
 		If `wait` is true, wait until the job is done.
 
-		Possible exeptions: `NotAvailable` (if called before receiving the
-		`DocInfoMessage`).
+		Possible exeptions:
+		- `NotAvailable` (if called before receiving the `DocInfoMessage`).
+		- `JobFailed` (if document decoding failed).
 		'''
 		cdef PageJob job
 		cdef ddjvu_job_t* ddjvu_job
@@ -323,6 +324,8 @@ cdef class Page:
 			ddjvu_job = <ddjvu_job_t*> ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n)
 			if ddjvu_job == NULL:
 				raise NotAvailable
+			if ddjvu_document_decoding_error(self._document.ddjvu_document):
+				raise JobException_from_c(ddjvu_document_decoding_status(self._document.ddjvu_document))
 			job = PageJob(sentinel = the_sentinel)
 			job.__init(self._document._context, ddjvu_job)
 		finally:
