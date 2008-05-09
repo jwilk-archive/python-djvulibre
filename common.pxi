@@ -64,9 +64,14 @@ cdef extern from 'pythread.h':
 cdef extern from 'object.h':
 	ctypedef struct PyTypeObject:
 		char *tp_name
+	ctypedef struct PyObject:
+		PyTypeObject *ob_type
 
 cdef int is_int(object o):
 	return is_short_int(o) or is_long_int(o)
+
+cdef object type(object o):
+	return <object>((<PyObject*>o).ob_type)
 
 cdef char* get_type_name(object type):
 	return (<PyTypeObject*>type).tp_name
