@@ -76,4 +76,7 @@ cdef void raise_instantiation_error(object cls) except *:
 cdef object decode_utf8(char* s):
 	return decode_utf8_ex(s, strlen(s), NULL)
 
+cdef object Exception, ValueError, TypeError, SystemError, StopIteration, MemoryError, OverflowError, SystemExit, KeyError, IndexError, IOError, NotImplementedError, KeyboardInterrupt, AttributeError
+from exceptions import Exception, ValueError, TypeError, SystemError, StopIteration, MemoryError, OverflowError, SystemExit, KeyError, IndexError, IOError, NotImplementedError, KeyboardInterrupt, AttributeError
+
 # vim:ts=4 sw=4 noet ft=pyrex
