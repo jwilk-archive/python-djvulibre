@@ -30,14 +30,16 @@ def pkg_config(*packages, **kwargs):
 	stdout, stderr = pkgconfig.communicate()
 	if pkgconfig.returncode:
 		raise IOError('[pkg-config] ' + stderr.strip())
+	kwargs.setdefault('extra_link_args', [])
+	kwargs.setdefault('extra_compile_args', ['-Wno-uninitialized'])
 	for argument in stdout.split():
 		key = argument[:2]
 		try:
 			value = argument[2:]
 			kwargs.setdefault(PKG_CONFIG_FLAG_MAP[key], []).append(value)
 		except KeyError:
-			kwargs.setdefault('extra_link_args', []).append(argument)
-			kwargs.setdefault('extra_compile_args', []).append(argument)
+			kwargs['extra_link_args'].append(argument)
+			kwargs['extra_compile_args'].append(argument)
 	return kwargs
 
 __version__ = get_version()
