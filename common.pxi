@@ -41,6 +41,8 @@ cdef extern from 'Python.h':
 	char* string_to_charp 'PyString_AsString'(object) except NULL
 	object charp_to_string 'PyString_FromStringAndSize'(char *, Py_ssize_t)
 
+	object bool 'PyBool_FromLong'(long)
+
 	FILE* file_to_cfile 'PyFile_AsFile'(object)
 
 	int list_append 'PyList_Append'(object, object) except -1

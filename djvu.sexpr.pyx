@@ -185,7 +185,7 @@ cdef class BaseSymbol:
 	def __eq__(self, other):
 		cdef BaseSymbol _other
 		if not typecheck(other, BaseSymbol):
-			return False
+			return bool(0)
 		_other = other
 		return bool(self.value == _other.value)
 	
