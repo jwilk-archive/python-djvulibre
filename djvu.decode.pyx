@@ -44,13 +44,14 @@ from djvu.sexpr import Symbol, SymbolExpression, InvalidExpression
 cdef object the_sentinel
 the_sentinel = object()
 
-cdef object _context_loft, _document_loft, _document_weak_loft, _job_loft, _job_weak_loft, loft_lock
+cdef object _context_loft, _document_loft, _document_weak_loft, _job_loft, _job_weak_loft
+cdef Lock loft_lock
 _context_loft = {}
 _document_loft = set()
 _document_weak_loft = weakref.WeakValueDictionary()
 _job_loft = set()
 _job_weak_loft = weakref.WeakValueDictionary()
-loft_lock = thread.allocate_lock()
+loft_lock = allocate_lock()
 
 DDJVU_VERSION = ddjvu_code_get_version()
 
@@ -325,7 +326,7 @@ cdef class Page:
 		'''
 		cdef PageJob job
 		cdef ddjvu_job_t* ddjvu_job
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			ddjvu_job = <ddjvu_job_t*> ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n)
 			if ddjvu_job == NULL:
@@ -335,7 +336,7 @@ cdef class Page:
 			job = PageJob(sentinel = the_sentinel)
 			job.__init(self._document._context, ddjvu_job)
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 		if wait:
 			job.wait()
 		return job
@@ -771,11 +772,11 @@ cdef class Document:
 		_document_weak_loft[<long> ddjvu_document] = self
 
 	cdef object __clear(self):
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			_document_loft.discard(self)
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 
 	property decoding_status:
 		'''
@@ -902,13 +903,13 @@ cdef class Document:
 			s2 = pages_to_opt(pages, 1)
 			optv[optc] = s2
 			optc = optc + 1
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			job = SaveJob(sentinel = the_sentinel)
 			job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
 			job._file = file
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 		if wait:
 			job.wait()
 			if indirect is not None:
@@ -1112,13 +1113,13 @@ cdef class Document:
 			for option in options:
 				optv[optc] = option
 				optc = optc + 1
-			loft_lock.acquire()
+			with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 			try:
 				job = SaveJob(sentinel = the_sentinel)
 				job.__init(self._context, ddjvu_document_print(self.ddjvu_document, output, optc, optv))
 				job._file = file
 			finally:
-				loft_lock.release()
+				release_lock(loft_lock)
 		finally:
 			py_free(optv)
 		if wait:
@@ -1155,11 +1156,11 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	if ddjvu_document == NULL:
 		result = None
 	else:
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			result = _document_weak_loft.get(<long> ddjvu_document)
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 	return result
 
 cdef class PageInfo:
@@ -1244,14 +1245,14 @@ cdef class Context:
 	def __cinit__(self, argv0 = None):
 		if argv0 is None:
 			argv0 = sys.argv[0]
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			self.ddjvu_context = ddjvu_context_create(argv0)
 			if self.ddjvu_context == NULL:
 				raise MemoryError('Unable to create DjVu context')
 			_context_loft[<long> self.ddjvu_context] = self
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 		self._queue = Queue()
 		thread.start_new_thread(Context_message_distributor, (self,), {'sentinel': the_sentinel})
 	
@@ -1347,7 +1348,7 @@ cdef class Context:
 		'''
 		cdef Document document
 		cdef ddjvu_document_t* ddjvu_document
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			if typecheck(uri, FileUri):
 				ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
@@ -1358,7 +1359,7 @@ cdef class Context:
 			document = Document(sentinel = the_sentinel)
 			document.__init(self, ddjvu_document)
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 		return document
 
 	def __iter__(self):
@@ -1381,14 +1382,14 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 	if ddjvu_context == NULL:
 		result = None
 	else:
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			try:
 				result = _context_loft[<long> ddjvu_context]
 			except KeyError:
 				raise SystemError
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 	return result
 
 RENDER_COLOR = DDJVU_RENDER_COLOR
@@ -1966,11 +1967,11 @@ cdef class Job:
 		_job_weak_loft[<long> ddjvu_job] = self
 	
 	cdef object __clear(self):
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			_job_loft.discard(self)
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 
 	property status:
 		'''
@@ -2055,11 +2056,11 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	if ddjvu_job == NULL:
 		result = None
 	else:
-		loft_lock.acquire()
+		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			result = _job_weak_loft.get(<long> ddjvu_job)
 		finally:
-			loft_lock.release()
+			release_lock(loft_lock)
 	return result
 
 cdef class AffineTransform:

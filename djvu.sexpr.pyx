@@ -54,9 +54,6 @@ cdef extern from 'stdio.h':
 cdef object sys
 import sys
 
-cdef object thread
-import thread
-
 cdef object StringIO
 from cStringIO import StringIO
 
@@ -66,8 +63,8 @@ import weakref
 cdef object symbol_dict
 symbol_dict = weakref.WeakValueDictionary()
 
-cdef object _myio_lock
-_myio_lock = thread.allocate_lock()
+cdef Lock _myio_lock
+_myio_lock = allocate_lock()
 cdef object _myio_stdin
 cdef object _myio_stdout
 cdef int _myio_buffer
@@ -75,7 +72,7 @@ _myio_buffer = -1
 
 cdef void myio_set(stdin, stdout):
 	global _myio_stdin, _myio_stdout
-	_myio_lock.acquire()
+	with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
 	_myio_stdin = stdin
 	_myio_stdout = stdout
 
@@ -84,7 +81,7 @@ cdef void myio_reset():
 	_myio_stdin = sys.stdin
 	_myio_stdout = sys.stdout
 	_myio_buffer = -1
-	_myio_lock.release()
+	release_lock(_myio_lock)
 
 cdef int _myio_puts(char *s):
 	_myio_stdout.write(s)
