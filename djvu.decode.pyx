@@ -438,7 +438,7 @@ cdef class Thumbnail:
 		if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &iw, &ih, pixel_format.ddjvu_format, row_size, buffer):
 			return (iw, ih, row_size), result
 		else:
-			raise _NotAvailable
+			raise _NotAvailable_
 	
 	def __repr__(self):
 		return '%s(%r)' % (get_type_name(Thumbnail), self._page)
