@@ -70,7 +70,13 @@ cdef object check_sentinel(self, kwargs):
 		raise_instantiation_error(type(self))
 
 cdef object write_unraisable_exception(object cause):
-	sys.stderr.write('Unhandled exception in thread started by %r\n%s\n' % (cause, format_exc()))
+	try:
+		message = format_exc()
+	except AttributeError:
+		# This mostly happens during interpreter cleanup.
+		# It's worthless to try to recover.
+		raise SystemExit
+	sys.stderr.write('Unhandled exception in thread started by %r\n%s\n' % (cause, message))
 
 class NotAvailable(Exception):
 	'''
