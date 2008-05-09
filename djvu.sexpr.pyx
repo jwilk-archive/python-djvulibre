@@ -206,14 +206,14 @@ def Symbol__new__(cls, name):
 	'''
 	self = None
 	try:
-		if cls is Symbol:
+		if cls is _Symbol_:
 			self = symbol_dict[name]
 	except KeyError:
 		pass
 	if self is None:
 		name = str(name)
 		self = BaseSymbol.__new__(cls, name)
-		if cls is Symbol:
+		if cls is _Symbol_:
 			symbol_dict[name] = self
 	return self
 
@@ -229,7 +229,7 @@ def Expression__new__(cls, value):
 	'''
 	Expression(value) -> an expression
 	'''
-	if typecheck(value, Expression) and (not typecheck(value, ListExpression) or not value):
+	if typecheck(value, _Expression_) and (not typecheck(value, ListExpression) or not value):
 		return value
 	if is_int(value):
 		return IntExpression(value)
@@ -265,7 +265,7 @@ def Expression_from_string(str):
 	'''
 	stdin = StringIO(str)
 	try:
-		return Expression.from_stream(stdin)
+		return _Expression_.from_stream(stdin)
 	finally:
 		stdin.close()
 
@@ -387,7 +387,7 @@ def IntExpression__new__(cls, value):
 		raise TypeError('value must be an integer')
 	return self
 
-class IntExpression(Expression):
+class IntExpression(_Expression_):
 
 	'''
 	IntExpression can represent any integer in range(-2 ** 29, 2 ** 29).
@@ -431,12 +431,12 @@ def SymbolExpression__new__(cls, value):
 		raise TypeError('value must be a Symbol')
 	return self
 
-class SymbolExpression(Expression):
+class SymbolExpression(_Expression_):
 
 	__new__ = staticmethod(SymbolExpression__new__)
 
 	def _get_value(BaseExpression self not None):
-		return Symbol(cexpr_to_symbol(self.wexpr.cexpr()))
+		return _Symbol_(cexpr_to_symbol(self.wexpr.cexpr()))
 
 	def __richcmp__(self, other, int op):
 		return BaseExpression_richcmp(self, other, op)
@@ -460,7 +460,7 @@ def StringExpression__new__(cls, value):
 		raise TypeError('value must be a byte string')
 	return self
 
-class StringExpression(Expression):
+class StringExpression(_Expression_):
 
 	__new__ = staticmethod(StringExpression__new__)
 
