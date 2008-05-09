@@ -84,6 +84,9 @@ class NotAvailable(Exception):
 	A resource not (yet) available.
 	'''
 
+cdef object _NotAvailable_
+_NotAvailable_ = NotAvailable
+
 class DjVuLibreBug(Exception):
 
 	'''
@@ -188,7 +191,7 @@ cdef class Page:
 		if ex is JobOK:
 			return
 		elif ex is JobStarted:
-			raise NotAvailable
+			raise _NotAvailable_
 		else:
 			raise ex
 
@@ -306,7 +309,7 @@ cdef class Page:
 			cdef char* s
 			s = ddjvu_document_get_pagedump(self._document.ddjvu_document, self._n)
 			if s == NULL:
-				raise NotAvailable
+				raise _NotAvailable_
 			try:
 				return decode_utf8(s)
 			finally:
@@ -330,7 +333,7 @@ cdef class Page:
 		try:
 			ddjvu_job = <ddjvu_job_t*> ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n)
 			if ddjvu_job == NULL:
-				raise NotAvailable
+				raise _NotAvailable_
 			if ddjvu_document_decoding_error(self._document.ddjvu_document):
 				raise JobException_from_c(ddjvu_document_decoding_status(self._document.ddjvu_document))
 			job = PageJob(sentinel = the_sentinel)
@@ -435,7 +438,7 @@ cdef class Thumbnail:
 		if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &iw, &ih, pixel_format.ddjvu_format, row_size, buffer):
 			return (iw, ih, row_size), result
 		else:
-			raise NotAvailable
+			raise _NotAvailable
 	
 	def __repr__(self):
 		return '%s(%r)' % (get_type_name(Thumbnail), self._page)
@@ -462,7 +465,7 @@ cdef class DocumentFiles(DocumentExtension):
 		cdef int result
 		result = ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
 		if result is None:
-			raise NotAvailable
+			raise _NotAvailable_
 		return result
 
 	def __getitem__(self, key):
@@ -526,7 +529,7 @@ cdef class File:
 		if ex is JobOK:
 			return
 		elif ex is JobStarted:
-			raise NotAvailable
+			raise _NotAvailable_
 		else:
 			raise ex
 
@@ -674,7 +677,7 @@ cdef class File:
 			cdef char* s
 			s = ddjvu_document_get_filedump(self._document.ddjvu_document, self._n)
 			if s == NULL:
-				raise NotAvailable
+				raise _NotAvailable_
 			try:
 				return decode_utf8(s)
 			finally:
@@ -1734,7 +1737,7 @@ cdef class PageJob(Job):
 			cdef int width
 			width = ddjvu_page_get_width(<ddjvu_page_t*> self.ddjvu_job)
 			if width == 0:
-				raise NotAvailable
+				raise _NotAvailable_
 			else:
 				return width
 	
@@ -1749,7 +1752,7 @@ cdef class PageJob(Job):
 			cdef int height
 			height = ddjvu_page_get_height(<ddjvu_page_t*> self.ddjvu_job)
 			if height == 0:
-				raise NotAvailable
+				raise _NotAvailable_
 			else:
 				return height
 	
@@ -1766,7 +1769,7 @@ cdef class PageJob(Job):
 			width = ddjvu_page_get_width(<ddjvu_page_t*> self.ddjvu_job)
 			height = ddjvu_page_get_height(<ddjvu_page_t*> self.ddjvu_job)
 			if width == 0 or height == 0:
-				raise NotAvailable
+				raise _NotAvailable_
 			else:
 				return width, height
 
@@ -1781,7 +1784,7 @@ cdef class PageJob(Job):
 			cdef int dpi
 			dpi = ddjvu_page_get_resolution(<ddjvu_page_t*> self.ddjvu_job)
 			if dpi == 0:
-				raise NotAvailable
+				raise _NotAvailable_
 			else:
 				return dpi
 
@@ -1823,7 +1826,7 @@ cdef class PageJob(Job):
 			type = ddjvu_page_get_type(<ddjvu_page_t*> self.ddjvu_job)
 			if <int> type == <int> DDJVU_PAGETYPE_UNKNOWN and not is_done:
 				# XXX An unavoidable race condition
-				raise NotAvailable
+				raise _NotAvailable_
 			return type
 
 	property initial_rotation:
@@ -1930,7 +1933,7 @@ cdef class PageJob(Job):
 		row_size = calculate_row_size(c_render_rect.w, row_alignment, pixel_format._bpp)
 		result = allocate_image_buffer(row_size, c_render_rect.h)
 		if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, string_to_charp(result)) == 0:
-			raise NotAvailable
+			raise _NotAvailable_
 		return result
 
 	def __dealloc__(self):
@@ -2468,7 +2471,7 @@ cdef class ThumbnailMessage(Message):
 		'''
 		def __get__(self):
 			if self._document is None:
-				raise NotAvailable
+				raise _NotAvailable_
 			return self._document.pages[self._page_no].thumbnail
 
 cdef class ProgressMessage(Message):
@@ -2670,7 +2673,7 @@ cdef class DocumentOutline(DocumentExtension):
 				return sexpr
 			except InvalidExpression:
 				self._sexpr = None
-				raise NotAvailable
+				raise _NotAvailable_
 	
 	def __repr__(self):
 		return '%s(%r)' % (get_type_name(DocumentOutline), self._document)
@@ -2729,7 +2732,7 @@ cdef class Annotations:
 				return sexpr
 			except InvalidExpression:
 				self._sexpr = None
-				raise NotAvailable
+				raise _NotAvailable_
 	
 	property background_color:
 		'''
@@ -2998,7 +3001,7 @@ cdef class PageText:
 				return sexpr
 			except InvalidExpression:
 				self._sexpr = None
-				raise NotAvailable
+				raise _NotAvailable_
 
 cdef class Hyperlinks:
 	'''
