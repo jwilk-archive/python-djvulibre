@@ -313,7 +313,7 @@ cdef class Page:
 
 		If `wait` is true, wait until the job is done.
 
-		Possible execptions: `NotAvailable` (if called before receiving the
+		Possible exeptions: `NotAvailable` (if called before receiving the
 		`DocInfoMessage`).
 		'''
 		cdef PageJob job
