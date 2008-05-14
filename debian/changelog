@@ -1,9 +1,9 @@
-python-djvulibre (0.1.6) UNRELEASED; urgency=low
+python-djvulibre (0.1.6) unstable; urgency=low
 
   * Call `Context.handle_message()` _before_ any blocking method finishes.
   * Better error handling in `Page.decode()`.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Fri, 09 May 2008 15:28:17 +0200
+ -- Jakub Wilk <ubanus@users.sf.net>  Wed, 14 May 2008 11:19:52 +0200
 
 python-djvulibre (0.1.5) unstable; urgency=low
 
