@@ -485,7 +485,7 @@ cdef class DocumentFiles(DocumentExtension):
 					if n_page is not None:
 						self._page_map[n_page] = file
 			try:
-				return self._page_map[(<Page>key)._n]
+				return self._page_map[int((<Page>key)._n)]
 			except KeyError:
 				raise KeyError(key)
 		else:
@@ -772,7 +772,7 @@ cdef class Document:
 		self.ddjvu_document = ddjvu_document
 		self._context = context
 		_document_loft.add(self)
-		_document_weak_loft[<long> ddjvu_document] = self
+		_document_weak_loft[int(<long> ddjvu_document)] = self
 
 	cdef object __clear(self):
 		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
@@ -1161,7 +1161,7 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
 	else:
 		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
-			result = _document_weak_loft.get(<long> ddjvu_document)
+			result = _document_weak_loft.get(int(<long> ddjvu_document))
 		finally:
 			release_lock(loft_lock)
 	return result
@@ -1253,7 +1253,7 @@ cdef class Context:
 			self.ddjvu_context = ddjvu_context_create(argv0)
 			if self.ddjvu_context == NULL:
 				raise MemoryError('Unable to create DjVu context')
-			_context_loft[<long> self.ddjvu_context] = self
+			_context_loft[int(<long> self.ddjvu_context)] = self
 		finally:
 			release_lock(loft_lock)
 		self._queue = Queue()
@@ -1388,7 +1388,7 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
 		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
 			try:
-				result = _context_loft[<long> ddjvu_context]
+				result = _context_loft[int(<long> ddjvu_context)]
 			except KeyError:
 				raise SystemError
 		finally:
@@ -1967,7 +1967,7 @@ cdef class Job:
 		self._context = context
 		self.ddjvu_job = ddjvu_job
 		_job_loft.add(self)
-		_job_weak_loft[<long> ddjvu_job] = self
+		_job_weak_loft[int(<long> ddjvu_job)] = self
 	
 	cdef object __clear(self):
 		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
@@ -2061,7 +2061,7 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 	else:
 		with nogil: acquire_lock(loft_lock, WAIT_LOCK)
 		try:
-			result = _job_weak_loft.get(<long> ddjvu_job)
+			result = _job_weak_loft.get(int(<long> ddjvu_job))
 		finally:
 			release_lock(loft_lock)
 	return result
