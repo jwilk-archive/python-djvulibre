@@ -148,7 +148,7 @@ ANNOTATION_MODE       = djvu.sexpr.Symbol('mode') # 8.3.4.1.3 Initial Display le
 ANNOTATION_ALIGN      = djvu.sexpr.Symbol('align') # 8.3.4.1.4 Alignment
 ANNOTATION_MAPAREA    = djvu.sexpr.Symbol('maparea') # 8.3.4.2 Maparea (overprinted annotations)
 
-# ``djvuchanges.txt``, sections 3 and 4:
+# ``djvuchanges.txt``, sections "Metadata Annotations" and "Document Annotations and Metadata":
 ANNOTATION_METADATA   = djvu.sexpr.Symbol('metadata')
 
 # 8.3.4.3 Printed headers and footers:
