@@ -1,3 +1,9 @@
+python-djvulibre (0.1.7) UNRELEASED; urgency=low
+
+  * Protect from collecting just created S-expressions.
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Fri, 06 Jun 2008 12:06:45 +0200
+
 python-djvulibre (0.1.6) unstable; urgency=low
 
   * Call `Context.handle_message()` _before_ any blocking method finishes.

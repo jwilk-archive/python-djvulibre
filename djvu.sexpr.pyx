@@ -34,8 +34,8 @@ cdef extern from 'libdjvu/miniexp.h':
 	cexpr_t cexpr_substr 'miniexp_substring'(char* s, int n) nogil
 	cexpr_t cexpr_concat 'miniexp_concat'(cexpr_t cexpr_list) nogil
 
-	cexpr_t lock_gc 'minilisp_acquire_gc_lock'(cexpr_t cexpr) nogil
-	cexpr_t unlock_gc 'minilisp_release_gc_lock'(cexpr_t cexpr) nogil
+	cexpr_t gc_lock 'minilisp_acquire_gc_lock'(cexpr_t cexpr) nogil
+	cexpr_t gc_unlock 'minilisp_release_gc_lock'(cexpr_t cexpr) nogil
 	
 	cvar_t* cvar_new 'minivar_alloc'() nogil
 	void cvar_free 'minivar_free'(cvar_t* v) nogil
@@ -455,7 +455,11 @@ def StringExpression__new__(cls, value):
 	if typecheck(value, _WrappedCExpr):
 		self.wexpr = value
 	elif is_string(value):
-		self.wexpr = wexpr(str_to_cexpr(value))
+		gc_lock(NULL) # protect from collecting a just-created object
+		try:
+			self.wexpr = wexpr(str_to_cexpr(value))
+		finally:
+			gc_unlock(NULL)
 	else:
 		raise TypeError('value must be a byte string')
 	return self
@@ -513,7 +517,7 @@ cdef BaseExpression _c2py(cexpr_t cexpr):
 cdef _WrappedCExpr _build_list_cexpr(object items):
 	cdef cexpr_t cexpr
 	cdef BaseExpression citem
-	lock_gc(NULL)
+	gc_lock(NULL) # protect from collecting a just-created object
 	try:
 		cexpr = cexpr_nil
 		for item in items:
@@ -527,7 +531,7 @@ cdef _WrappedCExpr _build_list_cexpr(object items):
 		cexpr = cexpr_reverse_list(cexpr)
 		return wexpr(cexpr)
 	finally:
-		unlock_gc(NULL)
+		gc_unlock(NULL)
 
 def ListExpression__new__(cls, items):
 	'''
