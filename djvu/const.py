@@ -10,9 +10,11 @@ EMPTY_OUTLINE = djvu.sexpr.Expression([djvu.sexpr.Symbol('bookmarks')])
 
 METADATA_BIBTEX_KEYS = frozenset(map(djvu.sexpr.Symbol, '''\
 address
+annote
 author
 booktitle
 chapter
+crossref
 edition
 editor
 howpublished
@@ -31,7 +33,7 @@ title
 type
 volume
 year'''.split()))
-# Retrieved from <http://nwalsh.com/tex/texhelp/bibtx-7.html>
+# Retrieved from <http://www.ctan.org/get/biblio/bibtex/contrib/doc/btxdoc.pdf>
 
 METADATA_PDFINFO_KEYS = frozenset(map(djvu.sexpr.Symbol, '''\
 Author
