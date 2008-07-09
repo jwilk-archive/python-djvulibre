@@ -9,7 +9,7 @@ from djvu.sexpr cimport public_py2c as py2cexpr
 
 cdef extern from 'libdjvu/ddjvuapi.h':
 	struct ddjvu_context_s
-	struct ddjvu_message_s
+	union ddjvu_message_s
 	struct ddjvu_job_s
 	struct ddjvu_document_s
 	struct ddjvu_page_s
