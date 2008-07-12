@@ -41,9 +41,9 @@ cdef extern from 'libdjvu/miniexp.h':
 	void cvar_free 'minivar_free'(cvar_t* v) nogil
 	cexpr_t* cvar_ptr 'minivar_pointer'(cvar_t* v) nogil
 
-	int (*io_puts 'minilisp_puts')(char *s) nogil
-	int (*io_getc 'minilisp_getc')() nogil
-	int (*io_ungetc 'minilisp_ungetc')(int c) nogil
+	int (*io_puts 'minilisp_puts')(char *s)
+	int (*io_getc 'minilisp_getc')()
+	int (*io_ungetc 'minilisp_ungetc')(int c)
 	cexpr_t cexpr_read 'miniexp_read'()
 	cexpr_t cexpr_print 'miniexp_prin'(cexpr_t cexpr)
 	cexpr_t cexpr_printw 'miniexp_pprin'(cexpr_t cexpr, int width)
