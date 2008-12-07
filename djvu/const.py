@@ -51,29 +51,29 @@ METADATA_KEYS = METADATA_BIBTEX_KEYS | METADATA_PDFINFO_KEYS
 
 class TextZoneType(djvu.sexpr.Symbol):
 
-	__cache = {}
+    __cache = {}
 
-	@classmethod
-	def from_symbol(cls, symbol):
-		return cls.__cache[symbol]
+    @classmethod
+    def from_symbol(cls, symbol):
+        return cls.__cache[symbol]
 
-	def __new__(cls, value, rank):
-		self = djvu.sexpr.Symbol.__new__(cls, value)
-		TextZoneType.__cache[self] = self
-		return self
+    def __new__(cls, value, rank):
+        self = djvu.sexpr.Symbol.__new__(cls, value)
+        TextZoneType.__cache[self] = self
+        return self
 
-	def __init__(self, value, rank):
-		self.__rank = rank
-	
-	def __cmp__(self, other):
-		if self == other:
-			return 0
-		if not isinstance(other, TextZoneType):
-			raise TypeError('cannot compare a text zone type with other object')
-		return cmp(self.__rank, other.__rank)
-	
-	def __repr__(self):
-		return '<%s.%s: %s>' % (self.__module__, self.__class__.__name__, self)
+    def __init__(self, value, rank):
+        self.__rank = rank
+    
+    def __cmp__(self, other):
+        if self == other:
+            return 0
+        if not isinstance(other, TextZoneType):
+            raise TypeError('cannot compare a text zone type with other object')
+        return cmp(self.__rank, other.__rank)
+    
+    def __repr__(self):
+        return '<%s.%s: %s>' % (self.__module__, self.__class__.__name__, self)
 
 TEXT_ZONE_PAGE = TextZoneType('page', 7)
 TEXT_ZONE_COLUMN = TextZoneType('column', 6)
@@ -84,17 +84,17 @@ TEXT_ZONE_WORD = TextZoneType('word', 2)
 TEXT_ZONE_CHARACTER = TextZoneType('char', 1)
 
 def get_text_zone_type(symbol):
-	return TextZoneType.from_symbol(symbol)
+    return TextZoneType.from_symbol(symbol)
 
 TEXT_ZONE_SEPARATORS = \
 {
-	TEXT_ZONE_PAGE:      '\f',   # Form Feed (FF)
-	TEXT_ZONE_COLUMN:    '\v',   # Vertical tab (VT, LINE TABULATION)
-	TEXT_ZONE_REGION:    '\035', # Group Separator (GS, INFORMATION SEPARATOR THREE)
-	TEXT_ZONE_PARAGRAPH: '\037', # Unit Separator (US, INFORMATION SEPARATOR ONE)
-	TEXT_ZONE_LINE:      '\n',   # Line Feed (LF)
-	TEXT_ZONE_WORD:      ' ',    # space
-	TEXT_ZONE_CHARACTER: ''
+    TEXT_ZONE_PAGE:      '\f',   # Form Feed (FF)
+    TEXT_ZONE_COLUMN:    '\v',   # Vertical tab (VT, LINE TABULATION)
+    TEXT_ZONE_REGION:    '\035', # Group Separator (GS, INFORMATION SEPARATOR THREE)
+    TEXT_ZONE_PARAGRAPH: '\037', # Unit Separator (US, INFORMATION SEPARATOR ONE)
+    TEXT_ZONE_LINE:      '\n',   # Line Feed (LF)
+    TEXT_ZONE_WORD:      ' ',    # space
+    TEXT_ZONE_CHARACTER: ''
 }
 
 # 8.3.4.2 Maparea (overprinted annotations):
@@ -160,4 +160,4 @@ PRINTER_HEADER_ALIGN_LEFT   = PRINTED_FOOTER_ALIGN_LEFT   = djvu.sexpr.Symbol('l
 PRINTER_HEADER_ALIGN_CENTER = PRINTED_FOOTER_ALIGN_CENTER = djvu.sexpr.Symbol('center')
 PRINTER_HEADER_ALIGN_RIGHT  = PRINTED_FOOTER_ALIGN_RIGHT  = djvu.sexpr.Symbol('right')
 
-# vim:ts=4 sw=4 noet
+# vim:ts=4 sw=4 et
