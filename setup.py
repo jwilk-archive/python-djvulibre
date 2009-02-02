@@ -1,8 +1,13 @@
 # ecoding=UTF-8
 # Copyright © 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
-from distutils.core import setup
-from distutils.extension import Extension
+try:
+    from setuptools import setup
+    from setuptools.extension import Extension
+except ImportError:
+    from distutils.core import setup
+    from distutils.extension import Extension
+
 from Pyrex.Distutils import build_ext
 from subprocess import Popen, PIPE
 
