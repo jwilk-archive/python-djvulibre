@@ -1,5 +1,5 @@
 # ecoding=UTF-8
-# Copyright © 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
+# Copyright © 2007, 2008, 2009 Jakub Wilk <ubanus@users.sf.net>
 
 '''
 *python-djvulibre* is a set of `Python <http://python.org>`_ bindings for the
