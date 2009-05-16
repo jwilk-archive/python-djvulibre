@@ -11,3 +11,5 @@ Package: python-djvulibre
 Architecture: any
 Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: Python support for the DjVu image format
+ python-djvulibre is a set of Python bindings for the DjVuLibre library,
+ an open source implementation of DjVu.
