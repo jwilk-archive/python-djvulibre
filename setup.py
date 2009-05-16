@@ -1,6 +1,24 @@
 # ecoding=UTF-8
 # Copyright © 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
 
+'''
+*python-djvulibre* is a set of `Python <http://python.org>`_ bindings for the
+`DjVuLibre <http://djvu.sf.net/>`_ library, an open source implementation of
+`DjVu <http://djvu.org/>`_."
+'''
+
+classifiers = '''\
+Development Status :: 4 - Beta
+Intended Audience :: Developers
+License :: OSI Approved :: GNU General Public License (GPL)
+Operating System :: POSIX
+Programming Language :: Python
+Programming Language :: Python :: 2
+Topic :: Multimedia :: Graphics
+Topic :: Multimedia :: Graphics :: Graphics Conversion
+Topic :: Text Processing\
+'''.split('\n')
+
 try:
     from setuptools import setup
     from setuptools.extension import Extension
@@ -55,6 +73,10 @@ setup(
     author = 'Jakub Wilk',
     author_email = 'ubanus@users.sf.net',
     license = 'GNU GPL 2',
+    description = 'Python support for the DjVu image format',
+    long_description = __doc__.strip(),
+    classifiers = classifiers,
+    url = 'http://jwilk.nfshost.com/software/python-djvulibre.html',
     platforms = ['all'],
     ext_package = 'djvu',
     ext_modules = \
