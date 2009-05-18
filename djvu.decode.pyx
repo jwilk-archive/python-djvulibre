@@ -1691,16 +1691,16 @@ cdef class PixelFormatRgbMask(PixelFormat):
         cdef unsigned int _format
         if bpp == 16:
             _format = DDJVU_FORMAT_RGBMASK16
-            red_mask = red_mask & ((1 << 16) - 1)
-            blue_mask = blue_mask & ((1 << 16) - 1)
-            green_mask = green_mask & ((1 << 16) - 1)
-            xor_value = xor_value & ((1 << 16) - 1)
+            red_mask = red_mask & 0xffff
+            blue_mask = blue_mask & 0xffff
+            green_mask = green_mask & 0xffff
+            xor_value = xor_value & 0xffff
         elif bpp == 32:
             _format = DDJVU_FORMAT_RGBMASK32
-            red_mask = red_mask & ((1 << 32) - 1)
-            blue_mask = blue_mask & ((1 << 32) - 1)
-            green_mask = green_mask & ((1 << 32) - 1)
-            xor_value = xor_value & ((1 << 32) - 1)
+            red_mask = red_mask & 0xffffffff
+            blue_mask = blue_mask & 0xffffffff
+            green_mask = green_mask & 0xffffffff
+            xor_value = xor_value & 0xffffffff
         else:
             raise ValueError('`bpp` must be equal to 16 or 32')
         self._bpp = self._dither_bpp = bpp
