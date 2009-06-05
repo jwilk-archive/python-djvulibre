@@ -35,7 +35,7 @@ def get_version():
     from sys import path
     from os.path import join as path_join
     from re import match
-    changelog = file(path_join(path[0], 'ChangeLog'))
+    changelog = file(path_join(path[0], 'doc/changelog'))
     try:
         line = changelog.readline()
         m = match('python-djvulibre [(]([0-9.]+)[)]', line)
