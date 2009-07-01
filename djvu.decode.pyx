@@ -1287,25 +1287,6 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
             release_lock(loft_lock)
     return result
 
-cdef class PageInfo:
-
-    '''
-    Rudimentary page information.
-
-    Use `page.info` to obtain instances of this class.
-    '''
-
-    def __cinit__(self, Document document not None, **kwargs):
-        check_sentinel(self, kwargs)
-        self._document = document
-    
-    property document:
-        '''
-        Return the `Document` which includes the page.
-        '''
-        def __get__(self):
-            return self._document
-    
 
 class FileUri(str):
     '''
