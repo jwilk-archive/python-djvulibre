@@ -1,6 +1,6 @@
-Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?rev=59
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?rev=59
 Name: python-djvulibre
-Contact: Jakub Wilk <ubanus@users.sf.net>
+Maintainer: Jakub Wilk <ubanus@users.sf.net>
 Source: http://jwilk.nfshost.com/software/python-djvulibre.html
 
 Files: *
