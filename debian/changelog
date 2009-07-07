@@ -1,6 +1,7 @@
 python-djvulibre (0.1.10) UNRELEASED; urgency=low
 
   * Remove the `PageInfo` class (it served no purpose).
+  * Work around a Pyrex compilation bug.
 
  -- Jakub Wilk <ubanus@users.sf.net>  Fri, 05 Jun 2009 13:18:56 +0200
 

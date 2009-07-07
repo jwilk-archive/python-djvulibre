@@ -52,6 +52,7 @@ cdef extern from 'Python.h':
 
     object int 'PyNumber_Int'(object)
     object bool 'PyBool_FromLong'(long)
+    object voidp_to_int 'PyLong_FromVoidPtr'(void *)
 
     FILE* file_to_cfile 'PyFile_AsFile'(object)
 
