@@ -1,3 +1,9 @@
+python-djvulibre (0.1.11) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Mon, 13 Jul 2009 17:10:18 +0200
+
 python-djvulibre (0.1.10) unstable; urgency=low
 
   * Remove the `PageInfo` class (it served no purpose).
