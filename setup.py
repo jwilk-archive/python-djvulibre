@@ -19,8 +19,12 @@ Topic :: Multimedia :: Graphics :: Graphics Conversion
 Topic :: Text Processing\
 '''.split('\n')
 
-from distutils.core import setup
-from distutils.extension import Extension
+try:
+    from setuptools import setup
+    from setuptools.extension import Extension
+except ImportError:
+    from distutils.core import setup
+    from distutils.extension import Extension
 
 from Pyrex.Distutils import build_ext
 from subprocess import Popen, PIPE
