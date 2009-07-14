@@ -286,26 +286,26 @@ class Expression(BaseExpression):
 
     Special characters are:
 
-    * the parenthesis ``(`` and ``)``,
-    * the double quote ``"``,
-    * the vertical bar ``|``.
+    * the parenthesis '(' and ')',
+    * the double quote '"',
+    * the vertical bar '|'.
     
-    Symbols are represented by their name. Vertical bars ``|`` can be used to
+    Symbols are represented by their name. Vertical bars | can be used to
     delimit names that contain blanks, special characters, non printable
     characters, non-ASCII characters, or can be confused as a number.
     
-    Numbers follow the syntax specified by the C function ``strtol()`` with
-    ``base=0``.
+    Numbers follow the syntax specified by the C function strtol() with
+    base=0.
     
     Strings are delimited by double quotes. All C string escapes are
     recognized. Non-printable ASCII characters must be escaped.
     
-    List are represented by an open parenthesis ``(`` followed by the space
-    separated list elements, followed by a closing parenthesis ``)``.
+    List are represented by an open parenthesis '(' followed by the space
+    separated list elements, followed by a closing parenthesis ')'.
     
-    When the ``cdr`` of the last pair is non zero, the closed parenthesis is
-    preceded by a space, a dot ``.``, a space, and the textual representation
-    of the ``cdr``. (This is only partially supported by Python bindings.)
+    When the cdr of the last pair is non zero, the closed parenthesis is
+    preceded by a space, a dot '.', a space, and the textual representation
+    of the cdr. (This is only partially supported by Python bindings.)
 
     '''
     __new__ = staticmethod(Expression__new__)
@@ -326,7 +326,7 @@ cdef object BaseExpression_richcmp(object left, object right, int op):
 
 cdef class BaseExpression:
     '''
-    Don't use this class directly. Use the `Expression` class instead.
+    Don't use this class directly. Use the Expression class instead.
     '''
 
     cdef _WrappedCExpr wexpr
@@ -400,6 +400,8 @@ class IntExpression(_Expression_):
 
     '''
     IntExpression can represent any integer in range(-2 ** 29, 2 ** 29).
+
+    To create objects of this class, use the Expression class constructor.
     '''
 
     __new__ = staticmethod(IntExpression__new__)
@@ -441,6 +443,9 @@ def SymbolExpression__new__(cls, value):
     return self
 
 class SymbolExpression(_Expression_):
+    '''
+    To create objects of this class, use the Expression class constructor.
+    '''
 
     __new__ = staticmethod(SymbolExpression__new__)
 
@@ -474,7 +479,9 @@ def StringExpression__new__(cls, value):
     return self
 
 class StringExpression(_Expression_):
-
+    '''
+    To create objects of this class, use the Expression class constructor.
+    '''
     __new__ = staticmethod(StringExpression__new__)
 
     def _get_value(BaseExpression self not None):
@@ -555,7 +562,9 @@ def ListExpression__new__(cls, items):
     return self
 
 class ListExpression(_Expression_):
-
+    '''
+    To create objects of this class, use the Expression class constructor.
+    '''
     __new__ = staticmethod(ListExpression__new__)
 
     def __nonzero__(BaseExpression self not None):

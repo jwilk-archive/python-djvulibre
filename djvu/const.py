@@ -60,6 +60,12 @@ METADATA_KEYS = METADATA_BIBTEX_KEYS | METADATA_PDFINFO_KEYS
 
 class TextZoneType(djvu.sexpr.Symbol):
 
+    '''
+    A type of a text zone. You can compare text zone types with the < operator.
+
+    To create objects of this class, use the get_text_zone_type() function.
+    '''
+
     __cache = {}
 
     @classmethod
@@ -105,6 +111,9 @@ TEXT_ZONE_SEPARATORS = \
     TEXT_ZONE_WORD:      ' ',    # space
     TEXT_ZONE_CHARACTER: ''
 }
+
+# 8.3.4.2 Maparea (overprinted annotations)
+ANNOTATION_MAPAREA    = djvu.sexpr.Symbol('maparea')
 
 # 8.3.4.2 Maparea (overprinted annotations):
 MAPAREA_SHAPE_RECTANGLE = djvu.sexpr.Symbol('rect')
@@ -157,9 +166,8 @@ ANNOTATION_BACKGROUND = djvu.sexpr.Symbol('background')  # 8.3.4.1.1 Background 
 ANNOTATION_ZOOM       = djvu.sexpr.Symbol('zoom') # 8.3.4.1.2 Initial Zoom
 ANNOTATION_MODE       = djvu.sexpr.Symbol('mode') # 8.3.4.1.3 Initial Display level
 ANNOTATION_ALIGN      = djvu.sexpr.Symbol('align') # 8.3.4.1.4 Alignment
-ANNOTATION_MAPAREA    = djvu.sexpr.Symbol('maparea') # 8.3.4.2 Maparea (overprinted annotations)
 
-# ``djvuchanges.txt``, sections "Metadata Annotations" and "Document Annotations and Metadata":
+# djvuchanges.txt, sections "Metadata Annotations" and "Document Annotations and Metadata":
 ANNOTATION_METADATA   = djvu.sexpr.Symbol('metadata')
 
 # 8.3.4.3 Printed headers and footers:
