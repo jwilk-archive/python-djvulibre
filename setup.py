@@ -1,4 +1,4 @@
-# ecoding=UTF-8
+# encoding=UTF-8
 # Copyright © 2007, 2008, 2009 Jakub Wilk <ubanus@users.sf.net>
 
 '''
