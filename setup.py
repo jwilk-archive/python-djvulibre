@@ -28,10 +28,10 @@ from subprocess import Popen, PIPE
 EXT_MODULES = ('decode', 'sexpr')
 
 def get_version():
-    from sys import path
-    from os.path import join as path_join
+    import os.path
     from re import match
-    changelog = file(path_join(path[0], 'doc/changelog'))
+    package_dir = os.path.dirname(os.path.realpath(os.path.splitext(__file__)[0] + '.py'))
+    changelog = file(os.path.join(package_dir, 'doc/changelog'))
     try:
         line = changelog.readline()
         m = match('python-djvulibre [(]([0-9.]+)[)]', line)
@@ -63,7 +63,7 @@ def pkg_config(*packages, **kwargs):
 
 __version__ = get_version()
 
-setup(
+setup_params = dict(
     name = 'python-djvulibre',
     version = __version__,
     author = 'Jakub Wilk',
@@ -89,5 +89,8 @@ setup(
     py_modules = ['djvu.const'],
     cmdclass = dict(build_ext = build_ext)
 )
+
+if __name__ == '__main__':
+    setup(**setup_params)
 
 # vim:ts=4 sw=4 et
