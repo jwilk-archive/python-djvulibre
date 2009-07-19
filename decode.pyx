@@ -1,1 +1,1 @@
-djvu.decode.pyx
+djvu/decode.pyx

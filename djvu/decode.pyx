@@ -3032,11 +3032,11 @@ def cmp_text_zone(zonetype1, zonetype2):
     - TEXT_ZONE_WORD,
     - TEXT_ZONE_CHARACTER.
     '''
-    if not typecheck(zone1, Symbol) or not typecheck(zone2, Symbol):
+    if not typecheck(zonetype1, Symbol) or not typecheck(zonetype2, Symbol):
         raise TypeError('zonetype must be a symbol')
     try:
-        n1 = TEXT_DETAILS[zone1]
-        n2 = TEXT_DETAILS[zone2]
+        n1 = TEXT_DETAILS[zonetype1]
+        n2 = TEXT_DETAILS[zonetype2]
     except KeyError:
         raise ValueError('zonetype must be equal to TEXT_ZONE_PAGE, or TEXT_ZONE_COLUMN, or TEXT_ZONE_REGION, or TEXT_ZONE_PARAGRAPH, or TEXT_ZONE_LINE, or TEXT_ZONE_WORD, or TEXT_ZONE_CHARACTER')
     return cmp(n1, n2)

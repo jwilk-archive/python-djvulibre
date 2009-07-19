@@ -1,1 +1,1 @@
-djvu.sexpr.pxd
+djvu/sexpr.pxd

@@ -1,1 +1,1 @@
-djvu.decode.pxd
+djvu/decode.pxd

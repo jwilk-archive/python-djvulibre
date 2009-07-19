@@ -1,1 +1,1 @@
-djvu.sexpr.pyx
+djvu/sexpr.pyx

@@ -26,7 +26,7 @@ except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
 
-from Pyrex.Distutils import build_ext
+from Cython.Distutils import build_ext
 from subprocess import Popen, PIPE
 
 EXT_MODULES = ('decode', 'sexpr')
@@ -78,11 +78,11 @@ setup_params = dict(
     classifiers = classifiers,
     url = 'http://jwilk.nfshost.com/software/python-djvulibre.html',
     platforms = ['all'],
-    ext_package = 'djvu',
+    packages = 'djvu',
     ext_modules = \
     [
         Extension(
-            name, ['djvu.%s.pyx' % name],
+            'djvu.%s' % name, ['djvu/%s.pyx' % name],
             **pkg_config(
                 'ddjvuapi',
                 define_macros = [('PYTHON_DJVULIBRE_VERSION', '"%s"' % __version__)]

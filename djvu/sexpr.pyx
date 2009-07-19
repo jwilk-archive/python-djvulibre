@@ -191,15 +191,14 @@ cdef class BaseSymbol:
     def __repr__(self):
         return '%s(%r)' % (get_type_name(_Symbol_), self.value)
     
-    def __eq__(self, other):
+    def __richcmp__(object self, object other, int op):
         cdef BaseSymbol _other
         if not typecheck(other, BaseSymbol):
-            return bool(0)
+            return NotImplemented
         _other = other
-        return bool(self.value == _other.value)
-    
-    def __neq__(self, other):
-        return not self == other
+        if op == 2 or op == 3:
+            return richcmp(self.value, _other.value, op)
+        return NotImplemented
     
     def __hash__(self):
         # XXX Due to a pyrex bug, this might not be an actual hash(self.value).

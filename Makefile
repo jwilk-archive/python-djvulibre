@@ -10,7 +10,7 @@ test-%: tests/%.py all
 
 .PHONY: clean
 clean:
-	$(RM) djvu/*.so *.c python-build-stamp-*
-	$(RM) -R build/
+	$(RM) djvu/*.so djvu/*.c djvu/*.py[co] python-build-stamp-* *.py[co]
+	$(RM) -R build/ *.egg-info/
 
 # vim:ts=4 sw=4 noet
