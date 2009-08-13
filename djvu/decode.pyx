@@ -1776,12 +1776,12 @@ cdef class PixelFormatPackedBits(PixelFormat):
     - least significant bits on the left (endianness=='<').
     '''
 
-    def __cinit__(self, char *endianess):
+    def __cinit__(self, char *endianness):
         cdef int _format
-        if strcmp(endianess, '<') == 0:
+        if strcmp(endianness, '<') == 0:
             self._little_endian = 1
             _format = DDJVU_FORMAT_LSBTOMSB
-        elif strcmp(endianess, '>') == 0:
+        elif strcmp(endianness, '>') == 0:
             self._little_endian = 0
             _format = DDJVU_FORMAT_MSBTOLSB
         else:
@@ -1792,7 +1792,7 @@ cdef class PixelFormatPackedBits(PixelFormat):
     
     property endianness:
         '''
-        The endianess:
+        The endianness:
         - '<' (most significant bits on the left) or
         - '>' (least significant bits on the left).
         '''
