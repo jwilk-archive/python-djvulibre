@@ -19,6 +19,13 @@ Topic :: Multimedia :: Graphics :: Graphics Conversion
 Topic :: Text Processing\
 '''.split('\n')
 
+import os
+import sys
+
+from Cython.Distutils import build_ext
+
+# This is required to make setuptools cooperate with Cython:
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'fake_pyrex'))
 try:
     from setuptools import setup
     from setuptools.extension import Extension
@@ -26,7 +33,6 @@ except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
 
-from Cython.Distutils import build_ext
 from subprocess import Popen, PIPE
 
 EXT_MODULES = ('decode', 'sexpr')
