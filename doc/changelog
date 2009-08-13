@@ -1,3 +1,9 @@
+python-djvulibre (0.1.12) unstable; urgency=low
+
+  * Use Cython (rather than Pyrex) to compile sources.
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Thu, 13 Aug 2009 13:07:16 +0200
+
 python-djvulibre (0.1.11) unstable; urgency=low
 
   * Provide a bit more comprehensive documentation.
