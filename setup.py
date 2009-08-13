@@ -78,7 +78,7 @@ setup_params = dict(
     classifiers = classifiers,
     url = 'http://jwilk.net/software/python-djvulibre.html',
     platforms = ['all'],
-    packages = 'djvu',
+    packages = ['djvu'],
     ext_modules = \
     [
         Extension(
