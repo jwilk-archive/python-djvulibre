@@ -35,7 +35,6 @@ cdef extern from 'Python.h':
     void* py_malloc 'PyMem_Malloc'(size_t)
     void py_free 'PyMem_Free'(void*)
 
-    int typecheck 'PyObject_TypeCheck'(object o, object type)
     int is_short_int 'PyInt_Check'(object)
     int is_long_int 'PyLong_Check'(object)
     int is_float 'PyFloat_Check'(object)
@@ -76,6 +75,7 @@ cdef extern from 'object.h':
         char *tp_name
     ctypedef struct PyObject:
         PyTypeObject *ob_type
+    int _typecheck 'PyObject_TypeCheck'(object o, PyTypeObject* type)
 
 cdef int is_int(object o):
     return is_short_int(o) or is_long_int(o)
@@ -85,6 +85,9 @@ cdef object type(object o):
 
 cdef char* get_type_name(object type):
     return (<PyTypeObject*>type).tp_name
+
+cdef int typecheck(object o, object type):
+    return _typecheck(o, <PyTypeObject*> type)
 
 cdef void raise_instantiation_error(object cls) except *:
     raise TypeError, 'cannot create \'%s\' instances' % get_type_name(cls)
