@@ -788,6 +788,7 @@ class SexprTest:
 if __name__ == '__main__':
     import os, sys
     os.chdir(sys.path[0])
+    os.putenv('LC_ALL', 'C')
     del os, sys
     doctest.testmod(verbose = False)
     doctest.master.summarize(verbose = True)
