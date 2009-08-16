@@ -191,13 +191,14 @@ cdef class BaseSymbol:
     def __repr__(self):
         return '%s(%r)' % (get_type_name(_Symbol_), self.value)
     
-    def __richcmp__(object self, object other, int op):
-        cdef BaseSymbol _other
-        if not typecheck(other, BaseSymbol):
+    def __richcmp__(self, object other, int op):
+        cdef BaseSymbol _self, _other
+        if not typecheck(self, BaseSymbol) or not typecheck(other, BaseSymbol):
             return NotImplemented
+        _self = self
         _other = other
         if op == 2 or op == 3:
-            return richcmp(self.value, _other.value, op)
+            return richcmp(_self.value, _other.value, op)
         return NotImplemented
     
     def __hash__(self):
