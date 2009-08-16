@@ -36,7 +36,6 @@ del _setup, _setup_file
 pygments_style = 'sphinx'
 
 html_theme = 'default'
-html_static_path = ['static']
 html_use_modindex = True
 html_use_index = False
 
