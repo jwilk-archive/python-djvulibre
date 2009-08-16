@@ -1,3 +1,11 @@
+python-djvulibre (0.1.13) unstable; urgency=low
+
+  * Fix major breakage introduced in 0.1.12. Thanks to Piotr Ożarowski for
+    reporting that.
+  * Get rid of some spurious warnings.
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Sun, 16 Aug 2009 10:49:42 +0200
+
 python-djvulibre (0.1.12) unstable; urgency=low
 
   * Use Cython (rather than Pyrex) to compile sources.
