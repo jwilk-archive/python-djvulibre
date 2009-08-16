@@ -355,10 +355,12 @@ class DocumentTest:
         >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
         >>> stderr
         ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
+        >>> for line in stdout.splitlines(): print repr(line.replace('  ', ' ')) # doctest: +REPORT_NDIFF
         ''
         ''
-        ' 2  White background, colorful foreground  red green blue cyan magenta yellow red  green blue cyan magenta yellow'
+        ' 2 White background, colorful foreground red green blue cyan magenta yellow'
+        ''
+        ' red green blue cyan magenta yellow'
         ''
         ' 2'
         >>> del tmp
