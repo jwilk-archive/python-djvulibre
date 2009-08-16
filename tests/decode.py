@@ -463,7 +463,7 @@ class PageJobTest:
         >>> page_job.rotation = 100
         Traceback (most recent call last):
         ...
-        ValueError: `rotation` must be equal to 0, 90, 180, or 270
+        ValueError: rotation must be equal to 0, 90, 180, or 270
         >>> page_job.rotation = 180
         >>> page_job.rotation, page_job.initial_rotation
         (180, 0)
@@ -474,22 +474,22 @@ class PageJobTest:
         >>> page_job.render(RENDER_COLOR, (0, 0, -1, -1), (0, 0, 10, 10), PixelFormatRgb())
         Traceback (most recent call last):
         ...
-        ValueError: `page_rect` width/height must be a positive integer
+        ValueError: page_rect width/height must be a positive integer
 
         >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, -1, -1), PixelFormatRgb())
         Traceback (most recent call last):
         ...
-        ValueError: `render_rect` width/height must be a positive integer
+        ValueError: render_rect width/height must be a positive integer
 
         >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (2, 2, 10, 10), PixelFormatRgb())
         Traceback (most recent call last):
         ...
-        ValueError: `render_rect` must be inside `page_rect`
+        ValueError: render_rect must be inside page_rect
 
         >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
         Traceback (most recent call last):
         ...
-        ValueError: `row_alignment` must be a positive integer
+        ValueError: row_alignment must be a positive integer
 
         >>> page_job.render(RENDER_COLOR, (0, 0, 100000, 100000), (0, 0, 100000, 100000), PixelFormatRgb(), 8)
         Traceback (most recent call last):
@@ -544,7 +544,7 @@ class AffineTransformTest:
     >>> AffineTransform((1, 2), (3, 4, 5))
     Traceback (most recent call last):
     ...
-    ValueError: unpack sequence of wrong size
+    ValueError: need more than 2 values to unpack
     >>> af = AffineTransform((0, 0, 10, 10), (17, 42, 42, 100))
     >>> type(af) == AffineTransform
     True
@@ -776,11 +776,11 @@ class SexprTest:
     >>> PageText(page, 'eggs')
     Traceback (most recent call last):
     ...
-    TypeError: `details` must be a symbol or none
+    TypeError: details must be a symbol or none
     >>> PageText(page, Symbol('eggs'))
     Traceback (most recent call last):
     ...
-    ValueError: `details` must be equal to `TEXT_DETAILS_PAGE`, or `TEXT_DETAILS_COLUMN`, or `TEXT_DETAILS_REGION`, or `TEXT_DETAILS_PARAGRAPH`, or `TEXT_DETAILS_LINE`, or `TEXT_DETAILS_WORD`, or `TEXT_DETAILS_CHARACTER` or `TEXT_DETAILS_ALL`
+    ValueError: details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL
     '''
 
 if __name__ == '__main__':
