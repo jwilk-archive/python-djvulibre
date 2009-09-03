@@ -81,7 +81,7 @@ class TextZoneType(djvu.sexpr.Symbol):
         self.__rank = rank
     
     def __cmp__(self, other):
-        if self == other:
+        if djvu.sexpr.Symbol.__eq__(self, other):
             return 0
         if not isinstance(other, TextZoneType):
             raise TypeError('cannot compare a text zone type with other object')

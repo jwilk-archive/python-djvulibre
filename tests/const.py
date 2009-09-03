@@ -17,6 +17,9 @@ import doctest
 
 class TextZonesTest:
     r'''
+    >>> TEXT_ZONE_PAGE == ''
+    False
+
     >>> TEXT_ZONE_PAGE
     <djvu.const.TextZoneType: page>
     >>> TEXT_ZONE_PAGE is get_text_zone_type(Symbol('page'))
