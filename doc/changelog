@@ -1,3 +1,10 @@
+python-djvulibre (0.1.14) unstable; urgency=low
+
+  * Fix infinite recursion when comparing a text zone with a string. Thanks to
+    Rogério Brito for the bug report.
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Thu, 03 Sep 2009 23:36:47 +0200
+
 python-djvulibre (0.1.13) unstable; urgency=low
 
   * Fix major breakage introduced in 0.1.12. Thanks to Piotr Ożarowski for
