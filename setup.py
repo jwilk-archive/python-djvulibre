@@ -32,6 +32,7 @@ try:
 except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
+from distutils.ccompiler import get_default_compiler
 
 from subprocess import Popen, PIPE
 
@@ -70,6 +71,40 @@ def pkg_config(*packages, **kwargs):
             kwargs['extra_link_args'].append(argument)
             kwargs['extra_compile_args'].append(argument)
     return kwargs
+
+if get_default_compiler() == 'msvc':
+
+    # Hack to be enable building python-djvulibre with Microsoft Visual C++
+    # compiler follows.
+    #
+    # Note that all of these needs to be compiled with *the same* compiler:
+    # - Python,
+    # - DjVuLibre,
+    # - python-djvulibre.
+    #
+    # Fortunately, pre-compiled binaries of both Python 2.6 and DjVuLibre
+    # 3.5.22 were compiled with Microsoft Visual C++ 9.0.
+
+    def get_djvulibre_path():
+        path = os.path.join(os.getenv('') or r'C:\Program Files', 'DjVuZone', 'DjVuLibre')
+        for ext in 'lib', 'dll':
+            if not os.path.exists(os.path.join(path, 'libdjvulibre.' + ext)):
+                raise RuntimeError('DjVuLibre library not found')
+        return path
+
+    def pkg_config(*packages, **kwargs):
+        library_dirs = kwargs.setdefault('library_dirs', [])
+        include_dirs = kwargs.setdefault('include_dirs', [])
+        libraries = kwargs.setdefault('libraries', [])
+        macros = kwargs.setdefault('define_macros', [])
+        macros[:] = [(key, value.replace('"', r'\"')) for key, value in macros]
+        djvulibre_path = get_djvulibre_path()
+        for dirs in include_dirs, library_dirs:
+            dirs.append(djvulibre_path)
+        libraries.append('libdjvulibre')
+        macros.append(('inline', ''))
+        macros.append(('WIN32', '1'))
+        return kwargs
 
 __version__ = get_version()
 
