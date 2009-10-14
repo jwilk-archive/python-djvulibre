@@ -1019,7 +1019,7 @@ cdef class Document:
                 raise TypeError('file must be None if indirect is specified')
             if not is_string(indirect):
                 raise TypeError('indirect must be a byte string')
-            # XXX ddjvu API documentation says that output should by NULL,
+            # XXX ddjvu API documentation says that output should be NULL,
             # but we'd like to spot the DjVuLibre bug
             open(indirect, 'wb').close()
             file = open(devnull, 'wb')
