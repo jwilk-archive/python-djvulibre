@@ -19,6 +19,13 @@ class TextZonesTest:
     r'''
     >>> TEXT_ZONE_PAGE == ''
     False
+    >>> TEXT_ZONE_PAGE == 42
+    False
+    >>> TEXT_ZONE_PAGE < 42
+    Traceback (most recent call last):
+    ...
+    TypeError: cannot compare text zone type with other object
+
 
     >>> TEXT_ZONE_PAGE
     <djvu.const.TextZoneType: page>
