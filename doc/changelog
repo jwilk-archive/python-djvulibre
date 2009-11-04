@@ -1,3 +1,9 @@
+python-djvulibre (0.1.15) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Wed, 04 Nov 2009 19:39:54 +0100
+
 python-djvulibre (0.1.14) unstable; urgency=low
 
   * Fix infinite recursion when comparing a text zone with a string. Thanks to
