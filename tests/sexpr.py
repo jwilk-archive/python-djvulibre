@@ -1,5 +1,5 @@
 # encoding=UTF-8
-# Copyright © 2007, 2008 Jakub Wilk <ubanus@users.sf.net>
+# Copyright © 2007, 2008, 2010 Jakub Wilk <ubanus@users.sf.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -331,6 +331,65 @@ class ExpressionParser:
     Traceback (most recent call last):
     ...
     ExpressionSyntaxError
+
+    >>> Expression.from_stream(42)
+    Traceback (most recent call last):
+    ...
+    ExpressionSyntaxError
+
+    >>> from cStringIO import StringIO
+    >>> fp = StringIO('(eggs) (ham)')
+    >>> from djvu.sexpr import *
+    >>> Expression.from_stream(fp)
+    Expression((Symbol('eggs'),))
+    >>> Expression.from_stream(fp)
+    Expression((Symbol('ham'),))
+    >>> Expression.from_stream(fp)
+    Traceback (most recent call last):
+    ...
+    ExpressionSyntaxError
+
+    >>> import tempfile
+    >>> fp = tempfile.TemporaryFile()
+    >>> type(fp)
+    <type 'file'>
+    >>> fp.write('(eggs) (ham)')
+    >>> fp.seek(0)
+    >>> Expression.from_file(f)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    AttributeError: type object 'Expression' has no attribute 'from_file'
+    >>> Expression.from_stream(fp)
+    Expression((Symbol('eggs'),))
+    >>> Expression.from_stream(fp)
+    Expression((Symbol('ham'),))
+    >>> Expression.from_stream(fp)
+    Traceback (most recent call last):
+    ...
+    ExpressionSyntaxError
+    '''
+
+class ExpressionWriter:
+
+    '''
+    >>> expr = Expression([Symbol('eggs'), Symbol('ham')])
+
+    >>> expr.print_into(42)
+
+    >>> from cStringIO import StringIO
+    >>> fp = StringIO()
+    >>> expr.print_into(fp)
+    >>> fp.getvalue()
+    '(eggs ham)'
+
+    >>> import tempfile
+    >>> fp = tempfile.TemporaryFile()
+    >>> type(fp)
+    <type 'file'>
+    >>> expr.print_into(fp)
+    >>> fp.seek(0)
+    >>> fp.read()
+    '(eggs ham)'
     '''
 
 if __name__ == '__main__':

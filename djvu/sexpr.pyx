@@ -1,4 +1,4 @@
-# Copyright ©  2007, 2008, 2009 Jakub Wilk <ubanus@users.sf.net>
+# Copyright © 2007, 2008, 2009, 2010 Jakub Wilk <ubanus@users.sf.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,6 +53,8 @@ cdef extern from 'libdjvu/miniexp.h':
     int (*io_puts 'minilisp_puts')(char *s)
     int (*io_getc 'minilisp_getc')()
     int (*io_ungetc 'minilisp_ungetc')(int c)
+    void io_set_output 'minilisp_set_output'(FILE *f)
+    void io_set_input 'minilisp_set_input'(FILE *f)
     cexpr_t cexpr_read 'miniexp_read'()
     cexpr_t cexpr_print 'miniexp_prin'(cexpr_t cexpr)
     cexpr_t cexpr_printw 'miniexp_pprin'(cexpr_t cexpr, int width)
@@ -62,6 +64,9 @@ cdef extern from 'stdio.h':
 
 cdef object sys
 import sys
+
+cdef object format_exc
+from traceback import format_exc
 
 cdef object StringIO
 from cStringIO import StringIO
@@ -79,21 +84,43 @@ cdef object _myio_stdout
 cdef int _myio_buffer
 _myio_buffer = -1
 
+cdef object write_unraisable_exception(object cause):
+    message = format_exc()
+    sys.stderr.write('Unhandled exception (%r)\n%s\n' % (cause, message))
+
 cdef void myio_set(stdin, stdout):
     global _myio_stdin, _myio_stdout
+    global io_puts, io_getc, io_ungetc
     with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
     _myio_stdin = stdin
+    if is_file(stdin):
+        io_set_input(file_to_cfile(stdin))
+    else:
+        io_getc = _myio_getc
+        io_ungetc = _myio_ungetc
     _myio_stdout = stdout
+    if is_file(stdout):
+        io_set_output(file_to_cfile(stdout))
+    else:
+        io_puts = _myio_puts
 
 cdef void myio_reset():
     global _myio_stdin, _myio_stdout
+    global io_puts, io_getc, io_ungetc
     _myio_stdin = sys.stdin
     _myio_stdout = sys.stdout
     _myio_buffer = -1
+    io_puts = NULL
+    io_getc = NULL
+    io_ungetc = NULL
     release_lock(_myio_lock)
 
 cdef int _myio_puts(char *s):
-    _myio_stdout.write(s)
+    try:
+        _myio_stdout.write(s)
+    except:
+        write_unraisable_exception(_myio_stdout)
+        return EOF
 
 cdef int _myio_getc():
     global _myio_buffer
@@ -102,7 +129,11 @@ cdef int _myio_getc():
     if result >= 0:
         _myio_buffer = -1
     else:
-        s = _myio_stdin.read(1)
+        try:
+            s = _myio_stdin.read(1)
+        except:
+            write_unraisable_exception(_myio_stdin)
+            return EOF
         if s:
             result = ord(s)
         else:
@@ -115,9 +146,9 @@ cdef int _myio_ungetc(int c):
         raise SystemError('ungetc() before getc()')
     _myio_buffer = c
 
-io_puts = _myio_puts
-io_getc = _myio_getc
-io_ungetc = _myio_ungetc
+io_puts = NULL
+io_getc = NULL
+io_ungetc = NULL
 
 cdef object the_sentinel
 the_sentinel = object()
