@@ -1,0 +1,51 @@
+#!/usr/bin/python
+# encoding=UTF-8
+# Copyright © 2008 Jakub Wilk <ubanus@users.sf.net>
+#
+# This package is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 dated June, 1991.
+#
+# This package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+
+import sys
+import djvu.decode
+
+def print_text(sexpr, level=0):
+    if level > 0:
+        print ' ' * (2 * level - 1),
+    if isinstance(sexpr, djvu.sexpr.ListExpression):
+        print str(sexpr[0].value), [sexpr[i].value for i in xrange(1, 5)]
+        for child in sexpr[5:]:
+            print_text(child, level + 1)
+    else:
+        print sexpr
+
+class Context(djvu.decode.Context):
+
+    def handle_message(self, message):
+        if isinstance(message, djvu.decode.ErrorMessage):
+            print >>sys.stderr, message
+            sys.exit(1)
+
+    def process(self, path):
+        document = self.new_document(djvu.decode.FileURI(path))
+        document.decoding_job.wait()
+        for page in document.pages:
+            page.get_info()
+            text = print_text(page.text.sexpr)
+
+def main():
+    if len(sys.argv) != 2:
+        print >>sys.stderr, 'Usage: %s <djvu-file>' % sys.argv[0]
+        sys.exit(1)
+    context = Context()
+    context.process(sys.argv[1])
+
+if __name__ == '__main__':
+    main()
+
+# vim:ts=4 sw=4 et
