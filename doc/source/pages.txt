@@ -201,7 +201,7 @@ Document pages
    .. method:: render(self, mode, page_rect, render_rect, pixel_format[, long row_alignment=1])
 
       Render a segment of a page with arbitrary scale. `mode` indicates
-      what image layers should be rendered:
+      which image layers should be rendered:
 
       * :data:`~djvu.decode.RENDER_COLOR`, or
       * :data:`~djvu.decode.RENDER_BLACK`, or

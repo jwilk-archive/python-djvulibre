@@ -1988,7 +1988,7 @@ cdef class PageJob(Job):
         J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1) -> data
 
         Render a segment of a page with arbitrary scale. mode indicates
-        what image layers should be rendered:
+        which image layers should be rendered:
 
         RENDER_COLOR
             color page or stencil
