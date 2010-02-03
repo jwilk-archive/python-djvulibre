@@ -198,7 +198,7 @@ Document pages
       The rotation is automatically taken into account by :meth:`render` method
       and :attr:`width` and :attr:`height` properties. 
    
-   .. method:: render(self, mode, page_rect, render_rect, pixel_format[, long row_alignment=1])
+   .. method:: render(self, mode, page_rect, render_rect, pixel_format[, row_alignment=1])
 
       Render a segment of a page with arbitrary scale. `mode` indicates
       which image layers should be rendered:
