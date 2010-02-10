@@ -496,9 +496,24 @@ class PageJobTest:
         >>> page_job.render(RENDER_COLOR, (0, 0, 100000, 100000), (0, 0, 100000, 100000), PixelFormatRgb(), 8)
         Traceback (most recent call last):
         ...
-        MemoryError: Unable to allocate 30000000000 bytes for an image buffer
+        MemoryError: Unable to allocate 30000000000 bytes for an image memory
+
         >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1)
         '\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8'
+
+        >>> from array import array
+        >>> buffer = array('B', '\0')
+        >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer)
+        Traceback (most recent call last):
+        ...
+        ValueError: Image buffer is too small (16 > 1)
+
+        >>> buffer = array('B', '\0' * 16)
+        >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer) is buffer
+        True
+        >>> buffer.tostring()
+        '\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8'
+
         '''
 
 class ThumbnailTest:
@@ -519,13 +534,30 @@ class ThumbnailTest:
     True
     >>> message.thumbnail.page.n
     0
+
     >>> thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
     ((5, 3, 5), None)
+
     >>> (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey())
     >>> w, h, r
     (5, 3, 5)
     >>> pixels[:15]
     '\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
+
+    >>> from array import array
+    >>> buffer = array('B', '\0')
+    >>> (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
+    Traceback (most recent call last):
+    ...
+    ValueError: Image buffer is too small (25 > 1)
+
+    >>> buffer = array('B', '\0' * 25)
+    >>> (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
+    >>> pixels is buffer
+    True
+    >>> buffer[:15].tostring()
+    '\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
+
     '''
 
 class JobTest:

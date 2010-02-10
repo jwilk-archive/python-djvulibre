@@ -521,9 +521,9 @@ cdef class Thumbnail:
         '''
         return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 1))
 
-    def render(self, size, PixelFormat pixel_format not None, long row_alignment = 1, dry_run=0):
+    def render(self, size, PixelFormat pixel_format not None, long row_alignment=1, dry_run=0, buffer=None):
         '''
-        T.render((w0, h0), pixel_format, row_alignment=1, dry_run=False) -> ((w1, h1, row_size), data)
+        T.render((w0, h0), pixel_format, row_alignment=1, dry_run=False, buffer=None) -> ((w1, h1, row_size), data)
 
         Render the thumbnail:
 
@@ -542,8 +542,7 @@ cdef class Thumbnail:
         '''
         cdef int iw, ih
         cdef long w, h, row_size
-        cdef char* buffer
-        cdef size_t buffer_size
+        cdef void* memory
         if row_alignment <= 0:
             raise ValueError('row_alignment must be a positive integer')
         w, h = size
@@ -555,11 +554,10 @@ cdef class Thumbnail:
         row_size = calculate_row_size(w, row_alignment, pixel_format._bpp)
         if dry_run:
             result = None
-            buffer = NULL
+            memory = NULL
         else:
-            result = allocate_image_buffer(row_size, h)
-            buffer = string_to_charp(result)
-        if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &iw, &ih, pixel_format.ddjvu_format, row_size, buffer):
+            result = allocate_image_memory(row_size, h, buffer, &memory)
+        if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &iw, &ih, pixel_format.ddjvu_format, row_size, <char*> memory):
             return (iw, ih, row_size), result
         else:
             raise _NotAvailable_
@@ -1818,14 +1816,24 @@ cdef object calculate_row_size(long width, long row_alignment, int bpp):
     result = ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
     return result
 
-cdef object allocate_image_buffer(long width, long height):
-    cdef Py_ssize_t c_buffer_size
-    py_buffer_size = int(width) * int(height)
+cdef object allocate_image_memory(long width, long height, object buffer, void **memory):
+    cdef Py_ssize_t c_requested_size
+    cdef Py_ssize_t c_memory_size
+    py_requested_size = int(width) * int(height)
     try:
-        c_buffer_size = py_buffer_size
+        c_requested_size = py_requested_size
     except OverflowError:
-        raise MemoryError('Unable to allocate %d bytes for an image buffer' % py_buffer_size)
-    return charp_to_string(NULL, c_buffer_size)
+        raise MemoryError('Unable to allocate %d bytes for an image memory' % py_requested_size)
+    if buffer is None:
+        result = charp_to_string(NULL, c_requested_size)
+        memory[0] = string_to_charp(result)
+    else:
+        result = buffer
+        buffer_to_writable_memory(buffer, memory, &c_memory_size)
+        if c_memory_size < c_requested_size:
+            raise ValueError('Image buffer is too small (%d > %d)' % (c_requested_size, c_memory_size))
+    return result
+
 
 cdef class PageJob(Job):
 
@@ -1983,9 +1991,9 @@ cdef class PageJob(Job):
         def __del__(self):
             ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job))
 
-    def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, long row_alignment = 1):
+    def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, long row_alignment=1, buffer=None):
         '''
-        J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1) -> data
+        J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1, buffer=None) -> data
 
         Render a segment of a page with arbitrary scale. mode indicates
         which image layers should be rendered:
@@ -2023,6 +2031,7 @@ cdef class PageJob(Job):
         cdef long row_size
         cdef int bpp
         cdef long x, y, w, h
+        cdef void *memory
         if row_alignment <= 0:
             raise ValueError('row_alignment must be a positive integer')
         x, y, w, h = page_rect
@@ -2045,8 +2054,8 @@ cdef class PageJob(Job):
         ):
             raise ValueError('render_rect must be inside page_rect')
         row_size = calculate_row_size(c_render_rect.w, row_alignment, pixel_format._bpp)
-        result = allocate_image_buffer(row_size, c_render_rect.h)
-        if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, string_to_charp(result)) == 0:
+        result = allocate_image_memory(row_size, c_render_rect.h, buffer, &memory)
+        if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, <char*> memory) == 0:
             raise _NotAvailable_
         return result
 

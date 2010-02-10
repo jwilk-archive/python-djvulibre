@@ -48,6 +48,7 @@ cdef extern from 'Python.h':
     int string_to_charp_and_size 'PyString_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
     char* string_to_charp 'PyString_AsString'(object) except NULL
     object charp_to_string 'PyString_FromStringAndSize'(char *, Py_ssize_t)
+    int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
 
     object int 'PyNumber_Int'(object)
     object bool 'PyBool_FromLong'(long)
