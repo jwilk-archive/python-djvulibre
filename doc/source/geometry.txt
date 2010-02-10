@@ -103,9 +103,8 @@ Pixel formats
    PixelFormatRgbMask(red_mask, green_mask, blue_mask[, xor_value], bpp=16)
    PixelFormatRgbMask(red_mask, green_mask, blue_mask[, xor_value], bpp=32)
 
-   `red_mask`, `green_mask` and :keyword:`blue_mask` are
-   bit masks for color components for each pixel. The resulting color is then
-   xored with the `xor_value`.
+   `red_mask`, `green_mask` and `blue_mask` are bit masks for color components
+   for each pixel. The resulting color is then xored with the `xor_value`.
 
    For example, ``PixelFormatRgbMask(0xf800, 0x07e0, 0x001f, bpp=16)`` is a
    highcolor format with:
