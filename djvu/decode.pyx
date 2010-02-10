@@ -529,7 +529,8 @@ cdef class Thumbnail:
 
         * not larger than w0 x h0 pixels;
         * using the pixel_format pixel format;
-        * with each row starting at row_alignment bytes boundary.
+        * with each row starting at row_alignment bytes boundary;
+        * into the provided buffer or to a newly created string.
 
         Raise NotAvailable when no thumbnail is available.
         Otherwise, return a ((w1, h1, row_size), data) tuple:
@@ -2018,6 +2019,8 @@ cdef class PageJob(Job):
         
         pixel_format specifies the expected pixel format. Each row will start
         at row_alignment bytes boundary.
+
+        Data will be saved to the provided buffer or to a newly created string.
         
         This method makes a best effort to compute an image that reflects the
         most recently decoded data.

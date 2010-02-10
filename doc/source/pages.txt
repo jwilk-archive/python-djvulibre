@@ -198,7 +198,7 @@ Document pages
       The rotation is automatically taken into account by :meth:`render` method
       and :attr:`width` and :attr:`height` properties.
 
-   .. method:: render(self, mode, page_rect, render_rect, pixel_format[, row_alignment=1])
+   .. method:: render(self, mode, page_rect, render_rect, pixel_format[, row_alignment=1][, buffer=None])
 
       Render a segment of a page with arbitrary scale. `mode` indicates
       which image layers should be rendered:
@@ -218,6 +218,8 @@ Document pages
       `pixel_format` (a :class:`~djvu.decode.PixelFormat` instance) specifies
       the expected pixel format. Each row will start at `row_alignment` bytes
       boundary.
+
+      Data will be saved to the provided buffer or to a newly created string.
 
       This method makes a best effort to compute an image that reflects the
       most recently decoded data.
@@ -251,14 +253,15 @@ Document pages
 
       Return a :exc:`JobException` subclass indicating the current job status.
 
-   .. method:: render((w0, h0)[, pixel_format][, row_alignment=1][, dry_run=False])
+   .. method:: render((w0, h0)[, pixel_format][, row_alignment=1][, dry_run=False][, buffer=None])
 
       Render the thumbnail:
 
       * not larger than `w0` × `h0` pixels;
       * using the `pixel_format` (a :class:`~djvu.decode.PixelFormat` instance)
         pixel format;
-      * with each row starting at `row_alignment` bytes boundary.
+      * with each row starting at `row_alignment` bytes boundary;
+      * into the provided buffer or to a newly created string.
 
       :return: a ((`w1`, `h1`, `row_size`), `data`) tuple.
 
