@@ -1,3 +1,9 @@
+python-djvulibre (0.1.17) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Wed, 10 Feb 2010 20:14:02 +0100
+
 python-djvulibre (0.1.16) unstable; urgency=low
 
   * Make reading S-expression from streams more efficient.
