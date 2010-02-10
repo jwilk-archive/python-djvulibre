@@ -53,6 +53,41 @@ Pixel formats
          PixelFormatPackedBits
          :parts: 1
 
+   .. attribute:: rows_top_to_bottom
+
+      Flag indicating whether the rows in the pixel buffer are stored
+      starting from the top or the bottom of the image.
+
+      Default ordering starts from the bottom of the image. This is the
+      opposite of the X11 convention.
+
+   .. attribute:: y_top_to_bottom
+
+      Flag indicating whether the *y* coordinates in the drawing area are
+      oriented from bottom to top, or from top to bottom.
+
+      The default is bottom to top, similar to PostScript. This is the
+      opposite of the X11 convention.
+
+   .. attribute:: bpp
+
+      Return the depth of the image, in bits per pixel.
+
+   .. attribute:: dither_bpp
+
+      The final depth of the image on the screen. This is used to decide
+      which dithering algorithm should be used.
+
+      The default is usually appropriate.
+
+   .. attribute:: gamma
+
+      Gamma of the display for which the pixels are intended. This will be
+      combined with the gamma stored in DjVu documents in order to compute
+      a suitable color correction.
+
+      The default value is 2.2.
+
 .. currentmodule:: djvu.decode
 .. class:: PixelFormatRgb([byteorder='RGB'])
 
