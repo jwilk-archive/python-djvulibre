@@ -1,0 +1,60 @@
+#!/usr/bin/python
+# encoding=UTF-8
+# Copyright © 2010 Jakub Wilk <ubanus@users.sf.net>
+#
+# This package is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 dated June, 1991.
+#
+# This package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+
+import sys
+
+import cairo
+import djvu.decode
+import numpy
+
+cairo_pixel_format = cairo.FORMAT_ARGB32
+djvu_pixel_format = djvu.decode.PixelFormatRgbMask(0xff0000, 0xff00, 0xff, bpp=32)
+djvu_pixel_format.rows_top_to_bottom = 1
+djvu_pixel_format.y_top_to_bottom = 0
+
+class Context(djvu.decode.Context):
+
+    def handle_message(self, message):
+        if isinstance(message, djvu.decode.ErrorMessage):
+            print >>sys.stderr, message
+            sys.exit(1)
+
+    def process(self, djvu_path, png_path):
+        document = self.new_document(djvu.decode.FileURI(djvu_path))
+        document.decoding_job.wait()
+        for page in document.pages:
+            page_job = page.decode(wait=True)
+            width, height = page_job.size
+            rect = (0, 0, width, height)
+            bytes_per_line = cairo.ImageSurface.format_stride_for_width(cairo_pixel_format, width)
+            color_buffer = numpy.zeros((height, bytes_per_line), dtype=numpy.uint32)
+            page_job.render(djvu.decode.RENDER_COLOR_ONLY, rect, rect, djvu_pixel_format, row_alignment=bytes_per_line, buffer=color_buffer)
+            mask_buffer = numpy.zeros((height, bytes_per_line), dtype=numpy.uint32)
+            page_job.render(djvu.decode.RENDER_MASK_ONLY, rect, rect, djvu_pixel_format, row_alignment=bytes_per_line, buffer=mask_buffer)
+            mask_buffer <<= 24
+            color_buffer |= mask_buffer
+            color_buffer ^= 0xff000000
+            surface = cairo.ImageSurface.create_for_data(color_buffer, cairo_pixel_format, width, height)
+            surface.write_to_png(png_path)
+
+def main():
+    if len(sys.argv) != 3:
+        print >>sys.stderr, 'Usage: %s <djvu-path> <png-path>' % sys.argv[0]
+        sys.exit(1)
+    context = Context()
+    context.process(*sys.argv[1:])
+
+if __name__ == '__main__':
+    main()
+
+# vim:ts=4 sw=4 et
