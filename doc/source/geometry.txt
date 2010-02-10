@@ -15,7 +15,7 @@ Transformations
 
    .. method:: rotate(n)
 
-      Rotate the output rectangle counter-clockwise by `n` degrees. 
+      Rotate the output rectangle counter-clockwise by `n` degrees.
 
    .. method:: apply((x, y))
                apply((x, y, w, h))
@@ -45,7 +45,7 @@ Pixel formats
 
    Inheritance diagram:
 
-      .. inheritance-diagram:: 
+      .. inheritance-diagram::
          PixelFormatRgb
          PixelFormatRgbMask
          PixelFormatGrey

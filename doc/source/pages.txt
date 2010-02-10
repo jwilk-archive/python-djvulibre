@@ -7,9 +7,9 @@ Document pages
    Pages of a document.
 
    Use :attr:`Document.pages` to obtain instances of this class.
-   
+
    Page indexing is zero-based, i.e. :attr:`~Document.pages`\ ``[0]`` stands for the very first page.
-   
+
    ``len(pages)`` might return 1 when called before receiving a :class:`DocInfoMessage`.
 
 
@@ -17,24 +17,24 @@ Document pages
 .. class:: Page
 
    Page of a document.
-   
+
    Use :attr:`Document.pages`\ ``[N]`` to obtain instances of this class.
 
    .. attribute:: document
 
       :rtype: :class:`Document`
-   
+
    .. attribute:: file
 
       :return: a file associated with the page.
       :rtype: :class:`File`.
-   
+
    .. attribute:: n
 
       :return: the page number.
-      
+
       Page indexing is zero-based, i.e. 0 stands for the very first page.
-   
+
    .. attribute:: thumbnail
 
       :return: a thumbnail for the page.
@@ -53,34 +53,34 @@ Document pages
 
       :raise NotAvailable: see above.
       :raise JobFailed: on failure.
-   
+
    .. attribute:: width
 
       :return: the page width, in pixels.
       :raise NotAvailable: see :meth:`get_info`.
       :raise JobFailed: on failure.
-   
+
    .. attribute:: height
 
       :return: the page height, in pixels.
 
       :raise NotAvailable: see :meth:`get_info`.
       :raise JobFailed: on failure.
-   
+
    .. attribute:: size
 
       :return: ``(page.width, page.height)``
 
       :raise NotAvailable: see :meth:`get_info`.
       :raise JobFailed: on failure.
-   
+
    .. attribute:: dpi
 
       :return: the page resolution, in pixels per inch.
-   
+
       :raise NotAvailable: see :meth:`get_info`.
       :raise JobFailed: on failure.
-   
+
    .. attribute:: rotation
 
       :return: the initial page rotation, in degrees.
@@ -98,7 +98,7 @@ Document pages
 
       :return:
         a text describing the contents of the page using the same format as the
-        ``djvudump`` command. 
+        ``djvudump`` command.
 
       If the information is not available, raise :exc:`NotAvailable` exception.
       Then :class:`PageInfoMessage` messages with empty
@@ -115,11 +115,11 @@ Document pages
       :rtype: :class:`PageJob`.
       :raise NotAvailable: if called before receiving the :class:`DocInfoMessage`.
       :raise JobFailed: if document decoding failed.
-   
+
    .. attribute:: annotations
 
       :rtype: :class:`PageAnnotations`
-   
+
    .. attribute:: text
 
       :rtype: :class:`PageText`
@@ -128,7 +128,7 @@ Document pages
 
    Inheritance diagram:
 
-      .. inheritance-diagram:: 
+      .. inheritance-diagram::
          PageJob
          :parts: 1
 
@@ -140,12 +140,12 @@ Document pages
 
       :return: the page width in pixels.
       :raise NotAvailable: before receiving a :class:`PageInfoMessage`.
-   
+
    .. attribute:: height
 
       :return: the page height in pixels.
       :raise NotAvailable: before receiving a :class:`PageInfoMessage`.
-   
+
    .. attribute:: size
 
       :return: ``(page_job.width, page_job.height)``
@@ -160,7 +160,7 @@ Document pages
 
       :return: the gamma of the display for which this page was designed.
       :raise NotAvailable: before receiving a :class:`PageInfoMessage`.
-   
+
    .. attribute:: version
 
       :return: the version of the DjVu file format.
@@ -169,7 +169,7 @@ Document pages
    .. attribute:: type
 
       :return: the type of the page data.
-      
+
       Possible values are:
 
       .. data:: PAGE_TYPE_UNKNOWN
@@ -194,10 +194,10 @@ Document pages
    .. attribute:: rotation
 
       :return: the counter-clockwise rotation angle (in degrees) for the page.
-      
+
       The rotation is automatically taken into account by :meth:`render` method
-      and :attr:`width` and :attr:`height` properties. 
-   
+      and :attr:`width` and :attr:`height` properties.
+
    .. method:: render(self, mode, page_rect, render_rect, pixel_format[, row_alignment=1])
 
       Render a segment of a page with arbitrary scale. `mode` indicates
@@ -214,14 +214,14 @@ Document pages
       `page_rect` and copies the pixels specified by rectangle
       `render_rect` into a buffer. The actual code is much more efficient
       than that.
-      
+
       `pixel_format` (a :class:`~djvu.decode.PixelFormat` instance) specifies
       the expected pixel format. Each row will start at `row_alignment` bytes
       boundary.
-      
+
       This method makes a best effort to compute an image that reflects the
       most recently decoded data.
-      
+
       :raise NotAvailable:
          to indicate that no image could be computed at this point.
 
@@ -229,7 +229,7 @@ Document pages
 .. class:: Thumbnail
 
    Thumbnail for a page.
-   
+
    Use :attr:`Page.thumbnail` to obtain instances of this class.
 
    .. attribute:: page
@@ -239,7 +239,7 @@ Document pages
    .. attribute:: status
 
       Determine whether the thumbnail is available.
-      
+
       :return: a :exc:`JobException` subclass indicating the current job
          status.
 

@@ -12,7 +12,7 @@ Annotations
 
    Inheritance diagram:
 
-      .. inheritance-diagram:: 
+      .. inheritance-diagram::
          DocumentAnnotations
          PageAnnotations
          :parts: 1
@@ -28,7 +28,7 @@ Annotations
 
 
       :raise NotAvailable:
-         if the S-expression is not available; 
+         if the S-expression is not available;
          then, :class:`PageInfoMessage` messages with empty
          :attr:`~Message.page_job` may be emitted.
       :raise JobFailed: on failure.
@@ -36,7 +36,7 @@ Annotations
 .. currentmodule:: djvu.decode
 .. class:: DocumentAnnotations(document[, shared=True])
 
-   
+
    If `shared` is true and no document-wide annotations are available, shared
    annotations are considered document-wide.
 

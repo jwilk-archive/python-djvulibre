@@ -29,7 +29,7 @@ The DDJVU API hides this complexity with a familiar event model.
             message.document.message_queue.put(message)
          else:
             message.context.message_queue.put(message)
-      
+
       You may want to override this method to change this behaviour.
 
       All exceptions raised by this method will be ignored.
@@ -51,26 +51,26 @@ The DDJVU API hides this complexity with a familiar event model.
       Creates a decoder for a DjVu document and starts decoding. This
       method returns immediately. The decoding job then generates messages to
       request the raw data and to indicate the state of the decoding process.
-      
+
       `uri` specifies an optional URI for the document. The URI follows the
-      usual syntax (``protocol://machine/path``). It should not end with 
+      usual syntax (``protocol://machine/path``). It should not end with
       a slash. It only serves two purposes:
 
       - The URI is used as a key for the cache of decoded pages.
       - The URI is used to document :class:`NewStreamMessage` messages.
-      
+
       Setting argument `cache` to a true vaule indicates that decoded pages
       should be cached when possible.
-      
+
       It is important to understand that the URI is not used to access the
       data. The document generates :class:`NewStreamMessage` messages to indicate
-      which data is needed. The caller must then provide the raw data using 
+      which data is needed. The caller must then provide the raw data using
       a :attr:`NewStreamMessage.stream` object.
 
       .. class:: djvu.decode.FileUri(filename)
 
          To open a local file, provide a :class:`FileUri` instance as an `uri`.
-      
+
       Localized characters in `uri` should be in URI-encoded.
 
       :rtype: :class:`Document`
@@ -111,7 +111,7 @@ The DDJVU API hides this complexity with a familiar event model.
    .. method:: stop()
 
       Attempt to cancel the job.
-      
+
       This is a best effort method. There no guarantee that the job will
       actually stop.
 

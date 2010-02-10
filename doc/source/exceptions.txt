@@ -34,7 +34,7 @@ Job status
 
    Inheritance diagram:
 
-      .. inheritance-diagram:: 
+      .. inheritance-diagram::
          JobNotDone
          JobNotStarted
          JobStarted

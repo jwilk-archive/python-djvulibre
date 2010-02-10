@@ -7,7 +7,7 @@ Document files
    Component files of a document.
 
    Use :attr:`Document.files` to obtain instances of this class.
-   
+
    File indexing is zero-based, i.e. :attr:`~Document.files`\ ``[0]`` stands for the very first file.
 
    ``len(files)`` might raise :exc:`NotAvailable` when called before receiving
@@ -27,7 +27,7 @@ Document files
    .. attribute:: n
 
       :return: the component file number.
-      
+
       File indexing is zero-based, i.e. 0 stands for the very first file.
 
    .. method:: get_info([wait=1])
@@ -48,7 +48,7 @@ Document files
          .. data:: FILE_TYPE_PAGE
          .. data:: FILE_TYPE_THUMBNAILS
          .. data:: FILE_TYPE_INCLUDE
-   
+
       :raise NotAvailable: see :meth:`~File.get_info`.
       :raise JobFailed: on failure.
 
@@ -95,7 +95,7 @@ Document files
 
       :return:
          a text describing the contents of the file using the same format as
-         the ``djvudump`` command. 
+         the ``djvudump`` command.
 
       If the information is not available, raise :exc:`NotAvailable` exception.
       Then, :exc:`PageInfoMessage` messages with empty

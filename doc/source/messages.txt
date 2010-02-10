@@ -29,7 +29,7 @@ Messages
 
    Inheritance diagram:
 
-      .. inheritance-diagram:: 
+      .. inheritance-diagram::
          ErrorMessage
          InfoMessage
          NewStreamMessage
@@ -72,7 +72,7 @@ Messages
    A :class:`NewStreamMessage` is generated whenever the decoder needs to
    access raw DjVu data. The caller must then provide the requested data using
    the :attr:`stream` file-like object.
-   
+
    In the case of indirect documents, a single decoder might simultaneously
    request several streams of data.
 
@@ -81,7 +81,7 @@ Messages
       The first :class:`NewStreamMessage` message always has :attr:`name` set
       to ``None``.  It indicates that the decoder needs to access the data in
       the main DjVu file.
-      
+
       Further :class:`NewStreamMessage` messages messages are generated to access the
       auxiliary files of indirect or indexed DjVu documents. :attr:`name` then
       provides the base name of the auxiliary file.
@@ -117,7 +117,7 @@ Messages
          .. method:: flush()
 
             Do nothing.
-            
+
             (This method is provided solely to implement Python's file-like
             interface.)
 
@@ -131,7 +131,7 @@ Messages
          .. method:: write(data)
 
             Provide raw data to the DjVu decoder.
-            
+
             This method should be called as soon as the data is available, for
             instance when receiving DjVu data from a network connection.
 
@@ -141,7 +141,7 @@ Messages
    A :class:`DocInfoMessage` indicates that basic information about the
    document has been obtained and decoded. Not much can be done before this
    happens.
-   
+
    Check the document's :attr:`~Document.decoding_status` to determine whether
    the operation was successful.
 
@@ -156,7 +156,7 @@ Messages
    You can distinguish both cases using the page job's :attr:`~Job.status`.
 
    A :class:`PageInfoMessage` may be also generated as a consequence of reading
-   :attr:`Page.get_info()` or :attr:`Page.dump`. 
+   :attr:`Page.get_info()` or :attr:`Page.dump`.
 
 .. class:: ChunkMessage
 

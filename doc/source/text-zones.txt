@@ -10,7 +10,7 @@ Text zones
 .. currentmodule:: djvu.decode
 .. class:: PageText(page[, details=TEXT_DETAILS_ALL])
 
-   
+
    A wrapper around page text.
 
    `details` controls the level of details in the returned S-expression:

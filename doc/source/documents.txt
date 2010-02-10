@@ -5,7 +5,7 @@ DjVu documents
 .. class:: Document
 
    DjVu document.
-   
+
    Use :meth:`Context.new_document` to obtain instances of this class.
 
    .. attribute:: decoding_status
@@ -165,11 +165,11 @@ DjVu documents
          tube.
       `copies`
          Specifies the number of copies to print.
-      `frame`, 
+      `frame`,
          If true, generate a thin gray border representing the boundaries of
          the document pages.
       `crop_marks`
-         If true, generate crop marks indicating where pages should be cut. 
+         If true, generate crop marks indicating where pages should be cut.
       `text`
          Generate hidden text. This option is deprecated. See also the
          warning below.
@@ -206,7 +206,7 @@ DjVu documents
          sheet. The base value is expressed in points [1]_. This margin is
          incremented for each outer sheet by value expressed in millipoints.
          The default value is (18, 200).
-         
+
       .. [1] 1 pt = :math:`\frac1{72}` in = 0.3528 mm
 
       .. warning::
@@ -218,7 +218,7 @@ DjVu documents
 
    Inheritance diagram:
 
-      .. inheritance-diagram:: 
+      .. inheritance-diagram::
          SaveJob
          :parts: 1
 
@@ -231,7 +231,7 @@ DjVu documents
 
    Inheritance diagram:
 
-      .. inheritance-diagram:: 
+      .. inheritance-diagram::
          DocumentDecodingJob
          :parts: 1
 

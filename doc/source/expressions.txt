@@ -41,7 +41,7 @@ S-expressions
 
    Inheritance diagram:
 
-      .. inheritance-diagram:: 
+      .. inheritance-diagram::
          IntExpression
          ListExpression
          StringExpression
