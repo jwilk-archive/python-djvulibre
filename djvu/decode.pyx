@@ -69,7 +69,7 @@ cdef extern from 'libdjvu/ddjvuapi.h':
     void ddjvu_cache_set_size(ddjvu_context_t* context, unsigned long cachesize) nogil
     unsigned long ddjvu_cache_get_size(ddjvu_context_t* context) nogil
     void ddjvu_cache_clear(ddjvu_context_t* context) nogil
-    
+
     ddjvu_message_t* ddjvu_message_peek(ddjvu_context_t* context) nogil
     ddjvu_message_t* ddjvu_message_wait(ddjvu_context_t* context) nogil
     void ddjvu_message_pop(ddjvu_context_t* context) nogil
@@ -213,7 +213,7 @@ class DjVuLibreBug(Exception):
     '''
     A DjVuLibre bug was encountered.
     '''
-    
+
     def __init__(self, debian_bug_no):
         Exception.__init__(
             self,
@@ -232,23 +232,23 @@ cdef class DocumentExtension:
 
         def __get__(self):
             return self._document
-    
+
 cdef class DocumentPages(DocumentExtension):
 
     '''
     Pages of a document.
 
     Use document.pages to obtain instances of this class.
-    
+
     Page indexing is zero-based, i.e. pages[0] stands for the very first page.
-    
+
     len(pages) might return 1 when called before receiving a DocInfoMessage.
     '''
 
     def __cinit__(self, Document document not None, **kwargs):
         check_sentinel(self, kwargs)
         self._document = document
-    
+
     def __len__(self):
         return ddjvu_document_get_pagenum((<Document>self.document).ddjvu_document)
 
@@ -264,7 +264,7 @@ cdef class Page:
 
     '''
     Page of a document.
-    
+
     Use document.pages[N] to obtain instances of this class.
     '''
 
@@ -279,23 +279,23 @@ cdef class Page:
         '''
         def __get__(self):
             return self._document
-    
+
     property file:
         '''
         Return a File associated with the page.
         '''
         def __get__(self):
             return self._document.files[self]
-    
+
     property n:
         '''
         Return the page number.
-        
+
         Page indexing is zero-based, i.e. 0 stands for the very first page.
         '''
         def __get__(self):
             return self._n
-    
+
     property thumbnail:
         '''
         Return a Thumbnail for the page.
@@ -349,7 +349,7 @@ cdef class Page:
                     raise ex
             finally:
                 self._document._condition.release()
-    
+
     property width:
         '''
         Return the page width, in pixels.
@@ -360,7 +360,7 @@ cdef class Page:
         def __get__(self):
             self._get_info()
             return self.ddjvu_pageinfo.width
-    
+
     property height:
         '''
         Return the page height, in pixels.
@@ -371,7 +371,7 @@ cdef class Page:
         def __get__(self):
             self._get_info()
             return self.ddjvu_pageinfo.height
-    
+
     property size:
         '''
         page.size == (page.width, page.height)
@@ -382,18 +382,18 @@ cdef class Page:
         def __get__(self):
             self._get_info()
             return self.ddjvu_pageinfo.width, self.ddjvu_pageinfo.height
-    
+
     property dpi:
         '''
         Return the page resolution, in pixels per inch.
-    
+
         Possible exceptions: NotAvailable, JobFailed.
         See Page.get_info() for details.
         '''
         def __get__(self):
             self._get_info()
             return self.ddjvu_pageinfo.dpi
-    
+
     property rotation:
         '''
         Return the initial page rotation, in degrees.
@@ -419,7 +419,7 @@ cdef class Page:
     property dump:
         '''
         Return a text describing the contents of the page using the same format
-        as the djvudump command. 
+        as the djvudump command.
 
         If the information is not available, raise NotAvailable exception.
         Then PageInfoMessage messages with empty page_job may be emitted.
@@ -465,21 +465,21 @@ cdef class Page:
         if wait:
             job.wait()
         return job
-    
+
     property annotations:
         '''
         Return PageAnnotations for the page.
         '''
         def __get__(self):
             return PageAnnotations(self)
-    
+
     property text:
         '''
         Return PageText for the page.
         '''
         def __get__(self):
             return PageText(self)
-    
+
     def __repr__(self):
         return '%s(%r, %r)' % (get_type_name(Page), self._document, self._n)
 
@@ -487,20 +487,20 @@ cdef class Thumbnail:
 
     '''
     Thumbnail for a page.
-    
+
     Use page.thumbnail to obtain instances of this class.
     '''
 
     def __cinit__(self, Page page not None):
         self._page = page
-    
+
     property page:
         '''
         Return the page.
         '''
         def __get__(self):
             return self._page
-    
+
     property status:
         '''
         Determine whether the thumbnail is available. Return a JobException
@@ -508,7 +508,7 @@ cdef class Thumbnail:
         '''
         def __get__(self):
             return JobException_from_c(ddjvu_thumbnail_status(self._page._document.ddjvu_document, self._page._n, 0))
-    
+
     def calculate(self):
         '''
         T.calculate() -> a JobException
@@ -562,7 +562,7 @@ cdef class Thumbnail:
             return (iw, ih, row_size), result
         else:
             raise _NotAvailable_
-    
+
     def __repr__(self):
         return '%s(%r)' % (get_type_name(Thumbnail), self._page)
 
@@ -572,7 +572,7 @@ cdef class DocumentFiles(DocumentExtension):
     Component files of a document.
 
     Use document.files to obtain instances of this class.
-    
+
     File indexing is zero-based, i.e. files[0] stands for the very first file.
 
     len(files) might raise NotAvailable when called before receiving
@@ -583,7 +583,7 @@ cdef class DocumentFiles(DocumentExtension):
         check_sentinel(self, kwargs)
         self._page_map = None
         self._document = document
-    
+
     def __len__(self):
         cdef int result
         result = ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
@@ -628,7 +628,7 @@ cdef class File:
         self._document = document
         self._have_info = 0
         self._n = n
-    
+
     property document:
         '''Return the Document which includes the component file.'''
         def __get__(self):
@@ -637,7 +637,7 @@ cdef class File:
     property n:
         '''
         Return the component file number.
-        
+
         File indexing is zero-based, i.e. 0 stands for the very first file.
         '''
         def __get__(self):
@@ -693,13 +693,13 @@ cdef class File:
         * FILE_TYPE_PAGE,
         * FILE_TYPE_THUMBNAILS,
         * FILE_TYPE_INCLUDE.
-    
+
         Possible exceptions: NotAvailable, JobFailed.
         '''
         def __get__(self):
             self._get_info()
             return charp_to_string(&self.ddjvu_fileinfo.type, 1)
-    
+
     property n_page:
         '''
         Return the page number, or None when not applicable.
@@ -707,14 +707,14 @@ cdef class File:
         Page indexing is zero-based, i.e. 0 stands for the very first page.
 
         Possible exceptions: NotAvailable, JobFailed.
-        ''' 
+        '''
         def __get__(self):
             self._get_info()
             if self.ddjvu_fileinfo.pageno < 0:
                 return
             else:
                 return self.ddjvu_fileinfo.pageno
-    
+
     property page:
         '''
         Return the page, or None when not applicable.
@@ -727,7 +727,7 @@ cdef class File:
                 return
             else:
                 return self._document.pages[self.ddjvu_fileinfo.pageno]
-    
+
     property size:
         '''
         Return the compound file size, or None when unknown.
@@ -740,7 +740,7 @@ cdef class File:
                 return
             else:
                 return self.ddjvu_fileinfo.size
-    
+
     property id:
         '''
         Return the compound file identifier, or None.
@@ -790,7 +790,7 @@ cdef class File:
     property dump:
         '''
         Return a text describing the contents of the file using the same format
-        as the djvudump command. 
+        as the djvudump command.
 
         If the information is not available, raise NotAvailable exception.
         Then, PageInfoMessage messages with empty page_job may be emitted.
@@ -868,8 +868,8 @@ cdef class DocumentDecodingJob(Job):
         self.ddjvu_job = <ddjvu_job_t*> document.ddjvu_document
 
     def __dealloc__(self):
-        self.ddjvu_job = NULL # Don't allow Job.__dealloc__ to release the job. 
-    
+        self.ddjvu_job = NULL # Don't allow Job.__dealloc__ to release the job.
+
     def __repr__(self):
         return '<%s for %r>' % (get_type_name(DocumentDecodingJob), self._document)
 
@@ -889,9 +889,9 @@ cdef class Document:
         self._context = None
         self._queue = Queue()
         self._condition = Condition()
-    
+
     cdef object __init(self, Context context, ddjvu_document_t *ddjvu_document):
-        # Assumption: loft_lock is already acquired. 
+        # Assumption: loft_lock is already acquired.
         assert context != None and ddjvu_document != NULL
         self.ddjvu_document = ddjvu_document
         self._context = context
@@ -918,14 +918,14 @@ cdef class Document:
         '''
         def __get__(self):
             return bool(ddjvu_document_decoding_error(self.ddjvu_document))
-    
+
     property decoding_done:
         '''
         Indicate whether the decoding job is done.
         '''
         def __get__(self):
             return bool(ddjvu_document_decoding_done(self.ddjvu_document))
-    
+
     property decoding_job:
         '''
         Return the DocumentDecodingJob.
@@ -959,25 +959,25 @@ cdef class Document:
         '''
         def __get__(self):
             return self._pages
-    
+
     property files:
         '''
         Return the DocumentPages.
         '''
         def __get__(self):
             return self._files
-    
+
     property outline:
         '''
         Return the DocumentOutline.
         '''
         def __get__(self):
             return DocumentOutline(self)
-    
+
     property annotations:
         '''
         Return the DocumentAnnotations.
-        ''' 
+        '''
         def __get__(self):
             return DocumentAnnotations(self)
 
@@ -985,8 +985,8 @@ cdef class Document:
         if self.ddjvu_document == NULL:
             return
         ddjvu_document_release(self.ddjvu_document)
-    
-    def save(self, file = None, indirect = None, pages = None, wait=1):
+
+    def save(self, file=None, indirect=None, pages=None, wait=1):
         '''
         D.save(file=None, indirect=None, pages=<all-pages>, wait=True) -> a SaveJob
 
@@ -1045,8 +1045,8 @@ cdef class Document:
             if file.tell() == 0:
                 raise DjVuLibreBug(467282)
         return job
-    
-    def export_ps(self, file, pages = None, eps = 0, level = None, orientation = PRINT_ORIENTATION_AUTO, mode = DDJVU_RENDER_COLOR, zoom = None, color = 1, srgb = 1, gamma = None, copies = 1, frame = 0, crop_marks = 0, text = 0, booklet = PRINT_BOOKLET_NO, booklet_max = 0, booklet_align = 0, booklet_fold = (18, 200), wait = 1):
+
+    def export_ps(self, file, pages=None, eps=0, level=None, orientation=PRINT_ORIENTATION_AUTO, mode=DDJVU_RENDER_COLOR, zoom=None, color=1, srgb=1, gamma=None, copies=1, frame=0, crop_marks=0, text=0, booklet=PRINT_BOOKLET_NO, booklet_max=0, booklet_align=0, booklet_fold=(18, 200), wait=1):
         '''
         D.export_ps(file, pages=<all-pages>, ..., wait=True) -> a Job
 
@@ -1115,11 +1115,11 @@ cdef class Document:
             tube.
         copies
             Specifies the number of copies to print.
-        frame, 
+        frame,
             If true, generate a thin gray border representing the boundaries of
             the document pages.
         crop_marks
-            If true, generate crop marks indicating where pages should be cut. 
+            If true, generate crop marks indicating where pages should be cut.
         text
             Generate hidden text. This option is deprecated. See also the
             warning below.
@@ -1350,7 +1350,7 @@ del _Context_message_distributor
 
 cdef class Context:
 
-    def __cinit__(self, argv0 = None):
+    def __cinit__(self, argv0=None):
         if argv0 is None:
             argv0 = sys.argv[0]
         with nogil: acquire_lock(loft_lock, WAIT_LOCK)
@@ -1363,7 +1363,7 @@ cdef class Context:
             release_lock(loft_lock)
         self._queue = Queue()
         thread.start_new_thread(Context_message_distributor, (self,), {'sentinel': the_sentinel})
-    
+
     property cache_size:
 
         def __set__(self, value):
@@ -1391,7 +1391,7 @@ cdef class Context:
                 message.document.message_queue.put(message)
             else:
                 message.context.message_queue.put(message)
-        
+
         You may want to override this method to change this behaviour.
 
         All exceptions raised by this method will be ignored.
@@ -1406,7 +1406,7 @@ cdef class Context:
             message._document._queue.put(message)
         else:
             message._context._queue.put(message)
-    
+
     property message_queue:
         '''
         Return the internal message queue.
@@ -1433,24 +1433,24 @@ cdef class Context:
         Creates a decoder for a DjVu document and starts decoding. This
         method returns immediately. The decoding job then generates messages to
         request the raw data and to indicate the state of the decoding process.
-        
+
         uri specifies an optional URI for the document. The URI follows the
-        usual syntax (protocol://machine/path). It should not end with 
+        usual syntax (protocol://machine/path). It should not end with
         a slash. It only serves two purposes:
 
         - The URI is used as a key for the cache of decoded pages.
         - The URI is used to document NewStreamMessage messages.
-        
+
         Setting argument cache to a true vaule indicates that decoded pages
         should be cached when possible.
-        
+
         It is important to understand that the URI is not used to access the
         data. The document generates NewStreamMessage messages to indicate
-        which data is needed. The caller must then provide the raw data using 
+        which data is needed. The caller must then provide the raw data using
         a NewStreamMessage.stream object.
 
         To open a local file, provide a FileUri instance as an uri.
-        
+
         Localized characters in uri should be in URI-encoded.
 
         Possible exceptions: JobFailed.
@@ -1531,12 +1531,12 @@ cdef class PixelFormat:
             if typecheck(self, cls):
                 return
         raise_instantiation_error(type(self))
-    
+
     property rows_top_to_bottom:
         '''
         Flag indicating whether the rows in the pixel buffer are stored
         starting from the top or the bottom of the image.
-        
+
         Default ordering starts from the bottom of the image. This is the
         opposite of the X11 convention.
         '''
@@ -1551,7 +1551,7 @@ cdef class PixelFormat:
         '''
         Flag indicating whether the *y* coordinates in the drawing area are
         oriented from bottom to top, or from top to bottom.
-        
+
         The default is bottom to top, similar to PostScript. This is the
         opposite of the X11 convention.
         '''
@@ -1561,19 +1561,19 @@ cdef class PixelFormat:
 
         def __set__(self, value):
             ddjvu_format_set_y_direction(self.ddjvu_format, not not value)
-    
+
     property bpp:
         '''
         Return the depth of the image, in bits per pixel.
         '''
         def __get__(self):
             return self._bpp
-    
+
     property dither_bpp:
         '''
         The final depth of the image on the screen. This is used to decide
         which dithering algorithm should be used.
-        
+
         The default is usually appropriate.
         '''
         def __get__(self):
@@ -1585,13 +1585,13 @@ cdef class PixelFormat:
                 self._dither_bpp = value
             else:
                 raise ValueError('0 < value < 64 must be satisfied')
-    
+
     property gamma:
         '''
         Gamma of the display for which the pixels are intended. This will be
-        combined with the gamma stored in DjVu documents in order to compute 
+        combined with the gamma stored in DjVu documents in order to compute
         a suitable color correction.
-        
+
         The default value is 2.2.
         '''
         def __get__(self):
@@ -1602,7 +1602,7 @@ cdef class PixelFormat:
                 ddjvu_format_set_gamma(self.ddjvu_format, value)
             else:
                 raise ValueError('0.5 <= value <= 5.0 must be satisfied')
-    
+
     def __dealloc__(self):
         if self.ddjvu_format != NULL:
             ddjvu_format_release(self.ddjvu_format)
@@ -1637,7 +1637,7 @@ cdef class PixelFormatRgb(PixelFormat):
             raise ValueError('bpp must be equal to 24')
         self._bpp = 24
         self.ddjvu_format = ddjvu_format_create(_format, 0, NULL)
-    
+
     property byte_order:
         '''
         Return the byte order:
@@ -1657,7 +1657,7 @@ cdef class PixelFormatRgb(PixelFormat):
             self.byte_order,
             self.bpp
         )
-    
+
 cdef class PixelFormatRgbMask(PixelFormat):
 
     '''
@@ -1694,7 +1694,7 @@ cdef class PixelFormatRgbMask(PixelFormat):
         self._bpp = self._dither_bpp = bpp
         (self._params[0], self._params[1], self._params[2], self._params[3]) = (red_mask, green_mask, blue_mask, xor_value)
         self.ddjvu_format = ddjvu_format_create(_format, 4, self._params)
-    
+
     def __repr__(self):
         return '%s(red_mask = 0x%0*x, green_mask = 0x%0*x, blue_mask = 0x%0*x, xor_value = 0x%0*x, bpp = %d)' % \
         (
@@ -1705,12 +1705,12 @@ cdef class PixelFormatRgbMask(PixelFormat):
             self.bpp/4, self._params[3],
             self.bpp,
         )
-    
+
 cdef class PixelFormatGrey(PixelFormat):
 
     '''
     PixelFormatGrey() -> a pixel format
-    
+
     8-bit, grey pixel format.
     '''
 
@@ -1788,7 +1788,7 @@ cdef class PixelFormatPackedBits(PixelFormat):
         self._bpp = 1
         self._dither_bpp = 1
         self.ddjvu_format = ddjvu_format_create(_format, 0, NULL)
-    
+
     property endianness:
         '''
         The endianness:
@@ -1800,7 +1800,7 @@ cdef class PixelFormatPackedBits(PixelFormat):
                 return '<'
             else:
                 return '>'
-    
+
     def __repr__(self):
         return '%s(%r)' % (get_type_name(PixelFormatPackedBits), self.endianness)
 
@@ -1846,7 +1846,7 @@ cdef class PageJob(Job):
 
     cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
         Job.__init(self, context, ddjvu_job)
-    
+
     property width:
         '''
         Return the page width in pixels.
@@ -1861,7 +1861,7 @@ cdef class PageJob(Job):
                 raise _NotAvailable_
             else:
                 return width
-    
+
     property height:
         '''
         Return the page height in pixels.
@@ -1876,7 +1876,7 @@ cdef class PageJob(Job):
                 raise _NotAvailable_
             else:
                 return height
-    
+
     property size:
         '''
         page_job.size == (page_job.width, page_job.height)
@@ -1918,7 +1918,7 @@ cdef class PageJob(Job):
         '''
         def __get__(self):
             return ddjvu_page_get_gamma(<ddjvu_page_t*> self.ddjvu_job)
-    
+
     property version:
         '''
         Return the version of the DjVu file format.
@@ -1934,7 +1934,7 @@ cdef class PageJob(Job):
         Return the type of the page data. Possible values are:
 
         * PAGE_TYPE_UNKNOWN,
-        * PAGE_TYPE_BITONAL, 
+        * PAGE_TYPE_BITONAL,
         * PAGE_TYPE_PHOTO,
         * PAGE_TYPE_COMPOUND.
 
@@ -1970,11 +1970,11 @@ cdef class PageJob(Job):
         '''
         Return the counter-clockwise rotation angle (in degrees) for the page.
         The rotation is automatically taken into account by render(...)
-        method and width and height properties. 
+        method and width and height properties.
         '''
         def __get__(self):
             return 90 * <int> ddjvu_page_get_rotation(<ddjvu_page_t*> self.ddjvu_job)
-    
+
         def __set__(self, int value):
             cdef ddjvu_page_rotation_t rotation
             if value == 0:
@@ -1988,7 +1988,7 @@ cdef class PageJob(Job):
             else:
                 raise ValueError('rotation must be equal to 0, 90, 180, or 270')
             ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, rotation)
-    
+
         def __del__(self):
             ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job))
 
@@ -2016,15 +2016,15 @@ cdef class PageJob(Job):
         page_rect and copies the pixels specified by rectangle
         render_rect into a buffer. The actual code is much more efficient
         than that.
-        
+
         pixel_format specifies the expected pixel format. Each row will start
         at row_alignment bytes boundary.
 
         Data will be saved to the provided buffer or to a newly created string.
-        
+
         This method makes a best effort to compute an image that reflects the
         most recently decoded data.
-        
+
         Possible exceptions: NotAvailable (to indicate that no image could be
         computed at this point.)
         '''
@@ -2085,16 +2085,16 @@ cdef class Job:
         self.ddjvu_job = NULL
         self._condition = Condition()
         self._queue = Queue()
-    
+
     cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
-        # Assumption: loft_lock is already acquired. 
+        # Assumption: loft_lock is already acquired.
         if context is None:
             raise SystemError
         self._context = context
         self.ddjvu_job = ddjvu_job
         _job_loft.add(self)
         _job_weak_loft[voidp_to_int(ddjvu_job)] = self
-    
+
     cdef object __clear(self):
         with nogil: acquire_lock(loft_lock, WAIT_LOCK)
         try:
@@ -2115,7 +2115,7 @@ cdef class Job:
         '''
         def __get__(self):
             return bool(ddjvu_job_error(self.ddjvu_job))
-    
+
     property is_done:
         '''
         Indicate whether the decoding job is done.
@@ -2143,7 +2143,7 @@ cdef class Job:
         J.stop() -> None
 
         Attempt to cancel the job.
-        
+
         This is a best effort method. There no guarantee that the job will
         actually stop.
         '''
@@ -2195,7 +2195,7 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
 cdef class AffineTransform:
 
     '''
-    AffineTransform((x0, y0, w0, h0), (x1, y1, w1, h1)) 
+    AffineTransform((x0, y0, w0, h0), (x1, y1, w1, h1))
       -> an affine coordinate transformation
 
     The object represents an affine coordinate transformation that maps points
@@ -2214,7 +2214,7 @@ cdef class AffineTransform:
         '''
         A.rotate(n) -> None
 
-        Rotate the output rectangle counter-clockwise by n degrees. 
+        Rotate the output rectangle counter-clockwise by n degrees.
         '''
         if n % 90:
             raise ValueError('n must a multiple of 90')
@@ -2295,7 +2295,7 @@ cdef class AffineTransform:
         Reverse the X coordinates of the output rectangle.
         '''
         ddjvu_rectmapper_modify(self.ddjvu_rectmapper, 0, 1, 0)
-    
+
     def mirror_y(self):
         '''
         A.mirror_y()
@@ -2316,7 +2316,7 @@ cdef class Message:
     def __cinit__(self, **kwargs):
         check_sentinel(self, kwargs)
         self.ddjvu_message = NULL
-    
+
     cdef object __init(self):
         if self.ddjvu_message == NULL:
             raise SystemError
@@ -2324,7 +2324,7 @@ cdef class Message:
         self._document = Document_from_c(self.ddjvu_message.m_any.document)
         self._page_job = PageJob_from_c(self.ddjvu_message.m_any.page)
         self._job = Job_from_c(self.ddjvu_message.m_any.job)
-    
+
     property context:
         '''
         Return the concerned Context.
@@ -2382,7 +2382,7 @@ cdef class ErrorMessage(Message):
         '''
         def __get__(self):
             return self._message
-    
+
     property location:
         '''
         Return a (function, filename, line_no) tuple indicating where the
@@ -2406,14 +2406,14 @@ cdef class InfoMessage(Message):
     cdef object __init(self):
         Message.__init(self)
         self._message = self.ddjvu_message.m_error.message
-    
+
     property message:
         '''
         Return the actual information message, as text.
         '''
         def __get__(self):
             return self._message
-    
+
 cdef class Stream:
     '''
     Data stream.
@@ -2435,7 +2435,7 @@ cdef class Stream:
         '''
         ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 0)
         self._open = 0
-    
+
     def abort(self):
         '''
         S.abort() -> None
@@ -2447,7 +2447,7 @@ cdef class Stream:
         '''
         ddjvu_stream_close(self._document.ddjvu_document, self._streamid, 1)
         self._open = 0
-    
+
     def flush(self):
         '''
         S.flush() -> None
@@ -2456,7 +2456,7 @@ cdef class Stream:
         file-like interface.)
         '''
 
-    def read(self, size = None):
+    def read(self, size=None):
         '''
         S.read([size])
 
@@ -2464,13 +2464,13 @@ cdef class Stream:
         file-like interface.)
         '''
         raise IOError('write-only data stream')
-    
+
     def write(self, data):
         '''
         S.write(data) -> None
 
         Provide raw data to the DjVu decoder.
-        
+
         This method should be called as soon as the data is available, for
         instance when receiving DjVu data from a network connection.
         '''
@@ -2494,10 +2494,10 @@ cdef class NewStreamMessage(Message):
     A NewStreamMessage is generated whenever the decoder needs to access raw
     DjVu data. The caller must then provide the requested data using the
     .stream file-like object.
-    
+
     In the case of indirect documents, a single decoder might simultaneously
     request several streams of data.
-    
+
     '''
 
     cdef object __init(self):
@@ -2512,20 +2512,20 @@ cdef class NewStreamMessage(Message):
         '''
         def __get__(self):
             return self._stream
-    
+
     property name:
         '''
         The first NewStreamMessage message always has .name set to None.
         It indicates that the decoder needs to access the data in the main DjVu
         file.
-        
+
         Further NewStreamMessage messages messages are generated to access the
         auxiliary files of indirect or indexed DjVu documents. .name then
         provides the base name of the auxiliary file.
         '''
         def __get__(self):
             return self._name
-    
+
     property uri:
         '''
         Return the requrested URI.
@@ -2543,7 +2543,7 @@ cdef class DocInfoMessage(Message):
     '''
     A DocInfoMessage indicates that basic information about the document has
     been obtained and decoded. Not much can be done before this happens.
-    
+
     Check Document.decoding_status to determine whether the operation was
     successful.
     '''
@@ -2559,7 +2559,7 @@ cdef class PageInfoMessage(Message):
     You can distinguish both cases using PageJob.status.
 
     A PageInfoMessage may be also generated as a consequence of reading
-    Page.get_info() or Page.dump. 
+    Page.get_info() or Page.dump.
     '''
 
 cdef class ChunkMessage(Message):
@@ -2590,7 +2590,7 @@ cdef class ThumbnailMessage(Message):
     cdef object __init(self):
         Message.__init(self)
         self._page_no = self.ddjvu_message.m_thumbnail.pagenum
-    
+
     property thumbnail:
         '''
         Return the Thumbnail.
@@ -2612,14 +2612,14 @@ cdef class ProgressMessage(Message):
         Message.__init(self)
         self._percent = self.ddjvu_message.m_progress.percent
         self._status = self.ddjvu_message.m_progress.status
-    
+
     property percent:
         '''
         Return the percent of the job done.
         '''
         def __get__(self):
             return self._percent
-    
+
     property status:
         '''
         Return a JobException subclass indicating the current job status.
@@ -2728,10 +2728,10 @@ cdef class _SexprWrapper:
     def __cinit__(self, document, **kwargs):
         check_sentinel(self, kwargs)
         self._document_weakref = weakref.ref(document)
-    
+
     def __call__(self):
         return cexpr2py(self._cexpr)
-    
+
     def __dealloc__(self):
         cdef Document document
         if self._cexpr == NULL:
@@ -2755,7 +2755,7 @@ cdef class DocumentOutline(DocumentExtension):
     def __cinit__(self, Document document not None):
         self._document = document
         self._sexpr = None
-    
+
     cdef object _update_sexpr(self):
         if self._sexpr is not None:
             return
@@ -2780,7 +2780,7 @@ cdef class DocumentOutline(DocumentExtension):
                     self._document._condition.wait()
             finally:
                 self._document._condition.release()
-    
+
     property sexpr:
         '''
         Return the associated S-expression. See "Outline/Bookmark syntax" in
@@ -2802,7 +2802,7 @@ cdef class DocumentOutline(DocumentExtension):
             except InvalidExpression:
                 self._sexpr = None
                 raise _NotAvailable_
-    
+
     def __repr__(self):
         return '%s(%r)' % (get_type_name(DocumentOutline), self._document)
 
@@ -2819,7 +2819,7 @@ cdef class Annotations:
         if typecheck(self, PageAnnotations):
             return
         raise_instantiation_error(type(self))
-    
+
     cdef object _update_sexpr(self):
         raise NotImplementedError
 
@@ -2861,10 +2861,10 @@ cdef class Annotations:
             except InvalidExpression:
                 self._sexpr = None
                 raise _NotAvailable_
-    
+
     property background_color:
         '''
-        Parse the annotations and extract the desired background color as 
+        Parse the annotations and extract the desired background color as
         a color string '(#FFFFFF)'. See '(background ...)' in the
         djvused manual page.
 
@@ -2879,7 +2879,7 @@ cdef class Annotations:
 
     property zoom:
         '''
-        Parse the annotations and extract the desired zoom factor. See 
+        Parse the annotations and extract the desired zoom factor. See
         '(zoom ...)' in the djvused manual page.
 
         Return None if this information is not specified.
@@ -2893,7 +2893,7 @@ cdef class Annotations:
 
     property mode:
         '''
-        Parse the annotations and extract the desired display mode. See 
+        Parse the annotations and extract the desired display mode. See
         '(mode ...)' in the djvused manual page.
 
         Return zero if this information is not specified.
@@ -2932,14 +2932,14 @@ cdef class Annotations:
             if result == NULL:
                 return
             return result
-    
+
     property hyperlinks:
         '''
         Return an associated Hyperlinks object.
         '''
         def __get__(self):
             return Hyperlinks(self)
-    
+
     property metadata:
         '''
         Return an associated Metadata object.
@@ -2950,7 +2950,7 @@ cdef class Annotations:
 cdef class DocumentAnnotations(Annotations):
     '''
     DocumentAnnotations(document[, shared=True]) -> document-wide annotations
-    
+
     If shared is true and no document-wide annotations are available, shared
     annotations are considered document-wide.
 
@@ -2977,7 +2977,7 @@ cdef class DocumentAnnotations(Annotations):
         '''
         def __get__(self):
             return self._document
-    
+
 cdef class PageAnnotations(Annotations):
 
     '''
@@ -2988,7 +2988,7 @@ cdef class PageAnnotations(Annotations):
         self._document = page._document
         self._page = page
         self._sexpr = None
-    
+
     cdef object _update_sexpr(self):
         if self._sexpr is not None:
             return
@@ -2996,7 +2996,7 @@ cdef class PageAnnotations(Annotations):
             self._page._document,
             ddjvu_document_get_pageanno(self._page._document.ddjvu_document, self._page._n)
         )
-    
+
     property page:
         '''
         Return the concerned page.
@@ -3069,7 +3069,7 @@ cdef class PageText:
     - TEXT_DETAILS_ALL.
     '''
 
-    def __cinit__(self, Page page not None, details = TEXT_DETAILS_ALL):
+    def __cinit__(self, Page page not None, details=TEXT_DETAILS_ALL):
         if details is None:
             self._details = ''
         elif not typecheck(details, Symbol):
@@ -3080,7 +3080,7 @@ cdef class PageText:
             self._details = str(details)
         self._page = page
         self._sexpr = None
-    
+
     cdef object _update_sexpr(self):
         if self._sexpr is None:
             self._sexpr = wrap_sexpr(
@@ -3158,10 +3158,10 @@ cdef class Hyperlinks:
                 current = current + 1
         finally:
             libc_free(all)
-    
+
     def __len__(self):
         return len(self._sexpr)
-    
+
     def __getitem__(self, Py_ssize_t n):
         return self._sexpr[n]()
 
@@ -3190,7 +3190,7 @@ cdef class Metadata:
             self._keys = frozenset(keys)
         finally:
             libc_free(all)
-    
+
     def __len__(self):
         return len(self._keys)
 
@@ -3202,13 +3202,13 @@ cdef class Metadata:
         if s == NULL:
             raise KeyError(key)
         return decode_utf8(s)
-    
+
     def keys(self):
         '''
         M.keys() -> sequence of M's keys
         '''
         return self._keys
-    
+
     def iterkeys(self):
         '''
         M.iterkeys() -> an iterator over the keys of M
@@ -3217,25 +3217,25 @@ cdef class Metadata:
 
     def __iter__(self):
         return iter(self._keys)
-    
+
     def values(self):
         '''
         M.values() -> list of M's values
         '''
         return map(self.__getitem__, self._keys)
-    
+
     def itervalues(self):
         '''
         M.itervalues() -> an iterator over values of M
         '''
         return imap(self.__getitem__, self._keys)
-    
+
     def items(self):
         '''
         M.items() -> list of M's (key, value) pairs, as 2-tuples
         '''
         return zip(self._keys, imap(self.__getitem__, self._keys))
-    
+
     def iteritems(self):
         '''
         M.iteritems() -> an iterator over the (key, value) items of M
@@ -3247,10 +3247,10 @@ cdef class Metadata:
         M.has_key(k) -> True if D has a key k, else False
         '''
         return k in self
-    
+
     def __contains__(self, k):
         return k in self._keys
-    
+
 __author__ = 'Jakub Wilk <jwilk@jwilk.net>'
 __version__ = '%s/%d' % (PYTHON_DJVULIBRE_VERSION, DDJVU_VERSION)
 

@@ -33,7 +33,7 @@ class ContextTest(unittest.TestCase):
         context.clear_cache()
 
 class DocumentTest:
- 
+
     def test_instantiate(self):
         '''
         >>> Document()
@@ -41,7 +41,7 @@ class DocumentTest:
         ...
         TypeError: cannot create 'djvu.decode.Document' instances
         '''
-    
+
     def test_nonexistent(self):
         '''
         >>> context = Context()
@@ -55,7 +55,7 @@ class DocumentTest:
         >>> message.message
         "[1-11711] Failed to open '__nonexistent__': No such file or directory."
         '''
-    
+
     def test_new_document(self):
         '''
         >>> context = Context()
@@ -137,7 +137,7 @@ class DocumentTest:
         True
         >>> file.id
         u't-gamma.djvu'
-        
+
         >>> for line in document.pages[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
         u'  FORM:DJVU [83] '
         u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
@@ -147,7 +147,7 @@ class DocumentTest:
         True
         >>> context.get_message(wait = False) is None
         True
-        
+
         >>> document.files[-1].get_info()
         Traceback (most recent call last):
         ...
@@ -156,7 +156,7 @@ class DocumentTest:
         True
         >>> context.get_message(wait = False) is None
         True
-        
+
         >>> document.pages[-1]
         Traceback (most recent call last):
         ...
@@ -171,7 +171,7 @@ class DocumentTest:
         >>> context.get_message(wait = False) is None
         True
         '''
-    
+
     def test_save(self):
         r'''
         >>> context = Context()
@@ -191,7 +191,7 @@ class DocumentTest:
         4
         >>> len(document.files)
         5
-            
+
         >>> from tempfile import NamedTemporaryFile, mkdtemp
         >>> from shutil import rmtree
         >>> from os.path import join as path_join
@@ -266,7 +266,7 @@ class DocumentTest:
         '    FORM:DJVI [203] {shared_anno.iff}'
         '      ANTz [191]        Page annotation (hyperlinks, etc.)'
         >>> del tmp
-        
+
         >>> tmpdir = mkdtemp()
         >>> tmpfname = path_join(tmpdir, 'index.djvu')
         >>> job = document.save(indirect = tmpfname)
@@ -328,7 +328,7 @@ class DocumentTest:
         4
         >>> len(document.files)
         5
-            
+
         >>> from tempfile import NamedTemporaryFile
         >>> from subprocess import Popen, PIPE
         >>> from pprint import pprint
@@ -410,7 +410,7 @@ class PixelFormatTest:
     djvu.decode.PixelFormatPackedBits('<')
     >>> pf.bpp
     1
-    
+
     >>> pf = PixelFormatPackedBits('>')
     >>> pf
     djvu.decode.PixelFormatPackedBits('>')
@@ -427,7 +427,7 @@ class PageJobTest:
         ...
         TypeError: cannot create 'djvu.decode.PageJob' instances
         '''
-    
+
     def test_decode():
         r'''
         >>> context = Context()
@@ -566,7 +566,7 @@ class JobTest:
     Traceback (most recent call last):
     ...
     TypeError: cannot create 'djvu.decode.Job' instances
-    
+
     >>> DocumentDecodingJob()
     Traceback (most recent call last):
     ...
@@ -630,7 +630,7 @@ class StreamTest:
     Traceback (most recent call last):
     ...
     TypeError: Argument 'document' has incorrect type (expected djvu.decode.Document, got NoneType)
-    
+
     >>> context = Context()
     >>> document = context.new_document('dummy://dummy.djvu')
     >>> message = document.get_message()
@@ -659,7 +659,7 @@ class StreamTest:
     Traceback (most recent call last):
     ...
     NotAvailable
-    
+
     >>> try:
     ...   message.stream.write(file('t-gamma.djvu').read())
     ... finally:
@@ -668,7 +668,7 @@ class StreamTest:
     Traceback (most recent call last):
     ...
     IOError: I/O operation on closed file
-    
+
     >>> message = document.get_message()
     >>> type(message) == DocInfoMessage
     True

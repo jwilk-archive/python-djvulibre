@@ -29,7 +29,7 @@ class IntExpressionTest:
 
     >>> repr(x) == repr(Expression.from_string(str(x)))
     True
-    
+
     >>> int(x)
     3
     >>> long(x)
@@ -72,7 +72,7 @@ class SymbolTest:
     Symbol('eggs')
     >>> type(x)
     <class 'djvu.sexpr.Symbol'>
-    
+
     >>> str(x)
     'eggs'
 
@@ -84,7 +84,7 @@ class SymbolTest:
     False
     >>> hash(x) == hash('eggs')
     True
-    ''' 
+    '''
 
 class SymbolExpressionTest:
     '''
@@ -100,7 +100,7 @@ class SymbolExpressionTest:
 
     >>> str(x)
     'eggs'
-    
+
     >>> repr(x) == repr(Expression.from_string(str(x)))
     True
 
@@ -128,10 +128,10 @@ class StringExpressionTest:
 
     >>> str(x)
     '"eggs"'
-    
+
     >>> repr(x) == repr(Expression.from_string(str(x)))
     True
-    
+
     >>> x == Expression('eggs')
     True
     >>> x == Expression(Symbol('eggs'))
@@ -191,7 +191,7 @@ class ListExpressionTest:
 
     >>> str(x)
     '((1 2) 3 (4 5 baz) ("quux"))'
-    
+
     >>> repr(x) == repr(Expression.from_string(str(x)))
     True
 
@@ -211,10 +211,10 @@ class ListExpressionTest:
 
     >>> x[1]
     Expression(3)
-    
+
     >>> x[-1][0]
     Expression('quux')
-    
+
     >>> x[6]
     Traceback (most recent call last):
     ...
@@ -223,7 +223,7 @@ class ListExpressionTest:
     Traceback (most recent call last):
     ...
     IndexError: list index of out range
-    
+
     >>> x[:].value == x.value
     True
 
@@ -276,7 +276,7 @@ class ListExpressionTest:
     Traceback (most recent call last):
     ...
     TypeError: unhashable type: 'ListExpression'
-    
+
     '''
 
 class ListExpressionCopyTest:

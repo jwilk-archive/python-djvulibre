@@ -160,7 +160,7 @@ cdef extern from 'libdjvu/ddjvuapi.h':
         DDJVU_FORMAT_MSBTOLSB
         DDJVU_FORMAT_LSBTOMSB
     ctypedef int ddjvu_format_style_t
-   
+
     cdef struct ddjvu_message_thumbnail_s:
         ddjvu_message_any_t any
         int pagenum
@@ -270,7 +270,7 @@ cdef class PixelFormatRgb(PixelFormat):
 
 cdef class PixelFormatRgbMask(PixelFormat):
     cdef unsigned int _params[4]
-    
+
 cdef class PixelFormatGrey(PixelFormat):
     pass
 

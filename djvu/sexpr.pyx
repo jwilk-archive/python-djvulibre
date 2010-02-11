@@ -19,7 +19,7 @@ cdef extern from 'libdjvu/miniexp.h':
     int cexpr_is_int 'miniexp_numberp'(cexpr_t sexp) nogil
     int cexpr_to_int 'miniexp_to_int'(cexpr_t sexp) nogil
     cexpr_t int_to_cexpr 'miniexp_number'(int n) nogil
-    
+
     int cexpr_is_symbol 'miniexp_symbolp'(cexpr_t sexp) nogil
     char* cexpr_to_symbol 'miniexp_to_name'(cexpr_t sexp) nogil
     cexpr_t symbol_to_cexpr 'miniexp_symbol'(char* name) nogil
@@ -45,7 +45,7 @@ cdef extern from 'libdjvu/miniexp.h':
 
     cexpr_t gc_lock 'minilisp_acquire_gc_lock'(cexpr_t cexpr) nogil
     cexpr_t gc_unlock 'minilisp_release_gc_lock'(cexpr_t cexpr) nogil
-    
+
     cvar_t* cvar_new 'minivar_alloc'() nogil
     void cvar_free 'minivar_free'(cvar_t* v) nogil
     cexpr_t* cvar_ptr 'minivar_pointer'(cvar_t* v) nogil
@@ -202,7 +202,7 @@ cdef class _MissingCExpr(_WrappedCExpr):
 
     cdef object print_into(self, object stdout, object width):
         raise NotImplementedError
-    
+
     cdef object as_string(self, object width):
         raise NotImplementedError
 
@@ -221,7 +221,7 @@ cdef class BaseSymbol:
 
     def __repr__(self):
         return '%s(%r)' % (get_type_name(_Symbol_), self.value)
-    
+
     def __richcmp__(self, object other, int op):
         cdef BaseSymbol _self, _other
         if not typecheck(self, BaseSymbol) or not typecheck(other, BaseSymbol):
@@ -231,13 +231,13 @@ cdef class BaseSymbol:
         if op == 2 or op == 3:
             return richcmp(_self.value, _other.value, op)
         return NotImplemented
-    
+
     def __hash__(self):
         return hash(self.value)
-    
+
     def __str__(self):
         return self.value
-    
+
 def Symbol__new__(cls, name):
     '''
     Symbol(name) -> a symbol
@@ -318,20 +318,20 @@ class Expression(BaseExpression):
     * the parenthesis '(' and ')',
     * the double quote '"',
     * the vertical bar '|'.
-    
+
     Symbols are represented by their name. Vertical bars | can be used to
     delimit names that contain blanks, special characters, non printable
     characters, non-ASCII characters, or can be confused as a number.
-    
+
     Numbers follow the syntax specified by the C function strtol() with
     base=0.
-    
+
     Strings are delimited by double quotes. All C string escapes are
     recognized. Non-printable ASCII characters must be escaped.
-    
+
     List are represented by an open parenthesis '(' followed by the space
     separated list elements, followed by a closing parenthesis ')'.
-    
+
     When the cdr of the last pair is non zero, the closed parenthesis is
     preceded by a space, a dot '.', a space, and the textual representation
     of the cdr. (This is only partially supported by Python bindings.)
@@ -363,32 +363,32 @@ cdef class BaseExpression:
     def __cinit__(self, *args, **kwargs):
         self.wexpr = wexpr_missing()
 
-    def print_into(self, stdout, width = None):
+    def print_into(self, stdout, width=None):
         '''
         expr.print_into(file[, width]) -> None
-        
+
         Print the expression into the file.
         '''
         self.wexpr.print_into(stdout, width)
 
-    def as_string(self, width = None):
+    def as_string(self, width=None):
         '''
         expr.as_string([width]) -> a string
 
         Return a string representation of the expression.
         '''
         return self.wexpr.as_string(width)
-    
+
     def __str__(self):
         return self.as_string()
 
     property value:
         '''
         The actual "pythonic" value of the expression.
-        ''' 
+        '''
         def __get__(self):
             return self._get_value()
-    
+
     def _get_value(self):
         raise NotImplementedError
 
@@ -402,7 +402,7 @@ cdef class BaseExpression:
         # Most of S-expressions are immutable.
         # Mutable S-expressions should override this method.
         return self
-    
+
     def __deepcopy__(self, memo):
         # Most of S-expressions are immutable.
         # Mutable S-expressions should override this method.
@@ -434,7 +434,7 @@ class IntExpression(_Expression_):
     '''
 
     __new__ = staticmethod(IntExpression__new__)
-    
+
     def __nonzero__(self):
         return bool(self.value)
 
@@ -689,7 +689,7 @@ class ListExpression(_Expression_):
 
     def __iter__(self):
         return _ListExpressionIterator(self)
-    
+
     def __hash__(self):
         raise TypeError('unhashable type: \'%s\'' % (get_type_name(type(self)),))
 
@@ -701,10 +701,10 @@ class ListExpression(_Expression_):
             list_append(result, _c2py(cexpr_head(current))._get_value())
             current = cexpr_tail(current)
         return tuple(result)
-    
+
     def __copy__(self):
         return _Expression_(self)
-    
+
     def __deepcopy__(self, memo):
         return _Expression_(self._get_value())
 
@@ -718,7 +718,7 @@ cdef class _ListExpressionIterator:
     def __cinit__(self, BaseExpression expression not None):
         self.expression = expression
         self.cexpr = expression.wexpr.cexpr()
-    
+
     def __next__(self):
         cdef cexpr_t cexpr
         cexpr = self.cexpr
@@ -727,7 +727,7 @@ cdef class _ListExpressionIterator:
         self.cexpr = cexpr_tail(cexpr)
         cexpr = cexpr_head(cexpr)
         return _c2py(cexpr)
-    
+
     def __iter__(self):
         return self
 

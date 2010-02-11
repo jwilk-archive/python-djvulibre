@@ -66,7 +66,7 @@ cdef extern from 'pythread.h':
     cdef void free_lock 'PyThread_free_lock'(Lock lock)
     cdef int acquire_lock 'PyThread_acquire_lock'(Lock lock, int mode) nogil
     cdef void release_lock 'PyThread_release_lock'(Lock lock)
-    
+
     ctypedef enum:
         WAIT_LOCK
         NOWAIT_LOCK
