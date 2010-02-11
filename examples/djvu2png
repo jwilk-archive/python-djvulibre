@@ -11,6 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
+import argparse
 import sys
 
 import cairo
@@ -29,7 +30,7 @@ class Context(djvu.decode.Context):
             print >>sys.stderr, message
             sys.exit(1)
 
-    def process(self, djvu_path, png_path):
+    def process(self, djvu_path, png_path, mode):
         document = self.new_document(djvu.decode.FileURI(djvu_path))
         document.decoding_job.wait()
         for page in document.pages:
@@ -38,21 +39,28 @@ class Context(djvu.decode.Context):
             rect = (0, 0, width, height)
             bytes_per_line = cairo.ImageSurface.format_stride_for_width(cairo_pixel_format, width)
             color_buffer = numpy.zeros((height, bytes_per_line), dtype=numpy.uint32)
-            page_job.render(djvu.decode.RENDER_COLOR_ONLY, rect, rect, djvu_pixel_format, row_alignment=bytes_per_line, buffer=color_buffer)
+            page_job.render(mode, rect, rect, djvu_pixel_format, row_alignment=bytes_per_line, buffer=color_buffer)
             mask_buffer = numpy.zeros((height, bytes_per_line), dtype=numpy.uint32)
-            page_job.render(djvu.decode.RENDER_MASK_ONLY, rect, rect, djvu_pixel_format, row_alignment=bytes_per_line, buffer=mask_buffer)
-            mask_buffer <<= 24
-            color_buffer |= mask_buffer
+            if mode == djvu.decode.RENDER_FOREGROUND:
+                page_job.render(djvu.decode.RENDER_MASK_ONLY, rect, rect, djvu_pixel_format, row_alignment=bytes_per_line, buffer=mask_buffer)
+                mask_buffer <<= 24
+                color_buffer |= mask_buffer
             color_buffer ^= 0xff000000
             surface = cairo.ImageSurface.create_for_data(color_buffer, cairo_pixel_format, width, height)
             surface.write_to_png(png_path)
 
 def main():
-    if len(sys.argv) != 3:
-        print >>sys.stderr, 'Usage: %s <djvu-path> <png-path>' % sys.argv[0]
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.set_defaults(mode=djvu.decode.RENDER_COLOR_ONLY)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--foreground', dest='mode', action='store_const', const=djvu.decode.RENDER_FOREGROUND)
+    group.add_argument('--background', dest='mode', action='store_const', const=djvu.decode.RENDER_BACKGROUND)
+    group.add_argument('--mask', dest='mode', action='store_const', const=djvu.decode.RENDER_MASK_ONLY)
+    parser.add_argument('djvu_path', metavar='<djvu-path>')
+    parser.add_argument('png_path', metavar='<png-path>')
+    options = parser.parse_args(sys.argv[1:])
     context = Context()
-    context.process(*sys.argv[1:])
+    context.process(options.djvu_path, options.png_path, options.mode)
 
 if __name__ == '__main__':
     main()
