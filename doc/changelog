@@ -1,6 +1,9 @@
 python-djvulibre (0.1.17) UNRELEASED; urgency=low
 
-  * 
+  * Allow to render images directly into a writable buffer (e.g. an array),
+    rather than to a newly created string. That should ease integration of
+    python-djulibre with e.g. numpy or cairo.
+  * Add two simple example programs.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Wed, 10 Feb 2010 20:14:02 +0100
 
