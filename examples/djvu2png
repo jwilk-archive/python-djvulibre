@@ -48,6 +48,8 @@ class Context(djvu.decode.Context):
             color_buffer ^= 0xff000000
             surface = cairo.ImageSurface.create_for_data(color_buffer, cairo_pixel_format, width, height)
             surface.write_to_png(png_path)
+            # Multi-page documents are not yet supported:
+            break
 
 def main():
     parser = argparse.ArgumentParser()
