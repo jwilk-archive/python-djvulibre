@@ -117,6 +117,8 @@ if get_default_compiler() == 'msvc':
 
 __version__ = get_version()
 
+os.putenv('TAR_OPTIONS', '--owner root --group root --mode a+rX')
+
 setup_params = dict(
     name = 'python-djvulibre',
     version = __version__,

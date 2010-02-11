@@ -1,0 +1,10 @@
+include COPYING
+include doc/changelog
+include doc/Makefile
+include doc/source/conf.py
+include doc/source/*.txt
+include examples/djvu-dump-text
+include examples/djvu2png
+recursive-include djvu/ *.py *.pxi *.pxd *.pyx
+recursive-include fake_pyrex/ *.py
+recursive-include tests *.djvu *.py
