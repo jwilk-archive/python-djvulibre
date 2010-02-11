@@ -2,27 +2,27 @@ python-djvulibre (0.1.17) UNRELEASED; urgency=low
 
   * 
 
- -- Jakub Wilk <ubanus@users.sf.net>  Wed, 10 Feb 2010 20:14:02 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 10 Feb 2010 20:14:02 +0100
 
 python-djvulibre (0.1.16) unstable; urgency=low
 
   * Make reading S-expression from streams more efficient.
   * Fix exception handling while reading/writing S-expression from/to streams.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Sun, 03 Jan 2010 12:52:12 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Sun, 03 Jan 2010 12:52:12 +0100
 
 python-djvulibre (0.1.15) unstable; urgency=low
 
   * Don't let text zones compare equal to unrelated objects.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Wed, 04 Nov 2009 20:02:07 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 04 Nov 2009 20:02:07 +0100
 
 python-djvulibre (0.1.14) unstable; urgency=low
 
   * Fix infinite recursion when comparing a text zone with a string. Thanks to
     Rogério Brito for the bug report.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Thu, 03 Sep 2009 23:36:47 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 03 Sep 2009 23:36:47 +0200
 
 python-djvulibre (0.1.13) unstable; urgency=low
 
@@ -30,51 +30,51 @@ python-djvulibre (0.1.13) unstable; urgency=low
     reporting that.
   * Get rid of some spurious warnings.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Sun, 16 Aug 2009 10:49:42 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sun, 16 Aug 2009 10:49:42 +0200
 
 python-djvulibre (0.1.12) unstable; urgency=low
 
   * Use Cython (rather than Pyrex) to compile sources.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Thu, 13 Aug 2009 13:07:16 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 13 Aug 2009 13:07:16 +0200
 
 python-djvulibre (0.1.11) unstable; urgency=low
 
   * Provide a bit more comprehensive documentation.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Tue, 14 Jul 2009 16:33:13 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 14 Jul 2009 16:33:13 +0200
 
 python-djvulibre (0.1.10) unstable; urgency=low
 
   * Remove the `PageInfo` class (it served no purpose).
   * Work around a Pyrex compilation bug.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Tue, 07 Jul 2009 23:12:27 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 07 Jul 2009 23:12:27 +0200
 
 python-djvulibre (0.1.9) unstable; urgency=low
 
   * Fill up the package metadata.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Sat, 16 May 2009 11:05:45 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sat, 16 May 2009 11:05:45 +0200
 
 python-djvulibre (0.1.8) unstable; urgency=low
 
   * Enable compilation with recent Pyrex.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Sat, 12 Jul 2008 12:10:08 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sat, 12 Jul 2008 12:10:08 +0200
 
 python-djvulibre (0.1.7) unstable; urgency=low
 
   * Protect from collecting just created S-expressions.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Fri, 20 Jun 2008 12:39:24 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 20 Jun 2008 12:39:24 +0200
 
 python-djvulibre (0.1.6) unstable; urgency=low
 
   * Call `Context.handle_message()` *before* any blocking method finishes.
   * Better error handling in `Page.decode()`.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Wed, 14 May 2008 11:19:52 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 14 May 2008 11:19:52 +0200
 
 python-djvulibre (0.1.5) unstable; urgency=low
 
@@ -84,10 +84,10 @@ python-djvulibre (0.1.5) unstable; urgency=low
   * Add `Page.size` and `PageJob.size` properties.
   * Remove spurious overflow checks.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Wed, 07 May 2008 18:36:51 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 07 May 2008 18:36:51 +0200
 
 python-djvulibre (0.1.4) unstable; urgency=low
 
   * Initial release.
 
- -- Jakub Wilk <ubanus@users.sf.net>  Wed, 07 May 2008 00:17:17 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 07 May 2008 00:17:17 +0200

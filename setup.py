@@ -1,5 +1,14 @@
 # encoding=UTF-8
-# Copyright © 2007, 2008, 2009 Jakub Wilk <ubanus@users.sf.net>
+# Copyright © 2007, 2008, 2009 Jakub Wilk <jwilk@jwilk.net>
+#
+# This package is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 dated June, 1991.
+#
+# This package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
 
 '''
 *python-djvulibre* is a set of `Python <http://python.org>`_ bindings for the
@@ -112,7 +121,7 @@ setup_params = dict(
     name = 'python-djvulibre',
     version = __version__,
     author = 'Jakub Wilk',
-    author_email = 'ubanus@users.sf.net',
+    author_email = 'jwilk@jwilk.net',
     license = 'GNU GPL 2',
     description = 'Python support for the DjVu image format',
     long_description = __doc__.strip(),

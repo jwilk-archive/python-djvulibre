@@ -1,4 +1,4 @@
-# Copyright © 2007, 2008, 2009, 2010 Jakub Wilk <ubanus@users.sf.net>
+# Copyright © 2007, 2008, 2009, 2010 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -733,7 +733,7 @@ cdef class _ListExpressionIterator:
 
 
 __all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'InvalidExpression', 'ExpressionSyntaxError')
-__author__ = 'Jakub Wilk <ubanus@users.sf.net>'
+__author__ = 'Jakub Wilk <jwilk@jwilk.net>'
 __version__ = PYTHON_DJVULIBRE_VERSION
 
 # vim:ts=4 sw=4 et ft=pyrex
