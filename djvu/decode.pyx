@@ -2010,7 +2010,7 @@ cdef class PageJob(Job):
         RENDER_BACKGROUND
             color background layer
         RENDER_FOREGROUND
-            foreground background layer
+            color foreground layer
 
         Conceptually this method renders the full page into a rectangle
         page_rect and copies the pixels specified by rectangle
