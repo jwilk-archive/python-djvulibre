@@ -170,6 +170,4 @@ Render modes
 
    Render foreground background layer
 
-.. vim:ts=3 sw=3 et
-
 .. vim:ts=3 sw=3 et ft=rst

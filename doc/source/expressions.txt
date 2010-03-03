@@ -131,4 +131,4 @@ Variétés
    >>> EMPTY_LIST
    Expression(())
 
-.. vim:ts=3 sw=3 et
+.. vim:ts=3 sw=3 et ft=rst

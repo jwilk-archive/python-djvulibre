@@ -35,4 +35,5 @@ Document outline
       >>> list(EMPTY_OUTLINE)
       [Symbol('bookmarks')]
 
+.. vim:ts=3 sw=3 et ft=rst
 .. vim:ts=3 sw=3 et
