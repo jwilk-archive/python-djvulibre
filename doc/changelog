@@ -1,3 +1,9 @@
+python-djvulibre (0.1.18) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 03 Mar 2010 14:23:34 +0100
+
 python-djvulibre (0.1.17) unstable; urgency=low
 
   * Allow to render images directly into a writable buffer (e.g. an array),
