@@ -16,7 +16,7 @@ from djvu.sexpr import *
 import os
 import unittest
 
-pwd = os.path.dirname(__file__)
+images = os.path.join(os.path.dirname(__file__), 'images', '')
 
 class ContextTest(unittest.TestCase):
 
@@ -62,7 +62,7 @@ class DocumentTest:
     def test_new_document(self):
         '''
         >>> context = Context()
-        >>> document = context.new_document(FileUri(pwd + '/t-gamma.djvu'))
+        >>> document = context.new_document(FileUri(images + 'test1.djvu'))
         >>> type(document) == Document
         True
         >>> message = document.get_message()
@@ -106,11 +106,11 @@ class DocumentTest:
         0
         >>> file.size
         >>> file.id
-        u't-gamma.djvu'
+        u'test1.djvu'
         >>> file.name
-        u't-gamma.djvu'
+        u'test1.djvu'
         >>> file.title
-        u't-gamma.djvu'
+        u'test1.djvu'
 
         >>> for line in document.files[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
         u'  FORM:DJVU [83] '
@@ -139,7 +139,7 @@ class DocumentTest:
         >>> type(file) is File
         True
         >>> file.id
-        u't-gamma.djvu'
+        u'test1.djvu'
 
         >>> for line in document.pages[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
         u'  FORM:DJVU [83] '
@@ -178,7 +178,7 @@ class DocumentTest:
     def test_save(self):
         r'''
         >>> context = Context()
-        >>> document = context.new_document(FileUri(pwd + '/t-alpha.djvu'))
+        >>> document = context.new_document(FileUri(images + 'test0.djvu'))
         >>> message = document.get_message()
         >>> type(message) == DocInfoMessage
         True
@@ -191,9 +191,9 @@ class DocumentTest:
         >>> document.type == DOCUMENT_TYPE_BUNDLED
         True
         >>> len(document.pages)
-        4
+        6
         >>> len(document.files)
-        5
+        7
 
         >>> from tempfile import NamedTemporaryFile, mkdtemp
         >>> from shutil import rmtree
@@ -209,43 +209,52 @@ class DocumentTest:
         >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
-        ...
-        '  FORM:DJVM [26871] '
-        '    DIRM [84]         Document directory (bundled, 5 files 4 pages)'
-        '    NAVM [193] '
-        '    FORM:DJVU [5698] {p0001.djvu}'
-        '      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [15]         Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [4868]       JB2 bilevel data'
-        '      TXTz [768]        Hidden text (text, etc.)'
-        '    FORM:DJVI [203] {shared_anno.iff}'
-        '      ANTz [191]        Page annotation (hyperlinks, etc.)'
-        '    FORM:DJVU [2972] {p0002.djvu}'
-        '      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [15]         Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [1857]       JB2 bilevel data'
-        '      FGbz [693]        JB2 colors data, v0, 216 colors'
-        '      BG44 [87]         IW4 data #1, 97 slices, v1.2 (b&w), 213x275'
-        '      TXTz [254]        Hidden text (text, etc.)'
-        '    FORM:DJVU [3103] {p0003.djvu}'
-        '      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [15]         Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [1604]       JB2 bilevel data'
-        '      FGbz [661]        JB2 colors data, v0, 216 colors'
-        '      BG44 [208]        IW4 data #1, 97 slices, v1.2 (color), 213x275'
-        '      TXTz [551]        Hidden text (text, etc.)'
-        '    FORM:DJVU [14555] {p0004.djvu}'
-        '      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [15]         Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [2122]       JB2 bilevel data'
-        '      FGbz [660]        JB2 colors data, v0, 216 colors'
-        '      BG44 [2757]       IW4 data #1, 72 slices, v1.2 (color), 850x1100'
-        '      BG44 [1840]       IW4 data #2, 11 slices'
-        '      BG44 [2257]       IW4 data #3, 10 slices'
-        '      BG44 [4334]       IW4 data #4, 10 slices'
-        '      ANTz [111]        Page annotation (hyperlinks, etc.)'
-        '      TXTz [361]        Hidden text (text, etc.)'
+        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF,+ELLIPSIS
+        '  FORM:DJVM [...] '
+        '    DIRM [...] ... Document directory (bundled, 7 files 6 pages)'
+        '    NAVM [...] '
+        '    FORM:DJVI [...] {shared_anno.iff}...'
+        '      ANTz [...] ... Page annotation (hyperlinks, etc.)'
+        '    FORM:DJVU [...] {p0001.djvu}...'
+        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
+        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
+        '      Sjbz [...] ... JB2 bilevel data'
+        '      TXTz [...] ... Hidden text (text, etc.)'
+        '    FORM:DJVU [...] {p0002.djvu}...'
+        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
+        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
+        '      Sjbz [...] ... JB2 bilevel data'
+        '      TXTz [...] ... Hidden text (text, etc.)'
+        '    FORM:DJVU [...] {p0003.djvu}...'
+        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
+        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
+        '      Sjbz [...] ... JB2 bilevel data'
+        '      FGbz [...] ... JB2 colors data, v0, 7 colors'
+        '      BG44 [...] ... IW4 data #1, 97 slices, v1.2 (b&w), 213x275'
+        '      TXTz [...] ... Hidden text (text, etc.)'
+        '    FORM:DJVU [...] {p0004.djvu}...'
+        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
+        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
+        '      Sjbz [...] ... JB2 bilevel data'
+        '      FGbz [...] ... JB2 colors data, v0, 1 colors'
+        '      BG44 [...] ... IW4 data #1, 97 slices, v1.2 (color), 213x275'
+        '      TXTz [...] ... Hidden text (text, etc.)'
+        '    FORM:DJVU [...] {p0005.djvu}...'
+        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
+        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
+        '      Sjbz [...] ... JB2 bilevel data'
+        '      ANTz [...] ... Page annotation (hyperlinks, etc.)'
+        '      TXTz [...] ... Hidden text (text, etc.)'
+        '    FORM:DJVU [...] {p0006.djvu}...'
+        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
+        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
+        '      Sjbz [...] ... JB2 bilevel data'
+        '      FGbz [...] ... JB2 colors data, v0, 1 colors'
+        '      BG44 [...] ... IW4 data #1, 72 slices, v1.2 (color), 850x1100'
+        '      BG44 [...] ... IW4 data #2, 11 slices'
+        '      BG44 [...] ... IW4 data #3, 10 slices'
+        '      BG44 [...] ... IW4 data #4, 10 slices'
+        '      TXTz [...] ... Hidden text (text, etc.)'
         >>> del tmp
 
         >>> tmp = NamedTemporaryFile()
@@ -257,17 +266,17 @@ class DocumentTest:
         >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
+        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF,+ELLIPSIS
         ...
-        '  FORM:DJVM [5983] '
-        '    DIRM [53]         Document directory (bundled, 2 files 1 pages)'
-        '    FORM:DJVU [5698] {p0001.djvu}'
-        '      INFO [10]         DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [15]         Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [4868]       JB2 bilevel data'
-        '      TXTz [768]        Hidden text (text, etc.)'
-        '    FORM:DJVI [203] {shared_anno.iff}'
-        '      ANTz [191]        Page annotation (hyperlinks, etc.)'
+        '  FORM:DJVM [...] '
+        '    DIRM [...] ... Document directory (bundled, 2 files 1 pages)'
+        '    FORM:DJVI [...] {shared_anno.iff}...'
+        '      ANTz [...] ... Page annotation (hyperlinks, etc.)'
+        '    FORM:DJVU [...] {p0001.djvu}...'
+        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
+        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
+        '      Sjbz [...] ... JB2 bilevel data'
+        '      TXTz [...] ... Hidden text (text, etc.)'
         >>> del tmp
 
         >>> tmpdir = mkdtemp()
@@ -280,16 +289,18 @@ class DocumentTest:
         >>> stdout, stderr = Popen(['djvudump', tmpfname], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
+        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF,+ELLIPSIS
         ...
-        '  FORM:DJVM [277] '
-        '    DIRM [64]         Document directory (indirect, 5 files 4 pages)'
-        '      p0001.djvu -> p0001.djvu'
+        '  FORM:DJVM [...] '
+        '    DIRM [...] ... Document directory (indirect, 7 files 6 pages)'
         '      shared_anno.iff -> shared_anno.iff'
+        '      p0001.djvu -> p0001.djvu'
         '      p0002.djvu -> p0002.djvu'
         '      p0003.djvu -> p0003.djvu'
         '      p0004.djvu -> p0004.djvu'
-        '    NAVM [193] '
+        '      p0005.djvu -> p0005.djvu'
+        '      p0006.djvu -> p0006.djvu'
+        '    NAVM [...] '
         >>> rmtree(tmpdir)
 
         >>> tmpdir = mkdtemp()
@@ -302,12 +313,12 @@ class DocumentTest:
         >>> stdout, stderr = Popen(['djvudump', tmpfname], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
+        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF,+ELLIPSIS
         ...
-        '  FORM:DJVM [57] '
-        '    DIRM [45]         Document directory (indirect, 2 files 1 pages)'
-        '      p0001.djvu -> p0001.djvu'
+        '  FORM:DJVM [...] '
+        '    DIRM [...] ... Document directory (indirect, 2 files 1 pages)'
         '      shared_anno.iff -> shared_anno.iff'
+        '      p0001.djvu -> p0001.djvu'
         >>> rmtree(tmpdir)
         '''
 
@@ -315,7 +326,7 @@ class DocumentTest:
         r'''
         >>> import sys
         >>> context = Context()
-        >>> document = context.new_document(FileUri(pwd + '/t-alpha.djvu'))
+        >>> document = context.new_document(FileUri(images + 'test0.djvu'))
         >>> message = document.get_message()
         >>> type(message) == DocInfoMessage
         True
@@ -328,9 +339,9 @@ class DocumentTest:
         >>> document.type == DOCUMENT_TYPE_BUNDLED
         True
         >>> len(document.pages)
-        4
+        6
         >>> len(document.files)
-        5
+        7
 
         >>> from tempfile import NamedTemporaryFile
         >>> from subprocess import Popen, PIPE
@@ -346,11 +357,11 @@ class DocumentTest:
         >>> stderr
         ''
         >>> stdout
-        '\x0c\x0c\x0c'
+        '\x0c\x0c\x0c\x0c\x0c'
         >>> del tmp
 
         >>> tmp = NamedTemporaryFile()
-        >>> job = document.export_ps(tmp.file, pages = (1,), text = True)
+        >>> job = document.export_ps(tmp.file, pages = (2,), text = True)
         >>> type(job) == SaveJob
         True
         >>> job.is_done, job.is_error
@@ -361,11 +372,12 @@ class DocumentTest:
         >>> for line in stdout.splitlines(): print repr(line.replace('  ', ' ')) # doctest: +REPORT_NDIFF
         ''
         ''
-        ' 2 White background, colorful foreground red green blue cyan magenta yellow'
+        ' 3C'
+        ' red green blue cyan magenta yellow'
         ''
         ' red green blue cyan magenta yellow'
         ''
-        ' 2'
+        ' 3'
         >>> del tmp
         '''
 
@@ -434,7 +446,7 @@ class PageJobTest:
     def test_decode():
         r'''
         >>> context = Context()
-        >>> document = context.new_document(FileUri(pwd + '/t-gamma.djvu'))
+        >>> document = context.new_document(FileUri(images + 'test1.djvu'))
         >>> message = document.get_message()
         >>> type(message) == DocInfoMessage
         True
@@ -523,7 +535,7 @@ class ThumbnailTest:
 
     r'''
     >>> context = Context()
-    >>> document = context.new_document(FileUri(pwd + '/t-gamma.djvu'))
+    >>> document = context.new_document(FileUri(images + 'test1.djvu'))
     >>> message = document.get_message()
     >>> type(message) == DocInfoMessage
     True
@@ -664,7 +676,7 @@ class StreamTest:
     NotAvailable
 
     >>> try:
-    ...   message.stream.write(file(pwd + '/t-gamma.djvu').read())
+    ...   message.stream.write(file(images + 'test1.djvu').read())
     ... finally:
     ...   message.stream.close()
     >>> message.stream.write('eggs')
@@ -697,7 +709,7 @@ class StreamTest:
 class SexprTest:
     r'''
     >>> context = Context()
-    >>> document = context.new_document(FileUri(pwd + '/t-alpha.djvu'))
+    >>> document = context.new_document(FileUri(images + 'test0.djvu'))
     >>> type(document) == Document
     True
     >>> message = document.get_message()
@@ -721,7 +733,7 @@ class SexprTest:
     >>> anno.mode
     >>> anno.zoom
     >>> anno.sexpr
-    Expression(((Symbol('metadata'), (Symbol('Author'), 'Jakub Wilk'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Producer'), 'pdfTeX-1.40.3\npdf2djvu 0.4.10 (DjVuLibre 3.5.21, poppler 0.6.4, GraphicsMagick++ 1.1.11)'), (Symbol('CreationDate'), '2008-03-02 23:56:13+01:00'), (Symbol('ModDate'), '2008-03-02 23:56:13+01:00')),))
+    Expression(((Symbol('metadata'), (Symbol('ModDate'), '2010-06-24 01:17:29+02:00'), (Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'), (Symbol('Producer'), 'pdfTeX-1.40.10'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n')))
 
     >>> metadata = anno.metadata
     >>> type(metadata) == Metadata
@@ -733,18 +745,18 @@ class SexprTest:
     >>> sorted(metadata.iterkeys()) == sorted(metadata.keys())
     True
     >>> sorted(metadata.values())
-    [u'2008-03-02 23:56:13+01:00', u'2008-03-02 23:56:13+01:00', u'Jakub Wilk', u'LaTeX with hyperref package', u'pdfTeX-1.40.3\npdf2djvu 0.4.10 (DjVuLibre 3.5.21, poppler 0.6.4, GraphicsMagick++ 1.1.11)']
+    [u'2010-06-24 01:17:29+02:00', u'2010-06-24 01:17:29+02:00', u'Jakub Wilk', u'LaTeX with hyperref package', u'pdfTeX-1.40.10']
     >>> sorted(metadata.itervalues()) == sorted(metadata.values())
     True
     >>> sorted(metadata.items())
-    [(u'Author', u'Jakub Wilk'), (u'CreationDate', u'2008-03-02 23:56:13+01:00'), (u'Creator', u'LaTeX with hyperref package'), (u'ModDate', u'2008-03-02 23:56:13+01:00'), (u'Producer', u'pdfTeX-1.40.3\npdf2djvu 0.4.10 (DjVuLibre 3.5.21, poppler 0.6.4, GraphicsMagick++ 1.1.11)')]
+    [(u'Author', u'Jakub Wilk'), (u'CreationDate', u'2010-06-24 01:17:29+02:00'), (u'Creator', u'LaTeX with hyperref package'), (u'ModDate', u'2010-06-24 01:17:29+02:00'), (u'Producer', u'pdfTeX-1.40.10')]
     >>> sorted(metadata.iteritems()) == sorted(metadata.items())
     True
     >>> k = 'ModDate'
     >>> k in metadata
     True
     >>> metadata[k]
-    u'2008-03-02 23:56:13+01:00'
+    u'2010-06-24 01:17:29+02:00'
     >>> metadata['eggs']
     Traceback (most recent call last):
     ...
@@ -763,9 +775,9 @@ class SexprTest:
     True
     >>> outline.wait()
     >>> outline.sexpr
-    Expression((Symbol('bookmarks'), ('Black and white', '#p0001.djvu', ('Different font sizes', '#p0001.djvu'), ('Equation', '#p0001.djvu')), ('White background, colorful foreground', '#p0002.djvu'), ('Colorful solid background, black foreground', '#p0003.djvu'), ('Background with image, black foreground', '#p0004.djvu', ('Hyperlinks', '#p0004.djvu', ('Reference', '#p0004.djvu'), ('HTTP URI', '#p0004.djvu')), ('Photographic image', '#p0004.djvu'))))
+    Expression((Symbol('bookmarks'), ('A', '#p0001.djvu'), ('B', '#p0002.djvu'), ('C', '#p0003.djvu'), ('D', '#p0004.djvu'), ('E', '#p0005.djvu', ('E1', '#p0005.djvu'), ('E2', '#p0005.djvu')), ('F', '#p0006.djvu')))
 
-    >>> page = document.pages[3]
+    >>> page = document.pages[4]
     >>> anno = page.annotations
     >>> type(anno) == PageAnnotations
     True
@@ -776,7 +788,7 @@ class SexprTest:
     >>> anno.mode
     >>> anno.zoom
     >>> anno.sexpr
-    Expression(((Symbol('metadata'), (Symbol('Author'), 'Jakub Wilk'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Producer'), 'pdfTeX-1.40.3\npdf2djvu 0.4.10 (DjVuLibre 3.5.21, poppler 0.6.4, GraphicsMagick++ 1.1.11)'), (Symbol('CreationDate'), '2008-03-02 23:56:13+01:00'), (Symbol('ModDate'), '2008-03-02 23:56:13+01:00')), (Symbol('maparea'), '#p0001.djvu', '', (Symbol('rect'), 524, 2413, 33, 41), (Symbol('border'), Symbol('#ff0000'))), (Symbol('maparea'), 'http://jw209508.hopto.org/', '', (Symbol('rect'), 458, 2180, 675, 54), (Symbol('border'), Symbol('#00ffff')))))
+    Expression(((Symbol('metadata'), (Symbol('ModDate'), '2010-06-24 01:17:29+02:00'), (Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'), (Symbol('Producer'), 'pdfTeX-1.40.10'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n'), (Symbol('maparea'), '#p0002.djvu', '', (Symbol('rect'), 587, 2346, 60, 79), (Symbol('border'), Symbol('#ff0000'))), (Symbol('maparea'), 'http://jwilk.net/', '', (Symbol('rect'), 458, 1910, 1061, 93), (Symbol('border'), Symbol('#00ffff')))))
 
     >>> page_metadata = anno.metadata
     >>> type(page_metadata) == Metadata
@@ -792,7 +804,7 @@ class SexprTest:
     >>> len(hyperlinks)
     2
     >>> list(hyperlinks)
-    [Expression((Symbol('maparea'), '#p0001.djvu', '', (Symbol('rect'), 524, 2413, 33, 41), (Symbol('border'), Symbol('#ff0000')))), Expression((Symbol('maparea'), 'http://jw209508.hopto.org/', '', (Symbol('rect'), 458, 2180, 675, 54), (Symbol('border'), Symbol('#00ffff'))))]
+    [Expression((Symbol('maparea'), '#p0002.djvu', '', (Symbol('rect'), 587, 2346, 60, 79), (Symbol('border'), Symbol('#ff0000')))), Expression((Symbol('maparea'), 'http://jwilk.net/', '', (Symbol('rect'), 458, 1910, 1061, 93), (Symbol('border'), Symbol('#00ffff'))))]
 
     >>> text = page.text
     >>> type(text) == PageText
@@ -803,13 +815,13 @@ class SexprTest:
     >>> text_s_detail[0] == text_s_detail[1] == text_s_detail[2] == text_s_detail[3]
     True
     >>> text_s_detail[0]
-    Expression((Symbol('page'), 0, 0, 2550, 3300, '4 Background with image, black foreground \n4.1 Hyperlinks \n4.1.1 Reference \n\xe2\x86\x921 \n4.1.2 HTTP URI \nhttp://jw209508.hopto.org/ \n4.2 Photographic image \n4 \n'))
+    Expression((Symbol('page'), 0, 0, 2550, 3300, '5E \n5.1 E1 \n\xe2\x86\x921 \n5.2 E2 \nhttp://jwilk.net/ \n5 \n'))
     >>> text_s_detail[4]
-    Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 463, 2712, 2059, 2778, '4 Background with image, black foreground '), (Symbol('line'), 463, 2590, 933, 2643, '4.1 Hyperlinks '), (Symbol('line'), 463, 2509, 871, 2546, '4.1.1 Reference '), (Symbol('line'), 463, 2418, 547, 2450, '\xe2\x86\x921 '), (Symbol('line'), 463, 2287, 915, 2322, '4.1.2 HTTP URI '), (Symbol('line'), 462, 2184, 1124, 2229, 'http://jw209508.hopto.org/ '), (Symbol('line'), 463, 2039, 1199, 2092, '4.2 Photographic image '), (Symbol('line'), 1260, 375, 1281, 408, '4 ')))
+    Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 462, 2726, 615, 2775, '5E '), (Symbol('line'), 462, 2544, 663, 2586, '5.1 E1 '), (Symbol('line'), 466, 2349, 631, 2421, '\xe2\x86\x921 '), (Symbol('line'), 462, 2124, 665, 2166, '5.2 E2 '), (Symbol('line'), 465, 1911, 1504, 2000, 'http://jwilk.net/ '), (Symbol('line'), 1259, 374, 1280, 409, '5 ')))
     >>> text_s_detail[5] == text_s_detail[6] == text_s_detail[7] == text_s
     True
     >>> text_s
-    Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 463, 2712, 2059, 2778, (Symbol('word'), 463, 2727, 499, 2774, '4'), (Symbol('word'), 584, 2712, 1001, 2777, 'Background'), (Symbol('word'), 1031, 2727, 1185, 2777, 'with'), (Symbol('word'), 1217, 2712, 1437, 2777, 'image,'), (Symbol('word'), 1472, 2726, 1652, 2777, 'black'), (Symbol('word'), 1681, 2712, 2059, 2778, 'foreground')), (Symbol('line'), 463, 2590, 933, 2643, (Symbol('word'), 463, 2602, 541, 2640, '4.1'), (Symbol('word'), 616, 2590, 933, 2643, 'Hyperlinks')), (Symbol('line'), 463, 2509, 871, 2546, (Symbol('word'), 463, 2510, 572, 2543, '4.1.1'), (Symbol('word'), 634, 2509, 871, 2546, 'Reference')), (Symbol('line'), 463, 2418, 547, 2450, (Symbol('word'), 463, 2418, 547, 2450, '\xe2\x86\x921')), (Symbol('line'), 463, 2287, 915, 2322, (Symbol('word'), 463, 2288, 573, 2321, '4.1.2'), (Symbol('word'), 634, 2288, 789, 2322, 'HTTP'), (Symbol('word'), 812, 2287, 915, 2322, 'URI')), (Symbol('line'), 462, 2184, 1124, 2229, (Symbol('word'), 462, 2184, 1124, 2229, 'http://jw209508.hopto.org/')), (Symbol('line'), 463, 2039, 1199, 2092, (Symbol('word'), 463, 2051, 543, 2089, '4.2'), (Symbol('word'), 616, 2039, 1004, 2092, 'Photographic'), (Symbol('word'), 1034, 2039, 1199, 2091, 'image')), (Symbol('line'), 1260, 375, 1281, 408, (Symbol('word'), 1260, 375, 1281, 408, '4'))))
+    Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 462, 2726, 615, 2775, (Symbol('word'), 462, 2726, 615, 2775, '5E')), (Symbol('line'), 462, 2544, 663, 2586, (Symbol('word'), 462, 2544, 533, 2586, '5.1'), (Symbol('word'), 596, 2545, 663, 2586, 'E1')), (Symbol('line'), 466, 2349, 631, 2421, (Symbol('word'), 466, 2349, 631, 2421, '\xe2\x86\x921')), (Symbol('line'), 462, 2124, 665, 2166, (Symbol('word'), 462, 2124, 535, 2166, '5.2'), (Symbol('word'), 596, 2125, 665, 2166, 'E2')), (Symbol('line'), 465, 1911, 1504, 2000, (Symbol('word'), 465, 1911, 1504, 2000, 'http://jwilk.net/')), (Symbol('line'), 1259, 374, 1280, 409, (Symbol('word'), 1259, 374, 1280, 409, '5'))))
     >>> PageText(page, 'eggs')
     Traceback (most recent call last):
     ...
