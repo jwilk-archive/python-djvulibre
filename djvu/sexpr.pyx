@@ -243,6 +243,8 @@ def Symbol__new__(cls, name):
     Symbol(name) -> a symbol
     '''
     self = None
+    if is_unicode(name):
+        name = encode_utf8(name)
     try:
         if cls is _Symbol_:
             self = symbol_dict[name]
