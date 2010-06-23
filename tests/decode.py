@@ -12,8 +12,11 @@
 
 from djvu.decode import *
 from djvu.sexpr import *
+
+import os
 import unittest
-import doctest
+
+pwd = os.path.dirname(__file__)
 
 class ContextTest(unittest.TestCase):
 
@@ -59,7 +62,7 @@ class DocumentTest:
     def test_new_document(self):
         '''
         >>> context = Context()
-        >>> document = context.new_document(FileUri('t-gamma.djvu'))
+        >>> document = context.new_document(FileUri(pwd + '/t-gamma.djvu'))
         >>> type(document) == Document
         True
         >>> message = document.get_message()
@@ -175,7 +178,7 @@ class DocumentTest:
     def test_save(self):
         r'''
         >>> context = Context()
-        >>> document = context.new_document(FileUri('t-alpha.djvu'))
+        >>> document = context.new_document(FileUri(pwd + '/t-alpha.djvu'))
         >>> message = document.get_message()
         >>> type(message) == DocInfoMessage
         True
@@ -203,7 +206,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
-        >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+        >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
         >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
@@ -251,7 +254,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
-        >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+        >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
         >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
@@ -274,7 +277,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
-        >>> stdout, stderr = Popen(['djvudump', tmpfname], stdout = PIPE, stderr = PIPE).communicate()
+        >>> stdout, stderr = Popen(['djvudump', tmpfname], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
         >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
@@ -296,7 +299,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
-        >>> stdout, stderr = Popen(['djvudump', tmpfname], stdout = PIPE, stderr = PIPE).communicate()
+        >>> stdout, stderr = Popen(['djvudump', tmpfname], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
         >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
@@ -312,7 +315,7 @@ class DocumentTest:
         r'''
         >>> import sys
         >>> context = Context()
-        >>> document = context.new_document(FileUri('t-alpha.djvu'))
+        >>> document = context.new_document(FileUri(pwd + '/t-alpha.djvu'))
         >>> message = document.get_message()
         >>> type(message) == DocInfoMessage
         True
@@ -339,7 +342,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
-        >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+        >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE, env={}).communicate()
         >>> stderr
         ''
         >>> stdout
@@ -352,7 +355,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
-        >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE).communicate()
+        >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE, env={}).communicate()
         >>> stderr
         ''
         >>> for line in stdout.splitlines(): print repr(line.replace('  ', ' ')) # doctest: +REPORT_NDIFF
@@ -431,7 +434,7 @@ class PageJobTest:
     def test_decode():
         r'''
         >>> context = Context()
-        >>> document = context.new_document(FileUri('t-gamma.djvu'))
+        >>> document = context.new_document(FileUri(pwd + '/t-gamma.djvu'))
         >>> message = document.get_message()
         >>> type(message) == DocInfoMessage
         True
@@ -520,7 +523,7 @@ class ThumbnailTest:
 
     r'''
     >>> context = Context()
-    >>> document = context.new_document(FileUri('t-gamma.djvu'))
+    >>> document = context.new_document(FileUri(pwd + '/t-gamma.djvu'))
     >>> message = document.get_message()
     >>> type(message) == DocInfoMessage
     True
@@ -661,7 +664,7 @@ class StreamTest:
     NotAvailable
 
     >>> try:
-    ...   message.stream.write(file('t-gamma.djvu').read())
+    ...   message.stream.write(file(pwd + '/t-gamma.djvu').read())
     ... finally:
     ...   message.stream.close()
     >>> message.stream.write('eggs')
@@ -694,7 +697,7 @@ class StreamTest:
 class SexprTest:
     r'''
     >>> context = Context()
-    >>> document = context.new_document(FileUri('t-alpha.djvu'))
+    >>> document = context.new_document(FileUri(pwd + '/t-alpha.djvu'))
     >>> type(document) == Document
     True
     >>> message = document.get_message()
@@ -816,16 +819,5 @@ class SexprTest:
     ...
     ValueError: details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL
     '''
-
-if __name__ == '__main__':
-    import os, sys
-    os.chdir(sys.path[0])
-    os.putenv('LC_ALL', 'C')
-    del os, sys
-    doctest.testmod(verbose = False)
-    doctest.master.summarize(verbose = True)
-    print
-    unittest.main()
-    print; print
 
 # vim:ts=4 sw=4 et
