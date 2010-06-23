@@ -392,10 +392,4 @@ class ExpressionWriter:
     '(eggs ham)'
     '''
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod(verbose = False)
-    doctest.master.summarize(verbose = True)
-    print; print
-
 # vim:ts=4 sw=4 et
