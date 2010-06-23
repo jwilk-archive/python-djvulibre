@@ -10,6 +10,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
+import unittest
+
 from djvu.sexpr import *
 
 class IntExpressionTest:
@@ -65,26 +67,19 @@ class IntExpressionTest:
 
     '''
 
-class SymbolTest:
-    '''
-    >>> x = Symbol('eggs')
-    >>> x
-    Symbol('eggs')
-    >>> type(x)
-    <class 'djvu.sexpr.Symbol'>
+class SymbolTest(unittest.TestCase):
 
-    >>> str(x)
-    'eggs'
+    def test_symbols(self):
 
-    >>> x == Symbol('eggs')
-    True
-    >>> x is Symbol('eggs')
-    True
-    >>> x == 'eggs'
-    False
-    >>> hash(x) == hash('eggs')
-    True
-    '''
+        for name in 'eggs', u'ветчина':
+            symbol = Symbol(name)
+            self.assertEqual(type(symbol), Symbol)
+            self.assertEqual(symbol, Symbol(name))
+            self.assert_(symbol is Symbol(name))
+            self.assertEqual(str(symbol), name.encode('UTF-8'))
+            self.assertNotEqual(symbol, name)
+            self.assertNotEqual(symbol, name.encode('UTF-8'))
+            self.assertEqual(hash(symbol), hash(name.encode('UTF-8')))
 
 class SymbolExpressionTest:
     '''
