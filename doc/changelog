@@ -1,8 +1,8 @@
-python-djvulibre (0.1.18) UNRELEASED; urgency=low
+python-djvulibre (0.1.18) unstable; urgency=low
 
   * Fix handling of non-ASCII metadata.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Fri, 25 Jun 2010 23:22:08 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 25 Jun 2010 23:32:05 +0200
 
 python-djvulibre (0.1.17) unstable; urgency=low
 
