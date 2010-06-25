@@ -205,6 +205,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
+        >>> tmp.flush()
         >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
@@ -262,6 +263,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
+        >>> tmp.flush()
         >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout=PIPE, stderr=PIPE, env={}).communicate()
         >>> stderr
         ''
@@ -352,11 +354,12 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
+        >>> tmp.flush()
         >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE, env={}).communicate()
         >>> stderr
         ''
         >>> stdout
-        '\x0c\x0c\x0c\x0c\x0c'
+        '\x0c\x0c\x0c\x0c\x0c\x0c'
         >>> del tmp
 
         >>> tmp = NamedTemporaryFile()
@@ -365,6 +368,7 @@ class DocumentTest:
         True
         >>> job.is_done, job.is_error
         (True, False)
+        >>> tmp.flush()
         >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE, env={}).communicate()
         >>> stderr
         ''
@@ -376,7 +380,7 @@ class DocumentTest:
         ''
         ' red green blue cyan magenta yellow'
         ''
-        ' 3'
+        ' 3\x0c'
         >>> del tmp
         '''
 
