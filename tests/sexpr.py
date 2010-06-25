@@ -10,7 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
-import unittest
+from nose.tools import *
 
 from djvu.sexpr import *
 
@@ -67,20 +67,18 @@ class IntExpressionTest:
 
     '''
 
-class SymbolTest(unittest.TestCase):
+def test_symbols():
 
-    def test_symbols(self):
-
-        for name in 'eggs', u'ветчина':
-            symbol = Symbol(name)
-            self.assertEqual(type(symbol), Symbol)
-            self.assertEqual(symbol, Symbol(name))
-            self.assert_(symbol is Symbol(name))
-            self.assertEqual(str(symbol), name.encode('UTF-8'))
-            self.assertEqual(unicode(symbol), name)
-            self.assertNotEqual(symbol, name)
-            self.assertNotEqual(symbol, name.encode('UTF-8'))
-            self.assertEqual(hash(symbol), hash(name.encode('UTF-8')))
+    for name in 'eggs', u'ветчина':
+        symbol = Symbol(name)
+        assert_equal(type(symbol), Symbol)
+        assert_equal(symbol, Symbol(name))
+        assert symbol is Symbol(name)
+        assert_equal(str(symbol), name.encode('UTF-8'))
+        assert_equal(unicode(symbol), name)
+        assert_not_equal(symbol, name)
+        assert_not_equal(symbol, name.encode('UTF-8'))
+        assert_equal(hash(symbol), hash(name.encode('UTF-8')))
 
 class SymbolExpressionTest:
     '''

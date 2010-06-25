@@ -10,30 +10,29 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
+from nose.tools import *
+
 from djvu.decode import *
 from djvu.sexpr import *
 
 import os
-import unittest
 
 images = os.path.join(os.path.dirname(__file__), 'images', '')
 
-class ContextTest(unittest.TestCase):
+def test_context_cache():
 
-    def test_cache(self):
+    def set_cache_size(n):
+        context.cache_size = n
 
-        def set_cache_size(n):
-            context.cache_size = n
-
-        context = Context()
-        self.assertEqual(context.cache_size, 10 << 20)
-        for n in -100, 0, 1 << 32:
-            self.assertRaises(ValueError, set_cache_size, n)
-        self.assertRaises(ValueError, set_cache_size, 0)
-        for n in 1, 100, 1 << 10, 1 << 20, (1 << 32) -1:
-            set_cache_size(n)
-            self.assertEqual(context.cache_size, n)
-        context.clear_cache()
+    context = Context()
+    assert_equal(context.cache_size, 10 << 20)
+    for n in -100, 0, 1 << 32:
+        assert_raises(ValueError, set_cache_size, n)
+    assert_raises(ValueError, set_cache_size, 0)
+    for n in 1, 100, 1 << 10, 1 << 20, (1 << 32) -1:
+        set_cache_size(n)
+        assert_equal(context.cache_size, n)
+    context.clear_cache()
 
 class DocumentTest:
 
