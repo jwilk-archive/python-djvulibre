@@ -3185,7 +3185,7 @@ cdef class Metadata:
             current = all
             keys = []
             while current[0]:
-                list_append(keys, unicode(wrap_sexpr(annotations._document, current[0])()))
+                list_append(keys, unicode(wrap_sexpr(annotations._document, current[0])().value))
                 current = current + 1
             self._keys = frozenset(keys)
         finally:
