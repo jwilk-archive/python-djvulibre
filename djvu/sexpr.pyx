@@ -238,6 +238,9 @@ cdef class BaseSymbol:
     def __str__(self):
         return self.value
 
+    def __unicode__(self):
+        return self.value.decode('UTF-8')
+
 def Symbol__new__(cls, name):
     '''
     Symbol(name) -> a symbol

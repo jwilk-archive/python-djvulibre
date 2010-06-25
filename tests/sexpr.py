@@ -77,6 +77,7 @@ class SymbolTest(unittest.TestCase):
             self.assertEqual(symbol, Symbol(name))
             self.assert_(symbol is Symbol(name))
             self.assertEqual(str(symbol), name.encode('UTF-8'))
+            self.assertEqual(unicode(symbol), name)
             self.assertNotEqual(symbol, name)
             self.assertNotEqual(symbol, name.encode('UTF-8'))
             self.assertEqual(hash(symbol), hash(name.encode('UTF-8')))
