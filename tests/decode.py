@@ -16,8 +16,26 @@ from djvu.decode import *
 from djvu.sexpr import *
 
 import os
+import tempfile
+import subprocess
 
 images = os.path.join(os.path.dirname(__file__), 'images', '')
+
+def create_djvu(commands='', sexpr=''):
+    if sexpr:
+        commands += '\nset-ant\n%s\n.\n' % sexpr
+    file = tempfile.NamedTemporaryFile()
+    file = open('test.djvu', 'w')
+    file.seek(0)
+    file.write('AT&TFORM\0\0\0"DJVUINFO\0\0\0\n\0\1\0\1\x18\0,\1\x16\1Sjbz\0\0\0\x04\xbcs\x1b\xd7')
+    file.flush()
+    djvused = subprocess.Popen(['djvused', '-s', file.name], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, env={})
+    djvused.stdin.write(commands)
+    djvused.stdin.close()
+    assert_equal(djvused.wait(), 0)
+    assert_equal(djvused.stdout.read(), '')
+    assert_equal(djvused.stderr.read(), '')
+    return file
 
 def test_context_cache():
 
@@ -709,6 +727,35 @@ class StreamTest:
     Expression(())
     '''
 
+def test_metadata():
+
+    model_metadata = {
+        'English': 'eggs',
+        u'Русский': u'яйца',
+    }
+    test_script = 'set-meta\n%s\n.\n' % '\n'.join('|%s| %s' % (k, v) for k, v in model_metadata.iteritems()).encode('UTF-8')
+    test_file = create_djvu(test_script)
+    context = Context()
+    document = context.new_document(FileUri(test_file.name))
+    message = document.get_message()
+    assert_equal(type(message), DocInfoMessage)
+    annotations = document.annotations
+    assert_equal(type(annotations), DocumentAnnotations)
+    annotations.wait()
+    metadata = annotations.metadata
+    assert_equal(type(metadata), Metadata)
+    assert_equal(len(metadata), len(model_metadata))
+    assert_equal(sorted(metadata), sorted(model_metadata))
+    assert_equal(sorted(metadata.iterkeys()), sorted(model_metadata.iterkeys()))
+    assert_equal(sorted(metadata.keys()), sorted(model_metadata.keys()))
+    assert_equal(sorted(metadata.values()), sorted(model_metadata.values()))
+    assert_equal(sorted(metadata.items()), sorted(model_metadata.items()))
+    for k in metadata:
+        assert_equal(type(k), unicode)
+        assert_equal(type(metadata[k]), unicode)
+    for k in None, 42, '+'.join(model_metadata):
+        assert_raises(KeyError, lambda: metadata[k])
+
 class SexprTest:
     r'''
     >>> context = Context()
@@ -737,33 +784,6 @@ class SexprTest:
     >>> anno.zoom
     >>> anno.sexpr
     Expression(((Symbol('metadata'), (Symbol('ModDate'), '2010-06-24 01:17:29+02:00'), (Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'), (Symbol('Producer'), 'pdfTeX-1.40.10'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n')))
-
-    >>> metadata = anno.metadata
-    >>> type(metadata) == Metadata
-    True
-    >>> len(metadata)
-    5
-    >>> sorted(metadata.keys())
-    [u'Author', u'CreationDate', u'Creator', u'ModDate', u'Producer']
-    >>> sorted(metadata.iterkeys()) == sorted(metadata.keys())
-    True
-    >>> sorted(metadata.values())
-    [u'2010-06-24 01:17:29+02:00', u'2010-06-24 01:17:29+02:00', u'Jakub Wilk', u'LaTeX with hyperref package', u'pdfTeX-1.40.10']
-    >>> sorted(metadata.itervalues()) == sorted(metadata.values())
-    True
-    >>> sorted(metadata.items())
-    [(u'Author', u'Jakub Wilk'), (u'CreationDate', u'2010-06-24 01:17:29+02:00'), (u'Creator', u'LaTeX with hyperref package'), (u'ModDate', u'2010-06-24 01:17:29+02:00'), (u'Producer', u'pdfTeX-1.40.10')]
-    >>> sorted(metadata.iteritems()) == sorted(metadata.items())
-    True
-    >>> k = 'ModDate'
-    >>> k in metadata
-    True
-    >>> metadata[k]
-    u'2010-06-24 01:17:29+02:00'
-    >>> metadata['eggs']
-    Traceback (most recent call last):
-    ...
-    KeyError: 'eggs'
 
     >>> hyperlinks = anno.hyperlinks
     >>> type(hyperlinks) == Hyperlinks
