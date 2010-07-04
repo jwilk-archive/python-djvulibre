@@ -16,6 +16,7 @@ from djvu.decode import *
 from djvu.sexpr import *
 
 import os
+import sys
 import tempfile
 import subprocess
 
@@ -44,12 +45,14 @@ def test_context_cache():
 
     context = Context()
     assert_equal(context.cache_size, 10 << 20)
-    for n in -100, 0, 1 << 32:
+    for n in -100, 0, (1 + sys.maxint) * 2:
         assert_raises(ValueError, set_cache_size, n)
     assert_raises(ValueError, set_cache_size, 0)
-    for n in 1, 100, 1 << 10, 1 << 20, (1 << 32) -1:
+    n = 1
+    while n < 3 * sys.maxint:
         set_cache_size(n)
         assert_equal(context.cache_size, n)
+        n = (n + 1) * 2 - 1
     context.clear_cache()
 
 class DocumentTest:
@@ -529,10 +532,12 @@ class PageJobTest:
         ...
         ValueError: row_alignment must be a positive integer
 
-        >>> page_job.render(RENDER_COLOR, (0, 0, 100000, 100000), (0, 0, 100000, 100000), PixelFormatRgb(), 8)
+        >>> x = int((sys.maxint//2) ** 0.5)
+        >>> page_job.render(RENDER_COLOR, (0, 0, x, x), (0, 0, x, x), PixelFormatRgb(), 8) #doctest: +IGNORE_EXCEPTION_DETAIL
         Traceback (most recent call last):
         ...
         MemoryError: Unable to allocate 30000000000 bytes for an image memory
+        >>> del x
 
         >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1)
         '\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8'
