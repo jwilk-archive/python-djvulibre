@@ -48,7 +48,6 @@ from subprocess import Popen, PIPE
 EXT_MODULES = ('decode', 'sexpr')
 
 def get_version():
-    import os.path
     from re import match
     package_dir = os.path.dirname(os.path.realpath(os.path.splitext(__file__)[0] + '.py'))
     changelog = file(os.path.join(package_dir, 'doc/changelog'))
