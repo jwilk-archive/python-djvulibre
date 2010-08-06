@@ -17,7 +17,7 @@ import djvu.sexpr
 EMPTY_LIST = djvu.sexpr.Expression([])
 EMPTY_OUTLINE = djvu.sexpr.Expression([djvu.sexpr.Symbol('bookmarks')])
 
-METADATA_BIBTEX_KEYS = frozenset(map(djvu.sexpr.Symbol, '''\
+METADATA_BIBTEX_KEYS = frozenset(djvu.sexpr.Symbol(x) for x in '''\
 address
 annote
 author
@@ -41,10 +41,10 @@ series
 title
 type
 volume
-year'''.split()))
+year'''.split())
 # Retrieved from <http://www.ctan.org/get/biblio/bibtex/contrib/doc/btxdoc.pdf>
 
-METADATA_PDFINFO_KEYS = frozenset(map(djvu.sexpr.Symbol, '''\
+METADATA_PDFINFO_KEYS = frozenset(djvu.sexpr.Symbol(x) for x in '''\
 Author
 CreationDate
 Creator
@@ -53,7 +53,7 @@ ModDate
 Producer
 Subject
 Title
-Trapped'''.split()))
+Trapped'''.split())
 # Retrived from the PDF specification
 
 METADATA_KEYS = METADATA_BIBTEX_KEYS | METADATA_PDFINFO_KEYS
