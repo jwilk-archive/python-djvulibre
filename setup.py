@@ -94,7 +94,7 @@ if get_default_compiler() == 'msvc':
     # 3.5.22 were compiled with Microsoft Visual C++ 9.0.
 
     def get_djvulibre_path():
-        path = os.path.join(os.getenv('') or r'C:\Program Files', 'DjVuZone', 'DjVuLibre')
+        path = os.path.join(r'C:\Program Files', 'DjVuZone', 'DjVuLibre')
         for ext in 'lib', 'dll':
             if not os.path.exists(os.path.join(path, 'libdjvulibre.' + ext)):
                 raise RuntimeError('DjVuLibre library not found')
