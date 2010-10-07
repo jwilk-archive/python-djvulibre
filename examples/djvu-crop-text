@@ -1,0 +1,105 @@
+#!/usr/bin/python
+# encoding=UTF-8
+# Copyright © 2008, 2010 Jakub Wilk <jwilk@jwilk.net>
+#
+# This package is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 dated June, 1991.
+#
+# This package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+
+import argparse
+import sys
+import subprocess
+
+import djvu.sexpr
+import djvu.decode
+import djvu.const
+
+EMPTY_TEXT_SEXPR = djvu.sexpr.Expression([djvu.const.TEXT_ZONE_PAGE, 0, 0, 0, 0, ''])
+
+class ArgumentParser(argparse.ArgumentParser):
+
+    def __init__(self):
+        argparse.ArgumentParser.__init__(self)
+        self.add_argument('-p', '--pages', dest='pages', action='store', help='pages to process')
+        self.add_argument('path', metavar='FILE', action='store', help='DjVu file to process')
+
+    def parse_args(self):
+        options = argparse.ArgumentParser.parse_args(self)
+        try:
+            if options.pages is not None:
+                pages = []
+                for range in options.pages.split(','):
+                    if '-' in range:
+                        x, y = map(int, options.pages.split('-', 1))
+                        pages += xrange(x, y + 1)
+                    else:
+                        pages += int(range),
+                options.pages = pages
+        except (TypeError, ValueError):
+            self.error('Unable to parse page numbers')
+        return options
+
+def crop_text(sexpr, width, height):
+    if isinstance(sexpr, djvu.sexpr.ListExpression) and len(sexpr) >= 5:
+        tp = sexpr[0]
+        x0, y0, x1, y1 = (sexpr[i].value for i in xrange(1, 5))
+        if x1 < 0 or y1 < 0 or x0 >= width or y0 >= height:
+            return
+        x0 = max(0, x0)
+        y0 = max(0, y0)
+        x1 = min(x1, width)
+        y1 = min(y1, height)
+        children = (crop_text(child, width, height) for child in sexpr[5:])
+        children = [child for child in children if child is not None]
+        if not children:
+            return
+        return djvu.sexpr.Expression([tp, x0, y0, x1, y1] + children)
+    else:
+        return sexpr
+
+class Context(djvu.decode.Context):
+
+    def handle_message(self, message):
+        if isinstance(message, djvu.decode.ErrorMessage):
+            print >>sys.stderr, message
+            sys.exit(1)
+
+    def process_page(self, page):
+        print >>sys.stderr, '- Page #%d' % (page.n + 1)
+        page.get_info()
+        text = crop_text(page.text.sexpr, page.width, page.height)
+        if not text:
+            text = EMPTY_TEXT_SEXPR
+        return text
+
+    def process(self, path, pages = None):
+        print >>sys.stderr, 'Processing %r:' % path
+        document = self.new_document(djvu.decode.FileURI(path))
+        document.decoding_job.wait()
+        sed_file = sys.stdout
+        if pages is None:
+            pages = iter(document.pages)
+        else:
+            pages = (document.pages[i-1] for i in pages)
+        sed_file.write('remove-txt\n')
+        for page in pages:
+            sed_file.write('select %d\n' % (page.n + 1))
+            sed_file.write('set-txt\n')
+            self.process_page(page).print_into(sed_file)
+            sed_file.write('\n.\n\n')
+
+def main():
+    parser = ArgumentParser()
+    options = parser.parse_args()
+    context = Context()
+    context.process(options.path, options.pages)
+
+if __name__ == '__main__':
+    main()
+
+# vim:ts=4 sw=4 et
