@@ -48,13 +48,9 @@ from subprocess import Popen, PIPE
 EXT_MODULES = ('decode', 'sexpr')
 
 def get_version():
-    from re import match
-    package_dir = os.path.dirname(os.path.realpath(os.path.splitext(__file__)[0] + '.py'))
-    changelog = file(os.path.join(package_dir, 'doc/changelog'))
+    changelog = file(os.path.join('doc', 'changelog'))
     try:
-        line = changelog.readline()
-        m = match('python-djvulibre [(]([0-9.]+)[)]', line)
-        return m.group(1)
+        return changelog.readline().split()[1].strip('()')
     finally:
         changelog.close()
 
