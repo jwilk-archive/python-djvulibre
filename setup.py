@@ -16,7 +16,7 @@
 `DjVu <http://djvu.org/>`_.
 '''
 
-classifiers = '''\
+classifiers = '''
 Development Status :: 4 - Beta
 Intended Audience :: Developers
 License :: OSI Approved :: GNU General Public License (GPL)
@@ -25,8 +25,8 @@ Programming Language :: Python
 Programming Language :: Python :: 2
 Topic :: Multimedia :: Graphics
 Topic :: Multimedia :: Graphics :: Graphics Conversion
-Topic :: Text Processing\
-'''.split('\n')
+Topic :: Text Processing
+'''.strip().split('\n')
 
 import os
 import sys
