@@ -189,6 +189,11 @@ cdef extern from 'libdjvu/ddjvuapi.h':
     cexpr_t* ddjvu_anno_get_metadata_keys(cexpr_t annotations) nogil
     char* ddjvu_anno_get_metadata(cexpr_t annotations, cexpr_t key) nogil
 
+cdef extern from 'unistd.h':
+    int dup(int)
+    FILE *fdopen(int, char*)
+    int fclose(FILE *)
+
 DDJVU_VERSION = ddjvu_code_get_version()
 
 FILE_TYPE_PAGE = 'P'
@@ -214,6 +219,52 @@ cdef object write_unraisable_exception(object cause):
         # It's worthless to try to recover.
         raise SystemExit
     sys.stderr.write('Unhandled exception in thread started by %r\n%s\n' % (cause, message))
+
+cdef class _FileWrapper:
+
+    cdef object _file
+    cdef FILE *cfile
+
+    def __cinit__(self, object file, object mode):
+        self._file = file
+        self.cfile = NULL
+        if not is_file(file):
+            raise TypeError('file must be a real file object')
+        IF PY3K:
+            fd = file_to_fd(file)
+            if fd == -1:
+                posix_error(OSError)
+            fd = dup(fd)
+            if fd == -1:
+                posix_error(OSError)
+            self.cfile = fdopen(fd, mode)
+            if self.cfile == NULL:
+                posix_error(OSError)
+        ELSE:
+            self.cfile = file_to_cfile(file)
+
+    cdef object close(self):
+        IF PY3K:
+            cdef int rc
+            if self.cfile == NULL:
+                return
+            rc = fclose(self.cfile)
+            self.cfile = NULL
+            if rc != 0:
+                posix_error(OSError)
+        ELSE:
+            if self._file is not None:
+                self._file.flush()
+                self._file = None
+                self.cfile = NULL
+
+    IF PY3K:
+        def __dealloc__(self):
+            cdef int rc
+            if self.cfile == NULL:
+                return
+            rc = fclose(self.cfile)
+            # XXX It's too late to handle errors.
 
 class NotAvailable(Exception):
     '''
@@ -836,7 +887,10 @@ cdef object pages_to_opt(object pages, int sort_uniq):
         if pages[i] < 0:
             raise ValueError('page number out of range')
         pages[i] = pages[i] + 1
-    return '--pages=' + (','.join(imap(str, pages)))
+    result = '--pages=' + (','.join(imap(str, pages)))
+    if is_unicode(result):
+        result = encode_utf8(result)
+    return result
 
 PRINT_ORIENTATION_AUTO = None
 PRINT_ORIENTATION_LANDSCAPE = 'landscape'
@@ -869,6 +923,14 @@ cdef class SaveJob(Job):
 
     def __cinit__(self, **kwargs):
         self._file = None
+
+    def wait(self):
+        Job.wait(self)
+        # Ensure that the underlying file is flushed.
+        # FIXME: In Python 3, the file might be never flushed if you don't use wait()!
+        if self._file is not None:
+            (<_FileWrapper> self._file).close()
+            self._file = None
 
 cdef class DocumentDecodingJob(Job):
 
@@ -1028,9 +1090,8 @@ cdef class Document:
         cdef FILE* output
         cdef Py_ssize_t i
         if indirect is None:
-            if not is_file(file):
-                raise TypeError('file must be a real file object')
-            output = file_to_cfile(file)
+            file_wrapper = _FileWrapper(file, <char*> "wb")
+            output = file_wrapper.cfile
         else:
             if file is not None:
                 raise TypeError('file must be None if indirect is specified')
@@ -1040,8 +1101,11 @@ cdef class Document:
             # but we'd like to spot the DjVuLibre bug
             open(indirect, 'wb').close()
             file = open(devnull, 'wb')
-            output = file_to_cfile(file)
+            file_wrapper = _FileWrapper(file, <char*> "wb")
+            output = file_wrapper.cfile
             s1 = '--indirect=' + indirect
+            if is_unicode(s1):
+                s1 = encode_utf8(s1)
             optv[optc] = s1
             optc = optc + 1
         if pages is not None:
@@ -1052,7 +1116,7 @@ cdef class Document:
         try:
             job = SaveJob(sentinel = the_sentinel)
             job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
-            job._file = file
+            job._file = file_wrapper
         finally:
             release_lock(loft_lock)
         if wait:
@@ -1177,9 +1241,8 @@ cdef class Document:
         cdef FILE* output
         cdef SaveJob job
         options = []
-        if not is_file(file):
-            raise TypeError('file must be a real file object')
-        output = file_to_cfile(file)
+        file_wrapper = _FileWrapper(file, <char*> "wb")
+        output = file_wrapper.cfile
         if pages is not None:
             list_append(options, pages_to_opt(pages, 0))
         if eps:
@@ -1255,14 +1318,17 @@ cdef class Document:
         if optv == NULL:
             raise MemoryError('Unable to allocate %d bytes for print options' % buffer_size)
         try:
-            for option in options:
+            for optc from 0 <= optc < len(options):
+                option = options[optc]
+                if is_unicode(option):
+                    options[optc] = option = encode_utf8(option)
                 optv[optc] = option
-                optc = optc + 1
+            assert optc == len(options)
             with nogil: acquire_lock(loft_lock, WAIT_LOCK)
             try:
                 job = SaveJob(sentinel = the_sentinel)
                 job.__init(self._context, ddjvu_document_print(self.ddjvu_document, output, optc, optv))
-                job._file = file
+                job._file = file_wrapper
             finally:
                 release_lock(loft_lock)
         finally:

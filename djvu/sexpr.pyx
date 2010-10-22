@@ -86,6 +86,7 @@ cdef Lock _myio_lock
 _myio_lock = allocate_lock()
 cdef object _myio_stdin
 cdef object _myio_stdout
+cdef int _myio_stdout_binary
 cdef object _myio_buffer
 _myio_buffer = []
 
@@ -94,27 +95,46 @@ cdef object write_unraisable_exception(object cause):
     sys.stderr.write('Unhandled exception (%r)\n%s\n' % (cause, message))
 
 cdef void myio_set(stdin, stdout):
-    global _myio_stdin, _myio_stdout
+    global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
     global io_puts, io_getc, io_ungetc
+    cdef int opt_stdin, opt_stdout
     with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
     _myio_stdin = stdin
-    if is_file(stdin):
-        io_set_input(file_to_cfile(stdin))
+    IF PY3K:
+        # TODO
+        opt_stdin = opt_stdout = 0
+    ELSE:
+        opt_stdin = is_file(stdin)
+        opt_stdout = is_file(stdout)
+    if opt_stdin:
+        IF not PY3K:
+            io_set_input(file_to_cfile(stdin))
+        ELSE:
+            pass # TODO
     else:
         io_getc = _myio_getc
         io_ungetc = _myio_ungetc
     _myio_stdout = stdout
-    if is_file(stdout):
-        io_set_output(file_to_cfile(stdout))
+    IF PY3K:
+        _myio_stdout_binary = not hasattr(stdout, 'encoding')
+    ELSE:
+        _myio_stdout_binary = 1
+    if opt_stdout:
+        IF not PY3K:
+            io_set_output(file_to_cfile(stdout))
+        ELSE:
+            pass # TODO
     else:
         io_puts = _myio_puts
+    _myio_buffer = []
 
 cdef void myio_reset():
-    global _myio_stdin, _myio_stdout, _myio_buffer
+    global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
     global io_puts, io_getc, io_ungetc
-    _myio_stdin = sys.stdin
-    _myio_stdout = sys.stdout
-    _myio_buffer[:] = []
+    _myio_stdin = None
+    _myio_stdout = None
+    _myio_stdout_binary = 0
+    _myio_buffer = None
     io_puts = NULL
     io_getc = NULL
     io_ungetc = NULL
@@ -122,10 +142,10 @@ cdef void myio_reset():
 
 cdef int _myio_puts(char *s):
     try:
-        IF PY3K:
-            _myio_stdout.write(decode_utf8(s))
-        ELSE:
+        if _myio_stdout_binary:
             _myio_stdout.write(s)
+        else:
+            _myio_stdout.write(decode_utf8(s))
     except:
         write_unraisable_exception(_myio_stdout)
         return EOF

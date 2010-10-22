@@ -39,12 +39,12 @@ cdef extern from 'Python.h':
 
     int is_short_int 'PyInt_Check'(object)
     int is_long_int 'PyLong_Check'(object)
+    int is_number 'PyNumber_Check'(object)
     int is_float 'PyFloat_Check'(object)
     int is_unicode 'PyUnicode_Check'(object)
     int is_string 'PyString_Check'(object)
     int is_bytes 'PyBytes_Check'(object)
     int is_slice 'PySlice_Check'(object)
-    int is_file 'PyFile_Check'(object)
 
     object encode_utf8 'PyUnicode_AsUTF8String'(object)
     object decode_utf8_ex 'PyUnicode_DecodeUTF8'(char *, Py_ssize_t, char *)
@@ -67,7 +67,11 @@ cdef extern from 'Python.h':
     object bool 'PyBool_FromLong'(long)
     object voidp_to_int 'PyLong_FromVoidPtr'(void *)
 
-    FILE* file_to_cfile 'PyFile_AsFile'(object)
+    IF PY3K:
+        object posix_error 'PyErr_SetFromErrno'(object)
+        int file_to_fd 'PyObject_AsFileDescriptor'(object)
+    ELSE:
+        FILE* file_to_cfile 'PyFile_AsFile'(object)
 
     int list_append 'PyList_Append'(object, object) except -1
 
@@ -106,6 +110,12 @@ ELSE:
 
 cdef int typecheck(object o, object type):
     return _typecheck(o, <PyTypeObject*> type)
+
+cdef int is_file(object o):
+    IF PY3K:
+        return not is_number(o) and file_to_fd(o) != -1
+    ELSE:
+        return typecheck(o, file)
 
 cdef void raise_instantiation_error(object cls) except *:
     raise TypeError, 'cannot create \'%s\' instances' % get_type_name(cls)
