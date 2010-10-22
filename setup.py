@@ -48,7 +48,7 @@ from subprocess import Popen, PIPE
 EXT_MODULES = ('decode', 'sexpr')
 
 def get_version():
-    changelog = file(os.path.join('doc', 'changelog'))
+    changelog = open(os.path.join('doc', 'changelog'))
     try:
         return changelog.readline().split()[1].strip('()')
     finally:
@@ -62,6 +62,8 @@ def pkg_config(*packages, **kwargs):
         stdout = PIPE, stderr = PIPE
     )
     stdout, stderr = pkgconfig.communicate()
+    stdout = stdout.decode('ASCII', 'replace')
+    stderr = stderr.decode('ASCII', 'replace')
     if pkgconfig.returncode:
         raise IOError('[pkg-config] ' + stderr.strip())
     kwargs.setdefault('extra_link_args', [])
