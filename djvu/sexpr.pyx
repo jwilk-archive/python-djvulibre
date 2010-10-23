@@ -282,9 +282,9 @@ def Symbol__new__(cls, name):
             self = symbol_dict[name]
     except KeyError:
         pass
-    if not encoded:
-        name = str(name)
     if self is None:
+        if not encoded:
+            name = str(name)
         self = BaseSymbol.__new__(cls, name)
         if cls is _Symbol_:
             symbol_dict[name] = self
