@@ -473,8 +473,12 @@ class IntExpression(_Expression_):
 
     __new__ = staticmethod(IntExpression__new__)
 
-    def __nonzero__(self):
-        return bool(self.value)
+    IF PY3K:
+        def __bool__(self):
+            return bool(self.value)
+    ELSE:
+        def __nonzero__(self):
+            return bool(self.value)
 
     def __int__(self):
         return self.value
@@ -653,8 +657,12 @@ class ListExpression(_Expression_):
     '''
     __new__ = staticmethod(ListExpression__new__)
 
-    def __nonzero__(BaseExpression self not None):
-        return self.wexpr.cexpr() != cexpr_nil
+    IF PY3K:
+        def __bool__(BaseExpression self not None):
+            return self.wexpr.cexpr() != cexpr_nil
+    ELSE:
+        def __nonzero__(BaseExpression self not None):
+            return self.wexpr.cexpr() != cexpr_nil
 
     def __len__(BaseExpression self not None):
         cdef cexpr_t cexpr
