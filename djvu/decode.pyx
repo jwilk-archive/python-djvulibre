@@ -45,7 +45,11 @@ cdef object Condition
 from threading import Condition
 
 cdef object imap, izip
-from itertools import imap, izip
+IF PY3K:
+    imap = map
+    izip = zip
+ELSE:
+    from itertools import imap, izip
 
 cdef object sys, devnull, format_exc
 import sys
@@ -3224,11 +3228,12 @@ cdef class Metadata:
         '''
         return self._keys
 
-    def iterkeys(self):
-        '''
-        M.iterkeys() -> an iterator over the keys of M
-        '''
-        return iter(self)
+    IF not PY3K:
+        def iterkeys(self):
+            '''
+            M.iterkeys() -> an iterator over the keys of M
+            '''
+            return iter(self)
 
     def __iter__(self):
         return iter(self._keys)
@@ -3239,11 +3244,12 @@ cdef class Metadata:
         '''
         return map(self.__getitem__, self._keys)
 
-    def itervalues(self):
-        '''
-        M.itervalues() -> an iterator over values of M
-        '''
-        return imap(self.__getitem__, self._keys)
+    IF not PY3K:
+        def itervalues(self):
+            '''
+            M.itervalues() -> an iterator over values of M
+            '''
+            return imap(self.__getitem__, self._keys)
 
     def items(self):
         '''
@@ -3251,17 +3257,19 @@ cdef class Metadata:
         '''
         return zip(self._keys, imap(self.__getitem__, self._keys))
 
-    def iteritems(self):
-        '''
-        M.iteritems() -> an iterator over the (key, value) items of M
-        '''
-        return izip(self._keys, imap(self.__getitem__, self._keys))
+    IF not PY3K:
+        def iteritems(self):
+            '''
+            M.iteritems() -> an iterator over the (key, value) items of M
+            '''
+            return izip(self._keys, imap(self.__getitem__, self._keys))
 
-    def has_key(self, k):
-        '''
-        M.has_key(k) -> True if D has a key k, else False
-        '''
-        return k in self
+    IF not PY3K:
+        def has_key(self, k):
+            '''
+            M.has_key(k) -> True if D has a key k, else False
+            '''
+            return k in self
 
     def __contains__(self, k):
         return k in self._keys
