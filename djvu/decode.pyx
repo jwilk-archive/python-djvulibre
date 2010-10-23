@@ -2239,7 +2239,10 @@ cdef class AffineTransform:
 
     def __call__(self, value):
         cdef ddjvu_rect_t rect
-        next = iter(value).next
+        IF PY3K:
+            next = iter(value).__next__
+        ELSE:
+            next = iter(value).next
         try:
             rect.x = next()
             rect.y = next()
@@ -2280,7 +2283,10 @@ cdef class AffineTransform:
         Apply the inverse coordinate transform to a point or a rectangle.
         '''
         cdef ddjvu_rect_t rect
-        next = iter(value).next
+        IF PY3K:
+            next = iter(value).__next__
+        ELSE:
+            next = iter(value).next
         try:
             rect.x = next()
             rect.y = next()
