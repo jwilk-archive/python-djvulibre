@@ -55,9 +55,9 @@ cdef extern from 'Python.h':
         int bytes_to_charp 'PyString_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
         object charp_to_bytes 'PyString_FromStringAndSize'(char *, Py_ssize_t)
     IF PY3K:
-        object charp_to_string 'PyUnicode_FromStringAndSize'(char *, Py_ssize_t)
+        object charp_to_string 'PyUnicode_FromString'(char *)
     ELSE:
-        object charp_to_string 'PyString_FromStringAndSize'(char *, Py_ssize_t)
+        object charp_to_string 'PyString_FromString'(char *)
     int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
 
     IF PY3K:

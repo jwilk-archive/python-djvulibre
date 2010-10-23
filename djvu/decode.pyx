@@ -712,8 +712,11 @@ cdef class File:
         Possible exceptions: NotAvailable, JobFailed.
         '''
         def __get__(self):
+            cdef char buffer[2]
             self._get_info()
-            return charp_to_string(&self.ddjvu_fileinfo.type, 1)
+            buffer[0] = self.ddjvu_fileinfo.type
+            buffer[1] = '\0'
+            return charp_to_string(buffer)
 
     property n_page:
         '''
@@ -2389,15 +2392,15 @@ cdef class ErrorMessage(Message):
     cdef object __init(self):
         Message.__init(self)
         if self.ddjvu_message.m_error.message != NULL:
-            self._message = self.ddjvu_message.m_error.message
+            self._message = charp_to_string(self.ddjvu_message.m_error.message)
         else:
             self._message = None
         if self.ddjvu_message.m_error.function != NULL:
-            function = self.ddjvu_message.m_error.function
+            function = charp_to_string(self.ddjvu_message.m_error.function)
         else:
             function = None
         if self.ddjvu_message.m_error.filename != NULL:
-            filename = self.ddjvu_message.m_error.filename
+            filename = charp_to_string(self.ddjvu_message.m_error.filename)
         else:
             filename = None
         self._location = (function, filename, self.ddjvu_message.m_error.lineno)
@@ -2431,7 +2434,7 @@ cdef class InfoMessage(Message):
 
     cdef object __init(self):
         Message.__init(self)
-        self._message = self.ddjvu_message.m_error.message
+        self._message = charp_to_string(self.ddjvu_message.m_error.message)
 
     property message:
         '''
@@ -2529,8 +2532,8 @@ cdef class NewStreamMessage(Message):
     cdef object __init(self):
         Message.__init(self)
         self._stream = Stream(self.document, self.ddjvu_message.m_newstream.streamid, sentinel = the_sentinel)
-        self._name = self.ddjvu_message.m_newstream.name
-        self._uri = self.ddjvu_message.m_newstream.url
+        self._name = charp_to_string(self.ddjvu_message.m_newstream.name)
+        self._uri = charp_to_string(self.ddjvu_message.m_newstream.url)
 
     property stream:
         '''
