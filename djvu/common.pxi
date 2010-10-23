@@ -52,7 +52,10 @@ cdef extern from 'Python.h':
     object charp_to_string 'PyString_FromStringAndSize'(char *, Py_ssize_t)
     int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
 
-    object int 'PyNumber_Int'(object)
+    IF PY3K:
+        object int 'PyNumber_Long'(object)
+    ELSE:
+        object int 'PyNumber_Int'(object)
     object bool 'PyBool_FromLong'(long)
     object voidp_to_int 'PyLong_FromVoidPtr'(void *)
 
