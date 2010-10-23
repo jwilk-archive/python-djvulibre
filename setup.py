@@ -122,7 +122,10 @@ class build_ext(distutils_build_ext.build_ext):
     def run(self):
         filename = 'djvu/config.pxi'
         distutils.log.info('creating %r' % filename)
-        distutils.file_util.write_file(filename, ['DEF PY3K = %d' % (sys.version_info >= (3, 0))])
+        distutils.file_util.write_file(filename, [
+            'DEF PY3K = %d' % (sys.version_info >= (3, 0)),
+            'DEF PYTHON_DJVULIBRE_VERSION = "%s"' % __version__,
+        ])
         distutils.command.build_ext.build_ext.run(self)
 
 setup_params = dict(
@@ -141,10 +144,7 @@ setup_params = dict(
     [
         Extension(
             'djvu.%s' % name, ['djvu/%s.pyx' % name],
-            **pkg_config(
-                'ddjvuapi',
-                define_macros = [('PYTHON_DJVULIBRE_VERSION', '"%s"' % __version__)]
-            )
+            **pkg_config('ddjvuapi')
         )
         for name in EXT_MODULES
     ],
