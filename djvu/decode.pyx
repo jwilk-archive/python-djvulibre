@@ -1476,8 +1476,12 @@ cdef class Context:
         with nogil: acquire_lock(loft_lock, WAIT_LOCK)
         try:
             if typecheck(uri, FileUri):
+                IF PY3K:
+                    uri = encode_utf8(uri)
                 ddjvu_document = ddjvu_document_create_by_filename(self.ddjvu_context, uri, cache)
             else:
+                IF PY3K:
+                    uri = encode_utf8(uri)
                 ddjvu_document = ddjvu_document_create(self.ddjvu_context, uri, cache)
             if ddjvu_document == NULL:
                 raise JobFailed
