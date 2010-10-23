@@ -45,11 +45,11 @@ def test_context_cache():
 
     context = Context()
     assert_equal(context.cache_size, 10 << 20)
-    for n in -100, 0, (1 + sys.maxint) * 2:
+    for n in -100, 0, 1 << 31:
         assert_raises(ValueError, set_cache_size, n)
     assert_raises(ValueError, set_cache_size, 0)
     n = 1
-    while n < 3 * sys.maxint:
+    while n < (1 << 31):
         set_cache_size(n)
         assert_equal(context.cache_size, n)
         n = (n + 1) * 2 - 1

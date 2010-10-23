@@ -1378,11 +1378,10 @@ cdef class Context:
     property cache_size:
 
         def __set__(self, value):
-            value = int(value)
-            if 0 < value < (int(1) << (8 * sizeof(unsigned long))):
+            if 0 < value < (1 << 31):
                 ddjvu_cache_set_size(self.ddjvu_context, value)
             else:
-                raise ValueError('0 < cache_size < 2 * (sys.maxint + 1) must be satisfied')
+                raise ValueError('0 < cache_size < (2 ** 31) must be satisfied')
 
         def __get__(self):
             return ddjvu_cache_get_size(self.ddjvu_context)
