@@ -272,19 +272,19 @@ def Symbol__new__(cls, name):
     '''
     Symbol(name) -> a symbol
     '''
-    cdef int encoded = 0
     self = None
     if is_unicode(name):
         name = encode_utf8(name)
-        encoded = 1
     try:
         if cls is _Symbol_:
             self = symbol_dict[name]
     except KeyError:
         pass
     if self is None:
-        if not encoded:
+        if not is_bytes(name):
             name = str(name)
+            IF PY3K:
+                name = encode_utf8(name)
         self = BaseSymbol.__new__(cls, name)
         if cls is _Symbol_:
             symbol_dict[name] = self
