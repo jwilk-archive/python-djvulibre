@@ -1368,6 +1368,8 @@ cdef class Context:
     def __cinit__(self, argv0=None):
         if argv0 is None:
             argv0 = sys.argv[0]
+        if is_unicode(argv0):
+            argv0 = encode_utf8(argv0)
         with nogil: acquire_lock(loft_lock, WAIT_LOCK)
         try:
             self.ddjvu_context = ddjvu_context_create(argv0)
