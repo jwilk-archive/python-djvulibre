@@ -3102,13 +3102,13 @@ cdef class PageText:
 
     def __cinit__(self, Page page not None, details=TEXT_DETAILS_ALL):
         if details is None:
-            self._details = ''
+            self._details = charp_to_bytes('', 0)
         elif not typecheck(details, Symbol):
             raise TypeError('details must be a symbol or none')
         elif details not in TEXT_DETAILS:
             raise ValueError('details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL')
         else:
-            self._details = str(details)
+            self._details = details.bytes
         self._page = page
         self._sexpr = None
 
