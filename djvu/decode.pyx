@@ -53,7 +53,10 @@ from os import devnull
 from traceback import format_exc
 
 cdef object StringIO
-from cStringIO import StringIO
+IF PY3K:
+    from io import StringIO
+ELSE:
+    from cStringIO import StringIO
 
 cdef object Symbol, SymbolExpression, InvalidExpression
 from djvu.sexpr import Symbol, SymbolExpression, InvalidExpression
