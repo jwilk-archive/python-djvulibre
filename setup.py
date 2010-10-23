@@ -31,7 +31,8 @@ Topic :: Text Processing
 import os
 import sys
 
-from Cython.Distutils import build_ext
+import distutils
+import Cython.Distutils as distutils_build_ext
 
 # This is required to make setuptools cooperate with Cython:
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'fake_pyrex'))
@@ -115,6 +116,14 @@ if get_default_compiler() == 'msvc':
 __version__ = get_version()
 
 os.putenv('TAR_OPTIONS', '--owner root --group root --mode a+rX')
+
+class build_ext(distutils_build_ext.build_ext):
+
+    def run(self):
+        filename = 'djvu/config.pxi'
+        distutils.log.info('creating %r' % filename)
+        distutils.file_util.write_file(filename, ['DEF PY3K = %d' % (sys.version_info >= (3, 0))])
+        distutils.command.build_ext.build_ext.run(self)
 
 setup_params = dict(
     name = 'python-djvulibre',
