@@ -30,10 +30,16 @@ cdef object weakref
 import weakref
 
 cdef object thread
-import thread
+if PY3K:
+    import _thread as thread
+else:
+    import thread
 
 cdef object Queue, Empty
-from Queue import Queue, Empty
+IF PY3K:
+    from queue import Queue, Empty
+ELSE:
+    from Queue import Queue, Empty
 
 cdef object Condition
 from threading import Condition
