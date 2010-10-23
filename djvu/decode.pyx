@@ -3061,7 +3061,12 @@ def cmp_text_zone(zonetype1, zonetype2):
         n2 = TEXT_DETAILS[zonetype2]
     except KeyError:
         raise ValueError('zonetype must be equal to TEXT_ZONE_PAGE, or TEXT_ZONE_COLUMN, or TEXT_ZONE_REGION, or TEXT_ZONE_PARAGRAPH, or TEXT_ZONE_LINE, or TEXT_ZONE_WORD, or TEXT_ZONE_CHARACTER')
-    return cmp(n1, n2)
+    if n1 < n2:
+        return -1
+    elif n1 > n2:
+        return 1
+    else:
+        return 0
 
 cdef class PageText:
     '''
