@@ -86,8 +86,8 @@ cdef Lock _myio_lock
 _myio_lock = allocate_lock()
 cdef object _myio_stdin
 cdef object _myio_stdout
-cdef int _myio_buffer
-_myio_buffer = -1
+cdef object _myio_buffer
+_myio_buffer = []
 
 cdef object write_unraisable_exception(object cause):
     message = format_exc()
@@ -110,11 +110,11 @@ cdef void myio_set(stdin, stdout):
         io_puts = _myio_puts
 
 cdef void myio_reset():
-    global _myio_stdin, _myio_stdout
+    global _myio_stdin, _myio_stdout, _myio_buffer
     global io_puts, io_getc, io_ungetc
     _myio_stdin = sys.stdin
     _myio_stdout = sys.stdout
-    _myio_buffer = -1
+    _myio_buffer[:] = []
     io_puts = NULL
     io_getc = NULL
     io_ungetc = NULL
@@ -122,7 +122,10 @@ cdef void myio_reset():
 
 cdef int _myio_puts(char *s):
     try:
-        _myio_stdout.write(s)
+        IF PY3K:
+            _myio_stdout.write(decode_utf8(s))
+        ELSE:
+            _myio_stdout.write(s)
     except:
         write_unraisable_exception(_myio_stdout)
         return EOF
@@ -130,9 +133,8 @@ cdef int _myio_puts(char *s):
 cdef int _myio_getc():
     global _myio_buffer
     cdef int result
-    result = _myio_buffer
-    if result >= 0:
-        _myio_buffer = -1
+    if _myio_buffer:
+        return _myio_buffer.pop()
     else:
         try:
             s = _myio_stdin.read(1)
@@ -140,16 +142,19 @@ cdef int _myio_getc():
             write_unraisable_exception(_myio_stdin)
             return EOF
         if s:
-            result = ord(s)
+            if is_unicode(s):
+                s = s.encode('UTF-8')
+            IF PY3K:
+                _myio_buffer += reversed(s)
+            ELSE:
+                _myio_buffer += map(ord, reversed(s))
+            return _myio_buffer.pop()
         else:
-            result = EOF
-    return result
+            return EOF
 
 cdef int _myio_ungetc(int c):
     global _myio_buffer
-    if _myio_buffer >= 0:
-        raise SystemError('ungetc() before getc()')
-    _myio_buffer = c
+    _myio_buffer += (c,)
 
 io_puts = NULL
 io_getc = NULL
@@ -218,14 +223,22 @@ cdef _MissingCExpr wexpr_missing():
 cdef class BaseSymbol:
 
     cdef object __weakref__
-    cdef object value
+    cdef object _bytes
 
-    def __cinit__(self, value):
-        value = str(value)
-        self.value = value
+    def __cinit__(self, bytes):
+        cdef char *cbytes
+        cbytes = bytes
+        self._bytes = cbytes
 
     def __repr__(self):
-        return '%s(%r)' % (get_type_name(_Symbol_), self.value)
+        IF PY3K:
+            try:
+                string = self._bytes.decode('UTF-8')
+            except UnicodeDecodeError:
+                string = self._bytes
+        ELSE:
+            string = self._bytes
+        return '%s(%r)' % (get_type_name(_Symbol_), string)
 
     def __richcmp__(self, object other, int op):
         cdef BaseSymbol _self, _other
@@ -234,32 +247,44 @@ cdef class BaseSymbol:
         _self = self
         _other = other
         if op == 2 or op == 3:
-            return richcmp(_self.value, _other.value, op)
+            return richcmp(_self._bytes, _other._bytes, op)
         return NotImplemented
 
     def __hash__(self):
-        return hash(self.value)
+        return hash(self._bytes)
 
-    def __str__(self):
-        return self.value
+    property bytes:
+        def __get__(self):
+            return self._bytes
 
-    def __unicode__(self):
-        return self.value.decode('UTF-8')
+    IF not PY3K:
+        def __str__(self):
+            return self._bytes
+
+    IF PY3K:
+        def __str__(self):
+            return self._bytes.decode('UTF-8')
+    ELSE:
+        def __unicode__(self):
+            return self._bytes.decode('UTF-8')
 
 def Symbol__new__(cls, name):
     '''
     Symbol(name) -> a symbol
     '''
+    cdef int encoded = 0
     self = None
     if is_unicode(name):
         name = encode_utf8(name)
+        encoded = 1
     try:
         if cls is _Symbol_:
             self = symbol_dict[name]
     except KeyError:
         pass
-    if self is None:
+    if not encoded:
         name = str(name)
+    if self is None:
         self = BaseSymbol.__new__(cls, name)
         if cls is _Symbol_:
             symbol_dict[name] = self
@@ -285,8 +310,11 @@ def Expression__new__(cls, value):
         return SymbolExpression(value)
     elif is_unicode(value):
         return StringExpression(encode_utf8(value))
-    elif is_string(value):
-        return StringExpression(str(value))
+    elif is_bytes(value):
+        if PY3K:
+            return StringExpression(bytes(value))
+        else:
+            return StringExpression(str(value))
     else:
         return ListExpression(iter(value))
 
@@ -476,7 +504,7 @@ def SymbolExpression__new__(cls, value):
         self.wexpr = value
     elif typecheck(value, _Symbol_):
         symbol = value
-        self.wexpr = wexpr(symbol_to_cexpr(symbol.value))
+        self.wexpr = wexpr(symbol_to_cexpr(symbol._bytes))
     else:
         raise TypeError('value must be a Symbol')
     return self
@@ -507,7 +535,7 @@ def StringExpression__new__(cls, value):
     self = BaseExpression.__new__(cls)
     if typecheck(value, _WrappedCExpr):
         self.wexpr = value
-    elif is_string(value):
+    elif is_bytes(value):
         gc_lock(NULL) # protect from collecting a just-created object
         try:
             self.wexpr = wexpr(str_to_cexpr(value))
@@ -523,8 +551,27 @@ class StringExpression(_Expression_):
     '''
     __new__ = staticmethod(StringExpression__new__)
 
-    def _get_value(BaseExpression self not None):
+    def bytes(BaseExpression self not None):
         return cexpr_to_str(self.wexpr.cexpr())
+    bytes = property(bytes)
+
+    def _get_value(BaseExpression self not None):
+        cdef char *bytes
+        bytes = cexpr_to_str(self.wexpr.cexpr())
+        IF PY3K:
+            return decode_utf8(bytes)
+        ELSE:
+            return bytes
+
+    IF PY3K:
+        def __repr__(BaseExpression self not None):
+            cdef char *bytes
+            bytes = cexpr_to_str(self.wexpr.cexpr())
+            try:
+                string = decode_utf8(bytes)
+            except UnicodeDecodeError:
+                string = bytes
+            return '%s(%r)' % (get_type_name(_Expression_), string)
 
     def __richcmp__(self, other, int op):
         return BaseExpression_richcmp(self, other, op)
@@ -744,6 +791,9 @@ cdef class _ListExpressionIterator:
 
 __all__ = ('Symbol', 'Expression', 'IntExpression', 'SymbolExpression', 'StringExpression', 'ListExpression', 'InvalidExpression', 'ExpressionSyntaxError')
 __author__ = 'Jakub Wilk <jwilk@jwilk.net>'
-__version__ = PYTHON_DJVULIBRE_VERSION
+IF PY3K:
+    __version__ = decode_utf8(PYTHON_DJVULIBRE_VERSION)
+ELSE:
+    __version__ = PYTHON_DJVULIBRE_VERSION
 
 # vim:ts=4 sw=4 et ft=pyrex

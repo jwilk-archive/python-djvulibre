@@ -1032,7 +1032,7 @@ cdef class Document:
             if file is not None:
                 raise TypeError('file must be None if indirect is specified')
             if not is_string(indirect):
-                raise TypeError('indirect must be a byte string')
+                raise TypeError('indirect must be a string')
             # XXX ddjvu API documentation says that output should be NULL,
             # but we'd like to spot the DjVuLibre bug
             open(indirect, 'wb').close()
@@ -1187,7 +1187,7 @@ cdef class Document:
             list_append(options, '--level=%d' % level)
         if orientation is not None:
             if not is_string(orientation):
-                raise TypeError('orientation must be a byte string or none')
+                raise TypeError('orientation must be a string or none')
             list_append(options, '--orientation=' + orientation)
         if not is_int(mode):
             raise TypeError('mode must be an integer')
@@ -1221,7 +1221,7 @@ cdef class Document:
             list_append(options, '--text')
         if booklet is not None:
             if not is_string(booklet):
-                raise TypeError('booklet must be a byte string or none')
+                raise TypeError('booklet must be a string or none')
             if options not in PRINT_BOOKLET_OPTIONS:
                 raise ValueError('booklet must be equal to PRINT_BOOKLET_NO, or PRINT_BOOKLET_YES, or PRINT_BOOKLET_VERSO, or PRINT_BOOKLET_RECTO')
             list_append(options, '--booklet=' + booklet)
@@ -1840,8 +1840,8 @@ cdef object allocate_image_memory(long width, long height, object buffer, void *
     except OverflowError:
         raise MemoryError('Unable to allocate %d bytes for an image memory' % py_requested_size)
     if buffer is None:
-        result = charp_to_string(NULL, c_requested_size)
-        memory[0] = string_to_charp(result)
+        result = charp_to_bytes(NULL, c_requested_size)
+        memory[0] = <char*> result
     else:
         result = buffer
         buffer_to_writable_memory(buffer, memory, &c_memory_size)
@@ -2491,7 +2491,7 @@ cdef class Stream:
         cdef char* raw_data
         cdef Py_ssize_t length
         if self._open:
-            string_to_charp_and_size(data, &raw_data, &length)
+            bytes_to_charp(data, &raw_data, &length)
             ddjvu_stream_write(self._document.ddjvu_document, self._streamid, raw_data, length)
         else:
             raise IOError('I/O operation on closed file')
@@ -3275,6 +3275,10 @@ cdef class Metadata:
         return k in self._keys
 
 __author__ = 'Jakub Wilk <jwilk@jwilk.net>'
-__version__ = '%s/%d' % (PYTHON_DJVULIBRE_VERSION, DDJVU_VERSION)
+IF PY3K:
+    __version__ = decode_utf8(PYTHON_DJVULIBRE_VERSION)
+ELSE:
+    __version__ = PYTHON_DJVULIBRE_VERSION
+__version__ = '%s/%d' % (__version__, DDJVU_VERSION)
 
 # vim:ts=4 sw=4 et ft=pyrex

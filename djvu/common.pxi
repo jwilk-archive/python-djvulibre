@@ -42,14 +42,22 @@ cdef extern from 'Python.h':
     int is_float 'PyFloat_Check'(object)
     int is_unicode 'PyUnicode_Check'(object)
     int is_string 'PyString_Check'(object)
+    int is_bytes 'PyBytes_Check'(object)
     int is_slice 'PySlice_Check'(object)
     int is_file 'PyFile_Check'(object)
 
     object encode_utf8 'PyUnicode_AsUTF8String'(object)
     object decode_utf8_ex 'PyUnicode_DecodeUTF8'(char *, Py_ssize_t, char *)
-    int string_to_charp_and_size 'PyString_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
-    char* string_to_charp 'PyString_AsString'(object) except NULL
-    object charp_to_string 'PyString_FromStringAndSize'(char *, Py_ssize_t)
+    IF PY3K:
+        int bytes_to_charp 'PyBytes_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
+        object charp_to_bytes 'PyBytes_FromStringAndSize'(char *, Py_ssize_t)
+    ELSE:
+        int bytes_to_charp 'PyString_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
+        object charp_to_bytes 'PyString_FromStringAndSize'(char *, Py_ssize_t)
+    IF PY3K:
+        object charp_to_string 'PyUnicode_FromStringAndSize'(char *, Py_ssize_t)
+    ELSE:
+        object charp_to_string 'PyString_FromStringAndSize'(char *, Py_ssize_t)
     int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
 
     IF PY3K:
@@ -89,8 +97,12 @@ cdef int is_int(object o):
 cdef object type(object o):
     return <object>((<PyObject*>o).ob_type)
 
-cdef char* get_type_name(object type):
-    return (<PyTypeObject*>type).tp_name
+IF PY3K:
+    cdef object get_type_name(object type):
+        return decode_utf8((<PyTypeObject*>type).tp_name)
+ELSE:
+    cdef char* get_type_name(object type):
+        return (<PyTypeObject*>type).tp_name
 
 cdef int typecheck(object o, object type):
     return _typecheck(o, <PyTypeObject*> type)
