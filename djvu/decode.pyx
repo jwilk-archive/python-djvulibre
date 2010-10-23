@@ -32,7 +32,7 @@ import weakref
 cdef object thread
 IF PY3K:
     import _thread as thread
-else:
+ELSE:
     import thread
 
 cdef object Queue, Empty
