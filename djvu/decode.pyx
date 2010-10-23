@@ -30,7 +30,7 @@ cdef object weakref
 import weakref
 
 cdef object thread
-if PY3K:
+IF PY3K:
     import _thread as thread
 else:
     import thread
