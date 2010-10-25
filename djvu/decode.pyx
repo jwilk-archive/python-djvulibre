@@ -1646,12 +1646,12 @@ cdef class PixelFormatRgb(PixelFormat):
     byte order.
     '''
 
-    def __cinit__(self, char *byte_order = 'RGB', unsigned int bpp = 24):
+    def __cinit__(self, byte_order='RGB', unsigned int bpp=24):
         cdef unsigned int _format
-        if strcmp(byte_order, 'RGB') == 0:
+        if byte_order == 'RGB':
             self._rgb = 1
             _format = DDJVU_FORMAT_RGB24
-        elif strcmp(byte_order, 'BGR') == 0:
+        elif byte_order == 'BGR':
             self._rgb = 0
             _format = DDJVU_FORMAT_BGR24
         else:
@@ -1722,10 +1722,10 @@ cdef class PixelFormatRgbMask(PixelFormat):
         return '%s(red_mask = 0x%0*x, green_mask = 0x%0*x, blue_mask = 0x%0*x, xor_value = 0x%0*x, bpp = %d)' % \
         (
             get_type_name(PixelFormatRgbMask),
-            self.bpp/4, self._params[0],
-            self.bpp/4, self._params[1],
-            self.bpp/4, self._params[2],
-            self.bpp/4, self._params[3],
+            self.bpp//4, self._params[0],
+            self.bpp//4, self._params[1],
+            self.bpp//4, self._params[2],
+            self.bpp//4, self._params[3],
             self.bpp,
         )
 
@@ -1782,8 +1782,9 @@ cdef class PixelFormatPalette(PixelFormat):
         for i from 0 <= i < 6:
             for j from 0 <= j < 6:
                 for k from 0 <= k < 6:
-                    io.write('(%d, %d, %d): 0x%02x, ' % (i, j, k, self._palette[i*6*6 + j + k]))
-        io.seek(-2, 1)
+                    io.write('(%d, %d, %d): 0x%02x' % (i, j, k, self._palette[i * 6 * 6 + j * 6 + k]))
+                    if not (i == j == k == 5):
+                        io.write(', ')
         io.write('}, bpp = %d)' % self.bpp)
         return io.getvalue()
 
@@ -1798,12 +1799,12 @@ cdef class PixelFormatPackedBits(PixelFormat):
     - least significant bits on the left (endianness=='<').
     '''
 
-    def __cinit__(self, char *endianness):
+    def __cinit__(self, endianness):
         cdef int _format
-        if strcmp(endianness, '<') == 0:
+        if endianness == '<':
             self._little_endian = 1
             _format = DDJVU_FORMAT_LSBTOMSB
-        elif strcmp(endianness, '>') == 0:
+        elif endianness == '>':
             self._little_endian = 0
             _format = DDJVU_FORMAT_MSBTOLSB
         else:
