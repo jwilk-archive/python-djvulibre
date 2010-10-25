@@ -46,15 +46,20 @@ ext_extension = 'pyx' if cython_needed else 'c'
 
 if cython_needed:
     import Cython.Distutils as distutils_build_ext
-    # This is required to make setuptools cooperate with Cython:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'fake_pyrex'))
+    # This is required to make setuptools cooperate with Cython
+    # (well, at least with some older Cython/setuptools combinations):
+    fake_module = type(sys)('fake_module')
+    fake_module.build_ext = None
+    sys.modules['Pyrex'] = sys.modules['Pyrex.Distutils'] = sys.modules['Pyrex.Distutils.build_ext'] = fake_module
 
 try:
     from setuptools import setup
     from setuptools.extension import Extension
 except ImportError:
     from distutils.core import setup
-    from distutils.extension import Extension
+    from distutils.extension import Extension, have_pyrex
+    assert have_pyrex
+    del have_pyrex
 from distutils.ccompiler import get_default_compiler
 
 if not cython_needed:
