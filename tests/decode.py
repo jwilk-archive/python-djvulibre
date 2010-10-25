@@ -29,8 +29,7 @@ images = os.path.join(os.path.dirname(__file__), 'images', '')
 def create_djvu(commands='', sexpr=''):
     if sexpr:
         commands += '\nset-ant\n%s\n.\n' % sexpr
-    file = tempfile.NamedTemporaryFile()
-    file = open('test.djvu', 'wb')
+    file = tempfile.NamedTemporaryFile(prefix='test', suffix='djvu')
     file.seek(0)
     file.write(blob(
         0x41, 0x54, 0x26, 0x54, 0x46, 0x4f, 0x52, 0x4d, 0x00, 0x00, 0x00, 0x22, 0x44, 0x4a, 0x56, 0x55,
@@ -527,32 +526,35 @@ class test_metadata:
     }
     test_script = 'set-meta\n%s\n.\n' % '\n'.join('|%s| %s' % (k, v) for k, v in model_metadata.items())
     test_file = create_djvu(test_script)
-    context = Context()
-    document = context.new_document(FileUri(test_file.name))
-    message = document.get_message()
-    assert_equal(type(message), DocInfoMessage)
-    annotations = document.annotations
-    assert_equal(type(annotations), DocumentAnnotations)
-    annotations.wait()
-    metadata = annotations.metadata
-    assert_equal(type(metadata), Metadata)
-    assert_equal(len(metadata), len(model_metadata))
-    assert_equal(sorted(metadata), sorted(model_metadata))
-    if not py3k:
-        assert_equal(sorted(metadata.iterkeys()), sorted(model_metadata.iterkeys()))
-    assert_equal(sorted(metadata.keys()), sorted(model_metadata.keys()))
-    if not py3k:
-        assert_equal(sorted(metadata.itervalues()), sorted(model_metadata.itervalues()))
-    assert_equal(sorted(metadata.values()), sorted(model_metadata.values()))
-    if not py3k:
-        assert_equal(sorted(metadata.iteritems()), sorted(model_metadata.iteritems()))
-    assert_equal(sorted(metadata.items()), sorted(model_metadata.items()))
-    for k in metadata:
-        assert_equal(type(k), unicode)
-        assert_equal(type(metadata[k]), unicode)
-    for k in None, 42, '+'.join(model_metadata):
-        with raises(KeyError, repr(k)):
-            metadata[k]
+    try:
+        context = Context()
+        document = context.new_document(FileUri(test_file.name))
+        message = document.get_message()
+        assert_equal(type(message), DocInfoMessage)
+        annotations = document.annotations
+        assert_equal(type(annotations), DocumentAnnotations)
+        annotations.wait()
+        metadata = annotations.metadata
+        assert_equal(type(metadata), Metadata)
+        assert_equal(len(metadata), len(model_metadata))
+        assert_equal(sorted(metadata), sorted(model_metadata))
+        if not py3k:
+            assert_equal(sorted(metadata.iterkeys()), sorted(model_metadata.iterkeys()))
+        assert_equal(sorted(metadata.keys()), sorted(model_metadata.keys()))
+        if not py3k:
+            assert_equal(sorted(metadata.itervalues()), sorted(model_metadata.itervalues()))
+        assert_equal(sorted(metadata.values()), sorted(model_metadata.values()))
+        if not py3k:
+            assert_equal(sorted(metadata.iteritems()), sorted(model_metadata.iteritems()))
+        assert_equal(sorted(metadata.items()), sorted(model_metadata.items()))
+        for k in metadata:
+            assert_equal(type(k), unicode)
+            assert_equal(type(metadata[k]), unicode)
+        for k in None, 42, '+'.join(model_metadata):
+            with raises(KeyError, repr(k)):
+                metadata[k]
+    finally:
+        test_file.close()
 
 class test_sexpr:
 
