@@ -29,14 +29,26 @@ Topic :: Multimedia :: Graphics :: Graphics Conversion
 Topic :: Text Processing
 '''.strip().split('\n')
 
+import glob
 import os
 import sys
-
 import distutils
-import Cython.Distutils as distutils_build_ext
+import subprocess as ipc
 
-# This is required to make setuptools cooperate with Cython:
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'fake_pyrex'))
+cython_needed = not os.getenv('python_djvulibre_no_cython')
+
+def ext_modules():
+    for pyx_file in glob.glob(os.path.join('djvu', '*.pyx')):
+        module, _ = os.path.splitext(os.path.basename(pyx_file))
+        yield module
+ext_modules = list(ext_modules())
+ext_extension = 'pyx' if cython_needed else 'c'
+
+if cython_needed:
+    import Cython.Distutils as distutils_build_ext
+    # This is required to make setuptools cooperate with Cython:
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'fake_pyrex'))
+
 try:
     from setuptools import setup
     from setuptools.extension import Extension
@@ -45,9 +57,8 @@ except ImportError:
     from distutils.extension import Extension
 from distutils.ccompiler import get_default_compiler
 
-import subprocess as ipc
-
-EXT_MODULES = ('decode', 'sexpr')
+if not cython_needed:
+    import distutils.command.build_ext as distutils_build_ext
 
 def get_version():
     changelog = open(os.path.join('doc', 'changelog'))
@@ -141,13 +152,12 @@ setup_params = dict(
     url = 'http://jwilk.net/software/python-djvulibre',
     platforms = ['all'],
     packages = ['djvu'],
-    ext_modules = \
-    [
+    ext_modules = [
         Extension(
-            'djvu.%s' % name, ['djvu/%s.pyx' % name],
+            'djvu.%s' % name, ['djvu/%s.%s' % (name, ext_extension)],
             **pkg_config('ddjvuapi')
         )
-        for name in EXT_MODULES
+        for name in ext_modules
     ],
     py_modules = ['djvu.const'],
     cmdclass = dict(build_ext = build_ext)
