@@ -44,7 +44,7 @@ except ImportError:
     from distutils.extension import Extension
 from distutils.ccompiler import get_default_compiler
 
-from subprocess import Popen, PIPE
+import subprocess as ipc
 
 EXT_MODULES = ('decode', 'sexpr')
 
@@ -58,9 +58,9 @@ def get_version():
 PKG_CONFIG_FLAG_MAP = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
 def pkg_config(*packages, **kwargs):
-    pkgconfig = Popen(
+    pkgconfig = ipc.Popen(
         ['pkg-config', '--libs', '--cflags'] + list(packages),
-        stdout = PIPE, stderr = PIPE
+        stdout=ipc.PIPE, stderr=ipc.PIPE
     )
     stdout, stderr = pkgconfig.communicate()
     stdout = stdout.decode('ASCII', 'replace')
