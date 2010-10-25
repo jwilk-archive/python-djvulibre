@@ -2111,8 +2111,7 @@ cdef class Job:
 
     cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
         # Assumption: loft_lock is already acquired.
-        if context is None:
-            raise SystemError
+        assert context != None and ddjvu_job != NULL
         self._context = context
         self.ddjvu_job = ddjvu_job
         _job_loft.add(self)
