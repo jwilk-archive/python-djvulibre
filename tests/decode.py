@@ -209,6 +209,7 @@ class test_documents:
             assert_equal(stderr, b(''))
             stdout0 = stdout0.split(b('\n'))
             stdout = stdout.split(b('\n'))
+            stdout[4] = stdout[4].replace(b(' (1)'), b(''))
             assert_equal(len(stdout), 10)
             assert_equal(stdout[3:-1], stdout0[4:10])
             assert_equal(stdout[-1], b(''))
