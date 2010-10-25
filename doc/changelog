@@ -1,9 +1,9 @@
-python-djvulibre (0.1.19) UNRELEASED; urgency=low
+python-djvulibre (0.3.0) UNRELEASED; urgency=low
 
   * Fix tests on 64-bit architectures.
   * Fix compatibility with Cython 0.13.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 12 Oct 2010 23:40:50 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 25 Oct 2010 23:40:54 +0200
 
 python-djvulibre (0.1.18) unstable; urgency=low
 
