@@ -10,52 +10,72 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
+from __future__ import with_statement
+
 from djvu.const import *
 from djvu.sexpr import *
 
-class TextZonesTest:
-    r'''
-    >>> TEXT_ZONE_PAGE == ''
-    False
-    >>> TEXT_ZONE_PAGE == 42
-    False
-    >>> TEXT_ZONE_PAGE < 42
-    Traceback (most recent call last):
-    ...
-    TypeError: cannot compare text zone type with other object
+from common import *
 
+class test_text_zones():
 
-    >>> TEXT_ZONE_PAGE
-    <djvu.const.TextZoneType: page>
-    >>> TEXT_ZONE_PAGE is get_text_zone_type(Symbol('page'))
-    True
-    >>> TEXT_ZONE_COLUMN
-    <djvu.const.TextZoneType: column>
-    >>> TEXT_ZONE_COLUMN is get_text_zone_type(Symbol('column'))
-    True
-    >>> TEXT_ZONE_REGION
-    <djvu.const.TextZoneType: region>
-    >>> TEXT_ZONE_REGION is get_text_zone_type(Symbol('region'))
-    True
-    >>> TEXT_ZONE_PARAGRAPH
-    <djvu.const.TextZoneType: para>
-    >>> TEXT_ZONE_PARAGRAPH is get_text_zone_type(Symbol('para'))
-    True
-    >>> TEXT_ZONE_LINE
-    <djvu.const.TextZoneType: line>
-    >>> TEXT_ZONE_LINE is get_text_zone_type(Symbol('line'))
-    True
-    >>> TEXT_ZONE_WORD
-    <djvu.const.TextZoneType: word>
-    >>> TEXT_ZONE_WORD is get_text_zone_type(Symbol('word'))
-    True
-    >>> TEXT_ZONE_CHARACTER
-    <djvu.const.TextZoneType: char>
-    >>> TEXT_ZONE_CHARACTER is get_text_zone_type(Symbol('char'))
-    True
-    >>> zones = (TEXT_ZONE_PAGE, TEXT_ZONE_COLUMN, TEXT_ZONE_REGION, TEXT_ZONE_PARAGRAPH, TEXT_ZONE_LINE, TEXT_ZONE_WORD, TEXT_ZONE_CHARACTER)
-    >>> [[cmp(z1, z2) for z1 in zones] for z2 in zones]
-    [[0, -1, -1, -1, -1, -1, -1], [1, 0, -1, -1, -1, -1, -1], [1, 1, 0, -1, -1, -1, -1], [1, 1, 1, 0, -1, -1, -1], [1, 1, 1, 1, 0, -1, -1], [1, 1, 1, 1, 1, 0, -1], [1, 1, 1, 1, 1, 1, 0]]
-    '''
+    zones = [
+        TEXT_ZONE_PAGE,
+        TEXT_ZONE_COLUMN,
+        TEXT_ZONE_REGION,
+        TEXT_ZONE_PARAGRAPH,
+        TEXT_ZONE_LINE,
+        TEXT_ZONE_WORD,
+        TEXT_ZONE_CHARACTER
+    ]
+
+    def test_type(self):
+        for zone in self.zones:
+            assert_equal(type(zone), TextZoneType)
+            assert_true(isinstance(zone, Symbol))
+
+    def test_repr(self):
+        assert_repr(TEXT_ZONE_PAGE, '<djvu.const.TextZoneType: page>')
+        assert_repr(TEXT_ZONE_COLUMN, '<djvu.const.TextZoneType: column>')
+        assert_repr(TEXT_ZONE_REGION, '<djvu.const.TextZoneType: region>')
+        assert_repr(TEXT_ZONE_PARAGRAPH, '<djvu.const.TextZoneType: para>')
+        assert_repr(TEXT_ZONE_LINE, '<djvu.const.TextZoneType: line>')
+        assert_repr(TEXT_ZONE_WORD, '<djvu.const.TextZoneType: word>')
+        assert_repr(TEXT_ZONE_CHARACTER, '<djvu.const.TextZoneType: char>')
+
+    def test_identity(self):
+        assert_true(TEXT_ZONE_PAGE is get_text_zone_type(Symbol('page')))
+        assert_true(TEXT_ZONE_COLUMN is get_text_zone_type(Symbol('column')))
+        assert_true(TEXT_ZONE_REGION is get_text_zone_type(Symbol('region')))
+        assert_true(TEXT_ZONE_PARAGRAPH is get_text_zone_type(Symbol('para')))
+        assert_true(TEXT_ZONE_LINE is get_text_zone_type(Symbol('line')))
+        assert_true(TEXT_ZONE_WORD is get_text_zone_type(Symbol('word')))
+        assert_true(TEXT_ZONE_CHARACTER is get_text_zone_type(Symbol('char')))
+
+    def test_comparison1(self):
+        assert_not_equal(TEXT_ZONE_PAGE, '')
+        assert_not_equal(TEXT_ZONE_PAGE, 42)
+        with raises(TypeError, 'cannot compare text zone type with other object'):
+            TEXT_ZONE_PAGE < 42
+        with raises(TypeError, 'cannot compare text zone type with other object'):
+            TEXT_ZONE_PAGE <= 42
+        with raises(TypeError, 'cannot compare text zone type with other object'):
+            TEXT_ZONE_PAGE > 42
+        with raises(TypeError, 'cannot compare text zone type with other object'):
+            TEXT_ZONE_PAGE >= 42
+
+    def test_comparison2(self):
+        assert_equal(self.zones, sorted(self.zones, reverse=True))
+        assert_equal(
+            [[cmp(z1, z2) for z1 in self.zones] for z2 in self.zones], [
+                [0, -1, -1, -1, -1, -1, -1],
+                [+1, 0, -1, -1, -1, -1, -1],
+                [+1, +1, 0, -1, -1, -1, -1],
+                [+1, +1, +1, 0, -1, -1, -1],
+                [+1, +1, +1, +1, 0, -1, -1],
+                [+1, +1, +1, +1, +1, 0, -1],
+                [+1, +1, +1, +1, +1, +1, 0],
+            ]
+        )
 
 # vim:ts=4 sw=4 et

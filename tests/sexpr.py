@@ -10,380 +10,256 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
-from nose.tools import *
+from __future__ import with_statement
+
+import copy
+import tempfile
 
 from djvu.sexpr import *
 
-class IntExpressionTest:
-    '''
-    >>> x = Expression(3)
-    >>> x
-    Expression(3)
+from common import *
 
-    >>> x is Expression(x)
-    True
+class test_int_expressions():
 
-    >>> x.value
-    3
+    def test_short(self):
+        x = Expression(3)
+        assert_repr(x, 'Expression(3)')
+        assert_true(x is Expression(x))
+        assert_equal(x.value, 3)
+        assert_equal(str(x), '3')
+        assert_repr(x, repr(Expression.from_string(str(x))))
+        assert_equal(int(x), 3)
+        if not py3k:
+            long_x = long(x)
+            assert_equal(type(long_x), long)
+            assert_equal(long_x, L(3))
+        assert_equal(x, Expression(3))
+        assert_not_equal(x, Expression(-3))
+        assert_equal(hash(x), x.value)
+        assert_not_equal(x, 3)
 
-    >>> str(x)
-    '3'
+    def test_long(self):
+        x = Expression(L(42))
+        assert_repr(x, 'Expression(42)')
 
-    >>> repr(x) == repr(Expression.from_string(str(x)))
-    True
+    def test_limits(self):
+        assert_equal(Expression((1 << 29) - 1).value, (1 << 29) - 1)
+        assert_equal(Expression(-1 << 29).value, -1 << 29)
+        with raises(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
+            Expression(1 << 29)
+        with raises(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
+            Expression((-1 << 29) - 1)
 
-    >>> int(x)
-    3
-    >>> long(x)
-    3L
-
-    >>> x == Expression(3)
-    True
-    >>> x == Expression(-3)
-    False
-    >>> hash(x) == x.value
-    True
-    >>> x == 3
-    False
-
-    >>> Expression(42L)
-    Expression(42)
-
-    >>> [Expression(i).value == i for i in (1 << 29 - 1, -1 << 29)]
-    [True, True]
-    >>> Expression(1 << 29)
-    Traceback (most recent call last):
-    ...
-    ValueError: value not in range(-2 ** 29, 2 ** 29)
-    >>> Expression((-1 << 29) - 1)
-    Traceback (most recent call last):
-    ...
-    ValueError: value not in range(-2 ** 29, 2 ** 29)
-
-    >>> Expression(1) and 42
-    42
-    >>> Expression(0) or 42
-    42
-
-    '''
+    def test_bool(self):
+        assert_equal(Expression(1) and 42, 42)
+        assert_equal(Expression(0) or 42, 42)
 
 def test_symbols():
 
-    for name in 'eggs', u'ветчина':
+    for name in 'eggs', u('ветчина'):
         symbol = Symbol(name)
         assert_equal(type(symbol), Symbol)
         assert_equal(symbol, Symbol(name))
-        assert symbol is Symbol(name)
-        assert_equal(str(symbol), name.encode('UTF-8'))
-        assert_equal(unicode(symbol), name)
+        assert_true(symbol is Symbol(name))
+        if py3k:
+            assert_equal(str(symbol), name)
+        else:
+            assert_equal(str(symbol), name.encode('UTF-8'))
+            assert_equal(unicode(symbol), name)
         assert_not_equal(symbol, name)
         assert_not_equal(symbol, name.encode('UTF-8'))
         assert_equal(hash(symbol), hash(name.encode('UTF-8')))
 
-class SymbolExpressionTest:
-    '''
-    >>> x = Expression(Symbol('eggs'))
-    >>> x
-    Expression(Symbol('eggs'))
+def test_expressions():
+    x = Expression(Symbol('eggs'))
+    assert_repr(x, "Expression(Symbol('eggs'))")
+    assert_true(x is Expression(x))
+    assert_equal(x.value, Symbol('eggs'))
+    assert_equal(str(x), 'eggs')
+    assert_repr(x, repr(Expression.from_string(str(x))))
+    assert_equal(x, Expression(Symbol('eggs')))
+    assert_not_equal(x, Expression('eggs'))
+    assert_not_equal(x, Symbol('eggs'))
+    assert_equal(hash(x), hash('eggs'))
 
-    >>> x is Expression(x)
-    True
+def test_string_expressions():
+    x = Expression('eggs')
+    assert_repr(x, "Expression('eggs')")
+    assert_true(x is Expression(x))
+    assert_equal(x.value, 'eggs')
+    assert_equal(str(x), '"eggs"')
+    assert_repr(x, repr(Expression.from_string(str(x))))
+    assert_equal(x, Expression('eggs'))
+    assert_not_equal(x, Expression(Symbol('eggs')))
+    assert_not_equal(x, 'eggs')
+    assert_equal(hash(x), hash('eggs'))
 
-    >>> x.value
-    Symbol('eggs')
+class test_unicode_expressions():
 
-    >>> str(x)
-    'eggs'
+    def test1(self):
+        x = Expression(u('eggs'))
+        assert_repr(x, "Expression('eggs')")
+        assert_true(x is Expression(x))
 
-    >>> repr(x) == repr(Expression.from_string(str(x)))
-    True
+    def test2(self):
+        x = Expression(u('żółw'))
+        if py3k:
+            assert_repr(x, "Expression('żółw')")
+        else:
+            assert_repr(x, r"Expression('\xc5\xbc\xc3\xb3\xc5\x82w')")
 
-    >>> x == Expression(Symbol('eggs'))
-    True
-    >>> x == Expression('eggs')
-    False
-    >>> x == Symbol('eggs')
-    False
-    >>> hash(x) == hash('eggs')
-    True
-    '''
+class test_list_expressions():
 
-class StringExpressionTest:
-    '''
-    >>> x = Expression('eggs')
-    >>> x
-    Expression('eggs')
+    def test1(self):
+        x = Expression(())
+        assert_repr(x, "Expression(())")
+        y = Expression(x)
+        assert_true(x is y)
+        assert_equal(x.value, ())
+        assert_equal(len(x), 0)
+        assert_equal(bool(x), False)
+        assert_equal(list(x), [])
 
-    >>> x is Expression(x)
-    True
+    def test2(self):
+        x = Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
+        assert_repr(x, "Expression(((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))")
+        y = Expression(x)
+        assert_repr(y, repr(x))
+        assert_false(x is y)
+        assert_equal(x.value, ((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
+        assert_equal(str(x), '((1 2) 3 (4 5 baz) ("quux"))')
+        assert_repr(x, repr(Expression.from_string(str(x))))
+        assert_equal(len(x), 4)
+        assert_equal(bool(x), True)
+        assert_equal(tuple(x), (Expression((1, 2)), Expression(3), Expression((4, 5, Symbol('baz'))), Expression(('quux',))))
+        with raises(TypeError, 'key must be an integer or a slice'):
+            x[object()]
+        assert_equal(x[1], Expression(3))
+        assert_equal(x[-1][0], Expression('quux'))
+        with raises(IndexError, 'list index of out range'):
+            x[6]
+        with raises(IndexError, 'list index of out range'):
+            x[-6]
+        assert_equal(x[:].value, x.value)
+        assert_repr(x[1:], "Expression((3, (4, 5, Symbol('baz')), ('quux',)))")
+        assert_repr(x[-2:], "Expression(((4, 5, Symbol('baz')), ('quux',)))")
+        x[-2:] = 4, 5, 6
+        assert_repr(x, 'Expression(((1, 2), 3, 4, 5, 6))')
+        x[0] = 2
+        assert_repr(x, 'Expression((2, 3, 4, 5, 6))')
+        x[:] = (1, 3, 5)
+        assert_repr(x, 'Expression((1, 3, 5))')
+        x[3:] = 7,
+        assert_repr(x, 'Expression((1, 3, 5, 7))')
+        with raises(NotImplementedError, 'only [n:] slices are supported'):
+            x[object():]
+        with raises(NotImplementedError, 'only [n:] slices are supported'):
+            x[:2]
+        with raises(NotImplementedError, 'only [n:] slices are supported'):
+            x[object():] = []
+        with raises(NotImplementedError, 'only [n:] slices are supported'):
+            x[:2] = []
+        with raises(TypeError, 'can only assign a list expression'):
+            x[:] = 0
+        assert_equal(x, Expression((1, 3, 5, 7)))
+        assert_not_equal(x, Expression((2, 4, 6)))
+        assert_not_equal(x, (1, 3, 5, 7))
+        with raises(TypeError, "unhashable type: 'ListExpression'"):
+            hash(x)
 
-    >>> x.value
-    'eggs'
+    def test_copy1(self):
+        x = Expression([1, [2], 3])
+        y = Expression(x)
+        x[1][0] = 0
+        assert_repr(x, 'Expression((1, (0,), 3))')
+        assert_repr(y, 'Expression((1, (0,), 3))')
+        x[1] = 0
+        assert_repr(x, 'Expression((1, 0, 3))')
+        assert_repr(y, 'Expression((1, (0,), 3))')
 
-    >>> str(x)
-    '"eggs"'
+    def test_copy2(self):
+        x = Expression([1, [2], 3])
+        y = copy.copy(x)
+        x[1][0] = 0
+        assert_repr(x, 'Expression((1, (0,), 3))')
+        assert_repr(y, 'Expression((1, (0,), 3))')
+        x[1] = 0
+        assert_repr(x, 'Expression((1, 0, 3))')
+        assert_repr(y, 'Expression((1, (0,), 3))')
 
-    >>> repr(x) == repr(Expression.from_string(str(x)))
-    True
+    def test_copy3(self):
+        x = Expression([1, [2], 3])
+        y = copy.deepcopy(x)
+        x[1][0] = 0
+        assert_repr(x, 'Expression((1, (0,), 3))')
+        assert_repr(y, 'Expression((1, (2,), 3))')
+        x[1] = 0
+        assert_repr(x, 'Expression((1, 0, 3))')
+        assert_repr(y, 'Expression((1, (2,), 3))')
 
-    >>> x == Expression('eggs')
-    True
-    >>> x == Expression(Symbol('eggs'))
-    False
-    >>> x == 'eggs'
-    False
-    >>> hash(x) == hash('eggs')
-    True
-    '''
+def test_expression_parser():
 
-class UnicodeExpressionTest:
-    r'''
-    >>> x = Expression(u'eggs')
-    >>> x
-    Expression('eggs')
-    >>> x is Expression(x)
-    True
+    def test_badstring():
+        with raises(ExpressionSyntaxError):
+            Expression.from_string('(1')
 
-    >>> x = Expression(u'\u017c\xf3\u0142w')
-    >>> x
-    Expression('\xc5\xbc\xc3\xb3\xc5\x82w')
-    '''
+    def test_bad_io():
+        assert getattr(Expression.from_file, None) is None
+        with raises(ExpressionSyntaxError):
+            Expression.from_stream(42)
 
-class ListExpressionTest:
-    '''
-    >>> x = Expression(())
-    >>> x
-    Expression(())
+    def test_stringio():
+        fp = StringIO('(eggs) (ham)')
+        def read():
+            Expression.from_stream(fp)
+        x = read()
+        assert_repr(x, "Expression((Symbol('eggs'),))")
+        x = read()
+        assert_repr(x, "Expression((Symbol('ham'),))")
+        with raises(ExpressionSyntaxError):
+            x = read()
 
-    >>> y = Expression(x)
-    >>> x is y
-    True
+    def test_fileio():
+        fp = tempfile.TemporaryFile()
+        def read():
+            Expression.from_stream(fp)
+        if not py3k:
+            assert_equal(type(fp), file)
+        fp.write('(eggs) (ham)')
+        fp.seek(0)
+        x = read()
+        assert_repr(x, "Expression((Symbol('eggs'),))")
+        x = read()
+        assert_repr(x, "Expression((Symbol('ham'),))")
+        with raises(ExpressionSyntaxError):
+            x = read()
 
-    >>> x.value
-    ()
+class test_expression_writer():
 
-    >>> len(x)
-    0
+    expr = Expression([Symbol('eggs'), Symbol('ham')])
 
-    >>> bool(x)
-    False
+    def test_bad_io(self):
+        self.expr.print_into(42)
 
-    >>> list(x)
-    []
+    def test_stringio(self):
+        fp = StringIO()
+        self.expr.print_into(fp)
+        assert_equal(fp.getvalue(), '(eggs ham)')
 
-    >>> x = Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
-    >>> x
-    Expression(((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
-    >>> y = Expression(x)
-    >>> repr(x) == repr(y)
-    True
-    >>> x is y
-    False
+    def test_fileio_text(self):
+        fp = tempfile.TemporaryFile(mode='w+t')
+        if not py3k:
+            assert_equal(type(fp), file)
+        self.expr.print_into(fp)
+        fp.seek(0)
+        assert_equal(fp.read(), '(eggs ham)')
 
-    >>> x.value
-    ((1, 2), 3, (4, 5, Symbol('baz')), ('quux',))
-
-    >>> str(x)
-    '((1 2) 3 (4 5 baz) ("quux"))'
-
-    >>> repr(x) == repr(Expression.from_string(str(x)))
-    True
-
-    >>> len(x)
-    4
-
-    >>> bool(x)
-    True
-
-    >>> tuple(x)
-    (Expression((1, 2)), Expression(3), Expression((4, 5, Symbol('baz'))), Expression(('quux',)))
-
-    >>> x[object()]
-    Traceback (most recent call last):
-    ...
-    TypeError: key must be an integer or a slice
-
-    >>> x[1]
-    Expression(3)
-
-    >>> x[-1][0]
-    Expression('quux')
-
-    >>> x[6]
-    Traceback (most recent call last):
-    ...
-    IndexError: list index of out range
-    >>> x[-6]
-    Traceback (most recent call last):
-    ...
-    IndexError: list index of out range
-
-    >>> x[:].value == x.value
-    True
-
-    >>> x[1:]
-    Expression((3, (4, 5, Symbol('baz')), ('quux',)))
-    >>> x[-2:]
-    Expression(((4, 5, Symbol('baz')), ('quux',)))
-
-    >>> x[-2:] = 4, 5, 6
-    >>> x
-    Expression(((1, 2), 3, 4, 5, 6))
-    >>> x[0] = 2
-    >>> x
-    Expression((2, 3, 4, 5, 6))
-    >>> x[:] = (1, 3, 5)
-    >>> x
-    Expression((1, 3, 5))
-    >>> x[3:] = 7,
-    >>> x
-    Expression((1, 3, 5, 7))
-
-    >>> x[object():]
-    Traceback (most recent call last):
-    ...
-    NotImplementedError: only [n:] slices are supported
-    >>> x[:2]
-    Traceback (most recent call last):
-    ...
-    NotImplementedError: only [n:] slices are supported
-    >>> x[object():] = []
-    Traceback (most recent call last):
-    ...
-    NotImplementedError: only [n:] slices are supported
-    >>> x[:2] = []
-    Traceback (most recent call last):
-    ...
-    NotImplementedError: only [n:] slices are supported
-    >>> x[:] = 0
-    Traceback (most recent call last):
-    ...
-    TypeError: can only assign a list expression
-
-    >>> x == Expression((1, 3, 5, 7))
-    True
-    >>> x == Expression((2, 4, 6))
-    False
-    >>> x == (1, 3, 5, 7)
-    False
-    >>> hash(x)
-    Traceback (most recent call last):
-    ...
-    TypeError: unhashable type: 'ListExpression'
-
-    '''
-
-class ListExpressionCopyTest:
-
-    '''
-    >>> from copy import copy, deepcopy
-
-    >>> x = Expression([1, [2], 3])
-    >>> y = Expression(x)
-    >>> x[1][0] = 0
-    >>> x
-    Expression((1, (0,), 3))
-    >>> y
-    Expression((1, (0,), 3))
-    >>> x[1] = 0
-    >>> x
-    Expression((1, 0, 3))
-    >>> y
-    Expression((1, (0,), 3))
-
-    >>> x = Expression([1, [2], 3])
-    >>> y = copy(x)
-    >>> x[1][0] = 0
-    >>> x
-    Expression((1, (0,), 3))
-    >>> y
-    Expression((1, (0,), 3))
-    >>> x[1] = 0
-    >>> x
-    Expression((1, 0, 3))
-    >>> y
-    Expression((1, (0,), 3))
-
-
-    >>> x = Expression([1, [2], 3])
-    >>> y = deepcopy(x)
-    >>> x[1][0] = 0
-    >>> x
-    Expression((1, (0,), 3))
-    >>> y
-    Expression((1, (2,), 3))
-    >>> x[1] = 0
-    >>> x
-    Expression((1, 0, 3))
-    >>> y
-    Expression((1, (2,), 3))
-    '''
-
-class ExpressionParser:
-    '''
-    >>> Expression.from_string('(1')
-    Traceback (most recent call last):
-    ...
-    ExpressionSyntaxError
-
-    >>> Expression.from_stream(42)
-    Traceback (most recent call last):
-    ...
-    ExpressionSyntaxError
-
-    >>> from cStringIO import StringIO
-    >>> fp = StringIO('(eggs) (ham)')
-    >>> from djvu.sexpr import *
-    >>> Expression.from_stream(fp)
-    Expression((Symbol('eggs'),))
-    >>> Expression.from_stream(fp)
-    Expression((Symbol('ham'),))
-    >>> Expression.from_stream(fp)
-    Traceback (most recent call last):
-    ...
-    ExpressionSyntaxError
-
-    >>> import tempfile
-    >>> fp = tempfile.TemporaryFile()
-    >>> type(fp)
-    <type 'file'>
-    >>> fp.write('(eggs) (ham)')
-    >>> fp.seek(0)
-    >>> Expression.from_file(f)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    AttributeError: type object 'Expression' has no attribute 'from_file'
-    >>> Expression.from_stream(fp)
-    Expression((Symbol('eggs'),))
-    >>> Expression.from_stream(fp)
-    Expression((Symbol('ham'),))
-    >>> Expression.from_stream(fp)
-    Traceback (most recent call last):
-    ...
-    ExpressionSyntaxError
-    '''
-
-class ExpressionWriter:
-
-    '''
-    >>> expr = Expression([Symbol('eggs'), Symbol('ham')])
-
-    >>> expr.print_into(42)
-
-    >>> from cStringIO import StringIO
-    >>> fp = StringIO()
-    >>> expr.print_into(fp)
-    >>> fp.getvalue()
-    '(eggs ham)'
-
-    >>> import tempfile
-    >>> fp = tempfile.TemporaryFile()
-    >>> type(fp)
-    <type 'file'>
-    >>> expr.print_into(fp)
-    >>> fp.seek(0)
-    >>> fp.read()
-    '(eggs ham)'
-    '''
+    def test_fileio_binary(self):
+        fp = tempfile.TemporaryFile(mode='w+b')
+        if not py3k:
+            assert_equal(type(fp), file)
+        self.expr.print_into(fp)
+        fp.seek(0)
+        assert_equal(fp.read(), b('(eggs ham)'))
 
 # vim:ts=4 sw=4 et

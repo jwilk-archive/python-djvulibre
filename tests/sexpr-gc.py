@@ -29,10 +29,15 @@ def mem_info(key = 'VmSize'):
 
 STEP = 1 << 17
 
+try:
+    range = xrange
+except NameError:
+    pass
+
 n = 0
 while True:
-    print '%.2fM' % mem_info()
-    [Expression(4) for i in xrange(STEP)]
+    print('%.2fM' % mem_info())
+    [Expression(4) for i in range(STEP)]
     break
 
 # vim:ts=4 sw=4 et

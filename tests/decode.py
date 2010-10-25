@@ -10,15 +10,19 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
-from nose.tools import *
+from __future__ import with_statement
+
+import array
+import os
+import shutil
+import subprocess as ipc
+import sys
+import tempfile
 
 from djvu.decode import *
 from djvu.sexpr import *
 
-import os
-import sys
-import tempfile
-import subprocess
+from common import *
 
 images = os.path.join(os.path.dirname(__file__), 'images', '')
 
@@ -26,16 +30,20 @@ def create_djvu(commands='', sexpr=''):
     if sexpr:
         commands += '\nset-ant\n%s\n.\n' % sexpr
     file = tempfile.NamedTemporaryFile()
-    file = open('test.djvu', 'w')
+    file = open('test.djvu', 'wb')
     file.seek(0)
-    file.write('AT&TFORM\0\0\0"DJVUINFO\0\0\0\n\0\1\0\1\x18\0,\1\x16\1Sjbz\0\0\0\x04\xbcs\x1b\xd7')
+    file.write(blob(
+        0x41, 0x54, 0x26, 0x54, 0x46, 0x4f, 0x52, 0x4d, 0x00, 0x00, 0x00, 0x22, 0x44, 0x4a, 0x56, 0x55,
+        0x49, 0x4e, 0x46, 0x4f, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x01, 0x00, 0x01, 0x18, 0x00, 0x2c, 0x01,
+        0x16, 0x01, 0x53, 0x6a, 0x62, 0x7a, 0x00, 0x00, 0x00, 0x04, 0xbc, 0x73, 0x1b, 0xd7,
+    ))
     file.flush()
-    djvused = subprocess.Popen(['djvused', '-s', file.name], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, env={})
-    djvused.stdin.write(commands)
+    djvused = ipc.Popen(['djvused', '-s', file.name], stdin=ipc.PIPE, stdout=ipc.PIPE, stderr=ipc.PIPE)
+    djvused.stdin.write(commands.encode(locale_encoding))
     djvused.stdin.close()
     assert_equal(djvused.wait(), 0)
-    assert_equal(djvused.stdout.read(), '')
-    assert_equal(djvused.stderr.read(), '')
+    assert_equal(djvused.stdout.read(), ''.encode(locale_encoding))
+    assert_equal(djvused.stderr.read(), ''.encode(locale_encoding))
     return file
 
 def test_context_cache():
@@ -46,8 +54,10 @@ def test_context_cache():
     context = Context()
     assert_equal(context.cache_size, 10 << 20)
     for n in -100, 0, 1 << 31:
-        assert_raises(ValueError, set_cache_size, n)
-    assert_raises(ValueError, set_cache_size, 0)
+        with raises(ValueError, '0 < cache_size < (2 ** 31) must be satisfied'):
+            set_cache_size(n)
+    with raises(ValueError, '0 < cache_size < (2 ** 31) must be satisfied'):
+        set_cache_size(0)
     n = 1
     while n < (1 << 31):
         set_cache_size(n)
@@ -55,690 +65,469 @@ def test_context_cache():
         n = (n + 1) * 2 - 1
     context.clear_cache()
 
-class DocumentTest:
+class test_documents:
 
-    def test_instantiate(self):
-        '''
-        >>> Document()
-        Traceback (most recent call last):
-        ...
-        TypeError: cannot create 'djvu.decode.Document' instances
-        '''
+    def test_new(self):
+        with raises(TypeError, "cannot create 'djvu.decode.Document' instances"):
+            Document()
 
     def test_nonexistent(self):
-        '''
-        >>> context = Context()
-        >>> document = context.new_document(FileUri('__nonexistent__'))
-        Traceback (most recent call last):
-        ...
-        JobFailed
-        >>> message = context.get_message()
-        >>> type(message) == ErrorMessage
-        True
-        >>> message.message
-        "[1-11711] Failed to open '__nonexistent__': No such file or directory."
-        '''
+        context = Context()
+        with raises(JobFailed):
+            document = context.new_document(FileUri('__nonexistent__'))
+        message = context.get_message()
+        assert_equal(type(message), ErrorMessage)
+        assert_equal(type(message.message), str) # TODO: check
+        if 'Unrecognized DjVu Message' in message.message:
+            assert_equal(message.message, '** Unrecognized DjVu Message:\n\t** Message name:  \x03ByteStream.open_fail\n\t   Parameter: __nonexistent__\n\t   Parameter: No such file or directory')
+        else:
+            assert_equal(message.message, "[1-11711] Failed to open '__nonexistent__': No such file or directory.")
 
     def test_new_document(self):
-        '''
-        >>> context = Context()
-        >>> document = context.new_document(FileUri(images + 'test1.djvu'))
-        >>> type(document) == Document
-        True
-        >>> message = document.get_message()
-        >>> type(message) == DocInfoMessage
-        True
-        >>> document.decoding_done
-        True
-        >>> document.decoding_error
-        False
-        >>> document.decoding_status == JobOK
-        True
-        >>> document.type == DOCUMENT_TYPE_SINGLE_PAGE
-        True
-        >>> len(document.pages)
-        1
-        >>> len(document.files)
-        1
+        context = Context()
+        document = context.new_document(FileUri(images + 'test1.djvu'))
+        assert_equal(type(document), Document)
+        message = document.get_message()
+        assert_equal(type(message), DocInfoMessage)
+        assert_true(document.decoding_done)
+        assert_false(document.decoding_error)
+        assert_equal(document.decoding_status, JobOK)
+        assert_equal(document.type, DOCUMENT_TYPE_SINGLE_PAGE)
+        assert_equal(len(document.pages), 1)
+        assert_equal(len(document.files), 1)
 
-        >>> decoding_job = document.decoding_job
-        >>> decoding_job.is_done, decoding_job.is_error
-        (True, False)
-        >>> decoding_job.status == JobOK
-        True
+        decoding_job = document.decoding_job
+        assert_true(decoding_job.is_done)
+        assert_false(decoding_job.is_error)
+        assert_equal(decoding_job.status, JobOK)
 
-        >>> file = document.files[0]
-        >>> type(file) is File
-        True
-        >>> file.document is document
-        True
-        >>> file.get_info()
-        >>> file.type
-        'P'
-        >>> file.n_page
-        0
-        >>> page = file.page
-        >>> type(page) is Page
-        True
-        >>> page.document is document
-        True
-        >>> page.n
-        0
-        >>> file.size
-        >>> file.id
-        u'test1.djvu'
-        >>> file.name
-        u'test1.djvu'
-        >>> file.title
-        u'test1.djvu'
+        file = document.files[0]
+        assert_true(type(file) is File)
+        assert_true(file.document is document)
+        assert_true(file.get_info() is None)
+        assert_equal(file.type, 'P')
+        assert_equal(file.n_page, 0)
+        page = file.page
+        assert_equal(type(page), Page)
+        assert_true(page.document is document)
+        assert_equal(page.n, 0)
+        assert_true(file.size is None)
+        assert_equal(file.id, u('test1.djvu'))
+        assert_equal(type(file.id), unicode)
+        assert_equal(file.name, u('test1.djvu'))
+        assert_equal(type(file.name), unicode)
+        assert_equal(file.title, u('test1.djvu'))
+        assert_equal(type(file.title), unicode)
 
-        >>> for line in document.files[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
-        u'  FORM:DJVU [83] '
-        u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
-        u'    Sjbz [53]         JB2 bilevel data'
+        dump = document.files[0].dump
+        assert_equal(type(dump), unicode)
+        assert_equal(
+            [line for line in dump.splitlines()], [
+                u('  FORM:DJVU [83] '),
+                u('    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'),
+                u('    Sjbz [53]         JB2 bilevel data'),
+            ]
+        )
 
-        >>> page = document.pages[0]
-        >>> type(page) is Page
-        True
-        >>> page.document is document
-        True
-        >>> page.get_info()
-        >>> page.width
-        64
-        >>> page.height
-        48
-        >>> page.size
-        (64, 48)
-        >>> page.dpi
-        300
-        >>> page.rotation
-        0
-        >>> page.version
-        24
-        >>> file = page.file
-        >>> type(file) is File
-        True
-        >>> file.id
-        u'test1.djvu'
+        page = document.pages[0]
+        assert_equal(type(page), Page)
+        assert_true(page.document is document)
+        assert_true(page.get_info() is None)
+        assert_equal(page.width, 64)
+        assert_equal(page.height, 48)
+        assert_equal(page.size, (64, 48))
+        assert_equal(page.dpi, 300)
+        assert_equal(page.rotation, 0)
+        assert_equal(page.version, 24)
+        file = page.file
+        assert_equal(type(file), File)
+        assert_equal(file.id, u('test1.djvu'))
+        assert_equal(type(file.id), unicode)
 
-        >>> for line in document.pages[0].dump.splitlines(): print repr(line) # doctest: +REPORT_NDIFF
-        u'  FORM:DJVU [83] '
-        u'    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'
-        u'    Sjbz [53]         JB2 bilevel data'
+        dump = document.files[0].dump
+        assert_equal(type(dump), unicode)
+        assert_equal(
+            [line for line in dump.splitlines()], [
+                u('  FORM:DJVU [83] '),
+                u('    INFO [10]         DjVu 64x48, v24, 300 dpi, gamma=2.2'),
+                u('    Sjbz [53]         JB2 bilevel data'),
+            ]
+        )
 
-        >>> document.get_message(wait = False) is None
-        True
-        >>> context.get_message(wait = False) is None
-        True
+        assert_true(document.get_message(wait = False) is None)
+        assert_true(context.get_message(wait = False) is None)
 
-        >>> document.files[-1].get_info()
-        Traceback (most recent call last):
-        ...
-        IndexError: file number out of range
-        >>> document.get_message(wait = False) is None
-        True
-        >>> context.get_message(wait = False) is None
-        True
+        with raises(IndexError, 'file number out of range'):
+            document.files[-1].get_info()
+        assert_true(document.get_message(wait = False) is None)
+        assert_true(context.get_message(wait = False) is None)
 
-        >>> document.pages[-1]
-        Traceback (most recent call last):
-        ...
-        IndexError: page number out of range
-        >>> document.pages[1]
-        Traceback (most recent call last):
-        ...
-        IndexError: page number out of range
+        with raises(IndexError, 'page number out of range'):
+            document.pages[-1]
+        with raises(IndexError, 'page number out of range'):
+            document.pages[1]
 
-        >>> document.get_message(wait = False) is None
-        True
-        >>> context.get_message(wait = False) is None
-        True
-        '''
+        assert_true(document.get_message(wait = False) is None)
+        assert_true(context.get_message(wait = False) is None)
 
     def test_save(self):
-        r'''
-        >>> context = Context()
-        >>> document = context.new_document(FileUri(images + 'test0.djvu'))
-        >>> message = document.get_message()
-        >>> type(message) == DocInfoMessage
-        True
-        >>> document.decoding_done
-        True
-        >>> document.decoding_error
-        False
-        >>> document.decoding_status == JobOK
-        True
-        >>> document.type == DOCUMENT_TYPE_BUNDLED
-        True
-        >>> len(document.pages)
-        6
-        >>> len(document.files)
-        7
+        context = Context()
+        original_filename = images + 'test0.djvu'
+        document = context.new_document(FileUri(original_filename))
+        message = document.get_message()
+        assert_equal(type(message), DocInfoMessage)
+        assert_true(document.decoding_done)
+        assert_false(document.decoding_error)
+        assert_equal(document.decoding_status, JobOK)
+        assert_equal(document.type, DOCUMENT_TYPE_BUNDLED)
+        assert_equal(len(document.pages), 6)
+        assert_equal(len(document.files), 7)
 
-        >>> from tempfile import NamedTemporaryFile, mkdtemp
-        >>> from shutil import rmtree
-        >>> from os.path import join as path_join
-        >>> from subprocess import Popen, PIPE
+        stdout0, stderr0 = ipc.Popen(['djvudump', original_filename], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+        assert_equal(stderr0, b(''))
 
-        >>> tmp = NamedTemporaryFile()
-        >>> job = document.save(tmp.file)
-        >>> type(job) == SaveJob
-        True
-        >>> job.is_done, job.is_error
-        (True, False)
-        >>> tmp.flush()
-        >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout=PIPE, stderr=PIPE, env={}).communicate()
-        >>> stderr
-        ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF,+ELLIPSIS
-        '  FORM:DJVM [...] '
-        '    DIRM [...] ... Document directory (bundled, 7 files 6 pages)'
-        '    NAVM [...] '
-        '    FORM:DJVI [...] {shared_anno.iff}...'
-        '      ANTz [...] ... Page annotation (hyperlinks, etc.)'
-        '    FORM:DJVU [...] {p0001.djvu}...'
-        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [...] ... JB2 bilevel data'
-        '      TXTz [...] ... Hidden text (text, etc.)'
-        '    FORM:DJVU [...] {p0002.djvu}...'
-        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [...] ... JB2 bilevel data'
-        '      TXTz [...] ... Hidden text (text, etc.)'
-        '    FORM:DJVU [...] {p0003.djvu}...'
-        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [...] ... JB2 bilevel data'
-        '      FGbz [...] ... JB2 colors data, v0, 7 colors'
-        '      BG44 [...] ... IW4 data #1, 97 slices, v1.2 (b&w), 213x275'
-        '      TXTz [...] ... Hidden text (text, etc.)'
-        '    FORM:DJVU [...] {p0004.djvu}...'
-        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [...] ... JB2 bilevel data'
-        '      FGbz [...] ... JB2 colors data, v0, 1 colors'
-        '      BG44 [...] ... IW4 data #1, 97 slices, v1.2 (color), 213x275'
-        '      TXTz [...] ... Hidden text (text, etc.)'
-        '    FORM:DJVU [...] {p0005.djvu}...'
-        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [...] ... JB2 bilevel data'
-        '      ANTz [...] ... Page annotation (hyperlinks, etc.)'
-        '      TXTz [...] ... Hidden text (text, etc.)'
-        '    FORM:DJVU [...] {p0006.djvu}...'
-        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [...] ... JB2 bilevel data'
-        '      FGbz [...] ... JB2 colors data, v0, 1 colors'
-        '      BG44 [...] ... IW4 data #1, 72 slices, v1.2 (color), 850x1100'
-        '      BG44 [...] ... IW4 data #2, 11 slices'
-        '      BG44 [...] ... IW4 data #3, 10 slices'
-        '      BG44 [...] ... IW4 data #4, 10 slices'
-        '      TXTz [...] ... Hidden text (text, etc.)'
-        >>> del tmp
+        tmp = tempfile.NamedTemporaryFile()
+        try:
+            job = document.save(tmp.file)
+            assert_equal(type(job), SaveJob)
+            assert_true(job.is_done)
+            assert_false(job.is_error)
+            stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            assert_equal(stderr, b(''))
+            assert_equal(stdout, stdout0)
+        finally:
+            tmp.close()
+            tmp = None
 
-        >>> tmp = NamedTemporaryFile()
-        >>> job = document.save(tmp.file, pages=(0,))
-        >>> type(job) == SaveJob
-        True
-        >>> job.is_done, job.is_error
-        (True, False)
-        >>> tmp.flush()
-        >>> stdout, stderr = Popen(['djvudump', tmp.name], stdout=PIPE, stderr=PIPE, env={}).communicate()
-        >>> stderr
-        ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF,+ELLIPSIS
-        ...
-        '  FORM:DJVM [...] '
-        '    DIRM [...] ... Document directory (bundled, 2 files 1 pages)'
-        '    FORM:DJVI [...] {shared_anno.iff}...'
-        '      ANTz [...] ... Page annotation (hyperlinks, etc.)'
-        '    FORM:DJVU [...] {p0001.djvu}...'
-        '      INFO [...] ... DjVu 2550x3300, v24, 300 dpi, gamma=2.2'
-        '      INCL [...] ... Indirection chunk --> {shared_anno.iff}'
-        '      Sjbz [...] ... JB2 bilevel data'
-        '      TXTz [...] ... Hidden text (text, etc.)'
-        >>> del tmp
+        tmp = tempfile.NamedTemporaryFile()
+        try:
+            job = document.save(tmp.file, pages=(0,))
+            assert_equal(type(job), SaveJob)
+            assert_true(job.is_done)
+            assert_false(job.is_error)
+            stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            assert_equal(stderr, b(''))
+            stdout0 = stdout0.split(b('\n'))
+            stdout = stdout.split(b('\n'))
+            assert_equal(len(stdout), 10)
+            assert_equal(stdout[3:-1], stdout0[4:10])
+            assert_equal(stdout[-1], b(''))
+        finally:
+            tmp.close()
 
-        >>> tmpdir = mkdtemp()
-        >>> tmpfname = path_join(tmpdir, 'index.djvu')
-        >>> job = document.save(indirect = tmpfname)
-        >>> type(job) == SaveJob
-        True
-        >>> job.is_done, job.is_error
-        (True, False)
-        >>> stdout, stderr = Popen(['djvudump', tmpfname], stdout=PIPE, stderr=PIPE, env={}).communicate()
-        >>> stderr
-        ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF,+ELLIPSIS
-        ...
-        '  FORM:DJVM [...] '
-        '    DIRM [...] ... Document directory (indirect, 7 files 6 pages)'
-        '      shared_anno.iff -> shared_anno.iff'
-        '      p0001.djvu -> p0001.djvu'
-        '      p0002.djvu -> p0002.djvu'
-        '      p0003.djvu -> p0003.djvu'
-        '      p0004.djvu -> p0004.djvu'
-        '      p0005.djvu -> p0005.djvu'
-        '      p0006.djvu -> p0006.djvu'
-        '    NAVM [...] '
-        >>> rmtree(tmpdir)
+        tmpdir = tempfile.mkdtemp()
+        try:
+            tmpfname = os.path.join(tmpdir, 'index.djvu')
+            job = document.save(indirect=tmpfname)
+            assert_equal(type(job), SaveJob)
+            assert_true(job.is_done)
+            assert_false(job.is_error)
+            stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            assert_equal(stderr, b(''))
+            stdout = stdout.split(b('\n'))
+            stdout0 = (
+                [b('      shared_anno.iff -> shared_anno.iff')] +
+                [b('      p%04d.djvu -> p%04d.djvu' % (n, n)) for n in range(1, 7)]
+            )
+            assert_equal(len(stdout), 11)
+            assert_equal(stdout[2:-2], stdout0)
+            assert_equal(stdout[-1], b(''))
+        finally:
+            shutil.rmtree(tmpdir)
 
-        >>> tmpdir = mkdtemp()
-        >>> tmpfname = path_join(tmpdir, 'index.djvu')
-        >>> job = document.save(indirect = tmpfname, pages = (0,))
-        >>> type(job) == SaveJob
-        True
-        >>> job.is_done, job.is_error
-        (True, False)
-        >>> stdout, stderr = Popen(['djvudump', tmpfname], stdout=PIPE, stderr=PIPE, env={}).communicate()
-        >>> stderr
-        ''
-        >>> for line in stdout.splitlines(): print repr(line) # doctest: +REPORT_NDIFF,+ELLIPSIS
-        ...
-        '  FORM:DJVM [...] '
-        '    DIRM [...] ... Document directory (indirect, 2 files 1 pages)'
-        '      shared_anno.iff -> shared_anno.iff'
-        '      p0001.djvu -> p0001.djvu'
-        >>> rmtree(tmpdir)
-        '''
+        tmpdir = tempfile.mkdtemp()
+        try:
+            tmpfname = os.path.join(tmpdir, 'index.djvu')
+            job = document.save(indirect=tmpfname, pages=(0,))
+            assert_equal(type(job), SaveJob)
+            assert_true(job.is_done)
+            assert_false(job.is_error)
+            stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            assert_equal(stderr, b(''))
+            stdout = stdout.split(b('\n'))
+            assert_equal(len(stdout), 5)
+            assert_equal(stdout[2], b('      shared_anno.iff -> shared_anno.iff'))
+            assert_equal(stdout[3], b('      p0001.djvu -> p0001.djvu'))
+            assert_equal(stdout[-1], b(''))
+        finally:
+            shutil.rmtree(tmpdir)
 
     def test_export_ps(self):
-        r'''
-        >>> import sys
-        >>> context = Context()
-        >>> document = context.new_document(FileUri(images + 'test0.djvu'))
-        >>> message = document.get_message()
-        >>> type(message) == DocInfoMessage
-        True
-        >>> document.decoding_done
-        True
-        >>> document.decoding_error
-        False
-        >>> document.decoding_status == JobOK
-        True
-        >>> document.type == DOCUMENT_TYPE_BUNDLED
-        True
-        >>> len(document.pages)
-        6
-        >>> len(document.files)
-        7
+        context = Context()
+        document = context.new_document(FileUri(images + 'test0.djvu'))
+        message = document.get_message()
+        assert_equal(type(message), DocInfoMessage)
+        assert_true(document.decoding_done)
+        assert_false(document.decoding_error)
+        assert_equal(document.decoding_status, JobOK)
+        assert_equal(document.type, DOCUMENT_TYPE_BUNDLED)
+        assert_equal(len(document.pages), 6)
+        assert_equal(len(document.files), 7)
 
-        >>> from tempfile import NamedTemporaryFile
-        >>> from subprocess import Popen, PIPE
-        >>> from pprint import pprint
+        tmp = tempfile.NamedTemporaryFile()
+        try:
+            job = document.export_ps(tmp.file)
+            assert_equal(type(job), SaveJob)
+            assert_true(job.is_done)
+            assert_false(job.is_error)
+            stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            assert_equal(stderr, b(''))
+            assert_equal(stdout, b('\x0c') * 6)
+        finally:
+            tmp.close()
 
-        >>> tmp = NamedTemporaryFile()
-        >>> job = document.export_ps(tmp.file)
-        >>> type(job) == SaveJob
-        True
-        >>> job.is_done, job.is_error
-        (True, False)
-        >>> tmp.flush()
-        >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE, env={}).communicate()
-        >>> stderr
-        ''
-        >>> stdout
-        '\x0c\x0c\x0c\x0c\x0c\x0c'
-        >>> del tmp
+        tmp = tempfile.NamedTemporaryFile()
+        try:
+            job = document.export_ps(tmp.file, pages=(2,), text=True)
+            assert_equal(type(job), SaveJob)
+            assert_true(job.is_done)
+            assert_false(job.is_error)
+            stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            assert_equal(stderr, b(''))
+            stdout = stdout.split(b('\n'))
+            assert_equal(stdout, [
+                b(''),
+                b(''),
+                b(' 3C'),
+                b(' red green blue cyan magenta yellow'),
+                b(''),
+                b(' red green blue cyan magenta yellow'),
+                b(''),
+                b(' 3\x0c'),
+            ])
+        finally:
+            del tmp
 
-        >>> tmp = NamedTemporaryFile()
-        >>> job = document.export_ps(tmp.file, pages = (2,), text = True)
-        >>> type(job) == SaveJob
-        True
-        >>> job.is_done, job.is_error
-        (True, False)
-        >>> tmp.flush()
-        >>> stdout, stderr = Popen(['ps2ascii', tmp.name], stdout = PIPE, stderr = PIPE, env={}).communicate()
-        >>> stderr
-        ''
-        >>> for line in stdout.splitlines(): print repr(line.replace('  ', ' ')) # doctest: +REPORT_NDIFF
-        ''
-        ''
-        ' 3C'
-        ' red green blue cyan magenta yellow'
-        ''
-        ' red green blue cyan magenta yellow'
-        ''
-        ' 3\x0c'
-        >>> del tmp
-        '''
+class test_pixel_formats:
 
-class PixelFormatTest:
+    def test_new(self):
+        with raises(TypeError, "cannot create 'djvu.decode.PixelFormat' instances"):
+            PixelFormat()
 
-    '''
-    >>> PixelFormat()
-    Traceback (most recent call last):
-    ...
-    TypeError: cannot create 'djvu.decode.PixelFormat' instances
+    def test_rgb(self):
+        pf = PixelFormatRgb()
+        assert_equal(repr(pf), "djvu.decode.PixelFormatRgb(byte_order = 'RGB', bpp = 24)")
+        pf = PixelFormatRgb('RGB')
+        assert_equal(repr(pf), "djvu.decode.PixelFormatRgb(byte_order = 'RGB', bpp = 24)")
+        pf = PixelFormatRgb('BGR')
+        assert_equal(repr(pf), "djvu.decode.PixelFormatRgb(byte_order = 'BGR', bpp = 24)")
 
-    >>> pf = PixelFormatRgb()
-    >>> pf
-    djvu.decode.PixelFormatRgb(byte_order = 'RGB', bpp = 24)
-    >>> pf = PixelFormatRgb('RGB')
-    >>> pf
-    djvu.decode.PixelFormatRgb(byte_order = 'RGB', bpp = 24)
-    >>> pf = PixelFormatRgb('BGR')
-    >>> pf
-    djvu.decode.PixelFormatRgb(byte_order = 'BGR', bpp = 24)
+    def test_rgb_mask(self):
+        pf = PixelFormatRgbMask(0xff, 0xf00, 0x1f000, 0, 16)
+        assert_equal(repr(pf), "djvu.decode.PixelFormatRgbMask(red_mask = 0x00ff, green_mask = 0x0f00, blue_mask = 0xf000, xor_value = 0x0000, bpp = 16)")
+        pf = PixelFormatRgbMask(0xff000000, 0xff0000, 0xff00, 0xff, 32)
+        assert_equal(repr(pf), "djvu.decode.PixelFormatRgbMask(red_mask = 0xff000000, green_mask = 0x00ff0000, blue_mask = 0x0000ff00, xor_value = 0x000000ff, bpp = 32)")
 
-    >>> pf = PixelFormatRgbMask(0xff, 0xf00, 0x1f000, 0, 16)
-    >>> pf
-    djvu.decode.PixelFormatRgbMask(red_mask = 0x00ff, green_mask = 0x0f00, blue_mask = 0xf000, xor_value = 0x0000, bpp = 16)
+    def test_grey(self):
+        pf = PixelFormatGrey()
+        assert_equal(repr(pf), "djvu.decode.PixelFormatGrey(bpp = 8)")
 
+    def test_palette(self):
+        with raises(KeyError, repr((0, 0, 0))):
+            pf = PixelFormatPalette({})
+        data = dict(((i, j, k), i + 7 * j + 37 + k) for i in range(6) for j in range(6) for k in range(6))
+        pf = PixelFormatPalette(data)
+        data_repr = ', '.join('%r: 0x%02x' % (k, v) for k, v in sorted(data.items()))
+        assert_equal(repr(pf), "djvu.decode.PixelFormatPalette({%s}, bpp = 8)" % data_repr)
 
-    >>> pf = PixelFormatRgbMask(0xff000000, 0xff0000, 0xff00, 0xff, 32)
-    >>> pf
-    djvu.decode.PixelFormatRgbMask(red_mask = 0xff000000, green_mask = 0x00ff0000, blue_mask = 0x0000ff00, xor_value = 0x000000ff, bpp = 32)
+    def test_packed_bits(self):
+        pf = PixelFormatPackedBits('<')
+        assert_equal(repr(pf), "djvu.decode.PixelFormatPackedBits('<')")
+        assert_equal(pf.bpp, 1)
+        pf = PixelFormatPackedBits('>')
+        assert_equal(repr(pf), "djvu.decode.PixelFormatPackedBits('>')")
+        assert_equal(pf.bpp, 1)
 
-    >>> pf = PixelFormatGrey()
-    >>> pf
-    djvu.decode.PixelFormatGrey(bpp = 8)
+class test_page_jobs:
 
-    >>> pf = PixelFormatPalette({})
-    Traceback (most recent call last):
-    ...
-    KeyError: (0, 0, 0)
-    >>> pf = PixelFormatPalette(dict(((i, j, k), i + 7*j + 37+k) for i in xrange(6) for j in xrange(6) for k in xrange(6)))
-    >>> pf
-    djvu.decode.PixelFormatPalette({(0, 0, 0): 0x25, (0, 0, 1): 0x26, (0, 0, 2): 0x27, (0, 0, 3): 0x28, (0, 0, 4): 0x29, (0, 0, 5): 0x2a, (0, 1, 0): 0x26, (0, 1, 1): 0x27, (0, 1, 2): 0x28, (0, 1, 3): 0x29, (0, 1, 4): 0x2a, (0, 1, 5): 0x2c, (0, 2, 0): 0x27, (0, 2, 1): 0x28, (0, 2, 2): 0x29, (0, 2, 3): 0x2a, (0, 2, 4): 0x2c, (0, 2, 5): 0x2d, (0, 3, 0): 0x28, (0, 3, 1): 0x29, (0, 3, 2): 0x2a, (0, 3, 3): 0x2c, (0, 3, 4): 0x2d, (0, 3, 5): 0x2e, (0, 4, 0): 0x29, (0, 4, 1): 0x2a, (0, 4, 2): 0x2c, (0, 4, 3): 0x2d, (0, 4, 4): 0x2e, (0, 4, 5): 0x2f, (0, 5, 0): 0x2a, (0, 5, 1): 0x2c, (0, 5, 2): 0x2d, (0, 5, 3): 0x2e, (0, 5, 4): 0x2f, (0, 5, 5): 0x30, (1, 0, 0): 0x26, (1, 0, 1): 0x27, (1, 0, 2): 0x28, (1, 0, 3): 0x29, (1, 0, 4): 0x2a, (1, 0, 5): 0x2b, (1, 1, 0): 0x27, (1, 1, 1): 0x28, (1, 1, 2): 0x29, (1, 1, 3): 0x2a, (1, 1, 4): 0x2b, (1, 1, 5): 0x2d, (1, 2, 0): 0x28, (1, 2, 1): 0x29, (1, 2, 2): 0x2a, (1, 2, 3): 0x2b, (1, 2, 4): 0x2d, (1, 2, 5): 0x2e, (1, 3, 0): 0x29, (1, 3, 1): 0x2a, (1, 3, 2): 0x2b, (1, 3, 3): 0x2d, (1, 3, 4): 0x2e, (1, 3, 5): 0x2f, (1, 4, 0): 0x2a, (1, 4, 1): 0x2b, (1, 4, 2): 0x2d, (1, 4, 3): 0x2e, (1, 4, 4): 0x2f, (1, 4, 5): 0x30, (1, 5, 0): 0x2b, (1, 5, 1): 0x2d, (1, 5, 2): 0x2e, (1, 5, 3): 0x2f, (1, 5, 4): 0x30, (1, 5, 5): 0x31, (2, 0, 0): 0x27, (2, 0, 1): 0x28, (2, 0, 2): 0x29, (2, 0, 3): 0x2a, (2, 0, 4): 0x2b, (2, 0, 5): 0x2c, (2, 1, 0): 0x28, (2, 1, 1): 0x29, (2, 1, 2): 0x2a, (2, 1, 3): 0x2b, (2, 1, 4): 0x2c, (2, 1, 5): 0x2e, (2, 2, 0): 0x29, (2, 2, 1): 0x2a, (2, 2, 2): 0x2b, (2, 2, 3): 0x2c, (2, 2, 4): 0x2e, (2, 2, 5): 0x2f, (2, 3, 0): 0x2a, (2, 3, 1): 0x2b, (2, 3, 2): 0x2c, (2, 3, 3): 0x2e, (2, 3, 4): 0x2f, (2, 3, 5): 0x30, (2, 4, 0): 0x2b, (2, 4, 1): 0x2c, (2, 4, 2): 0x2e, (2, 4, 3): 0x2f, (2, 4, 4): 0x30, (2, 4, 5): 0x31, (2, 5, 0): 0x2c, (2, 5, 1): 0x2e, (2, 5, 2): 0x2f, (2, 5, 3): 0x30, (2, 5, 4): 0x31, (2, 5, 5): 0x32, (3, 0, 0): 0x28, (3, 0, 1): 0x29, (3, 0, 2): 0x2a, (3, 0, 3): 0x2b, (3, 0, 4): 0x2c, (3, 0, 5): 0x2d, (3, 1, 0): 0x29, (3, 1, 1): 0x2a, (3, 1, 2): 0x2b, (3, 1, 3): 0x2c, (3, 1, 4): 0x2d, (3, 1, 5): 0x2f, (3, 2, 0): 0x2a, (3, 2, 1): 0x2b, (3, 2, 2): 0x2c, (3, 2, 3): 0x2d, (3, 2, 4): 0x2f, (3, 2, 5): 0x30, (3, 3, 0): 0x2b, (3, 3, 1): 0x2c, (3, 3, 2): 0x2d, (3, 3, 3): 0x2f, (3, 3, 4): 0x30, (3, 3, 5): 0x31, (3, 4, 0): 0x2c, (3, 4, 1): 0x2d, (3, 4, 2): 0x2f, (3, 4, 3): 0x30, (3, 4, 4): 0x31, (3, 4, 5): 0x32, (3, 5, 0): 0x2d, (3, 5, 1): 0x2f, (3, 5, 2): 0x30, (3, 5, 3): 0x31, (3, 5, 4): 0x32, (3, 5, 5): 0x33, (4, 0, 0): 0x29, (4, 0, 1): 0x2a, (4, 0, 2): 0x2b, (4, 0, 3): 0x2c, (4, 0, 4): 0x2d, (4, 0, 5): 0x2e, (4, 1, 0): 0x2a, (4, 1, 1): 0x2b, (4, 1, 2): 0x2c, (4, 1, 3): 0x2d, (4, 1, 4): 0x2e, (4, 1, 5): 0x30, (4, 2, 0): 0x2b, (4, 2, 1): 0x2c, (4, 2, 2): 0x2d, (4, 2, 3): 0x2e, (4, 2, 4): 0x30, (4, 2, 5): 0x31, (4, 3, 0): 0x2c, (4, 3, 1): 0x2d, (4, 3, 2): 0x2e, (4, 3, 3): 0x30, (4, 3, 4): 0x31, (4, 3, 5): 0x32, (4, 4, 0): 0x2d, (4, 4, 1): 0x2e, (4, 4, 2): 0x30, (4, 4, 3): 0x31, (4, 4, 4): 0x32, (4, 4, 5): 0x33, (4, 5, 0): 0x2e, (4, 5, 1): 0x30, (4, 5, 2): 0x31, (4, 5, 3): 0x32, (4, 5, 4): 0x33, (4, 5, 5): 0x34, (5, 0, 0): 0x2a, (5, 0, 1): 0x2b, (5, 0, 2): 0x2c, (5, 0, 3): 0x2d, (5, 0, 4): 0x2e, (5, 0, 5): 0x2f, (5, 1, 0): 0x2b, (5, 1, 1): 0x2c, (5, 1, 2): 0x2d, (5, 1, 3): 0x2e, (5, 1, 4): 0x2f, (5, 1, 5): 0x31, (5, 2, 0): 0x2c, (5, 2, 1): 0x2d, (5, 2, 2): 0x2e, (5, 2, 3): 0x2f, (5, 2, 4): 0x31, (5, 2, 5): 0x32, (5, 3, 0): 0x2d, (5, 3, 1): 0x2e, (5, 3, 2): 0x2f, (5, 3, 3): 0x31, (5, 3, 4): 0x32, (5, 3, 5): 0x33, (5, 4, 0): 0x2e, (5, 4, 1): 0x2f, (5, 4, 2): 0x31, (5, 4, 3): 0x32, (5, 4, 4): 0x33, (5, 4, 5): 0x34, (5, 5, 0): 0x2f, (5, 5, 1): 0x31, (5, 5, 2): 0x32, (5, 5, 3): 0x33, (5, 5, 4): 0x34, (5, 5, 5): 0x35}, bpp = 8)
+    def test_new(self):
+        with raises(TypeError, "cannot create 'djvu.decode.PageJob' instances"):
+            PageJob()
 
-    >>> pf = PixelFormatPackedBits('<')
-    >>> pf
-    djvu.decode.PixelFormatPackedBits('<')
-    >>> pf.bpp
-    1
+    def test_decode(self):
+        context = Context()
+        document = context.new_document(FileUri(images + 'test1.djvu'))
+        message = document.get_message()
+        assert_equal(type(message), DocInfoMessage)
+        page_job = document.pages[0].decode()
+        assert_true(page_job.is_done)
+        assert_equal(type(page_job), PageJob)
+        assert_true(page_job.is_done)
+        assert_false(page_job.is_error)
+        assert_equal(page_job.status, JobOK)
+        assert_equal(page_job.width, 64)
+        assert_equal(page_job.height, 48)
+        assert_equal(page_job.size, (64, 48))
+        assert_equal(page_job.dpi, 300)
+        assert_equal(page_job.gamma, 2.2)
+        assert_equal(page_job.version, 24)
+        assert_equal(page_job.type, PAGE_TYPE_BITONAL)
+        assert_equal((page_job.rotation, page_job.initial_rotation), (0, 0))
+        with raises(ValueError, 'rotation must be equal to 0, 90, 180, or 270'):
+            page_job.rotation = 100
+        page_job.rotation = 180
+        assert_equal((page_job.rotation, page_job.initial_rotation), (180, 0))
+        del page_job.rotation
+        assert_equal((page_job.rotation, page_job.initial_rotation), (0, 0))
 
-    >>> pf = PixelFormatPackedBits('>')
-    >>> pf
-    djvu.decode.PixelFormatPackedBits('>')
-    >>> pf.bpp
-    1
-    '''
+        with raises(ValueError, 'page_rect width/height must be a positive integer'):
+            page_job.render(RENDER_COLOR, (0, 0, -1, -1), (0, 0, 10, 10), PixelFormatRgb())
 
-class PageJobTest:
+        with raises(ValueError, 'render_rect width/height must be a positive integer'):
+            page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, -1, -1), PixelFormatRgb())
 
-    def test_instantiation():
-        '''
-        >>> PageJob()
-        Traceback (most recent call last):
-        ...
-        TypeError: cannot create 'djvu.decode.PageJob' instances
-        '''
+        with raises(ValueError, 'render_rect must be inside page_rect'):
+            page_job.render(RENDER_COLOR, (0, 0, 10, 10), (2, 2, 10, 10), PixelFormatRgb())
 
-    def test_decode():
-        r'''
-        >>> context = Context()
-        >>> document = context.new_document(FileUri(images + 'test1.djvu'))
-        >>> message = document.get_message()
-        >>> type(message) == DocInfoMessage
-        True
-        >>> page_job = document.pages[0].decode()
-        >>> page_job.is_done
-        True
-        >>> type(page_job) == PageJob
-        True
-        >>> page_job.is_done
-        True
-        >>> page_job.is_error
-        False
-        >>> page_job.status == JobOK
-        True
-        >>> page_job.width
-        64
-        >>> page_job.height
-        48
-        >>> page_job.size
-        (64, 48)
-        >>> page_job.dpi
-        300
-        >>> page_job.gamma
-        2.2000000000000002
-        >>> page_job.version
-        24
-        >>> page_job.type == PAGE_TYPE_BITONAL
-        True
-        >>> page_job.rotation, page_job.initial_rotation
-        (0, 0)
-        >>> page_job.rotation = 100
-        Traceback (most recent call last):
-        ...
-        ValueError: rotation must be equal to 0, 90, 180, or 270
-        >>> page_job.rotation = 180
-        >>> page_job.rotation, page_job.initial_rotation
-        (180, 0)
-        >>> del page_job.rotation
-        >>> page_job.rotation, page_job.initial_rotation
-        (0, 0)
+        with raises(ValueError, 'row_alignment must be a positive integer'):
+            page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
 
-        >>> page_job.render(RENDER_COLOR, (0, 0, -1, -1), (0, 0, 10, 10), PixelFormatRgb())
-        Traceback (most recent call last):
-        ...
-        ValueError: page_rect width/height must be a positive integer
+        with raises(MemoryError, regex='^Unable to allocate [0-9]+ bytes for an image memory$'):
+            x = int((maxsize//2) ** 0.5)
+            page_job.render(RENDER_COLOR, (0, 0, x, x), (0, 0, x, x), PixelFormatRgb(), 8)
 
-        >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, -1, -1), PixelFormatRgb())
-        Traceback (most recent call last):
-        ...
-        ValueError: render_rect width/height must be a positive integer
+        s = page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1)
+        assert_equal(s, blob(0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xef, 0xff, 0xff, 0xff, 0xa4, 0xff, 0xff, 0xff, 0xb8))
 
-        >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (2, 2, 10, 10), PixelFormatRgb())
-        Traceback (most recent call last):
-        ...
-        ValueError: render_rect must be inside page_rect
+        buffer = array.array('B', blob(0))
+        with raises(ValueError, 'Image buffer is too small (16 > 1)'):
+            page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer)
 
-        >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
-        Traceback (most recent call last):
-        ...
-        ValueError: row_alignment must be a positive integer
+        buffer = array.array('B', blob(*([0] * 16)))
+        assert_true(page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer) is buffer)
+        s = buffer.tostring()
+        assert_equal(s, blob(0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xef, 0xff, 0xff, 0xff, 0xa4, 0xff, 0xff, 0xff, 0xb8))
 
-        >>> x = int((sys.maxint//2) ** 0.5)
-        >>> page_job.render(RENDER_COLOR, (0, 0, x, x), (0, 0, x, x), PixelFormatRgb(), 8) #doctest: +IGNORE_EXCEPTION_DETAIL
-        Traceback (most recent call last):
-        ...
-        MemoryError: Unable to allocate 30000000000 bytes for an image memory
-        >>> del x
+class test_thumbnails:
 
-        >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1)
-        '\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8'
+    def test(self):
+        context = Context()
+        document = context.new_document(FileUri(images + 'test1.djvu'))
+        message = document.get_message()
+        assert_equal(type(message), DocInfoMessage)
+        thumbnail = document.pages[0].thumbnail
+        assert_equal(thumbnail.status, JobOK)
+        assert_equal(thumbnail.calculate(), JobOK)
+        message = document.get_message()
+        assert_equal(type(message), ThumbnailMessage)
+        assert_equal(message.thumbnail.page.n, 0)
 
-        >>> from array import array
-        >>> buffer = array('B', '\0')
-        >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer)
-        Traceback (most recent call last):
-        ...
-        ValueError: Image buffer is too small (16 > 1)
+        (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
+        assert_equal((w, h, r), (5, 3, 5))
+        assert_true(pixels is None)
 
-        >>> buffer = array('B', '\0' * 16)
-        >>> page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer) is buffer
-        True
-        >>> buffer.tostring()
-        '\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8'
+        (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey())
+        assert_equal((w, h, r), (5, 3, 5))
+        assert_equal(pixels[:15], blob(0xff, 0xeb, 0xa7, 0xf2, 0xff, 0xff, 0xbf, 0x86, 0xbe, 0xff, 0xff, 0xe7, 0xd6, 0xe7, 0xff))
 
-        '''
+        buffer = array.array('B', blob(0))
+        with raises(ValueError, 'Image buffer is too small (25 > 1)'):
+            (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
 
-class ThumbnailTest:
+        buffer = array.array('B', blob(*([0] * 25)))
+        (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
+        assert_true(pixels is buffer)
+        s = buffer[:15].tostring()
+        assert_equal(s, blob(0xff, 0xeb, 0xa7, 0xf2, 0xff, 0xff, 0xbf, 0x86, 0xbe, 0xff, 0xff, 0xe7, 0xd6, 0xe7, 0xff))
 
-    r'''
-    >>> context = Context()
-    >>> document = context.new_document(FileUri(images + 'test1.djvu'))
-    >>> message = document.get_message()
-    >>> type(message) == DocInfoMessage
-    True
-    >>> thumbnail = document.pages[0].thumbnail
-    >>> thumbnail.status == JobOK
-    True
-    >>> thumbnail.calculate() == JobOK
-    True
-    >>> message = document.get_message()
-    >>> type(message) == ThumbnailMessage
-    True
-    >>> message.thumbnail.page.n
-    0
+def test_jobs():
 
-    >>> thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
-    ((5, 3, 5), None)
+    with raises(TypeError, "cannot create 'djvu.decode.Job' instances"):
+        Job()
 
-    >>> (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey())
-    >>> w, h, r
-    (5, 3, 5)
-    >>> pixels[:15]
-    '\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
+    with raises(TypeError, "cannot create 'djvu.decode.DocumentDecodingJob' instances"):
+        DocumentDecodingJob()
 
-    >>> from array import array
-    >>> buffer = array('B', '\0')
-    >>> (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
-    Traceback (most recent call last):
-    ...
-    ValueError: Image buffer is too small (25 > 1)
+class test_affine_transforms():
 
-    >>> buffer = array('B', '\0' * 25)
-    >>> (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
-    >>> pixels is buffer
-    True
-    >>> buffer[:15].tostring()
-    '\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff'
+    def test_bad_args(self):
+        with raises(ValueError, 'need more than 2 values to unpack'):
+            AffineTransform((1, 2), (3, 4, 5))
 
-    '''
+    def test1(self):
+        af = AffineTransform((0, 0, 10, 10), (17, 42, 42, 100))
+        assert_equal(type(af), AffineTransform)
+        assert_equal(af((0, 0)), (17, 42))
+        assert_equal(af((0, 10)), (17, 142))
+        assert_equal(af((10, 0)), (59, 42))
+        assert_equal(af((10, 10)), (59, 142))
+        assert_equal(af((0, 0, 10, 10)), (17, 42, 42, 100))
+        assert_equal(af(x for x in (0, 0, 10, 10)), (17, 42, 42, 100))
+        assert_equal(af.apply((123, 456)), af((123, 456)))
+        assert_equal(af.apply((12, 34, 56, 78)), af((12, 34, 56, 78)))
+        assert_equal(af.inverse((17, 42)), (0, 0))
+        assert_equal(af.inverse((17, 142)), (0, 10))
+        assert_equal(af.inverse((59, 42)), (10, 0))
+        assert_equal(af.inverse((59, 142)), (10, 10))
+        assert_equal(af.inverse((17, 42, 42, 100)), (0, 0, 10, 10))
+        assert_equal(af.inverse(x for x in (17, 42, 42, 100)), (0, 0, 10, 10))
+        assert_equal(af.inverse(af((234, 567))), (234, 567))
+        assert_equal(af.inverse(af((23, 45, 67, 78))), (23, 45, 67, 78))
 
-class JobTest:
-    '''
-    >>> Job()
-    Traceback (most recent call last):
-    ...
-    TypeError: cannot create 'djvu.decode.Job' instances
+class test_messages():
 
-    >>> DocumentDecodingJob()
-    Traceback (most recent call last):
-    ...
-    TypeError: cannot create 'djvu.decode.DocumentDecodingJob' instances
-    '''
+    def test_new(self):
+        with raises(TypeError, "cannot create 'djvu.decode.Message' instances"):
+            Message()
 
-class AffineTransformTest:
-    '''
-    >>> AffineTransform((1, 2), (3, 4, 5))
-    Traceback (most recent call last):
-    ...
-    ValueError: need more than 2 values to unpack
-    >>> af = AffineTransform((0, 0, 10, 10), (17, 42, 42, 100))
-    >>> type(af) == AffineTransform
-    True
-    >>> af((0, 0))
-    (17, 42)
-    >>> af((0, 10))
-    (17, 142)
-    >>> af((10, 0))
-    (59, 42)
-    >>> af((10, 10))
-    (59, 142)
-    >>> af((0, 0, 10, 10))
-    (17, 42, 42, 100)
-    >>> af(x for x in (0, 0, 10, 10))
-    (17, 42, 42, 100)
-    >>> af.apply((123, 456)) == af((123, 456))
-    True
-    >>> af.apply((12, 34, 56, 78)) == af((12, 34, 56, 78))
-    True
-    >>> af.inverse((17, 42))
-    (0, 0)
-    >>> af.inverse((17, 142))
-    (0, 10)
-    >>> af.inverse((59, 42))
-    (10, 0)
-    >>> af.inverse((59, 142))
-    (10, 10)
-    >>> af.inverse((17, 42, 42, 100))
-    (0, 0, 10, 10)
-    >>> af.inverse(x for x in (17, 42, 42, 100))
-    (0, 0, 10, 10)
-    >>> af.inverse(af((234, 567))) == (234, 567)
-    True
-    >>> af.inverse(af((23, 45, 67, 78))) == (23, 45, 67, 78)
-    True
-    '''
+class test_streams:
 
-class MessageTest:
-    '''
-    >>> Message()
-    Traceback (most recent call last):
-    ...
-    TypeError: cannot create 'djvu.decode.Message' instances
-    '''
+    def test_bad_construction(self):
+        with raises(TypeError, "Argument 'document' has incorrect type (expected djvu.decode.Document, got NoneType)"):
+            Stream(None, 42)
 
-class StreamTest:
-    '''
-    >>> Stream(None, 42)
-    Traceback (most recent call last):
-    ...
-    TypeError: Argument 'document' has incorrect type (expected djvu.decode.Document, got NoneType)
+    def test(self):
+        context = Context()
+        document = context.new_document('dummy://dummy.djvu')
+        message = document.get_message()
+        assert_equal(type(message), NewStreamMessage)
+        assert_equal(message.name, 'dummy.djvu')
+        assert_equal(message.uri, 'dummy://dummy.djvu')
+        assert_equal(type(message.stream), Stream)
 
-    >>> context = Context()
-    >>> document = context.new_document('dummy://dummy.djvu')
-    >>> message = document.get_message()
-    >>> type(message) == NewStreamMessage
-    True
-    >>> message.name
-    'dummy.djvu'
-    >>> message.uri
-    'dummy://dummy.djvu'
-    >>> type(message.stream) == Stream
-    True
+        with raises(NotAvailable):
+            document.outline.sexpr
+        with raises(NotAvailable):
+            document.annotations.sexpr
+        with raises(NotAvailable):
+            document.pages[0].text.sexpr
+        with raises(NotAvailable):
+            document.pages[0].annotations.sexpr
 
-    >>> document.outline.sexpr
-    Traceback (most recent call last):
-    ...
-    NotAvailable
-    >>> document.annotations.sexpr
-    Traceback (most recent call last):
-    ...
-    NotAvailable
-    >>> document.pages[0].text.sexpr
-    Traceback (most recent call last):
-    ...
-    NotAvailable
-    >>> document.pages[0].annotations.sexpr
-    Traceback (most recent call last):
-    ...
-    NotAvailable
+        try:
+            message.stream.write(open(images + 'test1.djvu', 'rb').read())
+        finally:
+            message.stream.close()
+        with raises(IOError, 'I/O operation on closed file'):
+            message.stream.write(b('eggs'))
 
-    >>> try:
-    ...   message.stream.write(file(images + 'test1.djvu').read())
-    ... finally:
-    ...   message.stream.close()
-    >>> message.stream.write('eggs')
-    Traceback (most recent call last):
-    ...
-    IOError: I/O operation on closed file
+        message = document.get_message()
+        assert_equal(type(message), DocInfoMessage)
 
-    >>> message = document.get_message()
-    >>> type(message) == DocInfoMessage
-    True
+        outline = document.outline
+        outline.wait()
+        x = outline.sexpr
+        assert_equal(x, Expression([]))
+        anno = document.annotations
+        anno.wait()
+        x = anno.sexpr
+        assert_equal(x, Expression([]))
+        text = document.pages[0].text
+        text.wait()
+        x = text.sexpr
+        assert_equal(x, Expression([]))
+        anno = document.pages[0].annotations
+        anno.wait()
+        x = anno.sexpr
+        assert_equal(x, Expression([]))
 
-    >>> outline = document.outline
-    >>> outline.wait()
-    >>> outline.sexpr
-    Expression(())
-    >>> anno = document.annotations
-    >>> anno.wait()
-    >>> anno.sexpr
-    Expression(())
-    >>> text = document.pages[0].text
-    >>> text.wait()
-    >>> text.sexpr
-    Expression(())
-    >>> anno = document.pages[0].annotations
-    >>> anno.wait()
-    >>> anno.sexpr
-    Expression(())
-    '''
-
-def test_metadata():
+class test_metadata:
 
     model_metadata = {
         'English': 'eggs',
-        u'Русский': u'яйца',
+        u('Русский'): u('яйца'),
     }
-    test_script = 'set-meta\n%s\n.\n' % '\n'.join('|%s| %s' % (k, v) for k, v in model_metadata.iteritems()).encode('UTF-8')
+    test_script = 'set-meta\n%s\n.\n' % '\n'.join('|%s| %s' % (k, v) for k, v in model_metadata.items())
     test_file = create_djvu(test_script)
     context = Context()
     document = context.new_document(FileUri(test_file.name))
@@ -751,117 +540,110 @@ def test_metadata():
     assert_equal(type(metadata), Metadata)
     assert_equal(len(metadata), len(model_metadata))
     assert_equal(sorted(metadata), sorted(model_metadata))
-    assert_equal(sorted(metadata.iterkeys()), sorted(model_metadata.iterkeys()))
+    if not py3k:
+        assert_equal(sorted(metadata.iterkeys()), sorted(model_metadata.iterkeys()))
     assert_equal(sorted(metadata.keys()), sorted(model_metadata.keys()))
+    if not py3k:
+        assert_equal(sorted(metadata.itervalues()), sorted(model_metadata.itervalues()))
     assert_equal(sorted(metadata.values()), sorted(model_metadata.values()))
+    if not py3k:
+        assert_equal(sorted(metadata.iteritems()), sorted(model_metadata.iteritems()))
     assert_equal(sorted(metadata.items()), sorted(model_metadata.items()))
     for k in metadata:
         assert_equal(type(k), unicode)
         assert_equal(type(metadata[k]), unicode)
     for k in None, 42, '+'.join(model_metadata):
-        assert_raises(KeyError, lambda: metadata[k])
+        with raises(KeyError, repr(k)):
+            metadata[k]
 
-class SexprTest:
-    r'''
-    >>> context = Context()
-    >>> document = context.new_document(FileUri(images + 'test0.djvu'))
-    >>> type(document) == Document
-    True
-    >>> message = document.get_message()
-    >>> type(message) == DocInfoMessage
-    True
+class test_sexpr:
 
-    >>> anno = DocumentAnnotations(document, shared=False)
-    >>> type(anno) == DocumentAnnotations
-    True
-    >>> anno.wait()
-    >>> anno.sexpr
-    Expression(())
+    def test(self):
+        context = Context()
+        document = context.new_document(FileUri(images + 'test0.djvu'))
+        assert_equal(type(document), Document)
+        message = document.get_message()
+        assert_equal(type(message), DocInfoMessage)
 
-    >>> anno = document.annotations
-    >>> type(anno) == DocumentAnnotations
-    True
-    >>> anno.wait()
-    >>> anno.background_color
-    >>> anno.horizontal_align
-    >>> anno.vertical_align
-    >>> anno.mode
-    >>> anno.zoom
-    >>> anno.sexpr
-    Expression(((Symbol('metadata'), (Symbol('ModDate'), '2010-06-24 01:17:29+02:00'), (Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'), (Symbol('Producer'), 'pdfTeX-1.40.10'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n')))
+        anno = DocumentAnnotations(document, shared=False)
+        assert_equal(type(anno), DocumentAnnotations)
+        anno.wait()
+        x = anno.sexpr
+        assert_equal(x, Expression([]))
 
-    >>> metadata = anno.metadata
-    >>> type(metadata) == Metadata
-    True
+        anno = document.annotations
+        assert_equal(type(anno), DocumentAnnotations)
+        anno.wait()
+        assert_true(anno.background_color is None)
+        assert_true(anno.horizontal_align is None)
+        assert_true(anno.vertical_align is None)
+        assert_true(anno.mode is None)
+        assert_true(anno.zoom is None)
+        x = anno.sexpr
+        assert_equal(repr(x), r"""Expression(((Symbol('metadata'), (Symbol('ModDate'), '2010-06-24 01:17:29+02:00'), (Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'), (Symbol('Producer'), 'pdfTeX-1.40.10'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n')))""")
 
-    >>> hyperlinks = anno.hyperlinks
-    >>> type(hyperlinks) == Hyperlinks
-    True
-    >>> len(hyperlinks)
-    0
-    >>> list(hyperlinks)
-    []
+        metadata = anno.metadata
+        assert_equal(type(metadata), Metadata)
 
-    >>> outline = document.outline
-    >>> type(outline) == DocumentOutline
-    True
-    >>> outline.wait()
-    >>> outline.sexpr
-    Expression((Symbol('bookmarks'), ('A', '#p0001.djvu'), ('B', '#p0002.djvu'), ('C', '#p0003.djvu'), ('D', '#p0004.djvu'), ('E', '#p0005.djvu', ('E1', '#p0005.djvu'), ('E2', '#p0005.djvu')), ('F', '#p0006.djvu')))
+        hyperlinks = anno.hyperlinks
+        assert_equal(type(hyperlinks), Hyperlinks)
+        assert_equal(len(hyperlinks), 0)
+        assert_equal(list(hyperlinks), [])
 
-    >>> page = document.pages[4]
-    >>> anno = page.annotations
-    >>> type(anno) == PageAnnotations
-    True
-    >>> anno.wait()
-    >>> anno.background_color
-    >>> anno.horizontal_align
-    >>> anno.vertical_align
-    >>> anno.mode
-    >>> anno.zoom
-    >>> anno.sexpr
-    Expression(((Symbol('metadata'), (Symbol('ModDate'), '2010-06-24 01:17:29+02:00'), (Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'), (Symbol('Producer'), 'pdfTeX-1.40.10'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n'), (Symbol('maparea'), '#p0002.djvu', '', (Symbol('rect'), 587, 2346, 60, 79), (Symbol('border'), Symbol('#ff0000'))), (Symbol('maparea'), 'http://jwilk.net/', '', (Symbol('rect'), 458, 1910, 1061, 93), (Symbol('border'), Symbol('#00ffff')))))
+        outline = document.outline
+        assert_equal(type(outline), DocumentOutline)
+        outline.wait()
+        x = outline.sexpr
+        assert_equal(repr(x), r"""Expression((Symbol('bookmarks'), ('A', '#p0001.djvu'), ('B', '#p0002.djvu'), ('C', '#p0003.djvu'), ('D', '#p0004.djvu'), ('E', '#p0005.djvu', ('E1', '#p0005.djvu'), ('E2', '#p0005.djvu')), ('F', '#p0006.djvu')))""")
 
-    >>> page_metadata = anno.metadata
-    >>> type(page_metadata) == Metadata
-    True
-    >>> page_metadata.keys() == metadata.keys()
-    True
-    >>> [page_metadata[k] == metadata[k] for k in metadata]
-    [True, True, True, True, True]
+        page = document.pages[4]
+        anno = page.annotations
+        assert_equal(type(anno), PageAnnotations)
+        anno.wait()
+        assert_true(anno.background_color is None)
+        assert_true(anno.horizontal_align is None)
+        assert_true(anno.vertical_align is None)
+        assert_true(anno.mode is None)
+        assert_true(anno.zoom is None)
+        x = anno.sexpr
+        assert_equal(repr(x), r"""Expression(((Symbol('metadata'), (Symbol('ModDate'), '2010-06-24 01:17:29+02:00'), (Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'), (Symbol('Producer'), 'pdfTeX-1.40.10'), (Symbol('Creator'), 'LaTeX with hyperref package'), (Symbol('Author'), 'Jakub Wilk')), (Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n'), (Symbol('maparea'), '#p0002.djvu', '', (Symbol('rect'), 587, 2346, 60, 79), (Symbol('border'), Symbol('#ff0000'))), (Symbol('maparea'), 'http://jwilk.net/', '', (Symbol('rect'), 458, 1910, 1061, 93), (Symbol('border'), Symbol('#00ffff')))))""")
 
-    >>> hyperlinks = anno.hyperlinks
-    >>> type(hyperlinks) == Hyperlinks
-    True
-    >>> len(hyperlinks)
-    2
-    >>> list(hyperlinks)
-    [Expression((Symbol('maparea'), '#p0002.djvu', '', (Symbol('rect'), 587, 2346, 60, 79), (Symbol('border'), Symbol('#ff0000')))), Expression((Symbol('maparea'), 'http://jwilk.net/', '', (Symbol('rect'), 458, 1910, 1061, 93), (Symbol('border'), Symbol('#00ffff'))))]
+        page_metadata = anno.metadata
+        assert_equal(type(page_metadata), Metadata)
+        assert_equal(page_metadata.keys(), metadata.keys())
+        assert_equal([page_metadata[k] == metadata[k] for k in metadata], [True, True, True, True, True])
 
-    >>> text = page.text
-    >>> type(text) == PageText
-    True
-    >>> text.wait()
-    >>> text_s = text.sexpr
-    >>> text_s_detail = [PageText(page, details).sexpr for details in (TEXT_DETAILS_PAGE, TEXT_DETAILS_COLUMN, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE, TEXT_DETAILS_WORD, TEXT_DETAILS_CHARACTER, TEXT_DETAILS_ALL)]
-    >>> text_s_detail[0] == text_s_detail[1] == text_s_detail[2] == text_s_detail[3]
-    True
-    >>> text_s_detail[0]
-    Expression((Symbol('page'), 0, 0, 2550, 3300, '5E \n5.1 E1 \n\xe2\x86\x921 \n5.2 E2 \nhttp://jwilk.net/ \n5 \n'))
-    >>> text_s_detail[4]
-    Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 462, 2726, 615, 2775, '5E '), (Symbol('line'), 462, 2544, 663, 2586, '5.1 E1 '), (Symbol('line'), 466, 2349, 631, 2421, '\xe2\x86\x921 '), (Symbol('line'), 462, 2124, 665, 2166, '5.2 E2 '), (Symbol('line'), 465, 1911, 1504, 2000, 'http://jwilk.net/ '), (Symbol('line'), 1259, 374, 1280, 409, '5 ')))
-    >>> text_s_detail[5] == text_s_detail[6] == text_s_detail[7] == text_s
-    True
-    >>> text_s
-    Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 462, 2726, 615, 2775, (Symbol('word'), 462, 2726, 615, 2775, '5E')), (Symbol('line'), 462, 2544, 663, 2586, (Symbol('word'), 462, 2544, 533, 2586, '5.1'), (Symbol('word'), 596, 2545, 663, 2586, 'E1')), (Symbol('line'), 466, 2349, 631, 2421, (Symbol('word'), 466, 2349, 631, 2421, '\xe2\x86\x921')), (Symbol('line'), 462, 2124, 665, 2166, (Symbol('word'), 462, 2124, 535, 2166, '5.2'), (Symbol('word'), 596, 2125, 665, 2166, 'E2')), (Symbol('line'), 465, 1911, 1504, 2000, (Symbol('word'), 465, 1911, 1504, 2000, 'http://jwilk.net/')), (Symbol('line'), 1259, 374, 1280, 409, (Symbol('word'), 1259, 374, 1280, 409, '5'))))
-    >>> PageText(page, 'eggs')
-    Traceback (most recent call last):
-    ...
-    TypeError: details must be a symbol or none
-    >>> PageText(page, Symbol('eggs'))
-    Traceback (most recent call last):
-    ...
-    ValueError: details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL
-    '''
+        hyperlinks = anno.hyperlinks
+        assert_equal(type(hyperlinks), Hyperlinks)
+        assert_equal(len(hyperlinks), 2)
+        assert_equal(repr(list(hyperlinks)), r"""[Expression((Symbol('maparea'), '#p0002.djvu', '', (Symbol('rect'), 587, 2346, 60, 79), (Symbol('border'), Symbol('#ff0000')))), Expression((Symbol('maparea'), 'http://jwilk.net/', '', (Symbol('rect'), 458, 1910, 1061, 93), (Symbol('border'), Symbol('#00ffff'))))]""")
+
+        text = page.text
+        assert_equal(type(text), PageText)
+        text.wait()
+        text_s = text.sexpr
+        text_s_detail = [PageText(page, details).sexpr for details in (TEXT_DETAILS_PAGE, TEXT_DETAILS_COLUMN, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE, TEXT_DETAILS_WORD, TEXT_DETAILS_CHARACTER, TEXT_DETAILS_ALL)]
+        if py3k:
+            # Representations of expression are slightly different in Python ≥ 3.0.
+            def m(s):
+                return s.replace(r'\xe2\x86\x92', r'→')
+        else:
+            def m(s):
+                return s
+        assert_equal(text_s_detail[0], text_s_detail[1])
+        assert_equal(text_s_detail[1], text_s_detail[2])
+        assert_equal(text_s_detail[2], text_s_detail[3])
+        assert_equal(repr(text_s_detail[0]), m(r"""Expression((Symbol('page'), 0, 0, 2550, 3300, '5E \n5.1 E1 \n\xe2\x86\x921 \n5.2 E2 \nhttp://jwilk.net/ \n5 \n'))"""))
+        assert_equal(repr(text_s_detail[4]), m(r"""Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 462, 2726, 615, 2775, '5E '), (Symbol('line'), 462, 2544, 663, 2586, '5.1 E1 '), (Symbol('line'), 466, 2349, 631, 2421, '\xe2\x86\x921 '), (Symbol('line'), 462, 2124, 665, 2166, '5.2 E2 '), (Symbol('line'), 465, 1911, 1504, 2000, 'http://jwilk.net/ '), (Symbol('line'), 1259, 374, 1280, 409, '5 ')))"""))
+        assert_true(text_s_detail[5] == text_s)
+        assert_true(text_s_detail[6] == text_s)
+        assert_true(text_s_detail[7] == text_s)
+        assert_equal(repr(text_s), m(r"""Expression((Symbol('page'), 0, 0, 2550, 3300, (Symbol('line'), 462, 2726, 615, 2775, (Symbol('word'), 462, 2726, 615, 2775, '5E')), (Symbol('line'), 462, 2544, 663, 2586, (Symbol('word'), 462, 2544, 533, 2586, '5.1'), (Symbol('word'), 596, 2545, 663, 2586, 'E1')), (Symbol('line'), 466, 2349, 631, 2421, (Symbol('word'), 466, 2349, 631, 2421, '\xe2\x86\x921')), (Symbol('line'), 462, 2124, 665, 2166, (Symbol('word'), 462, 2124, 535, 2166, '5.2'), (Symbol('word'), 596, 2125, 665, 2166, 'E2')), (Symbol('line'), 465, 1911, 1504, 2000, (Symbol('word'), 465, 1911, 1504, 2000, 'http://jwilk.net/')), (Symbol('line'), 1259, 374, 1280, 409, (Symbol('word'), 1259, 374, 1280, 409, '5'))))"""))
+
+        with raises(TypeError, 'details must be a symbol or none'):
+            PageText(page, 'eggs')
+
+        with raises(ValueError, 'details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL'):
+            PageText(page, Symbol('eggs'))
 
 # vim:ts=4 sw=4 et
