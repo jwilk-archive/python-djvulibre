@@ -47,27 +47,23 @@ def create_djvu(commands='', sexpr=''):
     return file
 
 def test_context_cache():
-
-    def set_cache_size(n):
-        context.cache_size = n
-
     context = Context()
     assert_equal(context.cache_size, 10 << 20)
     for n in -100, 0, 1 << 31:
         with raises(ValueError, '0 < cache_size < (2 ** 31) must be satisfied'):
-            set_cache_size(n)
+            context.cache_size = n
     with raises(ValueError, '0 < cache_size < (2 ** 31) must be satisfied'):
-        set_cache_size(0)
+        context.cache_size = 0
     n = 1
     while n < (1 << 31):
-        set_cache_size(n)
+        context.cache_size = n
         assert_equal(context.cache_size, n)
         n = (n + 1) * 2 - 1
     context.clear_cache()
 
 class test_documents:
 
-    def test_new(self):
+    def test_bad_new(self):
         with raises(TypeError, "cannot create 'djvu.decode.Document' instances"):
             Document()
 
@@ -77,7 +73,8 @@ class test_documents:
             document = context.new_document(FileUri('__nonexistent__'))
         message = context.get_message()
         assert_equal(type(message), ErrorMessage)
-        assert_equal(type(message.message), str) # TODO: check
+        assert_equal(type(message.message), str)
+        # FIXME: Unicode string should be always returned!
         if 'Unrecognized DjVu Message' in message.message:
             assert_equal(message.message, '** Unrecognized DjVu Message:\n\t** Message name:  \x03ByteStream.open_fail\n\t   Parameter: __nonexistent__\n\t   Parameter: No such file or directory')
         else:
@@ -299,9 +296,9 @@ class test_documents:
         finally:
             del tmp
 
-class test_pixel_formats:
+class test_pixel_formats():
 
-    def test_new(self):
+    def test_bad_new(self):
         with raises(TypeError, "cannot create 'djvu.decode.PixelFormat' instances"):
             PixelFormat()
 
@@ -339,9 +336,9 @@ class test_pixel_formats:
         assert_equal(repr(pf), "djvu.decode.PixelFormatPackedBits('>')")
         assert_equal(pf.bpp, 1)
 
-class test_page_jobs:
+class test_page_jobs():
 
-    def test_new(self):
+    def test_bad_new(self):
         with raises(TypeError, "cannot create 'djvu.decode.PageJob' instances"):
             PageJob()
 
@@ -467,13 +464,13 @@ class test_affine_transforms():
 
 class test_messages():
 
-    def test_new(self):
+    def test_bad_new(self):
         with raises(TypeError, "cannot create 'djvu.decode.Message' instances"):
             Message()
 
 class test_streams:
 
-    def test_bad_construction(self):
+    def test_bad_new(self):
         with raises(TypeError, "Argument 'document' has incorrect type (expected djvu.decode.Document, got NoneType)"):
             Stream(None, 42)
 
