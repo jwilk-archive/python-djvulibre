@@ -1,0 +1,5 @@
+- Check and document when/how byte/Unicode string are used.
+- FileUri is ugly. Provide a better alternative.
+- Provide an example for using streams.
+- Write more/better tests.
+- Write more/better documentation.
