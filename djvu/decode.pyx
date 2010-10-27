@@ -194,6 +194,11 @@ cdef extern from 'unistd.h':
     FILE *fdopen(int, char*)
     int fclose(FILE *)
 
+cdef extern from 'langinfo.h':
+    ctypedef enum nl_item:
+        CODESET
+    char *nl_langinfo(nl_item item)
+
 DDJVU_VERSION = ddjvu_code_get_version()
 
 FILE_TYPE_PAGE = 'P'
@@ -2457,15 +2462,21 @@ cdef class ErrorMessage(Message):
 
     cdef object __init(self):
         Message.__init(self)
+        locale_encoding = charp_to_string(nl_langinfo(CODESET))
         if self.ddjvu_message.m_error.message != NULL:
-            self._message = charp_to_string(self.ddjvu_message.m_error.message)
+            # Things can go awry if user calls setlocale() between the time the
+            # message was created and the time it was received. Let's hope it
+            # never happens, but don't throw an exception if it did anyway.
+            self._message = self.ddjvu_message.m_error.message.decode(locale_encoding, 'replace')
         else:
             self._message = None
         if self.ddjvu_message.m_error.function != NULL:
+            # Should be ASCII-only, so don't care about encoding.
             function = charp_to_string(self.ddjvu_message.m_error.function)
         else:
             function = None
         if self.ddjvu_message.m_error.filename != NULL:
+            # Should be ASCII-only, so don't care about encoding.
             filename = charp_to_string(self.ddjvu_message.m_error.filename)
         else:
             filename = None
