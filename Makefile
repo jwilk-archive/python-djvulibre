@@ -1,12 +1,14 @@
+PYTHON = python
+
 .PHONY: all
 all:
-	python setup.py build_ext --inplace --debug
+	$(PYTHON) setup.py build_ext --inplace --debug
 
 .PHONY: test
 test: test-sexpr test-decode
 
 test-%: tests/%.py all
-	python $(<)
+	$(PYTHON) $(<)
 
 .PHONY: clean
 clean:

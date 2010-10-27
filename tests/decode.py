@@ -72,8 +72,7 @@ class test_documents:
             document = context.new_document(FileUri('__nonexistent__'))
         message = context.get_message()
         assert_equal(type(message), ErrorMessage)
-        assert_equal(type(message.message), str)
-        # FIXME: Unicode string should be always returned!
+        assert_equal(type(message.message), unicode)
         if 'Unrecognized DjVu Message' in message.message:
             assert_equal(message.message, '** Unrecognized DjVu Message:\n\t** Message name:  \x03ByteStream.open_fail\n\t   Parameter: __nonexistent__\n\t   Parameter: No such file or directory')
         else:
