@@ -5,10 +5,10 @@ all:
 	$(PYTHON) setup.py build_ext --inplace --debug
 
 .PHONY: test
-test: test-sexpr test-decode
+test: test-const test-sexpr test-decode
 
 test-%: tests/%.py all
-	$(PYTHON) $(<)
+	$(PYTHON) $(shell which nosetests) $(<)
 
 .PHONY: clean
 clean:
