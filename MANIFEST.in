@@ -4,8 +4,7 @@ include doc/changelog
 include doc/Makefile
 include doc/source/conf.py
 include doc/source/*.txt
-include examples/djvu-dump-text
-include examples/djvu2png
+include examples/*
 recursive-include djvu/ *.py *.pxi *.pxd *.pyx
 recursive-include fake_pyrex/ *.py
 recursive-include tests/ *.py Makefile *.jpeg *.tex *.djvu
