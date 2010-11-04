@@ -2497,8 +2497,15 @@ cdef class ErrorMessage(Message):
         def __get__(self):
             return self._location
 
-    def __str__(self):
-        return self.message
+    if PY3K:
+        def __str__(self):
+            return self.message
+    else:
+        def __str__(self):
+            locale_encoding = charp_to_string(nl_langinfo(CODESET))
+            return self.message.encode(locale_encoding, 'replace')
+        def __unicode__(self):
+            return self.message
 
     def __repr__(self):
         return '<%s: %r at %r>' % (get_type_name(ErrorMessage), self.message, self.location)

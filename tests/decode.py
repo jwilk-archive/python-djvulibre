@@ -67,16 +67,29 @@ class test_documents:
             Document()
 
     def test_nonexistent(self):
+        assert_equal(locale.setlocale(locale.LC_MESSAGES), 'C', msg='You need to run this test with LC_MESSAGES=C')
         context = Context()
         with raises(JobFailed):
             document = context.new_document(FileUri('__nonexistent__'))
         message = context.get_message()
         assert_equal(type(message), ErrorMessage)
         assert_equal(type(message.message), unicode)
-        if 'Unrecognized DjVu Message' in message.message:
-            assert_equal(message.message, '** Unrecognized DjVu Message:\n\t** Message name:  \x03ByteStream.open_fail\n\t   Parameter: __nonexistent__\n\t   Parameter: No such file or directory')
-        else:
-            assert_equal(message.message, "[1-11711] Failed to open '__nonexistent__': No such file or directory.")
+        assert_equal(message.message, "[1-11711] Failed to open '__nonexistent__': No such file or directory.")
+        assert_equal(str(message), message.message)
+        assert_equal(unicode(message), message.message)
+
+    def test_nonexistent_de(self):
+        assert_equal(locale.setlocale(locale.LC_MESSAGES), 'C', msg='You need to run this test with LC_MESSAGES=C')
+        context = Context()
+        with amended_locale(LC_ALL='ja_JP.UTF-8'):
+            with raises(JobFailed):
+                document = context.new_document(FileUri('__nonexistent__'))
+            message = context.get_message()
+            assert_equal(type(message), ErrorMessage)
+            assert_equal(type(message.message), unicode)
+            assert_equal(message.message, u("[1-11711] Failed to open '__nonexistent__': そのようなファイルやディレクトリはありません."))
+            assert_equal(str(message), "[1-11711] Failed to open '__nonexistent__': そのようなファイルやディレクトリはありません.")
+            assert_equal(unicode(message), message.message)
 
     def test_new_document(self):
         context = Context()

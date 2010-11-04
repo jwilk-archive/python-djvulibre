@@ -12,6 +12,7 @@
 
 import contextlib
 import locale
+import os
 import re
 import sys
 import traceback
@@ -19,6 +20,8 @@ import traceback
 from nose.tools import *
 
 locale_encoding = locale.getpreferredencoding()
+if locale_encoding == 'ANSI_X3.4-1968':
+    locale_encoding = 'UTF-8'
 
 py3k = sys.version_info >= (3, 0)
 
@@ -94,6 +97,17 @@ def raises(exc_type, string=None, regex=None):
     else:
         message = '%s was not raised' % exc_type.__name__
         raise AssertionError(message)
+
+@contextlib.contextmanager
+def amended_locale(**kwargs):
+    old_locale = locale.setlocale(locale.LC_ALL)
+    try:
+        for category, value in kwargs.items():
+            category = getattr(locale, category)
+            locale.setlocale(category, value)
+        yield
+    finally:
+        locale.setlocale(locale.LC_ALL, old_locale)
 
 def assert_repr(self, expected):
     return assert_equal(repr(self), expected)
