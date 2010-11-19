@@ -1,10 +1,10 @@
-python-djvulibre (0.3.1) UNRELEASED; urgency=low
+python-djvulibre (0.3.1) unstable; urgency=low
 
   * Add another example program.
   * Fix encoding issues with djvu.decode.ErrorMessage. Thanks to Kyrill
     Detinov for the bug report.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 04 Nov 2010 16:58:35 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 19 Nov 2010 17:44:51 +0100
 
 python-djvulibre (0.3.0) unstable; urgency=low
 
