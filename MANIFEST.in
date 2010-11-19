@@ -6,5 +6,5 @@ include doc/source/conf.py
 include doc/source/*.txt
 include examples/*
 recursive-include djvu/ *.py *.pxi *.pxd *.pyx
-recursive-exclude djvu/ *.c
+recursive-exclude djvu/ *.c config.pxi
 recursive-include tests/ *.py Makefile *.jpeg *.tex *.djvu
