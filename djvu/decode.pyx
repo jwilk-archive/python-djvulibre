@@ -194,10 +194,11 @@ cdef extern from 'unistd.h':
     FILE *fdopen(int, char*)
     int fclose(FILE *)
 
-cdef extern from 'langinfo.h':
-    ctypedef enum nl_item:
-        CODESET
-    char *nl_langinfo(nl_item item)
+IF HAVE_LANGINFO_H:
+    cdef extern from 'langinfo.h':
+        ctypedef enum nl_item:
+            CODESET
+        char *nl_langinfo(nl_item item)
 
 DDJVU_VERSION = ddjvu_code_get_version()
 
@@ -2462,7 +2463,12 @@ cdef class ErrorMessage(Message):
 
     cdef object __init(self):
         Message.__init(self)
-        locale_encoding = charp_to_string(nl_langinfo(CODESET))
+        IF HAVE_LANGINFO_H:
+            locale_encoding = charp_to_string(nl_langinfo(CODESET))
+        ELSE:
+            # Presumably a Windows system.
+            import locale
+            locale_encoding = locale.getpreferredencoding()
         if self.ddjvu_message.m_error.message != NULL:
             # Things can go awry if user calls setlocale() between the time the
             # message was created and the time it was received. Let's hope it
@@ -2502,7 +2508,12 @@ cdef class ErrorMessage(Message):
             return self.message
     else:
         def __str__(self):
-            locale_encoding = charp_to_string(nl_langinfo(CODESET))
+            IF HAVE_LANGINFO_H:
+                locale_encoding = charp_to_string(nl_langinfo(CODESET))
+            ELSE:
+                # Presumably a Windows system.
+                import locale
+                locale_encoding = locale.getpreferredencoding()
             return self.message.encode(locale_encoding, 'replace')
         def __unicode__(self):
             return self.message

@@ -142,6 +142,7 @@ class build_ext(distutils_build_ext.build_ext):
         distutils.file_util.write_file(filename, [
             'DEF PY3K = %d' % (sys.version_info >= (3, 0)),
             'DEF PYTHON_DJVULIBRE_VERSION = "%s"' % __version__,
+            'DEF HAVE_LANGINFO_H = %d' % (os.name == 'posix'),
         ])
         distutils.command.build_ext.build_ext.run(self)
 
