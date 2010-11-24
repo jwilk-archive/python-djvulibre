@@ -248,7 +248,7 @@ class test_expression_writer():
 
     def test_fileio_text(self):
         fp = tempfile.TemporaryFile(mode='w+t')
-        if not py3k:
+        if not py3k and os.name == 'posix':
             assert_equal(type(fp), file)
         self.expr.print_into(fp)
         fp.seek(0)
@@ -256,7 +256,7 @@ class test_expression_writer():
 
     def test_fileio_binary(self):
         fp = tempfile.TemporaryFile(mode='w+b')
-        if not py3k:
+        if not py3k and os.name == 'posix':
             assert_equal(type(fp), file)
         self.expr.print_into(fp)
         fp.seek(0)

@@ -19,6 +19,12 @@ import traceback
 
 from nose.tools import *
 
+try:
+    locale.LC_MESSAGES
+except AttributeError:
+    # A non-POSIX system.
+    locale.LC_MESSAGES = locale.LC_ALL
+
 locale_encoding = locale.getpreferredencoding()
 if locale_encoding == 'ANSI_X3.4-1968':
     locale_encoding = 'UTF-8'

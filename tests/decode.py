@@ -193,28 +193,35 @@ class test_documents:
 
         stdout0, stderr0 = ipc.Popen(['djvudump', original_filename], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
         assert_equal(stderr0, b(''))
+        stdout0 = stdout0.replace('\r\n', '\n')
 
-        tmp = tempfile.NamedTemporaryFile()
+        tmpdir = tempfile.mkdtemp()
         try:
-            job = document.save(tmp.file)
+            tmp = file(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
+            job = document.save(tmp)
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
+            tmp.close()
             stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
             assert_equal(stderr, b(''))
+            stdout = stdout.replace('\r\n', '\n')
             assert_equal(stdout, stdout0)
         finally:
-            tmp.close()
+            shutil.rmtree(tmpdir)
             tmp = None
 
-        tmp = tempfile.NamedTemporaryFile()
+        tmpdir = tempfile.mkdtemp()
         try:
-            job = document.save(tmp.file, pages=(0,))
+            tmp = file(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
+            job = document.save(tmp, pages=(0,))
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
+            tmp.close()
             stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
             assert_equal(stderr, b(''))
+            stdout = stdout.replace('\r\n', '\n')
             stdout0 = stdout0.split(b('\n'))
             stdout = stdout.split(b('\n'))
             stdout[4] = stdout[4].replace(b(' (1)'), b(''))
@@ -222,7 +229,8 @@ class test_documents:
             assert_equal(stdout[3:-1], stdout0[4:10])
             assert_equal(stdout[-1], b(''))
         finally:
-            tmp.close()
+            shutil.rmtree(tmpdir)
+            tmp = None
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -233,6 +241,7 @@ class test_documents:
             assert_false(job.is_error)
             stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
             assert_equal(stderr, b(''))
+            stdout = stdout.replace('\r\n', '\n')
             stdout = stdout.split(b('\n'))
             stdout0 = (
                 [b('      shared_anno.iff -> shared_anno.iff')] +
@@ -252,6 +261,7 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            stdout = stdout.replace('\r\n', '\n')
             assert_equal(stderr, b(''))
             stdout = stdout.split(b('\n'))
             assert_equal(len(stdout), 5)
@@ -530,14 +540,17 @@ class test_streams:
         x = anno.sexpr
         assert_equal(x, Expression([]))
 
-class test_metadata:
+def test_metadata():
 
     model_metadata = {
         'English': 'eggs',
         u('Русский'): u('яйца'),
     }
     test_script = 'set-meta\n%s\n.\n' % '\n'.join('|%s| %s' % (k, v) for k, v in model_metadata.items())
-    test_file = create_djvu(test_script)
+    try:
+        test_file = create_djvu(test_script)
+    except UnicodeEncodeError:
+        raise AssertionError('You need to run this test with an UTF-8 locale')
     try:
         context = Context()
         document = context.new_document(FileUri(test_file.name))
