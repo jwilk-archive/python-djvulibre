@@ -1,0 +1,67 @@
+#!/bin/sh
+
+# Copyright © 2010 Jakub Wilk <jwilk@jwilk.net>
+#
+# This package is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 dated June, 1991.
+#
+# This package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+
+if [ $# -ne 1 ]
+then
+    printf 'Usage: %s <target>\n\n<target> is e.g. i586-mingw32msvc\n\n' "$0"
+    exit 1
+fi
+
+set -e -x
+
+target="$1"
+pwd=$(pwd)
+mkdir -p "$target/common/"
+tmpdir=$(mktemp -d) || exit 1
+cd "$tmpdir"
+wget -i - <<EOF
+http://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.23%2B4.6/DjVuLibre%2BDjView-3.5.23b%2B4.6-Setup.exe
+http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi
+http://www.python.org/ftp/python/2.7/python-2.7.msi
+http://www.python.org/ftp/python/3.1.2/python-3.1.2.msi
+EOF
+sha256sum -c - << EOF
+3b986a2fbb1c35a91750ae0d29232c111a52883bd99eb14d20805bc9f5592203  DjVuLibre+DjView-3.5.23b+4.6-Setup.exe
+1192931440475d07fb3e9724531a53de34097ad24e519bff2e5f458c375a31b3  python-2.6.6.msi
+fc446293cc61cc5d60e81021aba8c3aa55ed688e929e23ea240512b91dee462f  python-2.7.msi
+ca802f144a7e8268a773fa2567fecb0a1d792c62c00f751f27d103a263352113  python-3.1.2.msi
+EOF
+WINEPREFIX="$tmpdir" wine DjVuLibre*exe /S
+for version in 2.6 2.7 3.1
+do
+    mkdir -p "$pwd/$target/python$version/"
+    cabextract -d "$pwd/$target/python$version/" -F '*.h' python-$version*.msi
+    cabextract -d "$pwd/$target/python$version/" -F 'python*.dll' python-$version*.msi
+    for file in msvcr90.dll libmsvcr.a libdjvulibre.dll libjpeg.dll libdjvu
+    do
+        ln -sf "../common/$file" "$pwd/$target/python$version/$file"
+    done
+done
+cabextract -d "$pwd/$target/common/" -F 'msvcr90.dll' python-2.6*.msi
+cat > msvcr.def <<EOF
+EXPORTS
+__dllonexit
+_assert
+_errno
+fflush
+free
+malloc
+EOF
+$target-dlltool --kill-at --def msvcr.def --dllname msvcr90.dll --output-lib "$pwd/$target/common/libmsvcr.a"
+cd 'drive_c/Program Files/DjVuZone/DjVuLibre/'
+cp -v libdjvulibre.dll libjpeg.dll "$pwd/$target/common/"
+cp -vr include/libdjvu "$pwd/$target/common/"
+cd /
+rm -Rf "$tmpdir"
+
+# vim:ts=4 sw=4 et

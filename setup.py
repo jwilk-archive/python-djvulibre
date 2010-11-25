@@ -36,6 +36,10 @@ import distutils
 import subprocess as ipc
 
 cython_needed = not os.getenv('python_djvulibre_no_cython')
+if os.name == 'posix' and os.getenv('python_djvulibre_mingw32'):
+    import mingw32cross
+else:
+    mingw32cross = None
 
 def ext_modules():
     for pyx_file in glob.glob(os.path.join('djvu', '*.pyx')):
@@ -96,7 +100,15 @@ def pkg_config(*packages, **kwargs):
             kwargs['extra_compile_args'].append(argument)
     return kwargs
 
-if get_default_compiler() == 'msvc':
+if mingw32cross:
+
+    def pkg_config(*packages, **kwargs):
+        return dict(
+            libraries=['libdjvulibre'],
+        )
+        return kwargs
+
+elif get_default_compiler() == 'msvc':
 
     # Hack to be enable building python-djvulibre with Microsoft Visual C++
     # compiler follows.
@@ -142,7 +154,7 @@ class build_ext(distutils_build_ext.build_ext):
         distutils.file_util.write_file(filename, [
             'DEF PY3K = %d' % (sys.version_info >= (3, 0)),
             'DEF PYTHON_DJVULIBRE_VERSION = "%s"' % __version__,
-            'DEF HAVE_LANGINFO_H = %d' % (os.name == 'posix'),
+            'DEF HAVE_LANGINFO_H = %d' % (os.name == 'posix' and not mingw32cross),
         ])
         distutils.command.build_ext.build_ext.run(self)
 
