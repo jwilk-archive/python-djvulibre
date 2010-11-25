@@ -776,6 +776,7 @@ class ListExpression(_Expression_):
         # Normally one would use
         #   self[len(self):] = …
         # but Cython (at least 0.13) generates broken code for such a statement.
+        # http://bugs.debian.org/604963
         iter(iterable)
         self[slice(len(self), None, None)] = iterable
 
@@ -783,6 +784,7 @@ class ListExpression(_Expression_):
         # Normally one would use
         #   self[len(self):] = …
         # but Cython (at least 0.13) generates broken code for such a statement.
+        # http://bugs.debian.org/604963
         iter(iterable)
         self[slice(len(self), None, None)] = iterable
         return self
