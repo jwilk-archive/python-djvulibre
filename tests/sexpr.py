@@ -168,6 +168,53 @@ class test_list_expressions():
         with raises(TypeError, "unhashable type: 'ListExpression'"):
             hash(x)
 
+    def test_insert(self):
+        lst = []
+        expr = Expression(())
+        for pos in [-8, 4, 6, -5, -7, 5, 7, 2, -3, 8, 10, -2, 1, -9, -10, -4, -6, 0, 9, 3, -1]:
+            lst.insert(pos, pos)
+            assert_true(expr.insert(pos, pos) is None)
+            assert_equal(expr, Expression(lst))
+            assert_equal(list(expr.value), lst)
+
+    def test_append(self):
+        expr = Expression(())
+        for i in xrange(10):
+            assert_true(expr.append(i) is None)
+            assert_equal(expr, Expression(xrange(i + 1)))
+            assert_equal(list(expr.value), range(i + 1))
+
+    def test_contains(self):
+        expr = Expression(())
+        assert_false(Expression(42) in expr)
+        lst = (1, 2, 3)
+        expr = Expression(lst)
+        for x in lst:
+            assert_false(x in expr)
+            assert_true(Expression(x) in expr)
+        assert_false(Expression(max(lst) + 1) in expr)
+
+    def test_reverse(self):
+        for lst in (), (1, 2, 3):
+            expr = Expression(lst)
+            assert_equal(
+                Expression(reversed(expr)),
+                Expression(reversed(lst))
+            )
+            assert_equal(
+                Expression(reversed(expr)).value,
+                tuple(reversed(lst))
+            )
+            assert_true(expr.reverse() is None)
+            assert_equal(
+                expr,
+                Expression(reversed(lst))
+            )
+            assert_equal(
+                expr.value,
+                tuple(reversed(lst))
+            )
+
     def test_copy1(self):
         x = Expression([1, [2], 3])
         y = Expression(x)

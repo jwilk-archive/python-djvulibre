@@ -772,6 +772,54 @@ class ListExpression(_Expression_):
         else:
             raise TypeError('key must be an integer or a slice')
 
+    def insert(BaseExpression self not None, long index, item):
+        cdef cexpr_t cexpr, new_cexpr
+        cdef BaseExpression citem
+        cexpr = self.wexpr.cexpr()
+        if index < 0:
+            index += len(self)
+        if index < 0:
+            index = 0
+        if typecheck(item, BaseExpression):
+            citem = item
+        else:
+            citem = _Expression_(item)
+        if citem is None:
+            raise TypeError
+        if index == 0 or cexpr == cexpr_nil:
+            gc_lock(NULL) # protect from collecting a just-created object
+            try:
+                new_cexpr = pair_to_cexpr(citem.wexpr.cexpr(), cexpr)
+                self.wexpr = wexpr(new_cexpr)
+            finally:
+                gc_unlock(NULL)
+            return
+        while 1:
+            assert cexpr != cexpr_nil
+            if index > 1 and cexpr_tail(cexpr) != cexpr_nil:
+                index = index - 1
+                cexpr = cexpr_tail(cexpr)
+            else:
+                gc_lock(NULL) # protect from collecting a just-created object
+                try:
+                    new_cexpr = pair_to_cexpr(citem.wexpr.cexpr(), cexpr_tail(cexpr))
+                    cexpr_replace_tail(cexpr, new_cexpr)
+                finally:
+                    gc_unlock(NULL)
+                break
+
+    def append(BaseExpression self not None, item):
+        return self.insert(len(self), item)
+
+    def reverse(BaseExpression self not None):
+        cdef cexpr_t cexpr, new_cexpr
+        gc_lock(NULL) # protect from collecting a just-created object
+        try:
+            new_cexpr = cexpr_reverse_list(self.wexpr.cexpr())
+            self.wexpr = wexpr(new_cexpr)
+        finally:
+            gc_unlock(NULL)
+
     def __iter__(self):
         return _ListExpressionIterator(self)
 
