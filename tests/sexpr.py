@@ -12,6 +12,7 @@
 
 from __future__ import with_statement
 
+import collections
 import copy
 import tempfile
 
@@ -196,6 +197,12 @@ class test_list_expressions():
         x[1] = 0
         assert_repr(x, 'Expression((1, 0, 3))')
         assert_repr(y, 'Expression((1, (2,), 3))')
+
+    if sys.version_info >= (2, 6):
+        def test_abc(self):
+            x = Expression(())
+            assert_true(isinstance(x, collections.MutableSequence))
+            assert_true(isinstance(iter(x), collections.Iterator))
 
 def test_expression_parser():
 

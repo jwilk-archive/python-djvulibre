@@ -797,6 +797,11 @@ class ListExpression(_Expression_):
 
 del ListExpression__new__
 
+if sys.version_info >= (2, 6):
+    import collections
+    collections.MutableSequence.register(ListExpression)
+    del collections
+
 cdef class _ListExpressionIterator:
 
     cdef BaseExpression expression
