@@ -775,6 +775,8 @@ class ListExpression(_Expression_):
     def __iter__(self):
         return _ListExpressionIterator(self)
 
+    # TODO: Once we don't support Python <2.6, this can be replaced by simpler:
+    # __hash__ = None
     def __hash__(self):
         raise TypeError('unhashable type: \'%s\'' % (get_type_name(type(self)),))
 
