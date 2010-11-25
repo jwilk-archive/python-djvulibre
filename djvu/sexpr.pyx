@@ -772,6 +772,21 @@ class ListExpression(_Expression_):
         else:
             raise TypeError('key must be an integer or a slice')
 
+    def extend(self, iterable):
+        # Normally one would use
+        #   self[len(self):] = …
+        # but Cython (at least 0.13) generates broken code for such a statement.
+        iter(iterable)
+        self[slice(len(self), None, None)] = iterable
+
+    def __iadd__(self, iterable):
+        # Normally one would use
+        #   self[len(self):] = …
+        # but Cython (at least 0.13) generates broken code for such a statement.
+        iter(iterable)
+        self[slice(len(self), None, None)] = iterable
+        return self
+
     def insert(BaseExpression self not None, long index, item):
         cdef cexpr_t cexpr, new_cexpr
         cdef BaseExpression citem
@@ -819,6 +834,8 @@ class ListExpression(_Expression_):
             self.wexpr = wexpr(new_cexpr)
         finally:
             gc_unlock(NULL)
+
+    # TODO: implement pop(), remove(), index(), count() and __delitem__().
 
     def __iter__(self):
         return _ListExpressionIterator(self)

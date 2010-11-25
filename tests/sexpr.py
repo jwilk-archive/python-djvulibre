@@ -184,6 +184,29 @@ class test_list_expressions():
             assert_equal(expr, Expression(xrange(i + 1)))
             assert_equal(list(expr.value), range(i + 1))
 
+    def test_extend(self):
+        lst = []
+        expr = Expression(())
+        for ext in [1], [], [2, 3]:
+            lst.extend(ext)
+            expr.extend(ext)
+            assert_equal(expr, Expression(lst))
+            assert_equal(list(expr.value), lst)
+        with raises(TypeError, "'int' object is not iterable"):
+            expr.extend(0)
+
+    def test_inplace_add(self):
+        lst = []
+        expr0 = expr = Expression(())
+        for ext in [], [1], [], [2, 3]:
+            lst += ext
+            expr += ext
+            assert_equal(expr, Expression(lst))
+            assert_equal(list(expr.value), lst)
+        assert_true(expr is expr0)
+        with raises(TypeError, "'int' object is not iterable"):
+            expr += 0
+
     def test_contains(self):
         expr = Expression(())
         assert_false(Expression(42) in expr)
