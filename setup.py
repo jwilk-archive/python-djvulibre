@@ -58,12 +58,12 @@ if cython_needed:
 
 try:
     from setuptools import setup
-    from setuptools.extension import Extension
-except ImportError:
-    from distutils.core import setup
-    from distutils.extension import Extension, have_pyrex
+    from setuptools.extension import Extension, have_pyrex
     assert have_pyrex
     del have_pyrex
+except ImportError:
+    from distutils.core import setup
+    from distutils.extension import Extension
 from distutils.ccompiler import get_default_compiler
 
 if not cython_needed:
