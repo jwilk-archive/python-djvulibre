@@ -55,11 +55,13 @@ if cython_needed:
     fake_module = type(sys)('fake_module')
     fake_module.build_ext = None
     sys.modules['Pyrex'] = sys.modules['Pyrex.Distutils'] = sys.modules['Pyrex.Distutils.build_ext'] = fake_module
+else:
+    sys.modules['Pyrex'] = None
 
 try:
     from setuptools import setup
     from setuptools.extension import Extension, have_pyrex
-    assert have_pyrex
+    assert have_pyrex == cython_needed
     del have_pyrex
 except ImportError:
     from distutils.core import setup
