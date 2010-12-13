@@ -32,20 +32,12 @@ Topic :: Text Processing
 import glob
 import os
 import sys
-import distutils
-import distutils.dep_util
 import subprocess as ipc
 
 if os.name == 'posix' and os.getenv('python_djvulibre_mingw32'):
     import mingw32cross
 else:
     mingw32cross = None
-
-def ext_modules():
-    for pyx_file in glob.glob(os.path.join('djvu', '*.pyx')):
-        module, _ = os.path.splitext(os.path.basename(pyx_file))
-        yield module
-ext_modules = list(ext_modules())
 
 # Just to make sure setuptools won't try to be clever:
 fake_module = type(sys)('fake_module')
@@ -54,16 +46,21 @@ sys.modules['Pyrex'] = sys.modules['Pyrex.Distutils'] = sys.modules['Pyrex.Distu
 del fake_module
 
 try:
-    from setuptools import setup
-    from setuptools.extension import Extension, have_pyrex
-    assert have_pyrex
-    del have_pyrex
+    import setuptools as distutils_core
+    import setuptools.extension
+    assert setuptools.extension.have_pyrex
 except ImportError:
-    from distutils.core import setup
-    from distutils.extension import Extension
-from distutils.ccompiler import get_default_compiler
-
+    import distutils.core as distutils_core
+import distutils
+import distutils.ccompiler
 import distutils.command.build_ext
+import distutils.dep_util
+
+def ext_modules():
+    for pyx_file in glob.glob(os.path.join('djvu', '*.pyx')):
+        module, _ = os.path.splitext(os.path.basename(pyx_file))
+        yield module
+ext_modules = list(ext_modules())
 
 def get_version():
     changelog = open(os.path.join('doc', 'changelog'))
@@ -104,7 +101,7 @@ if mingw32cross:
         )
         return kwargs
 
-elif get_default_compiler() == 'msvc':
+elif distutils.ccompiler.get_default_compiler() == 'msvc':
 
     # Hack to be enable building python-djvulibre with Microsoft Visual C++
     # compiler follows.
@@ -200,7 +197,7 @@ setup_params = dict(
     platforms = ['all'],
     packages = ['djvu'],
     ext_modules = [
-        Extension(
+        distutils.command.build_ext.Extension(
             'djvu.%s' % name, ['djvu/%s.pyx' % name],
             depends = ['djvu/common.pxi'] + glob.glob('djvu/*.pxd'),
             **pkg_config('ddjvuapi')
@@ -212,6 +209,6 @@ setup_params = dict(
 )
 
 if __name__ == '__main__':
-    setup(**setup_params)
+    distutils_core.setup(**setup_params)
 
 # vim:ts=4 sw=4 et
