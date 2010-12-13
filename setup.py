@@ -148,6 +148,9 @@ __version__ = get_version()
 
 os.putenv('TAR_OPTIONS', '--owner root --group root --mode a+rX')
 
+# Work-around for <http://bugs.python.org/issue969718>:
+del os.environ['CFLAGS']
+
 class build_ext(distutils_build_ext.build_ext):
 
     def run(self):
