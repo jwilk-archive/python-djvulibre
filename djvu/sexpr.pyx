@@ -772,6 +772,14 @@ class ListExpression(_Expression_):
         else:
             raise TypeError('key must be an integer or a slice')
 
+    def __delitem__(BaseExpression self not None, key):
+        if is_int(key):
+            self.pop(key)
+        elif is_slice(key):
+            self[key] = ()
+        else:
+            raise TypeError('key must be an integer or a slice')
+
     def extend(self, iterable):
         # Normally one would use
         #   self[len(self):] = …
@@ -837,7 +845,61 @@ class ListExpression(_Expression_):
         finally:
             gc_unlock(NULL)
 
-    # TODO: implement pop(), remove(), index(), count() and __delitem__().
+    def pop(BaseExpression self not None, long index=-1):
+        cdef cexpr_t cexpr, citem
+        cexpr = self.wexpr.cexpr()
+        if cexpr == cexpr_nil:
+            raise IndexError('pop from empty list')
+        if index < 0:
+            index += len(self)
+        if index < 0:
+            raise IndexError('pop index of out range')
+        if index == 0:
+            result = _c2py(cexpr_head(cexpr))
+            self.wexpr = wexpr(cexpr_tail(cexpr))
+            return result
+        while cexpr_tail(cexpr) != cexpr_nil:
+            if index > 1:
+                index = index - 1
+                cexpr = cexpr_tail(cexpr)
+            else:
+                result = _c2py(cexpr_head(cexpr_tail(cexpr)))
+                cexpr_replace_tail(cexpr, cexpr_tail(cexpr_tail(cexpr)))
+                return result
+        raise IndexError('pop index of out range')
+
+    def remove(BaseExpression self not None, item):
+        cdef cexpr_t cexpr
+        cdef BaseExpression citem
+        cexpr = self.wexpr.cexpr()
+        if cexpr == cexpr_nil:
+            raise IndexError('item not in list')
+        if _c2py(cexpr_head(cexpr)) == item:
+            self.wexpr = wexpr(cexpr_tail(cexpr))
+            return
+        while 1:
+            assert cexpr != cexpr_nil
+            if cexpr_tail(cexpr) == cexpr_nil:
+                raise IndexError('item not in list')
+            if _c2py(cexpr_head(cexpr_tail(cexpr))) == item:
+                cexpr_replace_tail(cexpr, cexpr_tail(cexpr_tail(cexpr)))
+                return
+            cexpr = cexpr_tail(cexpr)
+
+    def index(self, value):
+        # TODO: optimize
+        for i, v in enumerate(self):
+            if v == value:
+                return i
+        raise ValueError('value not in list')
+
+    def count(self, value):
+        # TODO: optimize
+        cdef long counter = 0
+        for v in self:
+            if v == value:
+                counter += 1
+        return counter
 
     def __iter__(self):
         return _ListExpressionIterator(self)

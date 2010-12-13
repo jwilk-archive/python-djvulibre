@@ -2,8 +2,9 @@ python-djvulibre (0.3.2) UNRELEASED; urgency=low
 
   * List expression is now a “virtual subclass” of
     collections.MutableSequence.
-  * Add insert, append, extend and reverse methods and += operator for list
-    expressions.
+  * Add append, count, extend, index, insert, pop, remove and reverse methods
+    for list expressions.
+  * Add ‘+=’ and ‘del’ operators for list expressions.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Thu, 25 Nov 2010 18:51:29 +0100
 

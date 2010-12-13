@@ -207,6 +207,69 @@ class test_list_expressions():
         with raises(TypeError, "'int' object is not iterable"):
             expr += 0
 
+    def test_pop(self):
+        expr = Expression([0, 1, 2, 3, 4, 5, 6])
+        assert_equal(expr.pop(0), Expression(0))
+        assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
+        with raises(IndexError, 'pop index of out range'):
+            expr.pop(6)
+        assert_equal(expr.pop(5), Expression(6))
+        assert_equal(expr, Expression([1, 2, 3, 4, 5]))
+        assert_equal(expr.pop(-1), Expression(5))
+        assert_equal(expr, Expression([1, 2, 3, 4]))
+        assert_equal(expr.pop(-2), Expression(3))
+        assert_equal(expr, Expression([1, 2, 4]))
+        assert_equal(expr.pop(1), Expression(2))
+        assert_equal(expr, Expression([1, 4]))
+        expr.pop()
+        expr.pop()
+        with raises(IndexError, 'pop from empty list'):
+            expr.pop()
+        for i in range(-2, 3):
+            with raises(IndexError, 'pop from empty list'):
+                expr.pop(i)
+
+    def test_delitem(self):
+        expr = Expression([0, 1, 2, 3, 4, 5, 6])
+        del expr[0]
+        assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
+        with raises(IndexError, 'pop index of out range'):
+            expr.pop(6)
+        del expr[5]
+        assert_equal(expr, Expression([1, 2, 3, 4, 5]))
+        del expr[-1]
+        assert_equal(expr, Expression([1, 2, 3, 4]))
+        del expr[-2]
+        assert_equal(expr, Expression([1, 2, 4]))
+        del expr[1]
+        assert_equal(expr, Expression([1, 4]))
+        del expr[1:]
+        assert_equal(expr, Expression([1]))
+        del expr[:]
+        assert_equal(expr, Expression([]))
+        for i in range(-2, 3):
+            with raises(IndexError, 'pop from empty list'):
+                del expr[i]
+
+    def test_remove(self):
+        expr = Expression([0, 1, 2, 3, 4, 5, 6])
+        expr.remove(Expression(0))
+        assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
+        with raises(IndexError, 'item not in list'):
+            expr.remove(Expression(0))
+        expr.remove(Expression(6))
+        assert_equal(expr, Expression([1, 2, 3, 4, 5]))
+        expr.remove(Expression(5))
+        assert_equal(expr, Expression([1, 2, 3, 4]))
+        expr.remove(Expression(3))
+        assert_equal(expr, Expression([1, 2, 4]))
+        expr.remove(Expression(2))
+        assert_equal(expr, Expression([1, 4]))
+        expr.remove(Expression(4))
+        expr.remove(Expression(1))
+        with raises(IndexError, 'item not in list'):
+            expr.remove(Expression(-1))
+
     def test_contains(self):
         expr = Expression(())
         assert_false(Expression(42) in expr)
@@ -216,6 +279,27 @@ class test_list_expressions():
             assert_false(x in expr)
             assert_true(Expression(x) in expr)
         assert_false(Expression(max(lst) + 1) in expr)
+
+    def test_index(self):
+        expr = Expression(())
+        with raises(ValueError, 'value not in list'):
+            expr.index(Expression(42))
+        lst = [1, 2, 3]
+        expr = Expression(lst)
+        for x in lst:
+            i = lst.index(x)
+            j = expr.index(Expression(x))
+            assert_equal(i, j)
+        with raises(ValueError, 'value not in list'):
+            expr.index(Expression(max(lst) + 1))
+
+    def test_count(self):
+        lst = [1, 2, 2, 3, 2]
+        expr = Expression(lst)
+        for x in lst + [max(lst) + 1]:
+            i = lst.count(x)
+            j = expr.count(Expression(x))
+            assert_equal(i, j)
 
     def test_reverse(self):
         for lst in (), (1, 2, 3):
