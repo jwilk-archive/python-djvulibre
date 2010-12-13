@@ -33,9 +33,9 @@ import glob
 import os
 import sys
 import distutils
+import distutils.dep_util
 import subprocess as ipc
 
-cython_needed = not os.getenv('python_djvulibre_no_cython')
 if os.name == 'posix' and os.getenv('python_djvulibre_mingw32'):
     import mingw32cross
 else:
@@ -46,30 +46,24 @@ def ext_modules():
         module, _ = os.path.splitext(os.path.basename(pyx_file))
         yield module
 ext_modules = list(ext_modules())
-ext_extension = 'pyx' if cython_needed else 'c'
 
-if cython_needed:
-    import Cython.Distutils as distutils_build_ext
-    # This is required to make setuptools cooperate with Cython
-    # (well, at least with some older Cython/setuptools combinations):
-    fake_module = type(sys)('fake_module')
-    fake_module.build_ext = None
-    sys.modules['Pyrex'] = sys.modules['Pyrex.Distutils'] = sys.modules['Pyrex.Distutils.build_ext'] = fake_module
-else:
-    sys.modules['Pyrex'] = None
+# Just to make sure setuptools won't try to be clever:
+fake_module = type(sys)('fake_module')
+fake_module.build_ext = None
+sys.modules['Pyrex'] = sys.modules['Pyrex.Distutils'] = sys.modules['Pyrex.Distutils.build_ext'] = fake_module
+del fake_module
 
 try:
     from setuptools import setup
     from setuptools.extension import Extension, have_pyrex
-    assert have_pyrex == cython_needed
+    assert have_pyrex
     del have_pyrex
 except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
 from distutils.ccompiler import get_default_compiler
 
-if not cython_needed:
-    import distutils.command.build_ext as distutils_build_ext
+import distutils.command.build_ext
 
 def get_version():
     changelog = open(os.path.join('doc', 'changelog'))
@@ -154,17 +148,44 @@ try:
 except KeyError:
     pass
 
-class build_ext(distutils_build_ext.build_ext):
+class build_ext(distutils.command.build_ext.build_ext):
+
+    config_filename = 'djvu/config.pxi'
 
     def run(self):
-        filename = 'djvu/config.pxi'
-        distutils.log.info('creating %r' % filename)
-        distutils.file_util.write_file(filename, [
+        new_config = [
             'DEF PY3K = %d' % (sys.version_info >= (3, 0)),
             'DEF PYTHON_DJVULIBRE_VERSION = "%s"' % __version__,
             'DEF HAVE_LANGINFO_H = %d' % (os.name == 'posix' and not mingw32cross),
-        ])
+        ]
+        try:
+            old_config = open(self.config_filename, 'rt').read()
+        except IOError:
+            old_config = ''
+        if '\n'.join(new_config).strip() != old_config.strip():
+            distutils.log.info('creating %r' % self.config_filename)
+            distutils.file_util.write_file(self.config_filename, new_config)
         distutils.command.build_ext.build_ext.run(self)
+
+    def build_extensions(self):
+        self.check_extensions_list(self.extensions)
+        for ext in self.extensions:
+            ext.sources = list(self.cython_sources(ext))
+            self.build_extension(ext)
+
+    def cython_sources(self, ext):
+        targets = {}
+        deps = []
+        for source in ext.sources:
+            assert source.endswith('.pyx')
+            target = '%s.c' % source[:-4]
+            yield target
+            depends = [source, self.config_filename] + ext.depends
+            if not (self.force or distutils.dep_util.newer_group(depends, target)):
+                distutils.log.debug('not cythoning %r (up-to-date)', ext.name)
+                continue
+            distutils.log.info('cythoning %r extension', ext.name)
+            self.make_file(depends, target, distutils.spawn.spawn, [['cython', source]])
 
 setup_params = dict(
     name = 'python-djvulibre',
@@ -180,7 +201,8 @@ setup_params = dict(
     packages = ['djvu'],
     ext_modules = [
         Extension(
-            'djvu.%s' % name, ['djvu/%s.%s' % (name, ext_extension)],
+            'djvu.%s' % name, ['djvu/%s.pyx' % name],
+            depends = ['djvu/common.pxi'] + glob.glob('djvu/*.pxd'),
             **pkg_config('ddjvuapi')
         )
         for name in ext_modules
