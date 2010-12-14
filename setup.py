@@ -183,13 +183,21 @@ class build_ext(distutils.command.build_ext.build_ext):
                 distutils.log.debug('not cythoning %r (up-to-date)', ext.name)
                 continue
             distutils.log.info('cythoning %r extension', ext.name)
-            self.make_file(depends, target, distutils.spawn.spawn, [['cython', source]])
+            def build_c(source, target):
+                distutils.spawn.spawn(['cython', source])
+                # XXX This is needed to work around <http://bugs.debian.org/607112>.
+                # Fortunately, python-djvulibre doesn't really need __Pyx_GetVtable().
+                distutils.spawn.spawn(['sed', '-i~', '-e',
+                    r's/\(static int __Pyx_GetVtable(PyObject [*]dict, void [*]vtabptr) {\)/\1 return 0;/',
+                    target
+                ])
+            self.make_file(depends, target, build_c, [source, target])
 
 class clean(distutils.command.clean.clean):
 
     def run(self):
         if self.all:
-            for wildcard in 'djvu/*.c', 'djvu/config.pxi':
+            for wildcard in 'djvu/*.c', 'djvu/*.c~', 'djvu/config.pxi':
                 filenames = glob.glob(wildcard)
                 if filenames:
                     distutils.log.info('removing %r', wildcard)
