@@ -1095,6 +1095,7 @@ cdef class Document:
         optc = 0
         cdef FILE* output
         cdef Py_ssize_t i
+        cdef _FileWrapper file_wrapper
         if indirect is None:
             file_wrapper = _FileWrapper(file, <char*> "wb")
             output = file_wrapper.cfile
@@ -1246,6 +1247,7 @@ cdef class Document:
         '''
         cdef FILE* output
         cdef SaveJob job
+        cdef _FileWrapper file_wrapper
         options = []
         file_wrapper = _FileWrapper(file, <char*> "wb")
         output = file_wrapper.cfile
@@ -2503,10 +2505,10 @@ cdef class ErrorMessage(Message):
         def __get__(self):
             return self._location
 
-    if PY3K:
+    IF PY3K:
         def __str__(self):
             return self.message
-    else:
+    ELSE:
         def __str__(self):
             IF HAVE_LANGINFO_H:
                 locale_encoding = charp_to_string(nl_langinfo(CODESET))
