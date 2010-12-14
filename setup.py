@@ -53,6 +53,7 @@ except ImportError:
     import distutils.core as distutils_core
 import distutils
 import distutils.ccompiler
+import distutils.command.clean
 import distutils.command.build_ext
 import distutils.dep_util
 
@@ -184,6 +185,20 @@ class build_ext(distutils.command.build_ext.build_ext):
             distutils.log.info('cythoning %r extension', ext.name)
             self.make_file(depends, target, distutils.spawn.spawn, [['cython', source]])
 
+class clean(distutils.command.clean.clean):
+
+    def run(self):
+        if self.all:
+            for wildcard in 'djvu/*.c', 'djvu/config.pxi':
+                filenames = glob.glob(wildcard)
+                if filenames:
+                    distutils.log.info('removing %r', wildcard)
+                if self.dry_run:
+                    continue
+                for filename in glob.glob(wildcard):
+                    os.remove(filename)
+        return distutils.command.clean.clean.run(self)
+
 setup_params = dict(
     name = 'python-djvulibre',
     version = __version__,
@@ -205,7 +220,10 @@ setup_params = dict(
         for name in ext_modules
     ],
     py_modules = ['djvu.const'],
-    cmdclass = dict(build_ext = build_ext)
+    cmdclass = dict(
+        build_ext=build_ext,
+        clean=clean,
+    )
 )
 
 if __name__ == '__main__':
