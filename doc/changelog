@@ -1,8 +1,9 @@
 python-djvulibre (0.3.3) UNRELEASED; urgency=low
 
-  * 
+  * Improve setup.py:
+    - Add “Operating System :: Microsoft :: Windows” to trove classifiers.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Wed, 15 Dec 2010 22:08:33 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 15 Dec 2010 22:08:55 +0100
 
 python-djvulibre (0.3.2) unstable; urgency=low
 
