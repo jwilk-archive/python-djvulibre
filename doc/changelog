@@ -1,4 +1,4 @@
-python-djvulibre (0.3.2) UNRELEASED; urgency=low
+python-djvulibre (0.3.2) unstable; urgency=low
 
   * Python ≥ 2.6: make djvu.sexpr.ListExpression a “virtual subclass” of
     collections.MutableSequence ().
@@ -14,7 +14,7 @@ python-djvulibre (0.3.2) UNRELEASED; urgency=low
     + Don't import Cython modules; calls the ‘cython’ binary instead.
     + Allow cross-compilation using MinGW cross compiler.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Wed, 15 Dec 2010 21:02:17 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 15 Dec 2010 21:17:39 +0100
 
 python-djvulibre (0.3.1) unstable; urgency=low
 
