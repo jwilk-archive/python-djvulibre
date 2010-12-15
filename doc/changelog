@@ -1,13 +1,20 @@
 python-djvulibre (0.3.2) UNRELEASED; urgency=low
 
-  * List expression is now a “virtual subclass” of
-    collections.MutableSequence.
+  * Python ≥ 2.6: make djvu.sexpr.ListExpression a “virtual subclass” of
+    collections.MutableSequence ().
   * Add append, count, extend, index, insert, pop, remove and reverse methods
     for list expressions.
   * Add ‘+=’ and ‘del’ operators for list expressions.
   * Fix compatibility with Cython 0.12.
+  * Fix compatibility with some non-POSIX operating systems.
+  * Add work-around for <http://bugs.python.org/issue969718>.
+  * Improve setup.py:
+    + Add work-around for <http://bugs.debian.org/607112>.
+    + Make ‘clean --all’ remove temporary *.pxi and *.c files.
+    + Don't import Cython modules; calls the ‘cython’ binary instead.
+    + Allow cross-compilation using MinGW cross compiler.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 14 Dec 2010 22:41:10 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 15 Dec 2010 21:02:17 +0100
 
 python-djvulibre (0.3.1) unstable; urgency=low
 
