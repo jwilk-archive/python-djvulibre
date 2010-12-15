@@ -1,3 +1,9 @@
+python-djvulibre (0.3.3) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 15 Dec 2010 22:08:33 +0100
+
 python-djvulibre (0.3.2) unstable; urgency=low
 
   * Python ≥ 2.6: make djvu.sexpr.ListExpression a “virtual subclass” of
