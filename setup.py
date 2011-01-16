@@ -59,6 +59,11 @@ import distutils.command.clean
 import distutils.command.build_ext
 import distutils.dep_util
 
+try:
+    import sphinx.setup_command as sphinx_setup_command
+except ImportError:
+    sphinx_setup_command = None
+
 def ext_modules():
     for pyx_file in glob.glob(os.path.join('djvu', '*.pyx')):
         module, _ = os.path.splitext(os.path.basename(pyx_file))
@@ -70,7 +75,7 @@ def get_version():
         extra = dict(encoding='UTF-8')
     else:
         extra = {}
-    changelog = open(os.path.join('doc', 'changelog'), **extra)
+    changelog = open(os.path.join(os.path.dirname(__file__), 'doc', 'changelog'), **extra)
     try:
         return changelog.readline().split()[1].strip('()')
     finally:
