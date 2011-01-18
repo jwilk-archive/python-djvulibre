@@ -113,40 +113,6 @@ if mingw32cross:
         )
         return kwargs
 
-elif distutils.ccompiler.get_default_compiler() == 'msvc':
-
-    # Hack to be enable building python-djvulibre with Microsoft Visual C++
-    # compiler follows.
-    #
-    # Note that all of these needs to be compiled with *the same* compiler:
-    # - Python,
-    # - DjVuLibre,
-    # - python-djvulibre.
-    #
-    # Fortunately, pre-compiled binaries of both Python 2.6 and DjVuLibre
-    # 3.5.22 were compiled with Microsoft Visual C++ 9.0.
-
-    def get_djvulibre_path():
-        path = os.path.join(r'C:\Program Files', 'DjVuZone', 'DjVuLibre')
-        for ext in 'lib', 'dll':
-            if not os.path.exists(os.path.join(path, 'libdjvulibre.' + ext)):
-                raise RuntimeError('DjVuLibre library not found')
-        return path
-
-    def pkg_config(*packages, **kwargs):
-        library_dirs = kwargs.setdefault('library_dirs', [])
-        include_dirs = kwargs.setdefault('include_dirs', [])
-        libraries = kwargs.setdefault('libraries', [])
-        macros = kwargs.setdefault('define_macros', [])
-        macros[:] = [(key, value.replace('"', r'\"')) for key, value in macros]
-        djvulibre_path = get_djvulibre_path()
-        for dirs in include_dirs, library_dirs:
-            dirs.append(djvulibre_path)
-        libraries.append('libdjvulibre')
-        macros.append(('inline', ''))
-        macros.append(('WIN32', '1'))
-        return kwargs
-
 __version__ = get_version()
 
 os.putenv('TAR_OPTIONS', '--owner root --group root --mode a+rX')
