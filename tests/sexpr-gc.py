@@ -10,6 +10,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
+if __name__ != '__main__':
+    raise ImportError('This module is not intended for import')
+
 from djvu.sexpr import *
 from os import getpid
 import gc
