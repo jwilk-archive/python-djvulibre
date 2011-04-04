@@ -193,11 +193,11 @@ class test_documents:
 
         stdout0, stderr0 = ipc.Popen(['djvudump', original_filename], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
         assert_equal(stderr0, b(''))
-        stdout0 = stdout0.replace('\r\n', '\n')
+        stdout0 = stdout0.replace(b('\r\n'), b('\n'))
 
         tmpdir = tempfile.mkdtemp()
         try:
-            tmp = file(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
+            tmp = open(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
             job = document.save(tmp)
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
@@ -205,7 +205,7 @@ class test_documents:
             tmp.close()
             stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
             assert_equal(stderr, b(''))
-            stdout = stdout.replace('\r\n', '\n')
+            stdout = stdout.replace(b('\r\n'), b('\n'))
             assert_equal(stdout, stdout0)
         finally:
             shutil.rmtree(tmpdir)
@@ -213,7 +213,7 @@ class test_documents:
 
         tmpdir = tempfile.mkdtemp()
         try:
-            tmp = file(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
+            tmp = open(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
             job = document.save(tmp, pages=(0,))
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
@@ -221,7 +221,7 @@ class test_documents:
             tmp.close()
             stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
             assert_equal(stderr, b(''))
-            stdout = stdout.replace('\r\n', '\n')
+            stdout = stdout.replace(b('\r\n'), b('\n'))
             stdout0 = stdout0.split(b('\n'))
             stdout = stdout.split(b('\n'))
             stdout[4] = stdout[4].replace(b(' (1)'), b(''))
@@ -241,7 +241,7 @@ class test_documents:
             assert_false(job.is_error)
             stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
             assert_equal(stderr, b(''))
-            stdout = stdout.replace('\r\n', '\n')
+            stdout = stdout.replace(b('\r\n'), b('\n'))
             stdout = stdout.split(b('\n'))
             stdout0 = (
                 [b('      shared_anno.iff -> shared_anno.iff')] +
@@ -261,7 +261,7 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
-            stdout = stdout.replace('\r\n', '\n')
+            stdout = stdout.replace(b('\r\n'), b('\n'))
             assert_equal(stderr, b(''))
             stdout = stdout.split(b('\n'))
             assert_equal(len(stdout), 5)
