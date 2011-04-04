@@ -16,9 +16,24 @@ import collections
 import copy
 import tempfile
 
+import pickle
+try:
+    import cPickle as cpickle
+except ImportError:
+    cpickle = None
+
 from djvu.sexpr import *
 
 from common import *
+
+def assert_pickle_equal(obj):
+    for pickle_module in pickle, cpickle:
+        if pickle_module is None:
+            continue
+        for protocol in 0, 1, 2:
+            pickled_obj = pickle_module.dumps(obj, protocol=protocol)
+            repickled_obj = pickle_module.loads(pickled_obj)
+            assert_equal(obj, repickled_obj)
 
 class test_int_expressions():
 
@@ -55,6 +70,10 @@ class test_int_expressions():
         assert_equal(Expression(1) and 42, 42)
         assert_equal(Expression(0) or 42, 42)
 
+    def test_pickle(self):
+        x = Expression(42)
+        assert_pickle_equal(x)
+
 def test_symbols():
 
     for name in 'eggs', u('ветчина'):
@@ -70,6 +89,7 @@ def test_symbols():
         assert_not_equal(symbol, name)
         assert_not_equal(symbol, name.encode('UTF-8'))
         assert_equal(hash(symbol), hash(name.encode('UTF-8')))
+        assert_pickle_equal(symbol)
 
 def test_expressions():
     x = Expression(Symbol('eggs'))
@@ -82,6 +102,7 @@ def test_expressions():
     assert_not_equal(x, Expression('eggs'))
     assert_not_equal(x, Symbol('eggs'))
     assert_equal(hash(x), hash('eggs'))
+    assert_pickle_equal(x)
 
 def test_string_expressions():
     x = Expression('eggs')
@@ -94,6 +115,7 @@ def test_string_expressions():
     assert_not_equal(x, Expression(Symbol('eggs')))
     assert_not_equal(x, 'eggs')
     assert_equal(hash(x), hash('eggs'))
+    assert_pickle_equal(x)
 
 class test_unicode_expressions():
 
@@ -357,6 +379,11 @@ class test_list_expressions():
             x = Expression(())
             assert_true(isinstance(x, collections.MutableSequence))
             assert_true(isinstance(iter(x), collections.Iterator))
+
+    def test_pickle(self):
+        for lst in (), (1, 2, 3), (1, (2, 3)):
+            x = Expression(lst)
+            assert_pickle_equal(x)
 
 def test_expression_parser():
 

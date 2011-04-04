@@ -288,6 +288,9 @@ cdef class BaseSymbol:
         def __unicode__(self):
             return self._bytes.decode('UTF-8')
 
+    def __reduce__(self):
+        return (Symbol, (self._bytes,))
+
 def Symbol__new__(cls, name):
     '''
     Symbol(name) -> a symbol
@@ -338,7 +341,7 @@ def Expression__new__(cls, value):
     else:
         return ListExpression(iter(value))
 
-def Expression_from_stream(stdin):
+def _expression_from_stream(stdin):
     '''
     Expression.from_stream(stream) -> an expression
 
@@ -353,7 +356,7 @@ def Expression_from_stream(stdin):
     finally:
         myio_reset()
 
-def Expression_from_string(str):
+def _expression_from_string(str):
     '''
     Expression.from_string(s) -> an expression
 
@@ -396,13 +399,13 @@ class Expression(BaseExpression):
 
     '''
     __new__ = staticmethod(Expression__new__)
-    from_string = staticmethod(Expression_from_string)
-    from_stream = staticmethod(Expression_from_stream)
+    from_string = staticmethod(_expression_from_string)
+    from_stream = staticmethod(_expression_from_stream)
 
 cdef object _Expression_
 _Expression_ = Expression
 
-del Expression__new__, Expression_from_string, Expression_from_stream
+del Expression__new__
 
 cdef object BaseExpression_richcmp(object left, object right, int op):
     if not typecheck(left, BaseExpression):
@@ -465,6 +468,9 @@ cdef class BaseExpression:
         # Most of S-expressions are immutable.
         # Mutable S-expressions should override this method.
         return self
+
+    def __reduce__(self):
+        return (_expression_from_string, (self.as_string(),))
 
 def IntExpression__new__(cls, value):
     '''

@@ -4,8 +4,9 @@ python-djvulibre (0.3.3) UNRELEASED; urgency=low
     - Add “Operating System :: Microsoft :: Windows” to trove classifiers.
   * Add Windows-specific module djvu.dllpath, which is aimed to ease finding
     DjVuLibre DLLs in non-standard locations.
+  * Make expression and symbol objects picklable.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 18 Jan 2011 19:17:57 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 04 Apr 2011 18:19:00 +0200
 
 python-djvulibre (0.3.2) unstable; urgency=low
 
