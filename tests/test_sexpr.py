@@ -201,9 +201,9 @@ class test_list_expressions():
 
     def test_append(self):
         expr = Expression(())
-        for i in xrange(10):
+        for i in range(10):
             assert_true(expr.append(i) is None)
-            assert_equal(expr, Expression(xrange(i + 1)))
+            assert_equal(expr, Expression(range(i + 1)))
             assert_equal(list(expr.value), range(i + 1))
 
     def test_extend(self):
