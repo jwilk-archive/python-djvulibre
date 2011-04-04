@@ -5,8 +5,9 @@ python-djvulibre (0.3.3) UNRELEASED; urgency=low
   * Add Windows-specific module djvu.dllpath, which is aimed to ease finding
     DjVuLibre DLLs in non-standard locations.
   * Make expression and symbol objects picklable.
+  * Add work-around for <http://bugs.debian.org/620859>.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 04 Apr 2011 18:19:00 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 04 Apr 2011 19:59:32 +0200
 
 python-djvulibre (0.3.2) unstable; urgency=low
 
