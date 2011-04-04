@@ -6,8 +6,9 @@ python-djvulibre (0.3.3) UNRELEASED; urgency=low
     DjVuLibre DLLs in non-standard locations.
   * Make expression and symbol objects picklable.
   * Add work-around for <http://bugs.debian.org/620859>.
+  * Fix test suite compatibility with Python 3.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 04 Apr 2011 19:59:32 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 04 Apr 2011 20:01:02 +0200
 
 python-djvulibre (0.3.2) unstable; urgency=low
 
