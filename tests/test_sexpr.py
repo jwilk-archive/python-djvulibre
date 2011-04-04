@@ -204,7 +204,7 @@ class test_list_expressions():
         for i in range(10):
             assert_true(expr.append(i) is None)
             assert_equal(expr, Expression(range(i + 1)))
-            assert_equal(list(expr.value), range(i + 1))
+            assert_equal(list(expr.value), list(range(i + 1)))
 
     def test_extend(self):
         lst = []
