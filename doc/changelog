@@ -1,4 +1,4 @@
-python-djvulibre (0.3.3) UNRELEASED; urgency=low
+python-djvulibre (0.3.3) unstable; urgency=low
 
   * Improve setup.py:
     - Add “Operating System :: Microsoft :: Windows” to trove classifiers.
@@ -8,7 +8,7 @@ python-djvulibre (0.3.3) UNRELEASED; urgency=low
   * Add work-around for <http://bugs.debian.org/620859>.
   * Fix test suite compatibility with Python 3.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 04 Apr 2011 20:01:02 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 04 Apr 2011 21:06:01 +0200
 
 python-djvulibre (0.3.2) unstable; urgency=low
 
