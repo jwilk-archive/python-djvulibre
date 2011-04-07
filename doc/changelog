@@ -1,8 +1,8 @@
 python-djvulibre (0.3.4) UNRELEASED; urgency=low
 
-  * 
+  * Optimize DocumentPages.__len__() and DocumentFiles.__len__().
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 07 Apr 2011 18:35:28 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 08 Apr 2011 00:28:48 +0200
 
 python-djvulibre (0.3.3) unstable; urgency=low
 

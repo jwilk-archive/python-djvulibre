@@ -327,7 +327,7 @@ cdef class DocumentPages(DocumentExtension):
         self._document = document
 
     def __len__(self):
-        return ddjvu_document_get_pagenum((<Document>self.document).ddjvu_document)
+        return ddjvu_document_get_pagenum(self._document.ddjvu_document)
 
     def __getitem__(self, key):
         if is_int(key):
@@ -663,7 +663,7 @@ cdef class DocumentFiles(DocumentExtension):
 
     def __len__(self):
         cdef int result
-        result = ddjvu_document_get_filenum((<Document>self.document).ddjvu_document)
+        result = ddjvu_document_get_filenum(self._document.ddjvu_document)
         if result is None:
             raise _NotAvailable_
         return result
