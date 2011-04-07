@@ -1,3 +1,9 @@
+python-djvulibre (0.3.4) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 07 Apr 2011 18:35:28 +0200
+
 python-djvulibre (0.3.3) unstable; urgency=low
 
   * Improve setup.py:
