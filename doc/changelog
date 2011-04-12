@@ -19,7 +19,7 @@ python-djvulibre (0.3.3) unstable; urgency=low
 python-djvulibre (0.3.2) unstable; urgency=low
 
   * Python ≥ 2.6: make djvu.sexpr.ListExpression a “virtual subclass” of
-    collections.MutableSequence ().
+    collections.MutableSequence.
   * Add append, count, extend, index, insert, pop, remove and reverse methods
     for list expressions.
   * Add ‘+=’ and ‘del’ operators for list expressions.
