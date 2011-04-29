@@ -78,7 +78,7 @@ class test_documents:
         assert_equal(str(message), message.message)
         assert_equal(unicode(message), message.message)
 
-    def test_nonexistent_de(self):
+    def test_nonexistent_ja(self):
         assert_equal(locale.setlocale(locale.LC_MESSAGES), 'C', msg='You need to run this test with LC_MESSAGES=C')
         context = Context()
         with amended_locale(LC_ALL='ja_JP.UTF-8'):
