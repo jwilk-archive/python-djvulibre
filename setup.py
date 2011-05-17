@@ -188,6 +188,24 @@ class clean(distutils.command.clean.clean):
                     os.remove(filename)
         return distutils.command.clean.clean.run(self)
 
+if sphinx_setup_command:
+    class build_sphinx(sphinx_setup_command.BuildDoc):
+        def run(self):
+            # Make sure that djvu module is imported from the correct
+            # directory.
+            #
+            # The current directory (which is normally in sys.path[0]) is
+            # typically a wrong choice: it contains djvu/__init__.py but the
+            # extension modules. Prepend the directory that build_ext would
+            # use instead.
+            build_ext = self.get_finalized_command('build_ext')
+            sys.path[:0] = [build_ext.build_lib]
+            import djvu
+            del sys.path[0]
+            sphinx_setup_command.BuildDoc.run(self)
+else:
+    build_sphinx = None
+
 setup_params = dict(
     name = 'python-djvulibre',
     version = __version__,
@@ -210,8 +228,9 @@ setup_params = dict(
     ],
     py_modules = ['djvu.const'],
     cmdclass = dict(
-        build_ext=build_ext,
-        clean=clean,
+        (cmd.__name__, cmd)
+        for cmd in (build_ext, clean, build_sphinx)
+        if cmd is not None
     )
 )
 
