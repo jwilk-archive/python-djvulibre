@@ -84,10 +84,14 @@ def get_version():
 PKG_CONFIG_FLAG_MAP = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
 def pkg_config(*packages, **kwargs):
-    pkgconfig = ipc.Popen(
-        ['pkg-config', '--libs', '--cflags'] + list(packages),
-        stdout=ipc.PIPE, stderr=ipc.PIPE
-    )
+    try:
+        pkgconfig = ipc.Popen(
+            ['pkg-config', '--libs', '--cflags'] + list(packages),
+            stdout=ipc.PIPE, stderr=ipc.PIPE
+        )
+    except OSError, ex:
+        ex.strerror = 'pkg-config: ' + ex.strerror
+        raise
     stdout, stderr = pkgconfig.communicate()
     stdout = stdout.decode('ASCII', 'replace')
     stderr = stderr.decode('ASCII', 'replace')
