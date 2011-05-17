@@ -162,21 +162,21 @@ class test_documents:
             ]
         )
 
-        assert_true(document.get_message(wait = False) is None)
-        assert_true(context.get_message(wait = False) is None)
+        assert_true(document.get_message(wait=False) is None)
+        assert_true(context.get_message(wait=False) is None)
 
         with raises(IndexError, 'file number out of range'):
             document.files[-1].get_info()
-        assert_true(document.get_message(wait = False) is None)
-        assert_true(context.get_message(wait = False) is None)
+        assert_true(document.get_message(wait=False) is None)
+        assert_true(context.get_message(wait=False) is None)
 
         with raises(IndexError, 'page number out of range'):
             document.pages[-1]
         with raises(IndexError, 'page number out of range'):
             document.pages[1]
 
-        assert_true(document.get_message(wait = False) is None)
-        assert_true(context.get_message(wait = False) is None)
+        assert_true(document.get_message(wait=False) is None)
+        assert_true(context.get_message(wait=False) is None)
 
     def test_save(self):
         context = Context()
@@ -431,7 +431,7 @@ class test_thumbnails:
         assert_equal(type(message), ThumbnailMessage)
         assert_equal(message.thumbnail.page.n, 0)
 
-        (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), dry_run = True)
+        (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), dry_run=True)
         assert_equal((w, h, r), (5, 3, 5))
         assert_true(pixels is None)
 
