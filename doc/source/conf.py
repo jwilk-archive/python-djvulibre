@@ -43,7 +43,7 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 
 rst_epilog = '''
 .. |djvu3ref| replace:: Lizardtech DjVu Reference
-.. _djvu3ref: http://www.lizardtech.com/files/doc/techinfo/DjVu3Spec.djvu
+.. _djvu3ref: http://djvu.org/docs/DjVu3Spec.djvu
 
 .. |djvused| replace:: djvused manual
 .. _djvused: http://djvu.sourceforge.net/doc/man/djvused.html
