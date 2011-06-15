@@ -195,8 +195,8 @@ if sphinx_setup_command:
             # directory.
             #
             # The current directory (which is normally in sys.path[0]) is
-            # typically a wrong choice: it contains djvu/__init__.py but the
-            # extension modules. Prepend the directory that build_ext would
+            # typically a wrong choice: it contains djvu/__init__.py but not
+            # the extension modules. Prepend the directory that build_ext would
             # use instead.
             build_ext = self.get_finalized_command('build_ext')
             sys.path[:0] = [build_ext.build_lib]
