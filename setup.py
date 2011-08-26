@@ -119,8 +119,6 @@ if mingw32cross:
 
 __version__ = get_version()
 
-os.putenv('TAR_OPTIONS', '--owner root --group root --mode a+rX')
-
 # Work-around for <http://bugs.python.org/issue969718>:
 try:
     del os.environ['CFLAGS']
