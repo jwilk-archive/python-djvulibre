@@ -304,15 +304,16 @@ class test_documents:
             stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
             assert_equal(stderr, b(''))
             stdout = stdout.split(b('\n'))
+            stdout = [b(' ').join(line.split()) for line in stdout]
             assert_equal(stdout, [
                 b(''),
                 b(''),
-                b(' 3C'),
-                b(' red green blue cyan magenta yellow'),
+                b('3C'),
+                b('red green blue cyan magenta yellow'),
                 b(''),
-                b(' red green blue cyan magenta yellow'),
+                b('red green blue cyan magenta yellow'),
                 b(''),
-                b(' 3\x0c'),
+                b('3'),
             ])
         finally:
             del tmp
