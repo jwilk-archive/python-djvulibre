@@ -89,7 +89,8 @@ def pkg_config(*packages, **kwargs):
             ['pkg-config', '--libs', '--cflags'] + list(packages),
             stdout=ipc.PIPE, stderr=ipc.PIPE
         )
-    except OSError, ex:
+    except OSError:
+        ex, _, _ = sys.exc_info()
         ex.strerror = 'pkg-config: ' + ex.strerror
         raise
     stdout, stderr = pkgconfig.communicate()
