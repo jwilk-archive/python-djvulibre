@@ -1,13 +1,21 @@
 python-djvulibre (0.3.4) UNRELEASED; urgency=low
 
   * Optimize DocumentPages.__len__() and DocumentFiles.__len__().
+  * Fix compatibility with Python 3.X (broken in 0.3.3).
+  * Update various external documentation URLs.
+    http://bugs.debian.org/627290
+  * Improve test suite:
+    + Normalize whitespace in ps2ascii output.
+      http://bugs.debian.org/646177
+  * Improve setup.py:
+    + Print a more meaningful error message if pkg-config fails.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Fri, 08 Apr 2011 00:28:48 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sat, 22 Oct 2011 00:18:08 +0200
 
 python-djvulibre (0.3.3) unstable; urgency=low
 
   * Improve setup.py:
-    - Add “Operating System :: Microsoft :: Windows” to trove classifiers.
+    + Add “Operating System :: Microsoft :: Windows” to trove classifiers.
   * Add Windows-specific module djvu.dllpath, which is aimed to ease finding
     DjVuLibre DLLs in non-standard locations.
   * Make expression and symbol objects picklable.
