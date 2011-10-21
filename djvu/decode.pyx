@@ -59,7 +59,10 @@ from traceback import format_exc
 # The two lines below are solely to work-around Cython bug:
 # http://bugs.debian.org/620859
 cdef object MemoryError
-from exceptions import MemoryError
+IF PY3K:
+    from builtins import MemoryError
+ELSE:
+    from exceptions import MemoryError
 
 cdef object StringIO
 IF PY3K:
