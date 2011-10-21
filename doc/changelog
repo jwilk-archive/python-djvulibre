@@ -9,6 +9,8 @@ python-djvulibre (0.3.4) UNRELEASED; urgency=low
       http://bugs.debian.org/646177
   * Improve setup.py:
     + Print a more meaningful error message if pkg-config fails.
+    + build_sphinx is now available even without setuptools.
+    + build_sphinx can now import extension modules from the build directory.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Sat, 22 Oct 2011 00:18:08 +0200
 
