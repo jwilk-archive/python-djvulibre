@@ -13,7 +13,7 @@
 
 if [ $# -ne 1 ]
 then
-    printf 'Usage: %s <target>\n\n<target> is e.g. i586-mingw32msvc\n\n' "$0"
+    printf 'Usage: %s <target>\n\n<target> is e.g. i686-w64-mingw32\n\n' "$0"
     exit 1
 fi
 
