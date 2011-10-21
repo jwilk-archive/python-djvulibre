@@ -1,4 +1,4 @@
-python-djvulibre (0.3.4) UNRELEASED; urgency=low
+python-djvulibre (0.3.4) unstable; urgency=low
 
   * Optimize DocumentPages.__len__() and DocumentFiles.__len__().
   * Fix compatibility with Python 3.X (broken in 0.3.3).
@@ -12,7 +12,7 @@ python-djvulibre (0.3.4) UNRELEASED; urgency=low
     + build_sphinx is now available even without setuptools.
     + build_sphinx can now import extension modules from the build directory.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sat, 22 Oct 2011 00:18:08 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sat, 22 Oct 2011 01:36:38 +0200
 
 python-djvulibre (0.3.3) unstable; urgency=low
 
