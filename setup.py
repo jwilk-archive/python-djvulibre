@@ -90,7 +90,7 @@ def pkg_config(*packages, **kwargs):
             stdout=ipc.PIPE, stderr=ipc.PIPE
         )
     except OSError:
-        ex, _, _ = sys.exc_info()
+        _, ex, _ = sys.exc_info()
         ex.strerror = 'pkg-config: ' + ex.strerror
         raise
     stdout, stderr = pkgconfig.communicate()
