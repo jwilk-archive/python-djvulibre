@@ -67,7 +67,7 @@ class test_documents:
             Document()
 
     def test_nonexistent(self):
-        assert_equal(locale.setlocale(locale.LC_MESSAGES), 'C', msg='You need to run this test with LC_MESSAGES=C')
+        assert_c_messages()
         context = Context()
         with raises(JobFailed):
             document = context.new_document(FileUri('__nonexistent__'))
@@ -79,7 +79,7 @@ class test_documents:
         assert_equal(unicode(message), message.message)
 
     def test_nonexistent_ja(self):
-        assert_equal(locale.setlocale(locale.LC_MESSAGES), 'C', msg='You need to run this test with LC_MESSAGES=C')
+        assert_c_messages()
         context = Context()
         with amended_locale(LC_ALL='ja_JP.UTF-8'):
             with raises(JobFailed):

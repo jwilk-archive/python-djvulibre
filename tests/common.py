@@ -115,6 +115,10 @@ def amended_locale(**kwargs):
     finally:
         locale.setlocale(locale.LC_ALL, old_locale)
 
+def assert_c_messages():
+    assert_equal(locale.setlocale(locale.LC_MESSAGES), 'C', msg='You need to run this test with LC_MESSAGES=C')
+    assert_equal(os.getenv('LANGUAGE', ''), '', msg='You need to run this test with LANGUAGE unset')
+
 def assert_repr(self, expected):
     return assert_equal(repr(self), expected)
 
