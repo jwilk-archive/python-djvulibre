@@ -14,10 +14,12 @@ import contextlib
 import locale
 import os
 import re
+import subprocess as ipc
 import sys
 import traceback
 
 from nose.tools import *
+from nose import SkipTest
 
 try:
     locale.LC_MESSAGES
@@ -110,16 +112,27 @@ def amended_locale(**kwargs):
     try:
         for category, value in kwargs.items():
             category = getattr(locale, category)
-            locale.setlocale(category, value)
+            try:
+                locale.setlocale(category, value)
+            except locale.Error, ex:
+                raise SkipTest(ex)
         yield
     finally:
         locale.setlocale(locale.LC_ALL, old_locale)
 
-def assert_c_messages():
-    assert_equal(locale.setlocale(locale.LC_MESSAGES), 'C', msg='You need to run this test with LC_MESSAGES=C')
-    assert_equal(os.getenv('LANGUAGE', ''), '', msg='You need to run this test with LANGUAGE unset')
-
 def assert_repr(self, expected):
     return assert_equal(repr(self), expected)
+
+def skip_unless_c_messages():
+    if locale.setlocale(locale.LC_MESSAGES) != 'C':
+        raise SkipTest('you need to run this test with LC_MESSAGES=C')
+    if os.getenv('LANGUAGE', '') != '':
+        raise SkipTest('you need to run this test with LANGUAGE unset')
+
+def skip_unless_command_exists(command):
+    child = ipc.Popen('command -v ' + command, shell=True, stdout=ipc.PIPE, stderr=ipc.PIPE)
+    if child.wait() == 0:
+        return
+    raise SkipTest('command not found: ' + command)
 
 # vim:ts=4 sw=4 et

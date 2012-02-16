@@ -7,8 +7,11 @@ python-djvulibre (0.3.5) UNRELEASED; urgency=low
     + Verify that LANGUAGE environment variable is unset before running tests
       sensitive to locale settings. Thanks to Daniel Stender for the bug
       report.
+    + Skip some tests (instead of making them fail) when they are run in
+      an unsuitable environment. Note that it's still recommended to use
+      --no-skip when running the test suite.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sat, 10 Dec 2011 23:41:12 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 16 Feb 2012 17:38:34 +0100
 
 python-djvulibre (0.3.4) unstable; urgency=low
 

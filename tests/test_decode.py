@@ -27,6 +27,7 @@ from common import *
 images = os.path.join(os.path.dirname(__file__), 'images', '')
 
 def create_djvu(commands='', sexpr=''):
+    skip_unless_command_exists('djvused')
     if sexpr:
         commands += '\nset-ant\n%s\n.\n' % sexpr
     file = tempfile.NamedTemporaryFile(prefix='test', suffix='djvu')
@@ -67,7 +68,7 @@ class test_documents:
             Document()
 
     def test_nonexistent(self):
-        assert_c_messages()
+        skip_unless_c_messages()
         context = Context()
         with raises(JobFailed):
             document = context.new_document(FileUri('__nonexistent__'))
@@ -79,7 +80,7 @@ class test_documents:
         assert_equal(unicode(message), message.message)
 
     def test_nonexistent_ja(self):
-        assert_c_messages()
+        skip_unless_c_messages()
         context = Context()
         with amended_locale(LC_ALL='ja_JP.UTF-8'):
             with raises(JobFailed):
@@ -179,6 +180,7 @@ class test_documents:
         assert_true(context.get_message(wait=False) is None)
 
     def test_save(self):
+        skip_unless_command_exists('djvudump')
         context = Context()
         original_filename = images + 'test0.djvu'
         document = context.new_document(FileUri(original_filename))
@@ -272,6 +274,7 @@ class test_documents:
             shutil.rmtree(tmpdir)
 
     def test_export_ps(self):
+        skip_unless_command_exists('ps2ascii')
         context = Context()
         document = context.new_document(FileUri(images + 'test0.djvu'))
         message = document.get_message()
