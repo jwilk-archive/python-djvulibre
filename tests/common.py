@@ -1,5 +1,5 @@
 # encoding=UTF-8
-# Copyright © 2010 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2010, 2011, 2012 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -128,6 +128,20 @@ def skip_unless_c_messages():
         raise SkipTest('you need to run this test with LC_MESSAGES=C')
     if os.getenv('LANGUAGE', '') != '':
         raise SkipTest('you need to run this test with LANGUAGE unset')
+
+def skip_unless_translation_exists(lang):
+    messages = {}
+    langs = ['C', lang]
+    for lang in langs:
+        with amended_locale(LC_ALL=lang):
+            try:
+                open(__file__ + '/')
+            except EnvironmentError, ex:
+                messages[lang] = str(ex)
+    messages = set(messages.values())
+    assert 1 <= len(messages) <= 2
+    if len(messages) == 1:
+        raise SkipTest('libc translation not found: ' + lang)
 
 def skip_unless_command_exists(command):
     child = ipc.Popen('command -v ' + command, shell=True, stdout=ipc.PIPE, stderr=ipc.PIPE)

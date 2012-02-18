@@ -1,5 +1,5 @@
 # encoding=UTF-8
-# Copyright © 2007, 2008, 2009, 2010, 2011 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007, 2008, 2009, 2010, 2011, 2012 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -81,6 +81,7 @@ class test_documents:
 
     def test_nonexistent_ja(self):
         skip_unless_c_messages()
+        skip_unless_translation_exists('ja_JP.UTF-8')
         context = Context()
         with amended_locale(LC_ALL='ja_JP.UTF-8'):
             with raises(JobFailed):
