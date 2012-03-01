@@ -1,8 +1,8 @@
 python-djvulibre (0.3.6) UNRELEASED; urgency=low
 
-  * 
+  * Fix test suite compatibility with Python 3.X (broken in 0.3.5).
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sat, 18 Feb 2012 21:42:03 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 01 Mar 2012 16:35:30 +0100
 
 python-djvulibre (0.3.5) unstable; urgency=low
 

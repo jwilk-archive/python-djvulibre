@@ -114,8 +114,9 @@ def amended_locale(**kwargs):
             category = getattr(locale, category)
             try:
                 locale.setlocale(category, value)
-            except locale.Error, ex:
-                raise SkipTest(ex)
+            except locale.Error:
+                _, exc, _ = sys.exc_info()
+                raise SkipTest(exc)
         yield
     finally:
         locale.setlocale(locale.LC_ALL, old_locale)
@@ -136,8 +137,9 @@ def skip_unless_translation_exists(lang):
         with amended_locale(LC_ALL=lang):
             try:
                 open(__file__ + '/')
-            except EnvironmentError, ex:
-                messages[lang] = str(ex)
+            except EnvironmentError:
+                _, exc, _ = sys.exc_info()
+                messages[lang] = str(exc)
     messages = set(messages.values())
     assert 1 <= len(messages) <= 2
     if len(messages) == 1:
