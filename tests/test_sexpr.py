@@ -385,21 +385,23 @@ class test_list_expressions():
             x = Expression(lst)
             assert_pickle_equal(x)
 
-def test_expression_parser():
+class test_expression_parser():
 
-    def test_badstring():
+    def test_badstring(self):
         with raises(ExpressionSyntaxError):
             Expression.from_string('(1')
 
-    def test_bad_io():
-        assert getattr(Expression.from_file, None) is None
+    def test_attr_from_file(self):
+        assert getattr(Expression, 'from_file', None) is None
+
+    def test_bad_io(self):
         with raises(ExpressionSyntaxError):
             Expression.from_stream(42)
 
-    def test_stringio():
+    def test_stringio(self):
         fp = StringIO('(eggs) (ham)')
         def read():
-            Expression.from_stream(fp)
+            return Expression.from_stream(fp)
         x = read()
         assert_repr(x, "Expression((Symbol('eggs'),))")
         x = read()
@@ -407,13 +409,14 @@ def test_expression_parser():
         with raises(ExpressionSyntaxError):
             x = read()
 
-    def test_fileio():
+    def test_fileio(self):
         fp = tempfile.TemporaryFile()
         def read():
-            Expression.from_stream(fp)
+            return Expression.from_stream(fp)
         if not py3k:
             assert_equal(type(fp), file)
         fp.write('(eggs) (ham)')
+        fp.flush()
         fp.seek(0)
         x = read()
         assert_repr(x, "Expression((Symbol('eggs'),))")
