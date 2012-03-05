@@ -41,10 +41,14 @@ cdef extern from 'Python.h':
     int is_long_int 'PyLong_Check'(object)
     int is_number 'PyNumber_Check'(object)
     int is_float 'PyFloat_Check'(object)
+    int is_slice 'PySlice_Check'(object)
+
     int is_unicode 'PyUnicode_Check'(object)
     int is_string 'PyString_Check'(object)
-    int is_bytes 'PyBytes_Check'(object)
-    int is_slice 'PySlice_Check'(object)
+    IF PY3K:
+        int is_bytes 'PyBytes_Check'(object)
+    ELSE:
+        int is_bytes 'PyString_Check'(object)
 
     object encode_utf8 'PyUnicode_AsUTF8String'(object)
     object decode_utf8_ex 'PyUnicode_DecodeUTF8'(char *, Py_ssize_t, char *)
