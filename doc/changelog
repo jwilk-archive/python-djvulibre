@@ -1,4 +1,4 @@
-python-djvulibre (0.3.6) UNRELEASED; urgency=low
+python-djvulibre (0.3.6) unstable; urgency=low
 
   * Improve test suite:
     + Fix compatibility with Python 3.X (broken in 0.3.5).
@@ -6,7 +6,7 @@ python-djvulibre (0.3.6) UNRELEASED; urgency=low
     + Capture stderr output for tests which produce unhandled exceptions.
   * Fix compatibility with Python 2.5 (broken since 0.3.0).
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 05 Mar 2012 23:57:54 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 06 Mar 2012 00:14:57 +0100
 
 python-djvulibre (0.3.5) unstable; urgency=low
 
