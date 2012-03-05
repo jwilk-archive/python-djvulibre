@@ -395,8 +395,18 @@ class test_expression_parser():
         assert getattr(Expression, 'from_file', None) is None
 
     def test_bad_io(self):
-        with raises(ExpressionSyntaxError):
-            Expression.from_stream(42)
+        stderr = StringIO()
+        with interim(sys, stderr=stderr):
+            with raises(ExpressionSyntaxError):
+                Expression.from_stream(42)
+        stderr = re.sub(':[0-9]+', '', stderr.getvalue())
+        assert_equal(stderr, '''\
+Unhandled exception (42)
+Traceback (most recent call last):
+  File "sexpr.pyx", line 160, in djvu.sexpr._myio_getc (djvu/sexpr.c)
+AttributeError: 'int' object has no attribute 'read'
+
+''')
 
     def test_stringio(self):
         fp = StringIO('(eggs) (ham)')
@@ -430,7 +440,19 @@ class test_expression_writer():
     expr = Expression([Symbol('eggs'), Symbol('ham')])
 
     def test_bad_io(self):
-        self.expr.print_into(42)
+        stderr = StringIO()
+        with interim(sys, stderr=stderr):
+            self.expr.print_into(42)
+        stderr = re.sub(':[0-9]+', '', stderr.getvalue())
+        expected_stderr = '''\
+Unhandled exception (42)
+Traceback (most recent call last):
+  File "sexpr.pyx", line 146, in djvu.sexpr._myio_puts (djvu/sexpr.c)
+AttributeError: 'int' object has no attribute 'write'
+
+'''
+        expected_stderr *= len(stderr) // len(expected_stderr)
+        assert_equal(stderr, expected_stderr)
 
     def test_stringio(self):
         fp = StringIO()

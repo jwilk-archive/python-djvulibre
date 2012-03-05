@@ -85,6 +85,17 @@ else:
     maxsize = sys.maxint
 
 @contextlib.contextmanager
+def interim(obj, **override):
+    copy = dict((key, getattr(obj, key)) for key in override)
+    for key, value in override.items():
+        setattr(obj, key, value)
+    try:
+        yield
+    finally:
+        for key, value in copy.items():
+            setattr(obj, key, value)
+
+@contextlib.contextmanager
 def raises(exc_type, string=None, regex=None):
     if string is None and regex is None:
         string = '' # XXX
