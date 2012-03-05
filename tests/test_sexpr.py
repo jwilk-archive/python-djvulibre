@@ -419,13 +419,29 @@ AttributeError: 'int' object has no attribute 'read'
         with raises(ExpressionSyntaxError):
             x = read()
 
-    def test_fileio(self):
-        fp = tempfile.TemporaryFile()
+    def test_fileio_text(self):
+        fp = tempfile.TemporaryFile(mode='w+t')
         def read():
             return Expression.from_stream(fp)
         if not py3k:
             assert_equal(type(fp), file)
         fp.write('(eggs) (ham)')
+        fp.flush()
+        fp.seek(0)
+        x = read()
+        assert_repr(x, "Expression((Symbol('eggs'),))")
+        x = read()
+        assert_repr(x, "Expression((Symbol('ham'),))")
+        with raises(ExpressionSyntaxError):
+            x = read()
+
+    def test_fileio_binary(self):
+        fp = tempfile.TemporaryFile(mode='w+b')
+        def read():
+            return Expression.from_stream(fp)
+        if not py3k:
+            assert_equal(type(fp), file)
+        fp.write(b('(eggs) (ham)'))
         fp.flush()
         fp.seek(0)
         x = read()
