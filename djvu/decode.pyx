@@ -1920,7 +1920,7 @@ cdef object calculate_row_size(long width, long row_alignment, int bpp):
         row_size = row_size * (bpp >> 3)
     else:
         raise SystemError
-    result = ((row_size + (row_alignment - 1)) / row_alignment) * row_alignment
+    result = ((row_size + (row_alignment - 1)) // row_alignment) * row_alignment
     return result
 
 cdef object allocate_image_memory(long width, long height, object buffer, void **memory):
