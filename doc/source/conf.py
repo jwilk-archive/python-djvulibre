@@ -1,6 +1,5 @@
 # encoding=UTF-8
 
-import sys
 import os
 import codecs
 
