@@ -89,6 +89,9 @@ cdef object _myio_stdout
 cdef int _myio_stdout_binary
 cdef object _myio_buffer
 _myio_buffer = []
+cdef int (*_backup_io_puts)(char *s)
+cdef int (*_backup_io_getc)()
+cdef int (*_backup_io_ungetc)(int c)
 
 cdef object write_unraisable_exception(object cause):
     message = format_exc()
@@ -96,9 +99,13 @@ cdef object write_unraisable_exception(object cause):
 
 cdef void myio_set(stdin, stdout):
     global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
+    global _backup_io_puts, _backup_io_getc, _backup_io_ungetc
     global io_puts, io_getc, io_ungetc
     cdef int opt_stdin, opt_stdout
     with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
+    _backup_io_puts = io_puts
+    _backup_io_getc = io_getc
+    _backup_io_ungetc = io_ungetc
     _myio_stdin = stdin
     IF PY3K:
         # TODO
@@ -135,9 +142,9 @@ cdef void myio_reset():
     _myio_stdout = None
     _myio_stdout_binary = 0
     _myio_buffer = None
-    io_puts = NULL
-    io_getc = NULL
-    io_ungetc = NULL
+    io_puts = _backup_io_puts
+    io_getc = _backup_io_getc
+    io_ungetc = _backup_io_ungetc
     release_lock(_myio_lock)
 
 cdef int _myio_puts(char *s):
@@ -175,10 +182,6 @@ cdef int _myio_getc():
 cdef int _myio_ungetc(int c):
     global _myio_buffer
     _myio_buffer += (c,)
-
-io_puts = NULL
-io_getc = NULL
-io_ungetc = NULL
 
 cdef object the_sentinel
 the_sentinel = object()
