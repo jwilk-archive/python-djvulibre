@@ -16,7 +16,6 @@ if __name__ != '__main__':
 
 from djvu.sexpr import *
 from os import getpid
-import gc
 
 PROC_STATUS = '/proc/%d/status' % getpid()
 SCALE = dict(kB = 1024.0)
