@@ -153,8 +153,6 @@ class build_ext(distutils.command.build_ext.build_ext):
             self.build_extension(ext)
 
     def cython_sources(self, ext):
-        targets = {}
-        deps = []
         for source in ext.sources:
             assert source.endswith('.pyx')
             target = '%s.c' % source[:-4]
