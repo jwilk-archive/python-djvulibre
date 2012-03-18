@@ -19,7 +19,6 @@ import os
 import re
 import subprocess as ipc
 import sys
-import traceback
 
 from nose.tools import *
 from nose import SkipTest
