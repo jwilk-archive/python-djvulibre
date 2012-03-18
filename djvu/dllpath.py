@@ -1,4 +1,5 @@
 # encoding=UTF-8
+
 # Copyright © 2011 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
