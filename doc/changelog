@@ -1,3 +1,9 @@
+python-djvulibre (0.3.8) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <jwilk@jwilk.net>  Sun, 18 Mar 2012 01:54:35 +0100
+
 python-djvulibre (0.3.7) unstable; urgency=low
 
   * Use floor division operator instead of relying on “classic” division
