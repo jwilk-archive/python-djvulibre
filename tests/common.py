@@ -24,9 +24,15 @@ from nose.tools import *
 from nose import SkipTest
 
 try:
-    assert_multi_line_equal.im_class.maxDiff = None
+    assert_multi_line_equal
 except NameError:
     assert_multi_line_equal = assert_equal
+else:
+    try:
+        assert_multi_line_equal.im_class.maxDiff = None
+    except AttributeError:
+        pass
+        # FIXME: How to do it Python 3?
 
 try:
     locale.LC_MESSAGES

@@ -500,7 +500,7 @@ AttributeError: 'int' object has no attribute 'write'
 
 class test_expression_writer_nonascii(test_expression_writer):
 
-    expr = Expression(u'żółw')
+    expr = Expression(u('żółw'))
     repr = r'"\305\274\303\263\305\202w"'
 
 # vim:ts=4 sw=4 et
