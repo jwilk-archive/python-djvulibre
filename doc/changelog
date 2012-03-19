@@ -1,9 +1,9 @@
-python-djvulibre (0.3.9) UNRELEASED; urgency=low
+python-djvulibre (0.3.9) unstable; urgency=low
 
   * Ensure that all S-expression output is 7-bit.
     This is work-around for <http://bugs.debian.org/664626>.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 19 Mar 2012 20:28:16 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 19 Mar 2012 20:41:53 +0100
 
 python-djvulibre (0.3.8) unstable; urgency=low
  
