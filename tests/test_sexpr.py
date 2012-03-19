@@ -406,7 +406,7 @@ class test_expression_parser():
             with raises(ExpressionSyntaxError):
                 Expression.from_stream(42)
         stderr = strip_line_numbers_from_traceback(stderr.getvalue())
-        assert_equal(stderr, '''\
+        assert_multi_line_equal(stderr, '''\
 Unhandled exception (42)
 Traceback (most recent call last):
   File "sexpr.pyx", in djvu.sexpr._myio_getc (djvu/sexpr.c)
@@ -475,7 +475,7 @@ AttributeError: 'int' object has no attribute 'write'
 
 '''
         expected_stderr *= len(stderr) // len(expected_stderr)
-        assert_equal(stderr, expected_stderr)
+        assert_multi_line_equal(stderr, expected_stderr)
 
     def test_stringio(self):
         fp = StringIO()

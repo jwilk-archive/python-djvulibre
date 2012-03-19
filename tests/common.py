@@ -24,6 +24,11 @@ from nose.tools import *
 from nose import SkipTest
 
 try:
+    assert_multi_line_equal.im_class.maxDiff = None
+except NameError:
+    assert_multi_line_equal = assert_equal
+
+try:
     locale.LC_MESSAGES
 except AttributeError:
     # A non-POSIX system.
