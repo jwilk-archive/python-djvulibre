@@ -404,7 +404,7 @@ class test_expression_parser():
         assert_equal(stderr, '''\
 Unhandled exception (42)
 Traceback (most recent call last):
-  File "sexpr.pyx", line 167, in djvu.sexpr._myio_getc (djvu/sexpr.c)
+  File "sexpr.pyx", line 172, in djvu.sexpr._myio_getc (djvu/sexpr.c)
 AttributeError: 'int' object has no attribute 'read'
 
 ''')
@@ -465,7 +465,7 @@ class test_expression_writer():
         expected_stderr = '''\
 Unhandled exception (42)
 Traceback (most recent call last):
-  File "sexpr.pyx", line 153, in djvu.sexpr._myio_puts (djvu/sexpr.c)
+  File "sexpr.pyx", line 158, in djvu.sexpr._myio_puts (djvu/sexpr.c)
 AttributeError: 'int' object has no attribute 'write'
 
 '''

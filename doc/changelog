@@ -1,8 +1,8 @@
 python-djvulibre (0.3.9) UNRELEASED; urgency=low
 
-  * 
+  * Add work-around for <http://bugs.debian.org/664626>.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 19 Mar 2012 11:16:46 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 19 Mar 2012 14:58:05 +0100
 
 python-djvulibre (0.3.8) unstable; urgency=low
 

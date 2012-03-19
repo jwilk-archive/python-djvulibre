@@ -52,6 +52,7 @@ cdef extern from 'libdjvu/miniexp.h':
     void cvar_free 'minivar_free'(cvar_t* v) nogil
     cexpr_t* cvar_ptr 'minivar_pointer'(cvar_t* v) nogil
 
+    int io_7bit 'minilisp_print_7bits'
     int (*io_puts 'minilisp_puts')(char *s)
     int (*io_getc 'minilisp_getc')()
     int (*io_ungetc 'minilisp_ungetc')(int c)
@@ -89,6 +90,7 @@ cdef object _myio_stdout
 cdef int _myio_stdout_binary
 cdef object _myio_buffer
 _myio_buffer = []
+cdef int _backup_io_7bit
 cdef int (*_backup_io_puts)(char *s)
 cdef int (*_backup_io_getc)()
 cdef int (*_backup_io_ungetc)(int c)
@@ -99,10 +101,11 @@ cdef object write_unraisable_exception(object cause):
 
 cdef void myio_set(stdin, stdout):
     global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
-    global _backup_io_puts, _backup_io_getc, _backup_io_ungetc
-    global io_puts, io_getc, io_ungetc
+    global _backup_io_7bit, _backup_io_puts, _backup_io_getc, _backup_io_ungetc
+    global io_7bit, io_puts, io_getc, io_ungetc
     cdef int opt_stdin, opt_stdout
     with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
+    _backup_io_7bit = io_7bit
     _backup_io_puts = io_puts
     _backup_io_getc = io_getc
     _backup_io_ungetc = io_ungetc
@@ -133,15 +136,17 @@ cdef void myio_set(stdin, stdout):
             pass # TODO
     else:
         io_puts = _myio_puts
+    io_7bit = 1
     _myio_buffer = []
 
 cdef void myio_reset():
     global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
-    global io_puts, io_getc, io_ungetc
+    global io_7bit, io_puts, io_getc, io_ungetc
     _myio_stdin = None
     _myio_stdout = None
     _myio_stdout_binary = 0
     _myio_buffer = None
+    io_7bit = _backup_io_7bit
     io_puts = _backup_io_puts
     io_getc = _backup_io_getc
     io_ungetc = _backup_io_ungetc
