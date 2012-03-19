@@ -386,6 +386,11 @@ class test_list_expressions():
             x = Expression(lst)
             assert_pickle_equal(x)
 
+def strip_line_numbers_from_traceback(s):
+    s = re.sub('(?<=[.]c):[0-9]+(?=[)])', '', s)
+    s = re.sub(', line [0-9]+(?=, )', '', s)
+    return s
+
 class test_expression_parser():
 
     def test_badstring(self):
@@ -400,11 +405,11 @@ class test_expression_parser():
         with interim(sys, stderr=stderr):
             with raises(ExpressionSyntaxError):
                 Expression.from_stream(42)
-        stderr = re.sub(':[0-9]+', '', stderr.getvalue())
+        stderr = strip_line_numbers_from_traceback(stderr.getvalue())
         assert_equal(stderr, '''\
 Unhandled exception (42)
 Traceback (most recent call last):
-  File "sexpr.pyx", line 172, in djvu.sexpr._myio_getc (djvu/sexpr.c)
+  File "sexpr.pyx", in djvu.sexpr._myio_getc (djvu/sexpr.c)
 AttributeError: 'int' object has no attribute 'read'
 
 ''')
@@ -461,11 +466,11 @@ class test_expression_writer():
         stderr = StringIO()
         with interim(sys, stderr=stderr):
             self.expr.print_into(42)
-        stderr = re.sub(':[0-9]+', '', stderr.getvalue())
+        stderr = strip_line_numbers_from_traceback(stderr.getvalue())
         expected_stderr = '''\
 Unhandled exception (42)
 Traceback (most recent call last):
-  File "sexpr.pyx", line 158, in djvu.sexpr._myio_puts (djvu/sexpr.c)
+  File "sexpr.pyx", in djvu.sexpr._myio_puts (djvu/sexpr.c)
 AttributeError: 'int' object has no attribute 'write'
 
 '''
