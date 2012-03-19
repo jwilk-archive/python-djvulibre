@@ -1,12 +1,14 @@
 python-djvulibre (0.3.9) UNRELEASED; urgency=low
 
-  * Add work-around for <http://bugs.debian.org/664626>.
+  * Ensure that all S-expression output is 7-bit.
+    This is work-around for <http://bugs.debian.org/664626>.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 19 Mar 2012 14:58:05 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 19 Mar 2012 20:28:16 +0100
 
 python-djvulibre (0.3.8) unstable; urgency=low
-
-  * Add work-around for <http://bugs.debian.org/664442>.
+ 
+  * Ensure that S-expression input/output functions are always initialized.
+    This is work-around for <http://bugs.debian.org/664442>.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Sun, 18 Mar 2012 23:44:55 +0100
 
