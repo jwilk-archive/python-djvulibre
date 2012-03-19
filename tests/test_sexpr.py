@@ -455,6 +455,7 @@ AttributeError: 'int' object has no attribute 'read'
 class test_expression_writer():
 
     expr = Expression([Symbol('eggs'), Symbol('ham')])
+    repr = '(eggs ham)'
 
     def test_bad_io(self):
         stderr = StringIO()
@@ -474,7 +475,7 @@ AttributeError: 'int' object has no attribute 'write'
     def test_stringio(self):
         fp = StringIO()
         self.expr.print_into(fp)
-        assert_equal(fp.getvalue(), '(eggs ham)')
+        assert_equal(fp.getvalue(), self.repr)
 
     def test_fileio_text(self):
         fp = tempfile.TemporaryFile(mode='w+t')
@@ -482,7 +483,7 @@ AttributeError: 'int' object has no attribute 'write'
             assert_equal(type(fp), file)
         self.expr.print_into(fp)
         fp.seek(0)
-        assert_equal(fp.read(), '(eggs ham)')
+        assert_equal(fp.read(), self.repr)
 
     def test_fileio_binary(self):
         fp = tempfile.TemporaryFile(mode='w+b')
@@ -490,6 +491,11 @@ AttributeError: 'int' object has no attribute 'write'
             assert_equal(type(fp), file)
         self.expr.print_into(fp)
         fp.seek(0)
-        assert_equal(fp.read(), b('(eggs ham)'))
+        assert_equal(fp.read(), b(self.repr))
+
+class test_expression_writer_nonascii(test_expression_writer):
+
+    expr = Expression(u'żółw')
+    repr = r'"\305\274\303\263\305\202w"'
 
 # vim:ts=4 sw=4 et
