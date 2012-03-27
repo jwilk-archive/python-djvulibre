@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2007-2011 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007-2012 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ Programming Language :: Python :: 3
 Topic :: Multimedia :: Graphics
 Topic :: Multimedia :: Graphics :: Graphics Conversion
 Topic :: Text Processing
-'''.strip().split('\n')
+'''.strip().splitlines()
 
 import glob
 import os
