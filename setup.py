@@ -198,7 +198,8 @@ if sphinx_setup_command:
             # use instead.
             build_ext = self.get_finalized_command('build_ext')
             sys.path[:0] = [build_ext.build_lib]
-            import djvu
+            for ext in ext_modules:
+                __import__('djvu.' + ext)
             del sys.path[0]
             sphinx_setup_command.BuildDoc.run(self)
 else:
