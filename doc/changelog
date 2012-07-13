@@ -1,3 +1,9 @@
+python-djvulibre (0.3.10) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 13 Jul 2012 11:36:40 +0200
+
 python-djvulibre (0.3.9) unstable; urgency=low
 
   * Ensure that all S-expression output is 7-bit.
