@@ -213,6 +213,8 @@ if sphinx_setup_command:
 else:
     build_sphinx = None
 
+compiler_flags = pkg_config('ddjvuapi')
+
 setup_params = dict(
     name = 'python-djvulibre',
     version = __version__,
@@ -229,7 +231,7 @@ setup_params = dict(
         distutils.command.build_ext.Extension(
             'djvu.%s' % name, ['djvu/%s.pyx' % name],
             depends = ['djvu/common.pxi'] + glob.glob('djvu/*.pxd'),
-            **pkg_config('ddjvuapi')
+            **compiler_flags
         )
         for name in ext_modules
     ],
