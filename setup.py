@@ -86,6 +86,12 @@ def get_version():
 PKG_CONFIG_FLAG_MAP = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
 def pkg_config(*packages, **kwargs):
+    libdjvulibre = 'djvulibre'
+    if os.name == 'nt':
+        libdjvulibre = 'libdjvulibre'
+    fallback = dict(
+        libraries=[libdjvulibre],
+    )
     try:
         pkgconfig = ipc.Popen(
             ['pkg-config', '--libs', '--cflags'] + list(packages),
@@ -93,13 +99,14 @@ def pkg_config(*packages, **kwargs):
         )
     except OSError:
         _, ex, _ = sys.exc_info()
-        ex.strerror = 'pkg-config: ' + ex.strerror
-        raise
+        distutils.log.warn('cannot execute pkg-config: ' + str(ex))
+        return fallback
     stdout, stderr = pkgconfig.communicate()
     stdout = stdout.decode('ASCII', 'replace')
     stderr = stderr.decode('ASCII', 'replace')
     if pkgconfig.returncode:
-        raise IOError('[pkg-config] ' + stderr.strip())
+        distutils.log.warn('pkg-config failed: ' + stderr.strip())
+        return fallback
     kwargs.setdefault('extra_link_args', [])
     kwargs.setdefault('extra_compile_args', ['-Wno-uninitialized'])
     for argument in stdout.split():
@@ -111,14 +118,6 @@ def pkg_config(*packages, **kwargs):
             kwargs['extra_link_args'].append(argument)
             kwargs['extra_compile_args'].append(argument)
     return kwargs
-
-if mingw32cross:
-
-    def pkg_config(*packages, **kwargs):
-        return dict(
-            libraries=['libdjvulibre'],
-        )
-        return kwargs
 
 __version__ = get_version()
 
