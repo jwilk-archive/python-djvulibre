@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2010 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2010, 2013 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -10,6 +10,10 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
+
+'''
+helper module for Unix -> Windows (mingw) cross-compiling
+'''
 
 import os
 import sys
