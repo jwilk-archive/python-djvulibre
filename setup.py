@@ -43,6 +43,9 @@ if os.name == 'posix' and os.getenv('python_djvulibre_mingw32'):
 else:
     mingw32cross = None
 
+if os.name == 'nt':
+    import djvu.dllpath
+
 # Just to make sure setuptools won't try to be clever:
 fake_module = type(sys)('fake_module')
 fake_module.build_ext = None
@@ -86,12 +89,16 @@ def get_version():
 PKG_CONFIG_FLAG_MAP = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
 def pkg_config(*packages, **kwargs):
-    libdjvulibre = 'djvulibre'
-    if os.name == 'nt':
-        libdjvulibre = 'libdjvulibre'
     fallback = dict(
-        libraries=[libdjvulibre],
+        libraries=['djvulibre'],
     )
+    if os.name == 'nt':
+        dll_path = djvu.dllpath.guess_dll_path()
+        if dll_path is not None:
+            fallback.update(
+                extra_compile_args=['-I' + os.path.join(dll_path, 'include')],
+                extra_link_args=['-L' + os.path.join(dll_path)],
+            )
     try:
         pkgconfig = ipc.Popen(
             ['pkg-config', '--libs', '--cflags'] + list(packages),
