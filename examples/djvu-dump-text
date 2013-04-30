@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # encoding=UTF-8
 
-# Copyright © 2008-2010 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2008-2013 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +13,9 @@
 # General Public License for more details.
 
 import sys
+import os
+import signal
+
 import djvu.decode
 
 def print_text(sexpr, level=0):
@@ -30,7 +33,9 @@ class Context(djvu.decode.Context):
     def handle_message(self, message):
         if isinstance(message, djvu.decode.ErrorMessage):
             print >>sys.stderr, message
-            sys.exit(1)
+            # Exceptions in handle_message() are ignored, so sys.exit()
+            # wouldn't work here.
+            os.kill(os.getpid(), signal.SIGTERM)
 
     def process(self, path):
         document = self.new_document(djvu.decode.FileURI(path))

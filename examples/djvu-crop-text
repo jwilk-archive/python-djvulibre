@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # encoding=UTF-8
 
-# Copyright © 2008-2010 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2008-2013 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,8 +13,10 @@
 # General Public License for more details.
 
 import argparse
-import sys
+import os
+import signal
 import subprocess
+import sys
 
 import djvu.sexpr
 import djvu.decode
@@ -68,7 +70,9 @@ class Context(djvu.decode.Context):
     def handle_message(self, message):
         if isinstance(message, djvu.decode.ErrorMessage):
             print >>sys.stderr, message
-            sys.exit(1)
+            # Exceptions in handle_message() are ignored, so sys.exit()
+            # wouldn't work here.
+            os.kill(os.getpid(), signal.SIGTERM)
 
     def process_page(self, page):
         print >>sys.stderr, '- Page #%d' % (page.n + 1)
