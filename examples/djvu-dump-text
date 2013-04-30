@@ -22,6 +22,8 @@ def print_text(sexpr, level=0):
     if level > 0:
         print ' ' * (2 * level - 1),
     if isinstance(sexpr, djvu.sexpr.ListExpression):
+        if len(sexpr) == 0:
+            return
         print str(sexpr[0].value), [sexpr[i].value for i in xrange(1, 5)]
         for child in sexpr[5:]:
             print_text(child, level + 1)
