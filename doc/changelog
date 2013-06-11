@@ -1,8 +1,10 @@
 python-djvulibre (0.3.10) UNRELEASED; urgency=low
 
   * Improve error handling in examples.
+  * When tests run external programs, don't reset environment completely, but
+    only set LC_ALL=C.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 30 Apr 2013 19:01:52 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 11 Jun 2013 22:27:05 +0200
 
 python-djvulibre (0.3.9) unstable; urgency=low
 

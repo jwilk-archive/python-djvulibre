@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2007-2012 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007-2013 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -194,7 +194,9 @@ class test_documents:
         assert_equal(len(document.pages), 6)
         assert_equal(len(document.files), 7)
 
-        stdout0, stderr0 = ipc.Popen(['djvudump', original_filename], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+        c_env = dict(os.environ, LC_ALL='C')
+
+        stdout0, stderr0 = ipc.Popen(['djvudump', original_filename], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
         assert_equal(stderr0, b(''))
         stdout0 = stdout0.replace(b('\r\n'), b('\n'))
 
@@ -206,7 +208,7 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             tmp.close()
-            stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
             assert_equal(stderr, b(''))
             stdout = stdout.replace(b('\r\n'), b('\n'))
             assert_equal(stdout, stdout0)
@@ -222,7 +224,7 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             tmp.close()
-            stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
             assert_equal(stderr, b(''))
             stdout = stdout.replace(b('\r\n'), b('\n'))
             stdout0 = stdout0.split(b('\n'))
@@ -242,7 +244,7 @@ class test_documents:
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
-            stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
             assert_equal(stderr, b(''))
             stdout = stdout.replace(b('\r\n'), b('\n'))
             stdout = stdout.split(b('\n'))
@@ -263,7 +265,7 @@ class test_documents:
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
-            stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
             stdout = stdout.replace(b('\r\n'), b('\n'))
             assert_equal(stderr, b(''))
             stdout = stdout.split(b('\n'))
@@ -287,13 +289,15 @@ class test_documents:
         assert_equal(len(document.pages), 6)
         assert_equal(len(document.files), 7)
 
+        c_env = dict(os.environ, LC_ALL='C')
+
         tmp = tempfile.NamedTemporaryFile()
         try:
             job = document.export_ps(tmp.file)
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
-            stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
             assert_equal(stderr, b(''))
             assert_equal(stdout, b('\x0c') * 6)
         finally:
@@ -305,7 +309,7 @@ class test_documents:
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
-            stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env={}).communicate()
+            stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
             assert_equal(stderr, b(''))
             stdout = stdout.split(b('\n'))
             stdout = [b(' ').join(line.split()) for line in stdout]
