@@ -13,6 +13,7 @@
 
 from __future__ import with_statement
 
+import codecs
 import contextlib
 import locale
 import os
@@ -41,7 +42,7 @@ except AttributeError:
     locale.LC_MESSAGES = locale.LC_ALL
 
 locale_encoding = locale.getpreferredencoding()
-if locale_encoding == 'ANSI_X3.4-1968':
+if codecs.lookup(locale_encoding) == codecs.lookup('US-ASCII'):
     locale_encoding = 'UTF-8'
 
 py3k = sys.version_info >= (3, 0)
