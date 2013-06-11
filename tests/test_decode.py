@@ -559,7 +559,7 @@ def test_metadata():
     try:
         test_file = create_djvu(test_script)
     except UnicodeEncodeError:
-        raise AssertionError('You need to run this test with an UTF-8 locale')
+        raise SkipTest('you need to run this test with LC_CTYPE=C or LC_CTYPE=<lang>.UTF-8')
     try:
         context = Context()
         document = context.new_document(FileUri(test_file.name))
