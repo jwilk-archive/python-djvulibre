@@ -14,6 +14,7 @@
 from __future__ import with_statement
 
 import array
+import errno
 import os
 import shutil
 import subprocess as ipc
@@ -68,29 +69,53 @@ class test_documents:
             Document()
 
     def test_nonexistent(self):
+        path = '__nonexistent__'
+        try:
+            os.stat(path)
+        except OSError:
+            _, ex, _ = sys.exc_info()
+            c_message = ex.args[1]
+        else:
+            raise OSError(errno.EEXIST, os.strerror(errno.EEXIST), path)
+        c_message.encode('ASCII')
         skip_unless_c_messages()
         context = Context()
         with raises(JobFailed):
-            document = context.new_document(FileUri('__nonexistent__'))
+            document = context.new_document(FileUri(path))
         message = context.get_message()
         assert_equal(type(message), ErrorMessage)
         assert_equal(type(message.message), unicode)
-        assert_equal(message.message, "[1-11711] Failed to open '__nonexistent__': No such file or directory.")
+        assert_equal(message.message, "[1-11711] Failed to open '%s': %s." % (path, c_message))
         assert_equal(str(message), message.message)
         assert_equal(unicode(message), message.message)
 
     def test_nonexistent_ja(self):
         skip_unless_c_messages()
         skip_unless_translation_exists('ja_JP.UTF-8')
+        path = '__nonexistent__'
         context = Context()
+        try:
+            with amended_locale(LC_ALL='ja_JP.UTF-8'):
+                os.stat(path)
+        except OSError:
+            _, ex, _ = sys.exc_info()
+            c_message = ex.args[1]
+        else:
+            raise OSError(errno.EEXIST, os.strerror(errno.EEXIST), path)
+        try:
+            c_message.encode('ASCII')
+        except UnicodeError:
+            pass
+        else:
+            raise AssertionError('ja_JP error message is ASCII-only: %r' % c_message)
         with amended_locale(LC_ALL='ja_JP.UTF-8'):
             with raises(JobFailed):
-                document = context.new_document(FileUri('__nonexistent__'))
+                document = context.new_document(FileUri(path))
             message = context.get_message()
             assert_equal(type(message), ErrorMessage)
             assert_equal(type(message.message), unicode)
-            assert_equal(message.message, u("[1-11711] Failed to open '__nonexistent__': そのようなファイルやディレクトリはありません."))
-            assert_equal(str(message), "[1-11711] Failed to open '__nonexistent__': そのようなファイルやディレクトリはありません.")
+            assert_equal(message.message, u("[1-11711] Failed to open '%s': %s." % (path, c_message)))
+            assert_equal(str(message), "[1-11711] Failed to open '%s': %s." % (path, c_message))
             assert_equal(unicode(message), message.message)
 
     def test_new_document(self):
