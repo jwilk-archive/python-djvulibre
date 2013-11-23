@@ -14,7 +14,6 @@
 
 import sys
 import os
-import signal
 
 import djvu.decode
 
@@ -37,7 +36,7 @@ class Context(djvu.decode.Context):
             print >>sys.stderr, message
             # Exceptions in handle_message() are ignored, so sys.exit()
             # wouldn't work here.
-            os.kill(os.getpid(), signal.SIGTERM)
+            os._exit(1)
 
     def process(self, path):
         document = self.new_document(djvu.decode.FileURI(path))

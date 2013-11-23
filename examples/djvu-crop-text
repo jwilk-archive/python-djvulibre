@@ -14,7 +14,6 @@
 
 import argparse
 import os
-import signal
 import subprocess
 import sys
 
@@ -72,7 +71,7 @@ class Context(djvu.decode.Context):
             print >>sys.stderr, message
             # Exceptions in handle_message() are ignored, so sys.exit()
             # wouldn't work here.
-            os.kill(os.getpid(), signal.SIGTERM)
+            os._exit(1)
 
     def process_page(self, page):
         print >>sys.stderr, '- Page #%d' % (page.n + 1)
