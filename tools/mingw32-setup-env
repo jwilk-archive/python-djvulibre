@@ -22,7 +22,7 @@ set -e -x
 target="$1"
 pwd=$(pwd)
 mkdir -p "$target/common/"
-tmpdir=$(mktemp -d) || exit 1
+tmpdir=$(mktemp -d -t python-djvulibre.mingw32.XXXXXX) || exit 1
 cd "$tmpdir"
 wget -i - <<EOF
 http://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.23%2B4.6/DjVuLibre%2BDjView-3.5.23b%2B4.6-Setup.exe
