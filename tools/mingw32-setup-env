@@ -25,11 +25,11 @@ mkdir -p "$target/common/"
 tmpdir=$(mktemp -d -t python-djvulibre.mingw32.XXXXXX) || exit 1
 cd "$tmpdir"
 wget -i - <<EOF
-http://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.23%2B4.6/DjVuLibre%2BDjView-3.5.23b%2B4.6-Setup.exe
-http://www.python.org/ftp/python/2.6.6/python-2.6.6.msi
-http://www.python.org/ftp/python/2.7.1/python-2.7.1.msi
-http://www.python.org/ftp/python/3.1.2/python-3.1.2.msi
-http://www.python.org/ftp/python/3.2/python-3.2.msi
+https://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.23%2B4.6/DjVuLibre%2BDjView-3.5.23b%2B4.6-Setup.exe
+https://www.python.org/ftp/python/2.6.6/python-2.6.6.msi
+https://www.python.org/ftp/python/2.7.1/python-2.7.1.msi
+https://www.python.org/ftp/python/3.1.2/python-3.1.2.msi
+https://www.python.org/ftp/python/3.2/python-3.2.msi
 EOF
 sha256sum -c - << EOF
 3b986a2fbb1c35a91750ae0d29232c111a52883bd99eb14d20805bc9f5592203  DjVuLibre+DjView-3.5.23b+4.6-Setup.exe

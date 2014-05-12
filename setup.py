@@ -12,9 +12,9 @@
 # General Public License for more details.
 
 '''
-*python-djvulibre* is a set of `Python <http://python.org>`_ bindings for the
-`DjVuLibre <http://djvu.sf.net/>`_ library, an open source implementation of
-`DjVu <http://djvu.org/>`_.
+*python-djvulibre* is a set of `Python <https://www.python.org>`_ bindings for
+the `DjVuLibre <http://djvu.sf.net/>`_ library, an open source implementation
+of `DjVu <http://djvu.org/>`_.
 '''
 
 classifiers = '''
