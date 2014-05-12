@@ -38,7 +38,7 @@ html_theme = 'default'
 html_use_modindex = True
 html_use_index = False
 
-intersphinx_mapping = {'http://docs.python.org/': None}
+intersphinx_mapping = {'https://docs.python.org/': None}
 
 rst_epilog = '''
 .. |djvu3ref| replace:: Lizardtech DjVu Reference

@@ -9,20 +9,21 @@ python-djvulibre (0.3.10) UNRELEASED; urgency=low
     + Correctly detect ASCII locale encoding on FreeBSD (and likely other
       non-GNU systems).
     * Don't hard-code libc error messages.
+  * Use HTTPS URLs when they are available, in documentation and code.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 13 Jun 2013 15:07:29 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 12 May 2014 12:40:46 +0200
 
 python-djvulibre (0.3.9) unstable; urgency=low
 
   * Ensure that all S-expression output is 7-bit.
-    This is work-around for <http://bugs.debian.org/664626>.
+    This is work-around for <https://bugs.debian.org/664626>.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Mon, 19 Mar 2012 20:41:53 +0100
 
 python-djvulibre (0.3.8) unstable; urgency=low
  
   * Ensure that S-expression input/output functions are always initialized.
-    This is work-around for <http://bugs.debian.org/664442>.
+    This is work-around for <https://bugs.debian.org/664442>.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Sun, 18 Mar 2012 23:44:55 +0100
 
@@ -63,10 +64,10 @@ python-djvulibre (0.3.4) unstable; urgency=low
   * Optimize DocumentPages.__len__() and DocumentFiles.__len__().
   * Fix compatibility with Python 3.X (broken in 0.3.3).
   * Update various external documentation URLs.
-    http://bugs.debian.org/627290
+    https://bugs.debian.org/627290
   * Improve test suite:
     + Normalize whitespace in ps2ascii output.
-      http://bugs.debian.org/646177
+      https://bugs.debian.org/646177
   * Improve setup.py:
     + Print a more meaningful error message if pkg-config fails.
     + build_sphinx is now available even without setuptools.
@@ -81,7 +82,7 @@ python-djvulibre (0.3.3) unstable; urgency=low
   * Add Windows-specific module djvu.dllpath, which is aimed to ease finding
     DjVuLibre DLLs in non-standard locations.
   * Make expression and symbol objects picklable.
-  * Add work-around for <http://bugs.debian.org/620859>.
+  * Add work-around for <https://bugs.debian.org/620859>.
   * Fix test suite compatibility with Python 3.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Mon, 04 Apr 2011 21:06:01 +0200
@@ -97,7 +98,7 @@ python-djvulibre (0.3.2) unstable; urgency=low
   * Fix compatibility with some non-POSIX operating systems.
   * Add work-around for <http://bugs.python.org/issue969718>.
   * Improve setup.py:
-    + Add work-around for <http://bugs.debian.org/607112>.
+    + Add work-around for <https://bugs.debian.org/607112>.
     + Make ‘clean --all’ remove temporary *.pxi and *.c files.
     + Don't import Cython modules; calls the ‘cython’ binary instead.
     + Allow cross-compilation using MinGW cross compiler.

@@ -88,7 +88,7 @@ DjVu documents
 
       .. warning::
          Due to a DjVuLibre (≤ 3.5.20) bug, this method may be broken.
-         See http://bugs.debian.org/467282 for details.
+         See https://bugs.debian.org/467282 for details.
 
    .. method:: export_ps(file[, …][, wait=True])
 
@@ -211,7 +211,7 @@ DjVu documents
 
       .. warning::
          Due to a DjVuLibre (≤ 3.5.20) bug, this method may be broken.
-         See http://bugs.debian.org/469122 for details.
+         See https://bugs.debian.org/469122 for details.
 
 .. currentmodule:: djvu.decode
 .. class:: SaveJob

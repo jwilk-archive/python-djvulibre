@@ -171,7 +171,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             distutils.log.info('cythoning %r extension', ext.name)
             def build_c(source, target):
                 distutils.spawn.spawn(['cython', source])
-                # XXX This is needed to work around <http://bugs.debian.org/607112>.
+                # XXX This is needed to work around <https://bugs.debian.org/607112>.
                 # Fortunately, python-djvulibre doesn't really need __Pyx_GetVtable().
                 file = open(target, 'r+')
                 try:

@@ -57,7 +57,7 @@ from os import devnull
 from traceback import format_exc
 
 # The two lines below are solely to work-around Cython bug:
-# http://bugs.debian.org/620859
+# https://bugs.debian.org/620859
 cdef object MemoryError
 IF PY3K:
     from builtins import MemoryError
@@ -298,7 +298,7 @@ class DjVuLibreBug(Exception):
         Exception.__init__(
             self,
             'A DjVuLibre bug has been encountered.\n'
-            'See <http://bugs.debian.org/%d> for details.\n'
+            'See <https://bugs.debian.org/%d> for details.\n'
             'Please upgrade your DjVuLibre.' % (debian_bug_no,)
         )
 
@@ -1095,7 +1095,7 @@ cdef class Document:
 
         .. warning::
             Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
-            See http://bugs.debian.org/467282 for details.
+            See https://bugs.debian.org/467282 for details.
         '''
         cdef char * optv[2]
         cdef int optc
@@ -1251,7 +1251,7 @@ cdef class Document:
         **Warning***
         ------------
         Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
-        See http://bugs.debian.org/469122 for details.
+        See https://bugs.debian.org/469122 for details.
         '''
         cdef FILE* output
         cdef SaveJob job
