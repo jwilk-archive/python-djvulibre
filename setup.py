@@ -197,7 +197,7 @@ class clean(distutils.command.clean.clean):
                     distutils.log.info('removing %r', wildcard)
                 if self.dry_run:
                     continue
-                for filename in glob.glob(wildcard):
+                for filename in filenames:
                     os.remove(filename)
         return distutils.command.clean.clean.run(self)
 
