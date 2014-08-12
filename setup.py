@@ -70,7 +70,7 @@ except ImportError:
     sphinx_setup_command = None
 
 def ext_modules():
-    for pyx_file in glob.glob(os.path.join('djvu', '*.pyx')):
+    for pyx_file in glob.iglob(os.path.join('djvu', '*.pyx')):
         module, _ = os.path.splitext(os.path.basename(pyx_file))
         yield module
 ext_modules = list(ext_modules())
