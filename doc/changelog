@@ -9,9 +9,10 @@ python-djvulibre (0.3.10) UNRELEASED; urgency=low
     + Correctly detect ASCII locale encoding on FreeBSD (and likely other
       non-GNU systems).
     * Don't hard-code libc error messages.
+    * Fix test_bad_io failures with Cython ≥ 0.21.
   * Use HTTPS URLs when they are available, in documentation and code.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 12 May 2014 12:40:46 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sun, 02 Nov 2014 17:29:44 +0100
 
 python-djvulibre (0.3.9) unstable; urgency=low
 

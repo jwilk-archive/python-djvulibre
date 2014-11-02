@@ -406,10 +406,14 @@ class test_expression_parser():
             with raises(ExpressionSyntaxError):
                 Expression.from_stream(42)
         stderr = strip_line_numbers_from_traceback(stderr.getvalue())
+        stderr = stderr.replace(
+            '"sexpr.pyx"', # Cython < 0.21
+            '"djvu/sexpr.pyx"' # Cython ≥ 0.21
+        )
         assert_multi_line_equal(stderr, '''\
 Unhandled exception (42)
 Traceback (most recent call last):
-  File "sexpr.pyx", in djvu.sexpr._myio_getc (djvu/sexpr.c)
+  File "djvu/sexpr.pyx", in djvu.sexpr._myio_getc (djvu/sexpr.c)
 AttributeError: 'int' object has no attribute 'read'
 
 ''')
@@ -467,10 +471,14 @@ class test_expression_writer():
         with interim(sys, stderr=stderr):
             self.expr.print_into(42)
         stderr = strip_line_numbers_from_traceback(stderr.getvalue())
+        stderr = stderr.replace(
+            '"sexpr.pyx"', # Cython < 0.21
+            '"djvu/sexpr.pyx"' # Cython ≥ 0.21
+        )
         expected_stderr = '''\
 Unhandled exception (42)
 Traceback (most recent call last):
-  File "sexpr.pyx", in djvu.sexpr._myio_puts (djvu/sexpr.c)
+  File "djvu/sexpr.pyx", in djvu.sexpr._myio_puts (djvu/sexpr.c)
 AttributeError: 'int' object has no attribute 'write'
 
 '''
