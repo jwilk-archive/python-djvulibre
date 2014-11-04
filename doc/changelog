@@ -1,4 +1,4 @@
-python-djvulibre (0.3.10) UNRELEASED; urgency=low
+python-djvulibre (0.3.10) unstable; urgency=low
 
   * Improve error handling in examples.
   * Improve the test suite:
@@ -15,7 +15,7 @@ python-djvulibre (0.3.10) UNRELEASED; urgency=low
       https://bitbucket.org/jwilk/python-djvulibre/issue/1
   * Use HTTPS URLs when they are available, in documentation and code.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sun, 02 Nov 2014 17:29:44 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 04 Nov 2014 11:44:09 +0100
 
 python-djvulibre (0.3.9) unstable; urgency=low
 
