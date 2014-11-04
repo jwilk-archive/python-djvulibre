@@ -6,10 +6,12 @@ python-djvulibre (0.3.10) UNRELEASED; urgency=low
       only set LC_ALL=C.
     + Skip more tests (instead of making them fail) when they are run in
       an unsuitable environment.
-    + Correctly detect ASCII locale encoding on FreeBSD (and likely other
+    + Correctly detect ASCII locale encoding on FreeBSD (and possibly other
       non-GNU systems).
-    * Don't hard-code libc error messages.
-    * Fix test_bad_io failures with Cython ≥ 0.21.
+    + Don't hard-code libc error messages.
+    + Fix test_bad_io failures with Cython ≥ 0.21.
+  * Improve setup.py:
+    + Make it possible to build the package natively on Windows.
   * Use HTTPS URLs when they are available, in documentation and code.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Sun, 02 Nov 2014 17:29:44 +0100
