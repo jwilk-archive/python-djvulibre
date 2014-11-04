@@ -128,7 +128,7 @@ def pkg_config(*packages, **kwargs):
 
 __version__ = get_version()
 
-# Work-around for <http://bugs.python.org/issue969718>:
+# Work-around for <https://bugs.python.org/issue969718>:
 try:
     del os.environ['CFLAGS']
 except KeyError:

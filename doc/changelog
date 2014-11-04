@@ -100,7 +100,7 @@ python-djvulibre (0.3.2) unstable; urgency=low
   * Add ‘+=’ and ‘del’ operators for list expressions.
   * Fix compatibility with Cython 0.12.
   * Fix compatibility with some non-POSIX operating systems.
-  * Add work-around for <http://bugs.python.org/issue969718>.
+  * Add work-around for <https://bugs.python.org/issue969718>.
   * Improve setup.py:
     + Add work-around for <https://bugs.debian.org/607112>.
     + Make ‘clean --all’ remove temporary *.pxi and *.c files.
