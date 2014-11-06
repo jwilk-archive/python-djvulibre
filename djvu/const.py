@@ -18,7 +18,7 @@ import djvu.sexpr
 EMPTY_LIST = djvu.sexpr.Expression([])
 EMPTY_OUTLINE = djvu.sexpr.Expression([djvu.sexpr.Symbol('bookmarks')])
 
-METADATA_BIBTEX_KEYS = frozenset(djvu.sexpr.Symbol(x) for x in '''\
+METADATA_BIBTEX_KEYS = frozenset(djvu.sexpr.Symbol(x) for x in '''
 address
 annote
 author
@@ -45,7 +45,7 @@ volume
 year'''.split())
 # Retrieved from <http://www.ctan.org/get/biblio/bibtex/contrib/doc/btxdoc.pdf>
 
-METADATA_PDFINFO_KEYS = frozenset(djvu.sexpr.Symbol(x) for x in '''\
+METADATA_PDFINFO_KEYS = frozenset(djvu.sexpr.Symbol(x) for x in '''
 Author
 CreationDate
 Creator
@@ -115,8 +115,7 @@ TEXT_ZONE_CHARACTER = TextZoneType('char', 1)
 def get_text_zone_type(symbol):
     return TextZoneType.from_symbol(symbol)
 
-TEXT_ZONE_SEPARATORS = \
-{
+TEXT_ZONE_SEPARATORS = {
     TEXT_ZONE_PAGE:      '\f',   # Form Feed (FF)
     TEXT_ZONE_COLUMN:    '\v',   # Vertical tab (VT, LINE TABULATION)
     TEXT_ZONE_REGION:    '\035', # Group Separator (GS, INFORMATION SEPARATOR THREE)

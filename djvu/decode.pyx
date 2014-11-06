@@ -911,8 +911,7 @@ PRINT_ORIENTATION_LANDSCAPE = 'landscape'
 PRINT_ORIENTATION_PORTRAIT = 'portrait'
 
 cdef object PRINT_RENDER_MODE_MAP
-PRINT_RENDER_MODE_MAP = \
-{
+PRINT_RENDER_MODE_MAP = {
     DDJVU_RENDER_COLOR: None,
     DDJVU_RENDER_BLACK: 'bw',
     DDJVU_RENDER_FOREGROUND: 'fore',
@@ -1756,8 +1755,7 @@ cdef class PixelFormatRgb(PixelFormat):
                 return 'BGR'
 
     def __repr__(self):
-        return '%s(byte_order = %r, bpp = %d)' % \
-        (
+        return '%s(byte_order = %r, bpp = %d)' % (
             get_type_name(PixelFormatRgb),
             self.byte_order,
             self.bpp
@@ -1801,8 +1799,7 @@ cdef class PixelFormatRgbMask(PixelFormat):
         self.ddjvu_format = ddjvu_format_create(_format, 4, self._params)
 
     def __repr__(self):
-        return '%s(red_mask = 0x%0*x, green_mask = 0x%0*x, blue_mask = 0x%0*x, xor_value = 0x%0*x, bpp = %d)' % \
-        (
+        return '%s(red_mask = 0x%0*x, green_mask = 0x%0*x, blue_mask = 0x%0*x, xor_value = 0x%0*x, bpp = %d)' % (
             get_type_name(PixelFormatRgbMask),
             self.bpp//4, self._params[0],
             self.bpp//4, self._params[1],
@@ -2762,8 +2759,7 @@ cdef class ProgressMessage(Message):
             return JobException_from_c(self._status)
 
 cdef object MESSAGE_MAP
-MESSAGE_MAP = \
-{
+MESSAGE_MAP = {
     DDJVU_ERROR: ErrorMessage,
     DDJVU_INFO: InfoMessage,
     DDJVU_NEWSTREAM: NewStreamMessage,
@@ -2848,8 +2844,7 @@ class JobStopped(JobFailed):
     Operation was interrupted by user.
     '''
 
-JOB_EXCEPTION_MAP = \
-{
+JOB_EXCEPTION_MAP = {
     DDJVU_JOB_NOTSTARTED: JobNotStarted,
     DDJVU_JOB_STARTED: JobStarted,
     DDJVU_JOB_OK: JobOK,
