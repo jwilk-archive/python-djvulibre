@@ -1,8 +1,9 @@
 syntax: glob
-build/*
-dist/*
-djvu/config.pxi
+
 *.c
 *.egg-info
 *.pyc
 *.so
+build/*
+dist/*
+djvu/config.pxi
