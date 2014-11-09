@@ -58,7 +58,13 @@ S-expressions
 
    .. attribute:: value
 
-      The actual “pythonic” value of the expression.
+      The “pythonic” value of the expression.
+      Lisp lists as mapped to Python tuples.
+
+   .. attribute:: lvalue
+
+      The “pythonic” value of the expression.
+      Lisp lists as mapped to Python lists.
 
 .. currentmodule:: djvu.sexpr
 .. class:: IntExpression
@@ -84,13 +90,15 @@ S-expressions
 
    >>> x = Expression([4, 2])
    >>> x
-   Expression((4, 2))
+   Expression([4, 2])
    >>> type(x)
    <class 'djvu.sexpr.ListExpression'>
    >>> x.as_string()
    '(4 2)'
    >>> x.value
    (4, 2)
+   >>> x.lvalue
+   [4, 2]
 
 .. currentmodule:: djvu.sexpr
 .. class:: StringExpression
@@ -129,6 +137,6 @@ Variétés
    Empty list S-expression.
 
    >>> EMPTY_LIST
-   Expression(())
+   Expression([])
 
 .. vim:ts=3 sw=3 et ft=rst

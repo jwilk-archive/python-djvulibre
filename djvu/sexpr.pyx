@@ -453,19 +453,31 @@ cdef class BaseExpression:
 
     property value:
         '''
-        The actual "pythonic" value of the expression.
+        The "pythonic" value of the expression.
+        Lisp lists as mapped to Python tuples.
         '''
         def __get__(self):
             return self._get_value()
 
+    property lvalue:
+        '''
+        The "pythonic" value of the expression.
+        Lisp lists as mapped to Python lists.
+        '''
+        def __get__(self):
+            return self._get_lvalue()
+
     def _get_value(self):
+        return self._get_lvalue()
+
+    def _get_lvalue(self):
         raise NotImplementedError
 
     def __richcmp__(self, other, int op):
         return BaseExpression_richcmp(self, other, op)
 
     def __repr__(self):
-        return '%s(%r)' % (get_type_name(_Expression_), self.value)
+        return '%s(%r)' % (get_type_name(_Expression_), self.lvalue)
 
     def __copy__(self):
         # Most of S-expressions are immutable.
@@ -520,7 +532,7 @@ class IntExpression(_Expression_):
     def __long__(self):
         return 0L + self.value
 
-    def _get_value(BaseExpression self not None):
+    def _get_lvalue(BaseExpression self not None):
         return cexpr_to_int(self.wexpr.cexpr())
 
     def __richcmp__(self, other, int op):
@@ -554,7 +566,7 @@ class SymbolExpression(_Expression_):
 
     __new__ = staticmethod(SymbolExpression__new__)
 
-    def _get_value(BaseExpression self not None):
+    def _get_lvalue(BaseExpression self not None):
         return _Symbol_(cexpr_to_symbol(self.wexpr.cexpr()))
 
     def __richcmp__(self, other, int op):
@@ -593,7 +605,7 @@ class StringExpression(_Expression_):
         return cexpr_to_str(self.wexpr.cexpr())
     bytes = property(bytes)
 
-    def _get_value(BaseExpression self not None):
+    def _get_lvalue(BaseExpression self not None):
         cdef char *bytes
         bytes = cexpr_to_str(self.wexpr.cexpr())
         IF PY3K:
@@ -931,6 +943,15 @@ class ListExpression(_Expression_):
             list_append(result, _c2py(cexpr_head(current))._get_value())
             current = cexpr_tail(current)
         return tuple(result)
+
+    def _get_lvalue(BaseExpression self not None):
+        cdef cexpr_t current
+        current = self.wexpr.cexpr()
+        result = []
+        while current != cexpr_nil:
+            list_append(result, _c2py(cexpr_head(current))._get_lvalue())
+            current = cexpr_tail(current)
+        return result
 
     def __copy__(self):
         return _Expression_(self)

@@ -1,3 +1,12 @@
+python-djvulibre (0.4) UNRELEASED; urgency=low
+
+  * Add the lvalue attribute to expressions.
+    This is the same as value, except that Lisp lists are mapped to Python
+    lists, rather than Python tuples. 
+  * Use the lvalue in __repr__().
+
+ -- Jakub Wilk <jwilk@jwilk.net>  Sun, 09 Nov 2014 21:22:15 +0100
+
 python-djvulibre (0.3.10) unstable; urgency=low
 
   * Improve error handling in examples.

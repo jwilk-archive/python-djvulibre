@@ -43,6 +43,7 @@ class test_int_expressions():
         assert_repr(x, 'Expression(3)')
         assert_true(x is Expression(x))
         assert_equal(x.value, 3)
+        assert_equal(x.lvalue, 3)
         assert_equal(str(x), '3')
         assert_repr(x, repr(Expression.from_string(str(x))))
         assert_equal(int(x), 3)
@@ -97,6 +98,7 @@ def test_expressions():
     assert_repr(x, "Expression(Symbol('eggs'))")
     assert_true(x is Expression(x))
     assert_equal(x.value, Symbol('eggs'))
+    assert_equal(x.lvalue, Symbol('eggs'))
     assert_equal(str(x), 'eggs')
     assert_repr(x, repr(Expression.from_string(str(x))))
     assert_equal(x, Expression(Symbol('eggs')))
@@ -110,6 +112,7 @@ def test_string_expressions():
     assert_repr(x, "Expression('eggs')")
     assert_true(x is Expression(x))
     assert_equal(x.value, 'eggs')
+    assert_equal(x.lvalue, 'eggs')
     assert_equal(str(x), '"eggs"')
     assert_repr(x, repr(Expression.from_string(str(x))))
     assert_equal(x, Expression('eggs'))
@@ -136,21 +139,23 @@ class test_list_expressions():
 
     def test1(self):
         x = Expression(())
-        assert_repr(x, "Expression(())")
+        assert_repr(x, "Expression([])")
         y = Expression(x)
         assert_true(x is y)
         assert_equal(x.value, ())
+        assert_equal(x.lvalue, [])
         assert_equal(len(x), 0)
         assert_equal(bool(x), False)
         assert_equal(list(x), [])
 
     def test2(self):
         x = Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
-        assert_repr(x, "Expression(((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))")
+        assert_repr(x, "Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])")
         y = Expression(x)
         assert_repr(y, repr(x))
         assert_false(x is y)
         assert_equal(x.value, ((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
+        assert_equal(x.lvalue, [[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
         assert_equal(str(x), '((1 2) 3 (4 5 baz) ("quux"))')
         assert_repr(x, repr(Expression.from_string(str(x))))
         assert_equal(len(x), 4)
@@ -165,16 +170,17 @@ class test_list_expressions():
         with raises(IndexError, 'list index of out range'):
             x[-6]
         assert_equal(x[:].value, x.value)
-        assert_repr(x[1:], "Expression((3, (4, 5, Symbol('baz')), ('quux',)))")
-        assert_repr(x[-2:], "Expression(((4, 5, Symbol('baz')), ('quux',)))")
+        assert_equal(x[:].lvalue, x.lvalue)
+        assert_repr(x[1:], "Expression([3, [4, 5, Symbol('baz')], ['quux']])")
+        assert_repr(x[-2:], "Expression([[4, 5, Symbol('baz')], ['quux']])")
         x[-2:] = 4, 5, 6
-        assert_repr(x, 'Expression(((1, 2), 3, 4, 5, 6))')
+        assert_repr(x, 'Expression([[1, 2], 3, 4, 5, 6])')
         x[0] = 2
-        assert_repr(x, 'Expression((2, 3, 4, 5, 6))')
+        assert_repr(x, 'Expression([2, 3, 4, 5, 6])')
         x[:] = (1, 3, 5)
-        assert_repr(x, 'Expression((1, 3, 5))')
+        assert_repr(x, 'Expression([1, 3, 5])')
         x[3:] = 7,
-        assert_repr(x, 'Expression((1, 3, 5, 7))')
+        assert_repr(x, 'Expression([1, 3, 5, 7])')
         with raises(NotImplementedError, 'only [n:] slices are supported'):
             x[object():]
         with raises(NotImplementedError, 'only [n:] slices are supported'):
@@ -198,14 +204,14 @@ class test_list_expressions():
             lst.insert(pos, pos)
             assert_true(expr.insert(pos, pos) is None)
             assert_equal(expr, Expression(lst))
-            assert_equal(list(expr.value), lst)
+            assert_equal(expr.lvalue, lst)
 
     def test_append(self):
         expr = Expression(())
         for i in range(10):
             assert_true(expr.append(i) is None)
             assert_equal(expr, Expression(range(i + 1)))
-            assert_equal(list(expr.value), list(range(i + 1)))
+            assert_equal(expr.lvalue, list(range(i + 1)))
 
     def test_extend(self):
         lst = []
@@ -214,7 +220,7 @@ class test_list_expressions():
             lst.extend(ext)
             expr.extend(ext)
             assert_equal(expr, Expression(lst))
-            assert_equal(list(expr.value), lst)
+            assert_equal(expr.lvalue, lst)
         with raises(TypeError, "'int' object is not iterable"):
             expr.extend(0)
 
@@ -225,7 +231,7 @@ class test_list_expressions():
             lst += ext
             expr += ext
             assert_equal(expr, Expression(lst))
-            assert_equal(list(expr.value), lst)
+            assert_equal(expr.lvalue, lst)
         assert_true(expr is expr0)
         with raises(TypeError, "'int' object is not iterable"):
             expr += 0
@@ -349,31 +355,31 @@ class test_list_expressions():
         x = Expression([1, [2], 3])
         y = Expression(x)
         x[1][0] = 0
-        assert_repr(x, 'Expression((1, (0,), 3))')
-        assert_repr(y, 'Expression((1, (0,), 3))')
+        assert_repr(x, 'Expression([1, [0], 3])')
+        assert_repr(y, 'Expression([1, [0], 3])')
         x[1] = 0
-        assert_repr(x, 'Expression((1, 0, 3))')
-        assert_repr(y, 'Expression((1, (0,), 3))')
+        assert_repr(x, 'Expression([1, 0, 3])')
+        assert_repr(y, 'Expression([1, [0], 3])')
 
     def test_copy2(self):
         x = Expression([1, [2], 3])
         y = copy.copy(x)
         x[1][0] = 0
-        assert_repr(x, 'Expression((1, (0,), 3))')
-        assert_repr(y, 'Expression((1, (0,), 3))')
+        assert_repr(x, 'Expression([1, [0], 3])')
+        assert_repr(y, 'Expression([1, [0], 3])')
         x[1] = 0
-        assert_repr(x, 'Expression((1, 0, 3))')
-        assert_repr(y, 'Expression((1, (0,), 3))')
+        assert_repr(x, 'Expression([1, 0, 3])')
+        assert_repr(y, 'Expression([1, [0], 3])')
 
     def test_copy3(self):
         x = Expression([1, [2], 3])
         y = copy.deepcopy(x)
         x[1][0] = 0
-        assert_repr(x, 'Expression((1, (0,), 3))')
-        assert_repr(y, 'Expression((1, (2,), 3))')
+        assert_repr(x, 'Expression([1, [0], 3])')
+        assert_repr(y, 'Expression([1, [2], 3])')
         x[1] = 0
-        assert_repr(x, 'Expression((1, 0, 3))')
-        assert_repr(y, 'Expression((1, (2,), 3))')
+        assert_repr(x, 'Expression([1, 0, 3])')
+        assert_repr(y, 'Expression([1, [2], 3])')
 
     if sys.version_info >= (2, 6):
         def test_abc(self):
@@ -423,9 +429,9 @@ AttributeError: 'int' object has no attribute 'read'
         def read():
             return Expression.from_stream(fp)
         x = read()
-        assert_repr(x, "Expression((Symbol('eggs'),))")
+        assert_repr(x, "Expression([Symbol('eggs')])")
         x = read()
-        assert_repr(x, "Expression((Symbol('ham'),))")
+        assert_repr(x, "Expression([Symbol('ham')])")
         with raises(ExpressionSyntaxError):
             x = read()
 
@@ -439,9 +445,9 @@ AttributeError: 'int' object has no attribute 'read'
         fp.flush()
         fp.seek(0)
         x = read()
-        assert_repr(x, "Expression((Symbol('eggs'),))")
+        assert_repr(x, "Expression([Symbol('eggs')])")
         x = read()
-        assert_repr(x, "Expression((Symbol('ham'),))")
+        assert_repr(x, "Expression([Symbol('ham')])")
         with raises(ExpressionSyntaxError):
             x = read()
 
@@ -455,9 +461,9 @@ AttributeError: 'int' object has no attribute 'read'
         fp.flush()
         fp.seek(0)
         x = read()
-        assert_repr(x, "Expression((Symbol('eggs'),))")
+        assert_repr(x, "Expression([Symbol('eggs')])")
         x = read()
-        assert_repr(x, "Expression((Symbol('ham'),))")
+        assert_repr(x, "Expression([Symbol('ham')])")
         with raises(ExpressionSyntaxError):
             x = read()
 
