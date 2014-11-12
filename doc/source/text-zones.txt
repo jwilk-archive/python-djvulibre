@@ -95,11 +95,11 @@ Text zones
          >>> get_text_zone_type(Symbol('char')) is TEXT_ZONE_CHARACTER
          True
 
-   You can compare text zone types using the ``<`` operator:
+   You can compare text zone types using the ``>`` operator:
 
-   >>> TEXT_ZONE_PAGE < TEXT_ZONE_COLUMN < TEXT_ZONE_REGION < TEXT_ZONE_PARAGRAPH
+   >>> TEXT_ZONE_PAGE > TEXT_ZONE_COLUMN > TEXT_ZONE_REGION > TEXT_ZONE_PARAGRAPH
    True
-   >>> TEXT_ZONE_PARAGRAPH < TEXT_ZONE_LINE < TEXT_ZONE_WORD < TEXT_ZONE_CHARACTER
+   >>> TEXT_ZONE_PARAGRAPH > TEXT_ZONE_LINE > TEXT_ZONE_WORD > TEXT_ZONE_CHARACTER
    True
 
 .. currentmodule:: djvu.decode
