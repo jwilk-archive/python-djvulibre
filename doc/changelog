@@ -4,8 +4,12 @@ python-djvulibre (0.4) UNRELEASED; urgency=low
     This is the same as value, except that Lisp lists are mapped to Python
     lists, rather than Python tuples. 
   * Use the lvalue in __repr__().
+  * Stop using sphinx.ext.intersphinx.
+    Making it work offline and consistently across different Python versions
+    is too much of a hassle, and it was used only to cross-reference only one
+    well-known exception (IOError).
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sun, 09 Nov 2014 21:22:15 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 12 Nov 2014 14:24:30 +0100
 
 python-djvulibre (0.3.10) unstable; urgency=low
 
