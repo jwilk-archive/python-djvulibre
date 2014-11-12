@@ -132,57 +132,57 @@ The following symbols are pre-defined:
 
    .. data:: MAPAREA_BORDER_XOR
 
-		>>> MAPAREA_BORDER_XOR
-		Symbol('xor')
+      >>> MAPAREA_BORDER_XOR
+      Symbol('xor')
 
    .. data:: MAPAREA_BORDER_SOLID_COLOR
 
-		>>> MAPAREA_BORDER_SOLID_COLOR
-		Symbol('border')
+      >>> MAPAREA_BORDER_SOLID_COLOR
+      Symbol('border')
 
    .. data:: MAPAREA_BORDER_SHADOW_IN
 
-		>>> MAPAREA_BORDER_SHADOW_IN
-		Symbol('shadow_in')
+      >>> MAPAREA_BORDER_SHADOW_IN
+      Symbol('shadow_in')
 
    .. data:: MAPAREA_BORDER_SHADOW_OUT
 
-		>>> MAPAREA_BORDER_SHADOW_OUT
-		Symbol('shadow_out')
+      >>> MAPAREA_BORDER_SHADOW_OUT
+      Symbol('shadow_out')
 
    .. data:: MAPAREA_BORDER_ETCHED_IN
 
-		>>> MAPAREA_BORDER_ETCHED_IN
-		Symbol('shadow_ein')
+      >>> MAPAREA_BORDER_ETCHED_IN
+      Symbol('shadow_ein')
 
    .. data:: MAPAREA_BORDER_ETCHED_OUT
 
-		>>> MAPAREA_BORDER_ETCHED_OUT
-		Symbol('shadow_eout')
+      >>> MAPAREA_BORDER_ETCHED_OUT
+      Symbol('shadow_eout')
 
    .. data:: MAPAREA_SHADOW_BORDERS
 
       A sequence of all shadow border types.
 
-		>>> MAPAREA_SHADOW_BORDERS
-		(Symbol('shadow_in'), Symbol('shadow_out'), Symbol('shadow_ein'), Symbol('shadow_eout'))
+      >>> MAPAREA_SHADOW_BORDERS
+      (Symbol('shadow_in'), Symbol('shadow_out'), Symbol('shadow_ein'), Symbol('shadow_eout'))
 
    .. data:: MAPAREA_BORDER_ALWAYS_VISIBLE
 
-		>>> MAPAREA_BORDER_ALWAYS_VISIBLE
-		Symbol('border_avis')
+      >>> MAPAREA_BORDER_ALWAYS_VISIBLE
+      Symbol('border_avis')
 
 The following numeric constant are pre-defined:
 
    .. data:: MAPAREA_SHADOW_BORDER_MIN_WIDTH
 
-		>>> MAPAREA_SHADOW_BORDER_MIN_WIDTH
-		1
+      >>> MAPAREA_SHADOW_BORDER_MIN_WIDTH
+      1
 
    .. data:: MAPAREA_SHADOW_BORDER_MAX_WIDTH
 
-		>>> MAPAREA_SHADOW_BORDER_MAX_WIDTH
-		32
+      >>> MAPAREA_SHADOW_BORDER_MAX_WIDTH
+      32
 
 
 Highlight color and opacity
@@ -196,13 +196,13 @@ The following symbols are pre-defined:
 
    .. data:: MAPAREA_HIGHLIGHT_COLOR
 
-		>>> MAPAREA_HIGHLIGHT_COLOR
-		Symbol('hilite')
+      >>> MAPAREA_HIGHLIGHT_COLOR
+      Symbol('hilite')
 
    .. data:: MAPAREA_OPACITY
 
-		>>> MAPAREA_OPACITY
-		Symbol('opacity')
+      >>> MAPAREA_OPACITY
+      Symbol('opacity')
 
 .. currentmodule:: djvu.const
 
@@ -210,18 +210,18 @@ The following numeric constant are pre-defined:
 
    .. data:: MAPAREA_OPACITY_MIN
 
-		>>> MAPAREA_OPACITY_MIN
-		0
+      >>> MAPAREA_OPACITY_MIN
+      0
 
    .. data:: MAPAREA_OPACITY_DEFAULT
 
-		>>> MAPAREA_OPACITY_DEFAULT
-		50
+      >>> MAPAREA_OPACITY_DEFAULT
+      50
 
    .. data:: MAPAREA_OPACITY_MAX
 
-		>>> MAPAREA_OPACITY_MAX
-		100
+      >>> MAPAREA_OPACITY_MAX
+      100
 
 Line and text parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -234,33 +234,33 @@ The following symbols are pre-defined:
 
    .. data:: MAPAREA_ARROW
 
-		>>> MAPAREA_ARROW
-		Symbol('arrow')
+      >>> MAPAREA_ARROW
+      Symbol('arrow')
 
    .. data:: MAPAREA_LINE_WIDTH
 
-		>>> MAPAREA_LINE_WIDTH
-		Symbol('width')
+      >>> MAPAREA_LINE_WIDTH
+      Symbol('width')
 
    .. data:: MAPAREA_LINE_COLOR
 
-		>>> MAPAREA_LINE_COLOR
-		Symbol('lineclr')
+      >>> MAPAREA_LINE_COLOR
+      Symbol('lineclr')
 
    .. data:: MAPAREA_BACKGROUND_COLOR
 
-		>>> MAPAREA_BACKGROUND_COLOR
-		Symbol('backclr')
+      >>> MAPAREA_BACKGROUND_COLOR
+      Symbol('backclr')
 
    .. data:: MAPAREA_TEXT_COLOR
 
-		>>> MAPAREA_TEXT_COLOR
-		Symbol('textclr')
+      >>> MAPAREA_TEXT_COLOR
+      Symbol('textclr')
 
    .. data:: MAPAREA_PUSHPIN
 
-		>>> MAPAREA_PUSHPIN
-		Symbol('pushpin')
+      >>> MAPAREA_PUSHPIN
+      Symbol('pushpin')
 
 .. currentmodule:: djvu.const
 
@@ -268,20 +268,20 @@ The following numeric constants are pre-defined:
 
    .. data:: MAPAREA_LINE_MIN_WIDTH
 
-		>>> MAPAREA_LINE_MIN_WIDTH
-		1
+      >>> MAPAREA_LINE_MIN_WIDTH
+      1
 
 The following default colors are pre-defined:
 
    .. data:: MAPAREA_LINE_COLOR_DEFAULT
 
-		>>> MAPAREA_LINE_COLOR_DEFAULT
-		'#000000'
+      >>> MAPAREA_LINE_COLOR_DEFAULT
+      '#000000'
 
    .. data:: MAPAREA_TEXT_COLOR_DEFAULT
 
-		>>> MAPAREA_TEXT_COLOR_DEFAULT
-		'#000000'
+      >>> MAPAREA_TEXT_COLOR_DEFAULT
+      '#000000'
 
 Initial document view
 ---------------------
@@ -294,23 +294,23 @@ The following symbols are pre-defined:
 
    .. data:: ANNOTATION_BACKGROUND
 
-		>>> ANNOTATION_BACKGROUND
-		Symbol('background')
+      >>> ANNOTATION_BACKGROUND
+      Symbol('background')
 
    .. data:: ANNOTATION_ZOOM
 
-		>>> ANNOTATION_ZOOM
-		Symbol('zoom')
+      >>> ANNOTATION_ZOOM
+      Symbol('zoom')
 
    .. data:: ANNOTATION_MODE
 
-		>>> ANNOTATION_MODE
-		Symbol('mode')
+      >>> ANNOTATION_MODE
+      Symbol('mode')
 
    .. data:: ANNOTATION_ALIGN
 
-		>>> ANNOTATION_ALIGN
-		Symbol('align')
+      >>> ANNOTATION_ALIGN
+      Symbol('align')
 
 
 Metadata
@@ -399,27 +399,27 @@ The following symbols are pre-defined:
 
    .. data:: ANNOTATION_PRINTED_HEADER
 
-		>>> ANNOTATION_PRINTED_HEADER
-		Symbol('phead')
+      >>> ANNOTATION_PRINTED_HEADER
+      Symbol('phead')
 
    .. data:: ANNOTATION_PRINTED_FOOTER
 
-		>>> ANNOTATION_PRINTED_FOOTER
-		Symbol('pfoot')
+      >>> ANNOTATION_PRINTED_FOOTER
+      Symbol('pfoot')
 
    .. data:: PRINTER_HEADER_ALIGN_LEFT
 
-		>>> PRINTER_HEADER_ALIGN_LEFT
-		Symbol('left')
+      >>> PRINTER_HEADER_ALIGN_LEFT
+      Symbol('left')
 
    .. data:: PRINTER_HEADER_ALIGN_CENTER
 
-		>>> PRINTER_HEADER_ALIGN_CENTER
-		Symbol('center')
+      >>> PRINTER_HEADER_ALIGN_CENTER
+      Symbol('center')
 
    .. data:: PRINTER_HEADER_ALIGN_RIGHT
 
-		>>> PRINTER_HEADER_ALIGN_RIGHT
-		Symbol('right')
+      >>> PRINTER_HEADER_ALIGN_RIGHT
+      Symbol('right')
 
 .. vim:ts=3 sw=3 et ft=rst
