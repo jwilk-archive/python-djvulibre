@@ -62,8 +62,8 @@ Text zones
 
       .. data:: TEXT_ZONE_PAGE
 
-          >>> get_text_zone_type(Symbol('page')) is TEXT_ZONE_PAGE
-          True
+         >>> get_text_zone_type(Symbol('page')) is TEXT_ZONE_PAGE
+         True
 
       .. data:: TEXT_ZONE_COLUMN
 
