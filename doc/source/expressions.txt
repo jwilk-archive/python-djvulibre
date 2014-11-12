@@ -1,6 +1,11 @@
 LISP S-expressions
 ==================
 
+.. testsetup::
+
+   from djvu.sexpr import *
+   from djvu.const import *
+
 Textual representation
 ----------------------
 Special characters are:

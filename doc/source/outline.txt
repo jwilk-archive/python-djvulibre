@@ -1,6 +1,11 @@
 Document outline
 ================
 
+.. testsetup::
+
+   from djvu.const import *
+   from djvu.decode import *
+
 .. seealso::
    |djvu3ref|_ (8.3.3 *Document Outline Chunk*).
 

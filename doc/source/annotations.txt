@@ -1,5 +1,11 @@
 Annotations
 ===========
+
+.. testsetup::
+
+   from djvu.decode import *
+   from djvu.const import *
+
 .. seealso::
 
    - |djvu3ref|_: 8.3.4 *Annotation Chunk*;

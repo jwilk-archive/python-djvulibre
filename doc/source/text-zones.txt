@@ -1,6 +1,13 @@
 Text zones
 ==========
 
+.. testsetup::
+
+   from djvu.const import *
+   from djvu.decode import *
+   from djvu.sexpr import *
+   from pprint import pprint
+
 .. seealso::
    |djvu3ref|_ (8.3.5 *Text Chunk*).
 
