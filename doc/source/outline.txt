@@ -35,9 +35,7 @@ Document outline
 
    Empty outline S-expression.
 
-   .. doctest::
-
-      >>> EMPTY_OUTLINE
-      Expression([Symbol('bookmarks')])
+   >>> EMPTY_OUTLINE
+   Expression([Symbol('bookmarks')])
 
 .. vim:ts=3 sw=3 et ft=rst
