@@ -71,6 +71,8 @@ S-expressions
       The “pythonic” value of the expression.
       Lisp lists as mapped to Python lists.
 
+      .. versionadded:: 0.4
+
 .. currentmodule:: djvu.sexpr
 .. class:: IntExpression
 
