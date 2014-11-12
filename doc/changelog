@@ -2,7 +2,7 @@ python-djvulibre (0.4) UNRELEASED; urgency=low
 
   * Add the lvalue attribute to expressions.
     This is the same as value, except that Lisp lists are mapped to Python
-    lists, rather than Python tuples. 
+    lists, rather than Python tuples.
   * Use the lvalue in __repr__().
   * Stop using sphinx.ext.intersphinx.
     Making it work offline and consistently across different Python versions
@@ -38,7 +38,7 @@ python-djvulibre (0.3.9) unstable; urgency=low
  -- Jakub Wilk <jwilk@jwilk.net>  Mon, 19 Mar 2012 20:41:53 +0100
 
 python-djvulibre (0.3.8) unstable; urgency=low
- 
+
   * Ensure that S-expression input/output functions are always initialized.
     This is work-around for <https://bugs.debian.org/664442>.
 
