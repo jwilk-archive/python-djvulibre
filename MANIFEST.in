@@ -1,10 +1,14 @@
 include MANIFEST.in
+
+include doc/*.txt
 include doc/COPYING
 include doc/changelog
-include doc/*.txt
-include doc/source/conf.py
 include doc/source/*.txt
+include doc/source/conf.py
+
 include examples/*
-recursive-include djvu *.py *.pxi *.pxd *.pyx
+
 recursive-exclude djvu config.pxi
+recursive-include djvu *.py *.pxi *.pxd *.pyx
+
 recursive-include tests *.py Makefile *.jpeg *.tex *.djvu
