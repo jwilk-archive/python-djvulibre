@@ -1,5 +1,5 @@
 include MANIFEST.in
-include COPYING
+include doc/COPYING
 include doc/changelog
 include doc/*.txt
 include doc/source/conf.py
