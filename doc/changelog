@@ -6,7 +6,7 @@ python-djvulibre (0.4) UNRELEASED; urgency=low
   * Use the lvalue in __repr__().
   * Stop using sphinx.ext.intersphinx.
     Making it work offline and consistently across different Python versions
-    is too much of a hassle, and it was used only to cross-reference only one
+    is too much of a hassle, and it was used only to cross-reference one
     well-known exception (IOError).
 
  -- Jakub Wilk <jwilk@jwilk.net>  Wed, 12 Nov 2014 14:24:30 +0100
