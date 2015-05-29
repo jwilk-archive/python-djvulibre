@@ -416,6 +416,7 @@ class test_expression_parser():
             '"sexpr.pyx"', # Cython < 0.21
             '"djvu/sexpr.pyx"' # Cython ≥ 0.21
         )
+        stderr = stderr.replace('\n    s = _myio_stdin.read(1)\n', '\n')
         assert_multi_line_equal(stderr, '''\
 Unhandled exception (42)
 Traceback (most recent call last):
@@ -481,6 +482,7 @@ class test_expression_writer():
             '"sexpr.pyx"', # Cython < 0.21
             '"djvu/sexpr.pyx"' # Cython ≥ 0.21
         )
+        stderr = stderr.replace('\n    _myio_stdout.write(s)\n', '\n')
         expected_stderr = '''\
 Unhandled exception (42)
 Traceback (most recent call last):
