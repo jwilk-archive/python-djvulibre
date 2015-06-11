@@ -143,16 +143,16 @@ class build_ext(distutils.command.build_ext.build_ext):
 
     def run(self):
         new_config = [
-            'DEF PY3K = %d' % (sys.version_info >= (3, 0)),
-            'DEF PYTHON_DJVULIBRE_VERSION = "%s"' % __version__,
-            'DEF HAVE_LANGINFO_H = %d' % (os.name == 'posix' and not mingw32cross),
+            'DEF PY3K = {0}'.format(sys.version_info >= (3, 0)),
+            'DEF PYTHON_DJVULIBRE_VERSION = "{0}"'.format(__version__),
+            'DEF HAVE_LANGINFO_H = {0}'.format(os.name == 'posix' and not mingw32cross),
         ]
         try:
             old_config = open(self.config_filename, 'rt').read()
         except IOError:
             old_config = ''
         if '\n'.join(new_config).strip() != old_config.strip():
-            distutils.log.info('creating %r' % self.config_filename)
+            distutils.log.info('creating {conf!r}'.format(conf=self.config_filename))
             distutils.file_util.write_file(self.config_filename, new_config)
         distutils.command.build_ext.build_ext.run(self)
 
@@ -165,13 +165,13 @@ class build_ext(distutils.command.build_ext.build_ext):
     def cython_sources(self, ext):
         for source in ext.sources:
             assert source.endswith('.pyx')
-            target = '%s.c' % source[:-4]
+            target = '{mod}.c'.format(mod=source[:-4])
             yield target
             depends = [source, self.config_filename] + ext.depends
             if not (self.force or distutils.dep_util.newer_group(depends, target)):
-                distutils.log.debug('not cythoning %r (up-to-date)', ext.name)
+                distutils.log.debug('not cythoning {ext.name!r} (up-to-date)'.format(ext=ext))
                 continue
-            distutils.log.info('cythoning %r extension', ext.name)
+            distutils.log.info('cythoning {ext.name!r} extension'.format(ext=ext))
             def build_c(source, target):
                 distutils.spawn.spawn(['cython', source])
                 # XXX This is needed to work around <https://bugs.debian.org/607112>.
@@ -197,7 +197,7 @@ class clean(distutils.command.clean.clean):
             for wildcard in 'djvu/*.c', 'djvu/config.pxi':
                 filenames = glob.glob(wildcard)
                 if filenames:
-                    distutils.log.info('removing %r', wildcard)
+                    distutils.log.info('removing {0!r}'.format(wildcard))
                 if self.dry_run:
                     continue
                 for filename in filenames:
@@ -239,7 +239,8 @@ setup_params = dict(
     packages = ['djvu'],
     ext_modules = [
         distutils.command.build_ext.Extension(
-            'djvu.%s' % name, ['djvu/%s.pyx' % name],
+            'djvu.{mod}'.format(mod=name),
+            ['djvu/{mod}.pyx'.format(mod=name)],
             depends = ['djvu/common.pxi'] + glob.glob('djvu/*.pxd'),
             **compiler_flags
         )
