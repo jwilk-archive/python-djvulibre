@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2007-2014 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007-2015 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -68,6 +68,9 @@ try:
     import sphinx.setup_command as sphinx_setup_command
 except ImportError:
     sphinx_setup_command = None
+
+if sys.version_info < (2, 6):
+    raise RuntimeError('Python >= 2.6 is required')
 
 def ext_modules():
     for pyx_file in glob.iglob(os.path.join('djvu', '*.pyx')):
