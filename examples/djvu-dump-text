@@ -49,7 +49,7 @@ class Context(djvu.decode.Context):
 
 def main():
     if len(sys.argv) != 2:
-        print('Usage: %s <djvu-file>' % sys.argv[0], file=sys.stderr)
+        print('Usage: {prog} <djvu-file>'.format(prog=sys.argv[0]), file=sys.stderr)
         sys.exit(1)
     context = Context()
     context.process(sys.argv[1])

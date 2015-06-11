@@ -76,7 +76,7 @@ class Context(djvu.decode.Context):
             os._exit(1)
 
     def process_page(self, page):
-        print('- Page #%d' % (page.n + 1), file=sys.stderr)
+        print('- Page #{0}'.format(page.n + 1), file=sys.stderr)
         page.get_info()
         text = crop_text(page.text.sexpr, page.width, page.height)
         if not text:
@@ -84,7 +84,7 @@ class Context(djvu.decode.Context):
         return text
 
     def process(self, path, pages = None):
-        print('Processing %r:' % path, file=sys.stderr)
+        print('Processing {path!r}:'.format(path=path), file=sys.stderr)
         document = self.new_document(djvu.decode.FileURI(path))
         document.decoding_job.wait()
         sed_file = sys.stdout
@@ -94,7 +94,7 @@ class Context(djvu.decode.Context):
             pages = (document.pages[i-1] for i in pages)
         sed_file.write('remove-txt\n')
         for page in pages:
-            sed_file.write('select %d\n' % (page.n + 1))
+            sed_file.write('select {0}\n'.format(page.n + 1))
             sed_file.write('set-txt\n')
             self.process_page(page).print_into(sed_file)
             sed_file.write('\n.\n\n')
