@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # encoding=UTF-8
 
-# Copyright © 2008-2013 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2008-2015 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,6 +11,8 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
+
+from __future__ import print_function
 
 import argparse
 import os
@@ -68,13 +70,13 @@ class Context(djvu.decode.Context):
 
     def handle_message(self, message):
         if isinstance(message, djvu.decode.ErrorMessage):
-            print >>sys.stderr, message
+            print(message, file=sys.stderr)
             # Exceptions in handle_message() are ignored, so sys.exit()
             # wouldn't work here.
             os._exit(1)
 
     def process_page(self, page):
-        print >>sys.stderr, '- Page #%d' % (page.n + 1)
+        print('- Page #%d' % (page.n + 1), file=sys.stderr)
         page.get_info()
         text = crop_text(page.text.sexpr, page.width, page.height)
         if not text:
@@ -82,7 +84,7 @@ class Context(djvu.decode.Context):
         return text
 
     def process(self, path, pages = None):
-        print >>sys.stderr, 'Processing %r:' % path
+        print('Processing %r:' % path, file=sys.stderr)
         document = self.new_document(djvu.decode.FileURI(path))
         document.decoding_job.wait()
         sed_file = sys.stdout

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # encoding=UTF-8
 
-# Copyright © 2008-2013 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2008-2015 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,6 +12,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
+from __future__ import print_function
+
 import sys
 import os
 
@@ -19,21 +21,21 @@ import djvu.decode
 
 def print_text(sexpr, level=0):
     if level > 0:
-        print ' ' * (2 * level - 1),
+        print(' ' * (2 * level - 1), end=' ')
     if isinstance(sexpr, djvu.sexpr.ListExpression):
         if len(sexpr) == 0:
             return
-        print str(sexpr[0].value), [sexpr[i].value for i in xrange(1, 5)]
+        print(str(sexpr[0].value), [sexpr[i].value for i in xrange(1, 5)])
         for child in sexpr[5:]:
             print_text(child, level + 1)
     else:
-        print sexpr
+        print(sexpr)
 
 class Context(djvu.decode.Context):
 
     def handle_message(self, message):
         if isinstance(message, djvu.decode.ErrorMessage):
-            print >>sys.stderr, message
+            print(message, file=sys.stderr)
             # Exceptions in handle_message() are ignored, so sys.exit()
             # wouldn't work here.
             os._exit(1)
@@ -47,7 +49,7 @@ class Context(djvu.decode.Context):
 
 def main():
     if len(sys.argv) != 2:
-        print >>sys.stderr, 'Usage: %s <djvu-file>' % sys.argv[0]
+        print('Usage: %s <djvu-file>' % sys.argv[0], file=sys.stderr)
         sys.exit(1)
     context = Context()
     context.process(sys.argv[1])
