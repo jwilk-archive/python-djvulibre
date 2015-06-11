@@ -19,9 +19,9 @@ import os
 import subprocess
 import sys
 
-import djvu.sexpr
-import djvu.decode
 import djvu.const
+import djvu.decode
+import djvu.sexpr
 
 EMPTY_TEXT_SEXPR = djvu.sexpr.Expression([djvu.const.TEXT_ZONE_PAGE, 0, 0, 0, 0, ''])
 
