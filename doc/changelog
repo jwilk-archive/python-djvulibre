@@ -1,5 +1,6 @@
 python-djvulibre (0.4) UNRELEASED; urgency=low
 
+  * Drop support for Python 2.5.
   * Add the lvalue attribute to expressions.
     This is the same as value, except that Lisp lists are mapped to Python
     lists, rather than Python tuples.
@@ -9,7 +10,7 @@ python-djvulibre (0.4) UNRELEASED; urgency=low
     is too much of a hassle, and it was used only to cross-reference one
     well-known exception (IOError).
 
- -- Jakub Wilk <jwilk@jwilk.net>  Wed, 12 Nov 2014 14:24:30 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 11 Jun 2015 11:54:38 +0200
 
 python-djvulibre (0.3.10) unstable; urgency=low
 
