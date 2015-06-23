@@ -29,7 +29,7 @@ images = os.path.join(os.path.dirname(__file__), 'images', '')
 def create_djvu(commands='', sexpr=''):
     skip_unless_command_exists('djvused')
     if sexpr:
-        commands += '\nset-ant\n%s\n.\n' % sexpr
+        commands += '\nset-ant\n{sexpr}\n.\n'.format(sexpr=sexpr)
     file = tempfile.NamedTemporaryFile(prefix='test', suffix='djvu')
     file.seek(0)
     file.write(blob(
@@ -84,7 +84,10 @@ class test_documents:
         message = context.get_message()
         assert_equal(type(message), ErrorMessage)
         assert_equal(type(message.message), unicode)
-        assert_equal(message.message, "[1-11711] Failed to open '%s': %s." % (path, c_message))
+        assert_equal(
+            message.message,
+            "[1-11711] Failed to open '{path}': {msg}.".format(path=path, msg=c_message)
+        )
         assert_equal(str(message), message.message)
         assert_equal(unicode(message), message.message)
 
@@ -106,15 +109,23 @@ class test_documents:
         except UnicodeError:
             pass
         else:
-            raise AssertionError('ja_JP error message is ASCII-only: %r' % c_message)
+            raise AssertionError(
+                'ja_JP error message is ASCII-only: {msg!r}'.format(msg=c_message)
+            )
         with amended_locale(LC_ALL='ja_JP.UTF-8'):
             with raises(JobFailed):
                 document = context.new_document(FileUri(path))
             message = context.get_message()
             assert_equal(type(message), ErrorMessage)
             assert_equal(type(message.message), unicode)
-            assert_equal(message.message, u("[1-11711] Failed to open '%s': %s." % (path, c_message)))
-            assert_equal(str(message), "[1-11711] Failed to open '%s': %s." % (path, c_message))
+            assert_equal(
+                message.message,
+                u("[1-11711] Failed to open '{path}': {msg}.".format(path=path, msg=c_message))
+            )
+            assert_equal(
+                str(message),
+                "[1-11711] Failed to open '{path}': {msg}.".format(path=path, msg=c_message)
+            )
             assert_equal(unicode(message), message.message)
 
     def test_new_document(self):
@@ -274,7 +285,7 @@ class test_documents:
             stdout = stdout.split(b('\n'))
             stdout0 = (
                 [b('      shared_anno.iff -> shared_anno.iff')] +
-                [b('      p%04d.djvu -> p%04d.djvu' % (n, n)) for n in range(1, 7)]
+                [b('      p{n:04}.djvu -> p{n:04}.djvu'.format(n=n)) for n in range(1, 7)]
             )
             assert_equal(len(stdout), 11)
             assert_equal(stdout[2:-2], stdout0)
@@ -379,8 +390,13 @@ class test_pixel_formats():
             pf = PixelFormatPalette({})
         data = dict(((i, j, k), i + 7 * j + 37 + k) for i in range(6) for j in range(6) for k in range(6))
         pf = PixelFormatPalette(data)
-        data_repr = ', '.join('%r: 0x%02x' % (k, v) for k, v in sorted(data.items()))
-        assert_equal(repr(pf), "djvu.decode.PixelFormatPalette({%s}, bpp = 8)" % data_repr)
+        data_repr = ', '.join(
+            '{k!r}: 0x{v:02x}'.format(k=k, v=v) for k, v in sorted(data.items())
+        )
+        assert_equal(
+            repr(pf),
+            'djvu.decode.PixelFormatPalette({{{data}}}, bpp = 8)'.format(data=data_repr)
+        )
 
     def test_packed_bits(self):
         pf = PixelFormatPackedBits('<')
@@ -579,7 +595,8 @@ def test_metadata():
         'English': 'eggs',
         u('Русский'): u('яйца'),
     }
-    test_script = 'set-meta\n%s\n.\n' % '\n'.join('|%s| %s' % (k, v) for k, v in model_metadata.items())
+    meta = '\n'.join(u('|{k}| {v}').format(k=k, v=v) for k, v in model_metadata.items())
+    test_script = u('set-meta\n{meta}\n.\n').format(meta=meta)
     try:
         test_file = create_djvu(test_script)
     except UnicodeEncodeError:
