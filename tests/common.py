@@ -86,7 +86,7 @@ else:
 if py3k:
     from io import StringIO
 else:
-    from cStringIO import StringIO
+    from io import BytesIO as StringIO
 
 if py3k:
     unicode = str
