@@ -122,7 +122,7 @@ cdef int is_file(object o):
         return typecheck(o, file)
 
 cdef void raise_instantiation_error(object cls) except *:
-    raise TypeError, 'cannot create \'%s\' instances' % get_type_name(cls)
+    raise TypeError, 'cannot create \'{tp}\' instances'.format(tp=get_type_name(cls))
 
 cdef object decode_utf8(char* s):
     return decode_utf8_ex(s, strlen(s), NULL)
