@@ -119,14 +119,14 @@ def raises(exc_type, string=None, regex=None):
         exc_string = str(exc)
         if string is not None:
             if string != exc_string:
-                message = '%r != %r' % (exc_string, string)
+                message = '{exc!r} != {s!r}'.format(exc=exc_string, s=string)
                 raise AssertionError(message)
         else:
             if not re.match(regex, exc_string):
-                message = '%r !~ %r' % (exc_string, regex)
+                message = '{exc!r} !~ {re!r}'.format(exc=exc_string, re=regex)
                 raise AssertionError(message)
     else:
-        message = '%s was not raised' % exc_type.__name__
+        message = '{exc} was not raised'.format(exc=exc_type.__name__)
         raise AssertionError(message)
 
 @contextlib.contextmanager
