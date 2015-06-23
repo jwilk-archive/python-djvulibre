@@ -27,6 +27,17 @@ from nose.tools import (
 )
 from nose import SkipTest
 
+if sys.version_info >= (2, 7):
+    from nose.tools import (
+        assert_is_instance,
+    )
+else:
+    def assert_is_instance(obj, cls):
+        assert_true(
+            isinstance(obj, cls),
+            msg='{0!r} is not an instance of {1!r}'.format(obj, cls)
+        )
+
 try:
     assert_multi_line_equal
 except NameError:
@@ -196,6 +207,7 @@ __all__ = [
     'SkipTest',
     'assert_equal',
     'assert_false',
+    'assert_is_instance',
     'assert_multi_line_equal',
     'assert_not_equal',
     'assert_true',
