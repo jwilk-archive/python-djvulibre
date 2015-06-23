@@ -102,7 +102,11 @@ class TextZoneType(djvu.sexpr.Symbol):
         return self.__rank >= other.__rank
 
     def __repr__(self):
-        return '<%s.%s: %s>' % (self.__module__, self.__class__.__name__, self)
+        return '<{mod}.{cls}: {name}>'.format(
+            mod=self.__module__,
+            cls=self.__class__.__name__,
+            name=self
+        )
 
 TEXT_ZONE_PAGE = TextZoneType('page', 7)
 TEXT_ZONE_COLUMN = TextZoneType('column', 6)
