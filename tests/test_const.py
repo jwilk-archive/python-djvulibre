@@ -31,7 +31,7 @@ class test_text_zones():
     def test_type(self):
         for zone in self.zones:
             assert_equal(type(zone), TextZoneType)
-            assert_true(isinstance(zone, Symbol))
+            assert_is_instance(zone, Symbol)
 
     def test_repr(self):
         assert_repr(TEXT_ZONE_PAGE, '<djvu.const.TextZoneType: page>')
