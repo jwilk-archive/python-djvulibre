@@ -97,7 +97,9 @@ cdef int (*_backup_io_ungetc)(int c)
 
 cdef object write_unraisable_exception(object cause):
     message = format_exc()
-    sys.stderr.write('Unhandled exception (%r)\n%s\n' % (cause, message))
+    sys.stderr.write(
+        'Unhandled exception ({obj!r})\n{msg}\n'.format(obj=cause, msg=message)
+    )
 
 cdef void myio_set(stdin, stdout):
     global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
@@ -266,7 +268,7 @@ cdef class BaseSymbol:
                 string = self._bytes
         ELSE:
             string = self._bytes
-        return '%s(%r)' % (get_type_name(_Symbol_), string)
+        return '{tp}({s!r})'.format(tp=get_type_name(_Symbol_), s=string)
 
     def __richcmp__(self, object other, int op):
         cdef BaseSymbol _self, _other
@@ -477,7 +479,7 @@ cdef class BaseExpression:
         return BaseExpression_richcmp(self, other, op)
 
     def __repr__(self):
-        return '%s(%r)' % (get_type_name(_Expression_), self.lvalue)
+        return '{tp}({expr!r})'.format(tp=get_type_name(_Expression_), expr=self.lvalue)
 
     def __copy__(self):
         # Most of S-expressions are immutable.
@@ -621,7 +623,7 @@ class StringExpression(_Expression_):
                 string = decode_utf8(bytes)
             except UnicodeDecodeError:
                 string = bytes
-            return '%s(%r)' % (get_type_name(_Expression_), string)
+            return '{tp}({s!r})'.format(tp=get_type_name(_Expression_), s=string)
 
     def __richcmp__(self, other, int op):
         return BaseExpression_richcmp(self, other, op)
@@ -933,7 +935,7 @@ class ListExpression(_Expression_):
     # TODO: Once we don't support Python <2.6, this can be replaced by simpler:
     # __hash__ = None
     def __hash__(self):
-        raise TypeError('unhashable type: \'%s\'' % (get_type_name(type(self)),))
+        raise TypeError('unhashable type: \'{tp}\''.format(tp=get_type_name(type(self))))
 
     def _get_value(BaseExpression self not None):
         cdef cexpr_t current
