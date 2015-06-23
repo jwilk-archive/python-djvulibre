@@ -932,10 +932,7 @@ class ListExpression(_Expression_):
     def __iter__(self):
         return _ListExpressionIterator(self)
 
-    # TODO: Once we don't support Python <2.6, this can be replaced by simpler:
-    # __hash__ = None
-    def __hash__(self):
-        raise TypeError('unhashable type: \'{tp}\''.format(tp=get_type_name(type(self))))
+    __hash__ = None
 
     def _get_value(BaseExpression self not None):
         cdef cexpr_t current
@@ -961,12 +958,9 @@ class ListExpression(_Expression_):
     def __deepcopy__(self, memo):
         return _Expression_(self._get_value())
 
-del ListExpression__new__
-
-if sys.version_info >= (2, 6):
-    import collections
-    collections.MutableSequence.register(ListExpression)
-    del collections
+import collections
+collections.MutableSequence.register(ListExpression)
+del collections
 
 cdef class _ListExpressionIterator:
 
