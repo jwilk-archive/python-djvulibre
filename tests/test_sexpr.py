@@ -384,8 +384,8 @@ class test_list_expressions():
 
     def test_abc(self):
         x = Expression(())
-        assert_true(isinstance(x, collections.MutableSequence))
-        assert_true(isinstance(iter(x), collections.Iterator))
+        assert_is_instance(x, collections.MutableSequence)
+        assert_is_instance(iter(x), collections.Iterator)
 
     def test_pickle(self):
         for lst in (), (1, 2, 3), (1, (2, 3)):
