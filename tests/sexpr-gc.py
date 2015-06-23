@@ -14,10 +14,10 @@
 if __name__ != '__main__':
     raise ImportError('This module is not intended for import')
 
-from djvu.sexpr import *
-from os import getpid
+import djvu.sexpr
+import os
 
-PROC_STATUS = '/proc/%d/status' % getpid()
+PROC_STATUS = '/proc/%d/status' % os.getpid()
 SCALE = dict(kB = 1024.0)
 
 def mem_info(key = 'VmSize'):
@@ -40,6 +40,6 @@ except NameError:
 n = 0
 while True:
     print('%.2fM' % (mem_info() / (1 << 20)))
-    [Expression(4) for i in range(STEP)]
+    [djvu.sexpr.Expression(4) for i in range(STEP)]
 
 # vim:ts=4 sw=4 et
