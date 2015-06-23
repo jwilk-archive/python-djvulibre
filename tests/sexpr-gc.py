@@ -39,7 +39,6 @@ try:
 except NameError:
     pass
 
-n = 0
 while True:
     mb = mem_info() / (1 << 20)
     print('{mb:.2f}M'.format(mb=mb))
