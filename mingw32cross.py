@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2010, 2013 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2010-2015 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ import distutils.sysconfig
 import distutils.util
 
 target = os.environ['python_djvulibre_mingw32']
-directory = '%s/python%d.%d/' % ((target,) + sys.version_info[:2])
-prefix = '%s-' % target
+directory = '{target}/python{0}.{1}/'.format(*sys.version_info, target=target)
+prefix = target + '-'
 
 def get_platform():
    return 'win32'
@@ -51,7 +51,7 @@ class Mingw32CrossCompiler(distutils.cygwinccompiler.CygwinCCompiler):
         distutils.cygwinccompiler.CygwinCCompiler.__init__ (self, verbose, dry_run, force)
         cc = 'gcc -O -Wall'
         cxx = 'g++ -O -Wall'
-        ld = 'gcc -L%s' % directory
+        ld = 'gcc -L{dir}'.format(dir=directory)
         self.set_executables(
             compiler = prefix + cc,
             compiler_so = prefix + cc,
@@ -59,7 +59,7 @@ class Mingw32CrossCompiler(distutils.cygwinccompiler.CygwinCCompiler):
             linker_exe  = prefix + ld,
             linker_so = prefix + ld + ' -shared'
         )
-        self.dll_libraries = ['python%d%d' % sys.version_info[:2], 'msvcr']
+        self.dll_libraries = ['python{0}{1}'.format(*sys.version_info), 'msvcr']
 
 distutils.cygwinccompiler.Mingw32CCompiler = Mingw32CrossCompiler
 
