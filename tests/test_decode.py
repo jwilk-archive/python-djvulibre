@@ -16,6 +16,7 @@ import errno
 import os
 import shutil
 import subprocess as ipc
+import sys
 import tempfile
 
 from djvu.decode import *
