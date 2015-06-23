@@ -41,6 +41,5 @@ n = 0
 while True:
     print('%.2fM' % (mem_info() / (1 << 20)))
     [Expression(4) for i in range(STEP)]
-    break
 
 # vim:ts=4 sw=4 et
