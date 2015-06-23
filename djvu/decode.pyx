@@ -3394,6 +3394,6 @@ IF PY3K:
     __version__ = decode_utf8(PYTHON_DJVULIBRE_VERSION)
 ELSE:
     __version__ = PYTHON_DJVULIBRE_VERSION
-__version__ = '%s/%d' % (__version__, DDJVU_VERSION)
+__version__ = '{0}/{1}'.format(__version__, DDJVU_VERSION)
 
 # vim:ts=4 sts=4 sw=4 et ft=pyrex
