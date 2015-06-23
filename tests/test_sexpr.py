@@ -382,11 +382,10 @@ class test_list_expressions():
         assert_repr(x, 'Expression([1, 0, 3])')
         assert_repr(y, 'Expression([1, [2], 3])')
 
-    if sys.version_info >= (2, 6):
-        def test_abc(self):
-            x = Expression(())
-            assert_true(isinstance(x, collections.MutableSequence))
-            assert_true(isinstance(iter(x), collections.Iterator))
+    def test_abc(self):
+        x = Expression(())
+        assert_true(isinstance(x, collections.MutableSequence))
+        assert_true(isinstance(iter(x), collections.Iterator))
 
     def test_pickle(self):
         for lst in (), (1, 2, 3), (1, (2, 3)):
