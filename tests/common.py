@@ -30,24 +30,20 @@ from nose import SkipTest
 if sys.version_info >= (2, 7):
     from nose.tools import (
         assert_is_instance,
+        assert_multi_line_equal,
     )
+    try:
+        assert_multi_line_equal.im_class.maxDiff = None
+    except AttributeError:
+        pass
+        # FIXME: How to do it Python 3?
 else:
     def assert_is_instance(obj, cls):
         assert_true(
             isinstance(obj, cls),
             msg='{0!r} is not an instance of {1!r}'.format(obj, cls)
         )
-
-try:
-    assert_multi_line_equal
-except NameError:
     assert_multi_line_equal = assert_equal
-else:
-    try:
-        assert_multi_line_equal.im_class.maxDiff = None
-    except AttributeError:
-        pass
-        # FIXME: How to do it Python 3?
 
 try:
     locale.LC_MESSAGES
