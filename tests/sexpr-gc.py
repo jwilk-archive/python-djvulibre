@@ -32,13 +32,12 @@ def mem_info(key='VmSize'):
     finally:
         file.close()
 
-step = 1 << 17
-
 try:
     range = xrange
 except NameError:
     pass
 
+step = 1 << 17
 while True:
     mb = mem_info() / (1 << 20)
     print('{mb:.2f}M'.format(mb=mb))
