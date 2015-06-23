@@ -19,7 +19,12 @@ import re
 import subprocess as ipc
 import sys
 
-from nose.tools import *
+from nose.tools import (
+    assert_true,
+    assert_false,
+    assert_equal,
+    assert_not_equal,
+)
 from nose import SkipTest
 
 try:
@@ -75,6 +80,8 @@ if py3k:
         if x > y:
             return 1
         assert 0
+else:
+    cmp = cmp
 
 if py3k:
     def blob(*args):
@@ -90,6 +97,8 @@ else:
 
 if py3k:
     unicode = str
+else:
+    unicode = unicode
 
 if py3k:
     maxsize = sys.maxsize
@@ -171,5 +180,34 @@ def skip_unless_command_exists(command):
     if child.wait() == 0:
         return
     raise SkipTest('command not found: ' + command)
+
+__all__ = [
+    # Python 2/3 compat:
+    'L',
+    'StringIO',
+    'b',
+    'blob',
+    'cmp',
+    'maxsize',
+    'py3k',
+    'u',
+    'unicode',
+    # nose
+    'SkipTest',
+    'assert_equal',
+    'assert_false',
+    'assert_multi_line_equal',
+    'assert_not_equal',
+    'assert_true',
+    # misc
+    'amended_locale',
+    'assert_repr',
+    'interim',
+    'locale_encoding',
+    'raises',
+    'skip_unless_c_messages',
+    'skip_unless_command_exists',
+    'skip_unless_translation_exists',
+]
 
 # vim:ts=4 sw=4 et
