@@ -232,7 +232,9 @@ cdef object write_unraisable_exception(object cause):
         # This mostly happens during interpreter cleanup.
         # It's worthless to try to recover.
         raise SystemExit
-    sys.stderr.write('Unhandled exception in thread started by %r\n%s\n' % (cause, message))
+    sys.stderr.write(
+        'Unhandled exception in thread started by {obj!r}\n{msg}\n'.format(obj=cause, msg=message)
+    )
 
 cdef class _FileWrapper:
 
@@ -298,8 +300,8 @@ class DjVuLibreBug(Exception):
         Exception.__init__(
             self,
             'A DjVuLibre bug has been encountered.\n'
-            'See <https://bugs.debian.org/%d> for details.\n'
-            'Please upgrade your DjVuLibre.' % (debian_bug_no,)
+            'See <https://bugs.debian.org/{0}> for details.\n'
+            'Please upgrade your DjVuLibre.'.format(debian_bug_no)
         )
 
 cdef class DocumentExtension:
@@ -561,7 +563,11 @@ cdef class Page:
             return PageText(self)
 
     def __repr__(self):
-        return '%s(%r, %r)' % (get_type_name(Page), self._document, self._n)
+        return '{tp}({doc!r}, {n})'.format(
+            tp=get_type_name(Page),
+            doc=self._document,
+            n=self._n,
+        )
 
 cdef class Thumbnail:
 
@@ -644,7 +650,10 @@ cdef class Thumbnail:
             raise _NotAvailable_
 
     def __repr__(self):
-        return '%s(%r)' % (get_type_name(Thumbnail), self._page)
+        return '{tp}({page!r})'.format(
+            tp=get_type_name(Thumbnail),
+            page=self._page,
+        )
 
 cdef class DocumentFiles(DocumentExtension):
 
@@ -964,7 +973,10 @@ cdef class DocumentDecodingJob(Job):
         self.ddjvu_job = NULL # Don't allow Job.__dealloc__ to release the job.
 
     def __repr__(self):
-        return '<%s for %r>' % (get_type_name(DocumentDecodingJob), self._document)
+        return '<{tp} for {doc!r}>'.format(
+            tp=get_type_name(DocumentDecodingJob),
+            doc=self._document,
+        )
 
 cdef class Document:
 
@@ -1265,7 +1277,7 @@ cdef class Document:
         if level is not None:
             if not is_int(level):
                 raise TypeError('level must be an integer')
-            list_append(options, '--level=%d' % level)
+            list_append(options, '--level={0}'.format(level))
         if orientation is not None:
             if not is_string(orientation):
                 raise TypeError('orientation must be a string or none')
@@ -1281,7 +1293,7 @@ cdef class Document:
         if zoom is not None:
             if not is_int(zoom):
                 raise TypeError('zoom must be an integer or none')
-            list_append(options, '--zoom=%d' % zoom)
+            list_append(options, '--zoom={0}'.format(zoom))
         if not color:
             list_append(options, '--color=no')
         if not srgb:
@@ -1289,11 +1301,11 @@ cdef class Document:
         if gamma is not None:
             if not is_int(gamma) and not is_float(gamma):
                 raise TypeError('gamma must be a number or none')
-            list_append(options, '--gamma=%.16f' % gamma)
+            list_append(options, '--gamma={0:.16f}'.format(gamma))
         if not is_int(copies):
             raise TypeError('copies must be an integer')
         if copies != 1:
-            list_append(options, '--options=%d' % copies)
+            list_append(options, '--options={0}'.format(copies))
         if frame:
             list_append(options, '--frame')
         if crop_marks:
@@ -1309,13 +1321,13 @@ cdef class Document:
         if not is_int(booklet_max):
             raise TypeError('booklet_max must be an integer')
         if booklet_max:
-            list_append(options, '--bookletmax=%d' % booklet_max)
+            list_append(options, '--bookletmax={0}'.format(booklet_max))
         if not is_int(booklet_align):
             raise TypeError('booklet_align must be an integer')
         if booklet_align:
-            list_append(options, '--bookletalign=%d' % booklet_align)
+            list_append(options, '--bookletalign={0}'.format(booklet_align))
         if is_int(booklet_fold):
-            list_append(options, '--bookletfold=%d' % booklet_fold)
+            list_append(options, '--bookletfold={0}'.format(booklet_fold))
         else:
             try:
                 fold_base, fold_incr = booklet_fold
@@ -1323,7 +1335,7 @@ cdef class Document:
                     raise TypeError
             except TypeError:
                 raise TypeError('booklet_fold must a be an integer or a pair of integers')
-            list_append(options, '--bookletfold=%d+%d' % (fold_base, fold_incr))
+            list_append(options, '--bookletfold={0}+{1}'.format(fold_base, fold_incr))
         cdef char **optv
         cdef int optc
         cdef size_t buffer_size
@@ -1331,7 +1343,7 @@ cdef class Document:
         buffer_size = len(options) * sizeof (char*)
         optv = <char**> py_malloc(buffer_size)
         if optv == NULL:
-            raise MemoryError('Unable to allocate %d bytes for print options' % buffer_size)
+            raise MemoryError('Unable to allocate {0} bytes for print options'.format(buffer_size))
         try:
             for optc from 0 <= optc < len(options):
                 option = options[optc]
@@ -1712,7 +1724,7 @@ cdef class PixelFormat:
             ddjvu_format_release(self.ddjvu_format)
 
     def __repr__(self):
-        return '%s()' % (get_type_name(type(self)),)
+        return '{tp}()'.format(tp=get_type_name(type(self)))
 
 cdef class PixelFormatRgb(PixelFormat):
 
@@ -1755,10 +1767,10 @@ cdef class PixelFormatRgb(PixelFormat):
                 return 'BGR'
 
     def __repr__(self):
-        return '%s(byte_order = %r, bpp = %d)' % (
-            get_type_name(PixelFormatRgb),
-            self.byte_order,
-            self.bpp
+        return '{tp}(byte_order = {bo!r}, bpp = {bpp})'.format(
+            tp=get_type_name(PixelFormatRgb),
+            bo=self.byte_order,
+            bpp=self.bpp,
         )
 
 cdef class PixelFormatRgbMask(PixelFormat):
@@ -1799,13 +1811,14 @@ cdef class PixelFormatRgbMask(PixelFormat):
         self.ddjvu_format = ddjvu_format_create(_format, 4, self._params)
 
     def __repr__(self):
-        return '%s(red_mask = 0x%0*x, green_mask = 0x%0*x, blue_mask = 0x%0*x, xor_value = 0x%0*x, bpp = %d)' % (
-            get_type_name(PixelFormatRgbMask),
-            self.bpp//4, self._params[0],
-            self.bpp//4, self._params[1],
-            self.bpp//4, self._params[2],
-            self.bpp//4, self._params[3],
-            self.bpp,
+        return '{tp}(red_mask = 0x{r:0{w}x}, green_mask = 0x{g:0{w}x}, blue_mask = 0x{b:0{w}x}, xor_value = 0x{x:0{w}x}, bpp = {bpp})'.format(
+            tp=get_type_name(PixelFormatRgbMask),
+            r=self._params[0],
+            g=self._params[1],
+            b=self._params[2],
+            x=self._params[3],
+            w=self.bpp//4,
+            bpp=self.bpp,
         )
 
 cdef class PixelFormatGrey(PixelFormat):
@@ -1824,7 +1837,10 @@ cdef class PixelFormatGrey(PixelFormat):
         self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_GREY8, 0, NULL)
 
     def __repr__(self):
-        return '%s(bpp = %d)' % (get_type_name(PixelFormatGrey), self.bpp)
+        return '{tp}(bpp = {bpp!r})'.format(
+            tp=get_type_name(PixelFormatGrey),
+            bpp=self.bpp,
+        )
 
 cdef class PixelFormatPalette(PixelFormat):
 
@@ -1857,14 +1873,14 @@ cdef class PixelFormatPalette(PixelFormat):
     def __repr__(self):
         cdef int i
         io = StringIO()
-        io.write('%s({' % (get_type_name(PixelFormatPalette),))
+        io.write(get_type_name(PixelFormatPalette) + '({')
         for i from 0 <= i < 6:
             for j from 0 <= j < 6:
                 for k from 0 <= k < 6:
-                    io.write('(%d, %d, %d): 0x%02x' % (i, j, k, self._palette[i * 6 * 6 + j * 6 + k]))
+                    io.write('({i}, {j}, {k}): 0x{v:02x}'.format(i=i, j=j, k=k, v=self._palette[i * 6 * 6 + j * 6 + k]))
                     if not (i == j == k == 5):
                         io.write(', ')
-        io.write('}, bpp = %d)' % self.bpp)
+        io.write('}}, bpp = {bpp})'.format(bpp=self.bpp))
         return io.getvalue()
 
 cdef class PixelFormatPackedBits(PixelFormat):
@@ -1905,7 +1921,10 @@ cdef class PixelFormatPackedBits(PixelFormat):
                 return '>'
 
     def __repr__(self):
-        return '%s(%r)' % (get_type_name(PixelFormatPackedBits), self.endianness)
+        return '{tp}({end!r})'.format(
+            tp=get_type_name(PixelFormatPackedBits),
+            end=self.endianness,
+        )
 
 cdef object calculate_row_size(long width, long row_alignment, int bpp):
     cdef long result
@@ -1927,7 +1946,7 @@ cdef object allocate_image_memory(long width, long height, object buffer, void *
     try:
         c_requested_size = py_requested_size
     except OverflowError:
-        raise MemoryError('Unable to allocate %d bytes for an image memory' % py_requested_size)
+        raise MemoryError('Unable to allocate {0} bytes for an image memory'.format(py_requested_size))
     if buffer is None:
         result = charp_to_bytes(NULL, c_requested_size)
         memory[0] = <char*> result
@@ -1935,7 +1954,7 @@ cdef object allocate_image_memory(long width, long height, object buffer, void *
         result = buffer
         buffer_to_writable_memory(buffer, memory, &c_memory_size)
         if c_memory_size < c_requested_size:
-            raise ValueError('Image buffer is too small (%d > %d)' % (c_requested_size, c_memory_size))
+            raise ValueError('Image buffer is too small ({0} > {1})'.format(c_requested_size, c_memory_size))
     return result
 
 
@@ -2526,7 +2545,11 @@ cdef class ErrorMessage(Message):
             return self.message
 
     def __repr__(self):
-        return '<%s: %r at %r>' % (get_type_name(ErrorMessage), self.message, self.location)
+        return '<{tp}: {msg!r} at {loc!r}>'.format(
+            tp=get_type_name(ErrorMessage),
+            msg=self.message,
+            loc=self.location,
+        )
 
 cdef class InfoMessage(Message):
     '''
@@ -2933,7 +2956,10 @@ cdef class DocumentOutline(DocumentExtension):
                 raise _NotAvailable_
 
     def __repr__(self):
-        return '%s(%r)' % (get_type_name(DocumentOutline), self._document)
+        return '{tp}({doc!r})'.format(
+            tp=get_type_name(DocumentOutline),
+            doc=self._document,
+        )
 
 cdef class Annotations:
     '''
