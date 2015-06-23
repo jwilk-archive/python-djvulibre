@@ -20,6 +20,7 @@ import sys
 import tempfile
 
 from djvu.decode import *
+from djvu.decode import __version__
 from djvu.sexpr import *
 
 from common import *
@@ -720,5 +721,9 @@ class test_sexpr:
 
         with raises(ValueError, 'details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL'):
             PageText(page, Symbol('eggs'))
+
+def test_version():
+    assert_is_instance(__version__, str)
+    assert_is_instance(DDJVU_VERSION, int)
 
 # vim:ts=4 sts=4 sw=4 et
