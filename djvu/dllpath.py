@@ -53,4 +53,4 @@ def set_dll_search_path(path=None):
 
 del os
 
-# vim:ts=4 sw=4 et
+# vim:ts=4 sts=4 sw=4 et

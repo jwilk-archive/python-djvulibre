@@ -43,4 +43,4 @@ while True:
     print('{mb:.2f}M'.format(mb=mb))
     [djvu.sexpr.Expression(4) for i in range(step)]
 
-# vim:ts=4 sw=4 et
+# vim:ts=4 sts=4 sw=4 et

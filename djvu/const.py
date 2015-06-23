@@ -190,4 +190,4 @@ PRINTER_HEADER_ALIGN_LEFT   = PRINTED_FOOTER_ALIGN_LEFT   = djvu.sexpr.Symbol('l
 PRINTER_HEADER_ALIGN_CENTER = PRINTED_FOOTER_ALIGN_CENTER = djvu.sexpr.Symbol('center')
 PRINTER_HEADER_ALIGN_RIGHT  = PRINTED_FOOTER_ALIGN_RIGHT  = djvu.sexpr.Symbol('right')
 
-# vim:ts=4 sw=4 et
+# vim:ts=4 sts=4 sw=4 et

@@ -16,4 +16,4 @@ all: $(djvu_files)
 clean:
 	rm -f $(pdf_files) $(djvu_files) *.log *.out *.aux
 
-# vim:ts=4 sw=4 noet
+# vim:ts=4 sts=4 sw=4 noet

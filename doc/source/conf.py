@@ -53,4 +53,4 @@ rst_epilog = '''
 .. _djvuext: http://djvu.git.sourceforge.net/git/gitweb.cgi?p=djvu/djvulibre.git;a=blob;f=doc/djvuchanges.txt;hb=refs/tags/release.3.5.23
 '''
 
-# vim:ts=4 sw=4 et
+# vim:ts=4 sts=4 sw=4 et

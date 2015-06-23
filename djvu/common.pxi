@@ -131,4 +131,4 @@ cdef extern from 'pyerrors.h':
     ctypedef class __builtin__.Exception [object PyBaseExceptionObject]:
         pass
 
-# vim:ts=4 sw=4 et ft=pyrex
+# vim:ts=4 sts=4 sw=4 et ft=pyrex

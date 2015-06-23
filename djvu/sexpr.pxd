@@ -25,4 +25,4 @@ cdef class _WrappedCExpr:
 cdef object public_c2py(cexpr_t)
 cdef _WrappedCExpr public_py2c(object)
 
-# vim:ts=4 sw=4 et ft=pyrex
+# vim:ts=4 sts=4 sw=4 et ft=pyrex

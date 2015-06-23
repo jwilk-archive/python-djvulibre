@@ -73,4 +73,4 @@ def bdist_wininst_run(self):
         sys.platform = orig_platform
 distutils.command.bdist_wininst.bdist_wininst.run = bdist_wininst_run
 
-# vim:ts=4 sw=4 et
+# vim:ts=4 sts=4 sw=4 et

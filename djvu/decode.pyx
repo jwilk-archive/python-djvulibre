@@ -3396,4 +3396,4 @@ ELSE:
     __version__ = PYTHON_DJVULIBRE_VERSION
 __version__ = '%s/%d' % (__version__, DDJVU_VERSION)
 
-# vim:ts=4 sw=4 et ft=pyrex
+# vim:ts=4 sts=4 sw=4 et ft=pyrex
