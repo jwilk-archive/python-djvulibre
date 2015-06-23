@@ -118,12 +118,10 @@ def raises(exc_type, string=None, regex=None):
         _, exc, _ = sys.exc_info()
         exc_string = str(exc)
         if string is not None:
-            if string != exc_string:
-                message = '{exc!r} != {s!r}'.format(exc=exc_string, s=string)
-                raise AssertionError(message)
+            assert_equal(exc_string, string)
         else:
             if not re.match(regex, exc_string):
-                message = '{exc!r} !~ {re!r}'.format(exc=exc_string, re=regex)
+                message = "Regexp didn't match: {re!r} not found in {exc!r}".format(exc=exc_string, re=regex)
                 raise AssertionError(message)
     else:
         message = '{exc} was not raised'.format(exc=exc_type.__name__)
