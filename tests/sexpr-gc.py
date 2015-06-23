@@ -11,6 +11,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
+from __future__ import division
+
 if __name__ != '__main__':
     raise ImportError('This module is not intended for import')
 
@@ -18,7 +20,7 @@ import djvu.sexpr
 import os
 
 PROC_STATUS = '/proc/%d/status' % os.getpid()
-SCALE = dict(kB = 1024.0)
+SCALE = dict(kB = 1024)
 
 def mem_info(key = 'VmSize'):
     try:
@@ -26,7 +28,7 @@ def mem_info(key = 'VmSize'):
         for line in file:
             if line.startswith('%(key)s:' % locals()):
                 _, value, unit = line.split(None, 3)
-                return float(value) * SCALE[unit]
+                return int(value) * SCALE[unit]
     finally:
         file.close()
 
