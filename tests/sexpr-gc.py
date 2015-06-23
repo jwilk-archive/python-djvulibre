@@ -20,9 +20,9 @@ import djvu.sexpr
 import os
 
 PROC_STATUS = '/proc/%d/status' % os.getpid()
-SCALE = dict(kB = 1024)
+SCALE = dict(kB=1024)
 
-def mem_info(key = 'VmSize'):
+def mem_info(key='VmSize'):
     try:
         file = open(PROC_STATUS)
         for line in file:
