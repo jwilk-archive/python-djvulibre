@@ -226,28 +226,28 @@ else:
 compiler_flags = pkg_config('ddjvuapi')
 
 setup_params = dict(
-    name = 'python-djvulibre',
-    version = __version__,
-    author = 'Jakub Wilk',
-    author_email = 'jwilk@jwilk.net',
-    license = 'GNU GPL 2',
-    description = 'Python support for the DjVu image format',
-    long_description = __doc__.strip(),
-    classifiers = classifiers,
-    url = 'http://jwilk.net/software/python-djvulibre',
-    platforms = ['all'],
-    packages = ['djvu'],
-    ext_modules = [
+    name='python-djvulibre',
+    version=__version__,
+    author='Jakub Wilk',
+    author_email='jwilk@jwilk.net',
+    license='GNU GPL 2',
+    description='Python support for the DjVu image format',
+    long_description=__doc__.strip(),
+    classifiers=classifiers,
+    url='http://jwilk.net/software/python-djvulibre',
+    platforms=['all'],
+    packages=['djvu'],
+    ext_modules=[
         distutils.command.build_ext.Extension(
             'djvu.{mod}'.format(mod=name),
             ['djvu/{mod}.pyx'.format(mod=name)],
-            depends = ['djvu/common.pxi'] + glob.glob('djvu/*.pxd'),
+            depends=(['djvu/common.pxi'] + glob.glob('djvu/*.pxd')),
             **compiler_flags
         )
         for name in ext_modules
     ],
-    py_modules = ['djvu.const'],
-    cmdclass = dict(
+    py_modules=['djvu.const'],
+    cmdclass=dict(
         (cmd.__name__, cmd)
         for cmd in (build_ext, clean, build_sphinx)
         if cmd is not None
