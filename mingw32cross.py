@@ -48,16 +48,16 @@ class Mingw32CrossCompiler(distutils.cygwinccompiler.CygwinCCompiler):
     compiler_type = 'mingw32'
 
     def __init__(self, verbose=0, dry_run=0, force=0):
-        distutils.cygwinccompiler.CygwinCCompiler.__init__ (self, verbose, dry_run, force)
+        distutils.cygwinccompiler.CygwinCCompiler.__init__(self, verbose, dry_run, force)
         cc = 'gcc -O -Wall'
         cxx = 'g++ -O -Wall'
         ld = 'gcc -L{dir}'.format(dir=directory)
         self.set_executables(
-            compiler = prefix + cc,
-            compiler_so = prefix + cc,
-            compiler_cxx = prefix + cxx,
-            linker_exe  = prefix + ld,
-            linker_so = prefix + ld + ' -shared'
+            compiler=(prefix + cc),
+            compiler_so=(prefix + cc),
+            compiler_cxx=(prefix + cxx),
+            linker_exe=(prefix + ld),
+            linker_so=(prefix + ld + ' -shared'),
         )
         self.dll_libraries = ['python{0}{1}'.format(*sys.version_info), 'msvcr']
 
