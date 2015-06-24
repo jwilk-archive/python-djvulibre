@@ -29,7 +29,7 @@ directory = '{target}/python{0}.{1}/'.format(*sys.version_info, target=target)
 prefix = target + '-'
 
 def get_platform():
-   return 'win32'
+    return 'win32'
 distutils.util.get_platform = get_platform
 
 def get_python_inc(*args, **kwargs):
