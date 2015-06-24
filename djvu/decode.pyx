@@ -970,7 +970,7 @@ cdef class DocumentDecodingJob(Job):
         self.ddjvu_job = <ddjvu_job_t*> document.ddjvu_document
 
     def __dealloc__(self):
-        self.ddjvu_job = NULL # Don't allow Job.__dealloc__ to release the job.
+        self.ddjvu_job = NULL  # Don't allow Job.__dealloc__ to release the job.
 
     def __repr__(self):
         return '<{tp} for {doc!r}>'.format(
@@ -1440,7 +1440,7 @@ def _Context_message_distributor(Context self not None, **kwargs):
                 if job.is_done:
                     job.__clear()
             elif message._page_job is not None:
-                raise SystemError # should not happen
+                raise SystemError  # should not happen
             elif message._document is not None:
                 document = message._document
                 document._condition.acquire()
@@ -1513,7 +1513,7 @@ cdef class Context:
         if message._job is not None:
             message._job._queue.put(message)
         elif message._page_job is not None:
-            raise SystemError # should not happen
+            raise SystemError  # should not happen
         elif message._document is not None:
             message._document._queue.put(message)
         else:

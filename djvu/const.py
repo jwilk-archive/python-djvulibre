@@ -120,12 +120,12 @@ def get_text_zone_type(symbol):
     return TextZoneType.from_symbol(symbol)
 
 TEXT_ZONE_SEPARATORS = {
-    TEXT_ZONE_PAGE:      '\f',   # Form Feed (FF)
-    TEXT_ZONE_COLUMN:    '\v',   # Vertical tab (VT, LINE TABULATION)
-    TEXT_ZONE_REGION:    '\035', # Group Separator (GS, INFORMATION SEPARATOR THREE)
-    TEXT_ZONE_PARAGRAPH: '\037', # Unit Separator (US, INFORMATION SEPARATOR ONE)
-    TEXT_ZONE_LINE:      '\n',   # Line Feed (LF)
-    TEXT_ZONE_WORD:      ' ',    # space
+    TEXT_ZONE_PAGE:      '\f',  # Form Feed (FF)
+    TEXT_ZONE_COLUMN:    '\v',  # Vertical tab (VT, LINE TABULATION)
+    TEXT_ZONE_REGION:    '\035',  # Group Separator (GS, INFORMATION SEPARATOR THREE)
+    TEXT_ZONE_PARAGRAPH: '\037',  # Unit Separator (US, INFORMATION SEPARATOR ONE)
+    TEXT_ZONE_LINE:      '\n',  # Line Feed (LF)
+    TEXT_ZONE_WORD:      ' ',  # space
     TEXT_ZONE_CHARACTER: ''
 }
 
@@ -180,9 +180,9 @@ MAPAREA_TEXT_COLOR_DEFAULT = '#000000'
 
 # 8.3.4.1 Initial Document View :
 ANNOTATION_BACKGROUND = djvu.sexpr.Symbol('background')  # 8.3.4.1.1 Background Color
-ANNOTATION_ZOOM       = djvu.sexpr.Symbol('zoom') # 8.3.4.1.2 Initial Zoom
-ANNOTATION_MODE       = djvu.sexpr.Symbol('mode') # 8.3.4.1.3 Initial Display level
-ANNOTATION_ALIGN      = djvu.sexpr.Symbol('align') # 8.3.4.1.4 Alignment
+ANNOTATION_ZOOM       = djvu.sexpr.Symbol('zoom')  # 8.3.4.1.2 Initial Zoom
+ANNOTATION_MODE       = djvu.sexpr.Symbol('mode')  # 8.3.4.1.3 Initial Display level
+ANNOTATION_ALIGN      = djvu.sexpr.Symbol('align')  # 8.3.4.1.4 Alignment
 
 # djvuchanges.txt, sections "Metadata Annotations" and "Document Annotations and Metadata":
 ANNOTATION_METADATA   = djvu.sexpr.Symbol('metadata')

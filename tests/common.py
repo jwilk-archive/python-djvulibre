@@ -126,7 +126,7 @@ def interim(obj, **override):
 @contextlib.contextmanager
 def raises(exc_type, string=None, regex=None):
     if string is None and regex is None:
-        string = '' # XXX
+        string = ''  # XXX
     assert (string is None) ^ (regex is None)
     try:
         yield None

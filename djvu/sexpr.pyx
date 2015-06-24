@@ -122,7 +122,7 @@ cdef void myio_set(stdin, stdout):
         IF not PY3K:
             io_set_input(file_to_cfile(stdin))
         ELSE:
-            pass # TODO
+            pass  # TODO
     else:
         io_getc = _myio_getc
         io_ungetc = _myio_ungetc
@@ -135,7 +135,7 @@ cdef void myio_set(stdin, stdout):
         IF not PY3K:
             io_set_output(file_to_cfile(stdout))
         ELSE:
-            pass # TODO
+            pass  # TODO
     else:
         io_puts = _myio_puts
     io_7bit = 1
@@ -588,7 +588,7 @@ def StringExpression__new__(cls, value):
     if typecheck(value, _WrappedCExpr):
         self.wexpr = value
     elif is_bytes(value):
-        gc_lock(NULL) # protect from collecting a just-created object
+        gc_lock(NULL)  # protect from collecting a just-created object
         try:
             self.wexpr = wexpr(str_to_cexpr(value))
         finally:
@@ -671,7 +671,7 @@ cdef BaseExpression _c2py(cexpr_t cexpr):
 cdef _WrappedCExpr _build_list_cexpr(object items):
     cdef cexpr_t cexpr
     cdef BaseExpression citem
-    gc_lock(NULL) # protect from collecting a just-created object
+    gc_lock(NULL)  # protect from collecting a just-created object
     try:
         cexpr = cexpr_nil
         for item in items:
@@ -840,7 +840,7 @@ class ListExpression(_Expression_):
         if citem is None:
             raise TypeError
         if index == 0 or cexpr == cexpr_nil:
-            gc_lock(NULL) # protect from collecting a just-created object
+            gc_lock(NULL)  # protect from collecting a just-created object
             try:
                 new_cexpr = pair_to_cexpr(citem.wexpr.cexpr(), cexpr)
                 self.wexpr = wexpr(new_cexpr)
@@ -853,7 +853,7 @@ class ListExpression(_Expression_):
                 index = index - 1
                 cexpr = cexpr_tail(cexpr)
             else:
-                gc_lock(NULL) # protect from collecting a just-created object
+                gc_lock(NULL)  # protect from collecting a just-created object
                 try:
                     new_cexpr = pair_to_cexpr(citem.wexpr.cexpr(), cexpr_tail(cexpr))
                     cexpr_replace_tail(cexpr, new_cexpr)
@@ -866,7 +866,7 @@ class ListExpression(_Expression_):
 
     def reverse(BaseExpression self not None):
         cdef cexpr_t cexpr, new_cexpr
-        gc_lock(NULL) # protect from collecting a just-created object
+        gc_lock(NULL)  # protect from collecting a just-created object
         try:
             new_cexpr = cexpr_reverse_list(self.wexpr.cexpr())
             self.wexpr = wexpr(new_cexpr)
