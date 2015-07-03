@@ -77,9 +77,9 @@ class test_int_expressions():
         x = Expression(42)
         assert_pickle_equal(x)
 
-def test_symbols():
+class test_symbols():
 
-    for name in 'eggs', u('ветчина'):
+    def t(self, name):
         symbol = Symbol(name)
         assert_equal(type(symbol), Symbol)
         assert_equal(symbol, Symbol(name))
@@ -93,6 +93,12 @@ def test_symbols():
         assert_not_equal(symbol, name.encode('UTF-8'))
         assert_equal(hash(symbol), hash(name.encode('UTF-8')))
         assert_pickle_equal(symbol)
+
+    def test_ascii(self):
+        self.t('eggs')
+
+    def test_nonascii(self):
+        self.t(u('ветчина'))
 
 def test_expressions():
     x = Expression(Symbol('eggs'))
