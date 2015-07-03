@@ -10,10 +10,10 @@ before_install:
 - sudo apt-get install -y libdjvulibre-dev djvulibre-bin
 install:
 - pip install cython
-- pip install sphinx
+- '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx'
 script:
 - python setup.py build_ext --inplace
 - nosetests --verbose
-- PYTHONPATH=$PWD sphinx-build -b doctest doc/source/ tmp
+- '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/source/ tmp'
 
 # vim:ts=2 sts=2 sw=2 et
