@@ -276,9 +276,7 @@ cdef class BaseSymbol:
             return NotImplemented
         _self = self
         _other = other
-        if op == 2 or op == 3:
-            return richcmp(_self._bytes, _other._bytes, op)
-        return NotImplemented
+        return richcmp(_self._bytes, _other._bytes, op)
 
     def __hash__(self):
         return hash(self._bytes)

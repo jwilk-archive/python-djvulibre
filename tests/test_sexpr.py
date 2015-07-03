@@ -100,6 +100,12 @@ class test_symbols():
     def test_nonascii(self):
         self.t(u('ветчина'))
 
+    def test_inequality(self):
+        assert_less(
+            Symbol('eggs'),
+            Symbol('ham'),
+        )
+
 def test_expressions():
     x = Expression(Symbol('eggs'))
     assert_repr(x, "Expression(Symbol('eggs'))")
