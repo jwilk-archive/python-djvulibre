@@ -332,7 +332,7 @@ The following sets contain noteworthy metadata keys:
       Keys borrowed from the BibTeX_ bibliography system.
 
       >>> for key in sorted(METADATA_BIBTEX_KEYS):
-      ...     print repr(key)
+      ...     print(repr(key))
       ...
       Symbol('address')
       Symbol('annote')
@@ -364,7 +364,7 @@ The following sets contain noteworthy metadata keys:
       Keys borrowed from the PDF DocInfo.
 
       >>> for key in sorted(METADATA_PDFINFO_KEYS):
-      ...     print repr(key)
+      ...     print(repr(key))
       ...
       Symbol('Author')
       Symbol('CreationDate')
