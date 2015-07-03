@@ -9,8 +9,9 @@ python-djvulibre (0.4) UNRELEASED; urgency=low
     Making it work offline and consistently across different Python versions
     is too much of a hassle, and it was used only to cross-reference one
     well-known exception (IOError).
+  * Improve the test suite.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 11 Jun 2015 11:54:38 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 03 Jul 2015 19:43:29 +0200
 
 python-djvulibre (0.3.10) unstable; urgency=low
 

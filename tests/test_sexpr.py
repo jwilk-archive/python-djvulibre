@@ -32,7 +32,7 @@ def assert_pickle_equal(obj):
     for pickle_module in pickle, cpickle:
         if pickle_module is None:
             continue
-        for protocol in 0, 1, 2:
+        for protocol in range(pickle.HIGHEST_PROTOCOL + 1):
             pickled_obj = pickle_module.dumps(obj, protocol=protocol)
             repickled_obj = pickle_module.loads(pickled_obj)
             assert_equal(obj, repickled_obj)
