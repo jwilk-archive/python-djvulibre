@@ -54,13 +54,13 @@ class test_text_zones():
     def test_comparison1(self):
         assert_not_equal(TEXT_ZONE_PAGE, '')
         assert_not_equal(TEXT_ZONE_PAGE, 42)
-        with raises(TypeError, 'cannot compare text zone type with other object'):
+        with assert_raises_str(TypeError, 'cannot compare text zone type with other object'):
             TEXT_ZONE_PAGE < 42
-        with raises(TypeError, 'cannot compare text zone type with other object'):
+        with assert_raises_str(TypeError, 'cannot compare text zone type with other object'):
             TEXT_ZONE_PAGE <= 42
-        with raises(TypeError, 'cannot compare text zone type with other object'):
+        with assert_raises_str(TypeError, 'cannot compare text zone type with other object'):
             TEXT_ZONE_PAGE > 42
-        with raises(TypeError, 'cannot compare text zone type with other object'):
+        with assert_raises_str(TypeError, 'cannot compare text zone type with other object'):
             TEXT_ZONE_PAGE >= 42
 
     def test_comparison2(self):

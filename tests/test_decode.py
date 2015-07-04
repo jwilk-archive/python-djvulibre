@@ -51,9 +51,9 @@ def test_context_cache():
     context = Context()
     assert_equal(context.cache_size, 10 << 20)
     for n in -100, 0, 1 << 31:
-        with raises(ValueError, '0 < cache_size < (2 ** 31) must be satisfied'):
+        with assert_raises_str(ValueError, '0 < cache_size < (2 ** 31) must be satisfied'):
             context.cache_size = n
-    with raises(ValueError, '0 < cache_size < (2 ** 31) must be satisfied'):
+    with assert_raises_str(ValueError, '0 < cache_size < (2 ** 31) must be satisfied'):
         context.cache_size = 0
     n = 1
     while n < (1 << 31):
@@ -65,7 +65,7 @@ def test_context_cache():
 class test_documents:
 
     def test_bad_new(self):
-        with raises(TypeError, "cannot create 'djvu.decode.Document' instances"):
+        with assert_raises_str(TypeError, "cannot create 'djvu.decode.Document' instances"):
             Document()
 
     def test_nonexistent(self):
@@ -80,7 +80,7 @@ class test_documents:
         c_message.encode('ASCII')
         skip_unless_c_messages()
         context = Context()
-        with raises(JobFailed):
+        with assert_raises(JobFailed):
             document = context.new_document(FileUri(path))
         message = context.get_message()
         assert_equal(type(message), ErrorMessage)
@@ -114,7 +114,7 @@ class test_documents:
                 'ja_JP error message is ASCII-only: {msg!r}'.format(msg=c_message)
             )
         with amended_locale(LC_ALL='ja_JP.UTF-8'):
-            with raises(JobFailed):
+            with assert_raises_str(JobFailed):
                 document = context.new_document(FileUri(path))
             message = context.get_message()
             assert_equal(type(message), ErrorMessage)
@@ -203,14 +203,14 @@ class test_documents:
         assert_true(document.get_message(wait=False) is None)
         assert_true(context.get_message(wait=False) is None)
 
-        with raises(IndexError, 'file number out of range'):
+        with assert_raises_str(IndexError, 'file number out of range'):
             document.files[-1].get_info()
         assert_true(document.get_message(wait=False) is None)
         assert_true(context.get_message(wait=False) is None)
 
-        with raises(IndexError, 'page number out of range'):
+        with assert_raises_str(IndexError, 'page number out of range'):
             document.pages[-1]
-        with raises(IndexError, 'page number out of range'):
+        with assert_raises_str(IndexError, 'page number out of range'):
             document.pages[1]
 
         assert_true(document.get_message(wait=False) is None)
@@ -365,7 +365,7 @@ class test_documents:
 class test_pixel_formats():
 
     def test_bad_new(self):
-        with raises(TypeError, "cannot create 'djvu.decode.PixelFormat' instances"):
+        with assert_raises_str(TypeError, "cannot create 'djvu.decode.PixelFormat' instances"):
             PixelFormat()
 
     def test_rgb(self):
@@ -387,8 +387,12 @@ class test_pixel_formats():
         assert_equal(repr(pf), "djvu.decode.PixelFormatGrey(bpp = 8)")
 
     def test_palette(self):
-        with raises(KeyError, repr((0, 0, 0))):
+        with assert_raises(KeyError) as ecm:
             pf = PixelFormatPalette({})
+        assert_equal(
+            ecm.exception.args,
+            ((0, 0, 0),)
+        )
         data = dict(((i, j, k), i + 7 * j + 37 + k) for i in range(6) for j in range(6) for k in range(6))
         pf = PixelFormatPalette(data)
         data_repr = ', '.join(
@@ -410,7 +414,7 @@ class test_pixel_formats():
 class test_page_jobs():
 
     def test_bad_new(self):
-        with raises(TypeError, "cannot create 'djvu.decode.PageJob' instances"):
+        with assert_raises_str(TypeError, "cannot create 'djvu.decode.PageJob' instances"):
             PageJob()
 
     def test_decode(self):
@@ -432,26 +436,26 @@ class test_page_jobs():
         assert_equal(page_job.version, 24)
         assert_equal(page_job.type, PAGE_TYPE_BITONAL)
         assert_equal((page_job.rotation, page_job.initial_rotation), (0, 0))
-        with raises(ValueError, 'rotation must be equal to 0, 90, 180, or 270'):
+        with assert_raises_str(ValueError, 'rotation must be equal to 0, 90, 180, or 270'):
             page_job.rotation = 100
         page_job.rotation = 180
         assert_equal((page_job.rotation, page_job.initial_rotation), (180, 0))
         del page_job.rotation
         assert_equal((page_job.rotation, page_job.initial_rotation), (0, 0))
 
-        with raises(ValueError, 'page_rect width/height must be a positive integer'):
+        with assert_raises_str(ValueError, 'page_rect width/height must be a positive integer'):
             page_job.render(RENDER_COLOR, (0, 0, -1, -1), (0, 0, 10, 10), PixelFormatRgb())
 
-        with raises(ValueError, 'render_rect width/height must be a positive integer'):
+        with assert_raises_str(ValueError, 'render_rect width/height must be a positive integer'):
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, -1, -1), PixelFormatRgb())
 
-        with raises(ValueError, 'render_rect must be inside page_rect'):
+        with assert_raises_str(ValueError, 'render_rect must be inside page_rect'):
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (2, 2, 10, 10), PixelFormatRgb())
 
-        with raises(ValueError, 'row_alignment must be a positive integer'):
+        with assert_raises_str(ValueError, 'row_alignment must be a positive integer'):
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
 
-        with raises(MemoryError, regex='^Unable to allocate [0-9]+ bytes for an image memory$'):
+        with assert_raises_regexp(MemoryError, '\AUnable to allocate [0-9]+ bytes for an image memory\Z'):
             x = int((maxsize//2) ** 0.5)
             page_job.render(RENDER_COLOR, (0, 0, x, x), (0, 0, x, x), PixelFormatRgb(), 8)
 
@@ -459,7 +463,7 @@ class test_page_jobs():
         assert_equal(s, blob(0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xef, 0xff, 0xff, 0xff, 0xa4, 0xff, 0xff, 0xff, 0xb8))
 
         buffer = array.array('B', blob(0))
-        with raises(ValueError, 'Image buffer is too small (16 > 1)'):
+        with assert_raises_str(ValueError, 'Image buffer is too small (16 > 1)'):
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer)
 
         buffer = array.array('B', blob(*([0] * 16)))
@@ -490,7 +494,7 @@ class test_thumbnails:
         assert_equal(pixels[:15], blob(0xff, 0xeb, 0xa7, 0xf2, 0xff, 0xff, 0xbf, 0x86, 0xbe, 0xff, 0xff, 0xe7, 0xd6, 0xe7, 0xff))
 
         buffer = array.array('B', blob(0))
-        with raises(ValueError, 'Image buffer is too small (25 > 1)'):
+        with assert_raises_str(ValueError, 'Image buffer is too small (25 > 1)'):
             (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
 
         buffer = array.array('B', blob(*([0] * 25)))
@@ -501,16 +505,16 @@ class test_thumbnails:
 
 def test_jobs():
 
-    with raises(TypeError, "cannot create 'djvu.decode.Job' instances"):
+    with assert_raises_str(TypeError, "cannot create 'djvu.decode.Job' instances"):
         Job()
 
-    with raises(TypeError, "cannot create 'djvu.decode.DocumentDecodingJob' instances"):
+    with assert_raises_str(TypeError, "cannot create 'djvu.decode.DocumentDecodingJob' instances"):
         DocumentDecodingJob()
 
 class test_affine_transforms():
 
     def test_bad_args(self):
-        with raises(ValueError, 'need more than 2 values to unpack'):
+        with assert_raises_str(ValueError, 'need more than 2 values to unpack'):
             AffineTransform((1, 2), (3, 4, 5))
 
     def test1(self):
@@ -536,13 +540,13 @@ class test_affine_transforms():
 class test_messages():
 
     def test_bad_new(self):
-        with raises(TypeError, "cannot create 'djvu.decode.Message' instances"):
+        with assert_raises_str(TypeError, "cannot create 'djvu.decode.Message' instances"):
             Message()
 
 class test_streams:
 
     def test_bad_new(self):
-        with raises(TypeError, "Argument 'document' has incorrect type (expected djvu.decode.Document, got NoneType)"):
+        with assert_raises_str(TypeError, "Argument 'document' has incorrect type (expected djvu.decode.Document, got NoneType)"):
             Stream(None, 42)
 
     def test(self):
@@ -554,20 +558,20 @@ class test_streams:
         assert_equal(message.uri, 'dummy://dummy.djvu')
         assert_equal(type(message.stream), Stream)
 
-        with raises(NotAvailable):
+        with assert_raises(NotAvailable):
             document.outline.sexpr
-        with raises(NotAvailable):
+        with assert_raises(NotAvailable):
             document.annotations.sexpr
-        with raises(NotAvailable):
+        with assert_raises(NotAvailable):
             document.pages[0].text.sexpr
-        with raises(NotAvailable):
+        with assert_raises(NotAvailable):
             document.pages[0].annotations.sexpr
 
         try:
             message.stream.write(open(images + 'test1.djvu', 'rb').read())
         finally:
             message.stream.close()
-        with raises(IOError, 'I/O operation on closed file'):
+        with assert_raises_str(IOError, 'I/O operation on closed file'):
             message.stream.write(b('eggs'))
 
         message = document.get_message()
@@ -627,8 +631,9 @@ def test_metadata():
             assert_equal(type(k), unicode)
             assert_equal(type(metadata[k]), unicode)
         for k in None, 42, '+'.join(model_metadata):
-            with raises(KeyError, repr(k)):
+            with assert_raises(KeyError) as ecm:
                 metadata[k]
+            assert_equal(ecm.exception.args, (k,))
     finally:
         test_file.close()
 
@@ -716,10 +721,10 @@ class test_sexpr:
         assert_true(text_s_detail[7] == text_s)
         assert_equal(repr(text_s), m(r"""Expression([Symbol('page'), 0, 0, 2550, 3300, [Symbol('line'), 462, 2726, 615, 2775, [Symbol('word'), 462, 2726, 615, 2775, '5E']], [Symbol('line'), 462, 2544, 663, 2586, [Symbol('word'), 462, 2544, 533, 2586, '5.1'], [Symbol('word'), 596, 2545, 663, 2586, 'E1']], [Symbol('line'), 466, 2349, 631, 2421, [Symbol('word'), 466, 2349, 631, 2421, '\xe2\x86\x921']], [Symbol('line'), 462, 2124, 665, 2166, [Symbol('word'), 462, 2124, 535, 2166, '5.2'], [Symbol('word'), 596, 2125, 665, 2166, 'E2']], [Symbol('line'), 465, 1911, 1504, 2000, [Symbol('word'), 465, 1911, 1504, 2000, 'http://jwilk.net/']], [Symbol('line'), 1259, 374, 1280, 409, [Symbol('word'), 1259, 374, 1280, 409, '5']]])"""))
 
-        with raises(TypeError, 'details must be a symbol or none'):
+        with assert_raises_str(TypeError, 'details must be a symbol or none'):
             PageText(page, 'eggs')
 
-        with raises(ValueError, 'details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL'):
+        with assert_raises_str(ValueError, 'details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL'):
             PageText(page, Symbol('eggs'))
 
 def test_version():

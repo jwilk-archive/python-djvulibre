@@ -64,9 +64,9 @@ class test_int_expressions():
     def test_limits(self):
         assert_equal(Expression((1 << 29) - 1).value, (1 << 29) - 1)
         assert_equal(Expression(-1 << 29).value, -1 << 29)
-        with raises(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
+        with assert_raises_str(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
             Expression(1 << 29)
-        with raises(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
+        with assert_raises_str(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
             Expression((-1 << 29) - 1)
 
     def test_bool(self):
@@ -174,13 +174,13 @@ class test_list_expressions():
         assert_equal(len(x), 4)
         assert_equal(bool(x), True)
         assert_equal(tuple(x), (Expression((1, 2)), Expression(3), Expression((4, 5, Symbol('baz'))), Expression(('quux',))))
-        with raises(TypeError, 'key must be an integer or a slice'):
+        with assert_raises_str(TypeError, 'key must be an integer or a slice'):
             x[object()]
         assert_equal(x[1], Expression(3))
         assert_equal(x[-1][0], Expression('quux'))
-        with raises(IndexError, 'list index of out range'):
+        with assert_raises_str(IndexError, 'list index of out range'):
             x[6]
-        with raises(IndexError, 'list index of out range'):
+        with assert_raises_str(IndexError, 'list index of out range'):
             x[-6]
         assert_equal(x[:].value, x.value)
         assert_equal(x[:].lvalue, x.lvalue)
@@ -194,20 +194,20 @@ class test_list_expressions():
         assert_repr(x, 'Expression([1, 3, 5])')
         x[3:] = 7,
         assert_repr(x, 'Expression([1, 3, 5, 7])')
-        with raises(NotImplementedError, 'only [n:] slices are supported'):
+        with assert_raises_str(NotImplementedError, 'only [n:] slices are supported'):
             x[object():]
-        with raises(NotImplementedError, 'only [n:] slices are supported'):
+        with assert_raises_str(NotImplementedError, 'only [n:] slices are supported'):
             x[:2]
-        with raises(NotImplementedError, 'only [n:] slices are supported'):
+        with assert_raises_str(NotImplementedError, 'only [n:] slices are supported'):
             x[object():] = []
-        with raises(NotImplementedError, 'only [n:] slices are supported'):
+        with assert_raises_str(NotImplementedError, 'only [n:] slices are supported'):
             x[:2] = []
-        with raises(TypeError, 'can only assign a list expression'):
+        with assert_raises_str(TypeError, 'can only assign a list expression'):
             x[:] = 0
         assert_equal(x, Expression((1, 3, 5, 7)))
         assert_not_equal(x, Expression((2, 4, 6)))
         assert_not_equal(x, (1, 3, 5, 7))
-        with raises(TypeError, "unhashable type: 'ListExpression'"):
+        with assert_raises_str(TypeError, "unhashable type: 'ListExpression'"):
             hash(x)
 
     def test_insert(self):
@@ -234,7 +234,7 @@ class test_list_expressions():
             expr.extend(ext)
             assert_equal(expr, Expression(lst))
             assert_equal(expr.lvalue, lst)
-        with raises(TypeError, "'int' object is not iterable"):
+        with assert_raises_str(TypeError, "'int' object is not iterable"):
             expr.extend(0)
 
     def test_inplace_add(self):
@@ -246,14 +246,14 @@ class test_list_expressions():
             assert_equal(expr, Expression(lst))
             assert_equal(expr.lvalue, lst)
         assert_true(expr is expr0)
-        with raises(TypeError, "'int' object is not iterable"):
+        with assert_raises_str(TypeError, "'int' object is not iterable"):
             expr += 0
 
     def test_pop(self):
         expr = Expression([0, 1, 2, 3, 4, 5, 6])
         assert_equal(expr.pop(0), Expression(0))
         assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
-        with raises(IndexError, 'pop index of out range'):
+        with assert_raises_str(IndexError, 'pop index of out range'):
             expr.pop(6)
         assert_equal(expr.pop(5), Expression(6))
         assert_equal(expr, Expression([1, 2, 3, 4, 5]))
@@ -265,17 +265,17 @@ class test_list_expressions():
         assert_equal(expr, Expression([1, 4]))
         expr.pop()
         expr.pop()
-        with raises(IndexError, 'pop from empty list'):
+        with assert_raises_str(IndexError, 'pop from empty list'):
             expr.pop()
         for i in range(-2, 3):
-            with raises(IndexError, 'pop from empty list'):
+            with assert_raises_str(IndexError, 'pop from empty list'):
                 expr.pop(i)
 
     def test_delitem(self):
         expr = Expression([0, 1, 2, 3, 4, 5, 6])
         del expr[0]
         assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
-        with raises(IndexError, 'pop index of out range'):
+        with assert_raises_str(IndexError, 'pop index of out range'):
             expr.pop(6)
         del expr[5]
         assert_equal(expr, Expression([1, 2, 3, 4, 5]))
@@ -290,14 +290,14 @@ class test_list_expressions():
         del expr[:]
         assert_equal(expr, Expression([]))
         for i in range(-2, 3):
-            with raises(IndexError, 'pop from empty list'):
+            with assert_raises_str(IndexError, 'pop from empty list'):
                 del expr[i]
 
     def test_remove(self):
         expr = Expression([0, 1, 2, 3, 4, 5, 6])
         expr.remove(Expression(0))
         assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
-        with raises(IndexError, 'item not in list'):
+        with assert_raises_str(IndexError, 'item not in list'):
             expr.remove(Expression(0))
         expr.remove(Expression(6))
         assert_equal(expr, Expression([1, 2, 3, 4, 5]))
@@ -309,7 +309,7 @@ class test_list_expressions():
         assert_equal(expr, Expression([1, 4]))
         expr.remove(Expression(4))
         expr.remove(Expression(1))
-        with raises(IndexError, 'item not in list'):
+        with assert_raises_str(IndexError, 'item not in list'):
             expr.remove(Expression(-1))
 
     def test_contains(self):
@@ -324,7 +324,7 @@ class test_list_expressions():
 
     def test_index(self):
         expr = Expression(())
-        with raises(ValueError, 'value not in list'):
+        with assert_raises_str(ValueError, 'value not in list'):
             expr.index(Expression(42))
         lst = [1, 2, 3]
         expr = Expression(lst)
@@ -332,7 +332,7 @@ class test_list_expressions():
             i = lst.index(x)
             j = expr.index(Expression(x))
             assert_equal(i, j)
-        with raises(ValueError, 'value not in list'):
+        with assert_raises_str(ValueError, 'value not in list'):
             expr.index(Expression(max(lst) + 1))
 
     def test_count(self):
@@ -412,7 +412,7 @@ def strip_line_numbers_from_traceback(s):
 class test_expression_parser():
 
     def test_badstring(self):
-        with raises(ExpressionSyntaxError):
+        with assert_raises(ExpressionSyntaxError):
             Expression.from_string('(1')
 
     def test_attr_from_file(self):
@@ -421,7 +421,7 @@ class test_expression_parser():
     def test_bad_io(self):
         stderr = StringIO()
         with interim(sys, stderr=stderr):
-            with raises(ExpressionSyntaxError):
+            with assert_raises(ExpressionSyntaxError):
                 Expression.from_stream(42)
         stderr = strip_line_numbers_from_traceback(stderr.getvalue())
         stderr = stderr.replace(
@@ -445,7 +445,7 @@ AttributeError: 'int' object has no attribute 'read'
         assert_repr(x, "Expression([Symbol('eggs')])")
         x = read()
         assert_repr(x, "Expression([Symbol('ham')])")
-        with raises(ExpressionSyntaxError):
+        with assert_raises(ExpressionSyntaxError):
             x = read()
 
     def test_fileio_text(self):
@@ -461,7 +461,7 @@ AttributeError: 'int' object has no attribute 'read'
         assert_repr(x, "Expression([Symbol('eggs')])")
         x = read()
         assert_repr(x, "Expression([Symbol('ham')])")
-        with raises(ExpressionSyntaxError):
+        with assert_raises(ExpressionSyntaxError):
             x = read()
 
     def test_fileio_binary(self):
@@ -477,7 +477,7 @@ AttributeError: 'int' object has no attribute 'read'
         assert_repr(x, "Expression([Symbol('eggs')])")
         x = read()
         assert_repr(x, "Expression([Symbol('ham')])")
-        with raises(ExpressionSyntaxError):
+        with assert_raises(ExpressionSyntaxError):
             x = read()
 
 class test_expression_writer():

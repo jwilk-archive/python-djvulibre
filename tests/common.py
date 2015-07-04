@@ -32,6 +32,9 @@ if sys.version_info >= (2, 7):
         assert_is_instance,
         assert_less,
         assert_multi_line_equal,
+        assert_raises,
+        assert_raises_regexp,
+        assert_regexp_matches,
     )
     try:
         assert_multi_line_equal.im_class.maxDiff = None
@@ -50,6 +53,44 @@ else:
             msg='{0!r} not less than {1!r}'.format(x, y)
         )
     assert_multi_line_equal = assert_equal
+    class assert_raises(object):
+        def __init__(self, exc_type):
+            self._exc_type = exc_type
+            self.exception = None
+        def __enter__(self):
+            return self
+        def __exit__(self, exc_type, exc_value, tb):
+            if exc_type is None:
+                assert_true(False, '{0} not raised'.format(self._exc_type.__name__))
+            if not issubclass(exc_type, self._exc_type):
+                return False
+            if isinstance(exc_value, exc_type):
+                pass
+                # This branch is not always taken in Python 2.6:
+                # https://bugs.python.org/issue7853
+            elif isinstance(exc_value, tuple):
+                exc_value = exc_type(*exc_value)
+            else:
+                exc_value = exc_type(exc_value)
+            self.exception = exc_value
+            return True
+    @contextlib.contextmanager
+    def assert_raises_regexp(exc_type, regexp):
+        with assert_raises(exc_type) as ecm:
+            yield
+        assert_regexp_matches(str(ecm.exception), regexp)
+    def assert_regexp_matches(text, regexp):
+        if isinstance(regexp, basestring):
+            regexp = re.compile(regexp)
+        if not regexp.search(text):
+            message = "Regexp didn't match: {0!r} not found in {1!r}".format(regexp.pattern, text)
+            assert_true(False, msg=message)
+
+@contextlib.contextmanager
+def assert_raises_str(exc_type, s):
+    with assert_raises(exc_type) as ecm:
+        yield
+    assert_equal(str(ecm.exception), s)
 
 try:
     locale.LC_MESSAGES
@@ -130,26 +171,6 @@ def interim(obj, **override):
             setattr(obj, key, value)
 
 @contextlib.contextmanager
-def raises(exc_type, string=None, regex=None):
-    if string is None and regex is None:
-        string = ''  # XXX
-    assert (string is None) ^ (regex is None)
-    try:
-        yield None
-    except exc_type:
-        _, exc, _ = sys.exc_info()
-        exc_string = str(exc)
-        if string is not None:
-            assert_equal(exc_string, string)
-        else:
-            if not re.match(regex, exc_string):
-                message = "Regexp didn't match: {re!r} not found in {exc!r}".format(exc=exc_string, re=regex)
-                raise AssertionError(message)
-    else:
-        message = '{exc} was not raised'.format(exc=exc_type.__name__)
-        raise AssertionError(message)
-
-@contextlib.contextmanager
 def amended_locale(**kwargs):
     old_locale = locale.setlocale(locale.LC_ALL)
     try:
@@ -213,13 +234,16 @@ __all__ = [
     'assert_less',
     'assert_multi_line_equal',
     'assert_not_equal',
+    'assert_raises',
+    'assert_raises_regexp',
+    'assert_regexp_matches',
     'assert_true',
     # misc
     'amended_locale',
+    'assert_raises_str',
     'assert_repr',
     'interim',
     'locale_encoding',
-    'raises',
     'skip_unless_c_messages',
     'skip_unless_command_exists',
     'skip_unless_translation_exists',
