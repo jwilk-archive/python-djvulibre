@@ -148,16 +148,16 @@ class test_documents:
         assert_equal(decoding_job.status, JobOK)
 
         file = document.files[0]
-        assert_true(type(file) is File)
-        assert_true(file.document is document)
-        assert_true(file.get_info() is None)
+        assert_is(type(file), File)
+        assert_is(file.document, document)
+        assert_is(file.get_info(), None)
         assert_equal(file.type, 'P')
         assert_equal(file.n_page, 0)
         page = file.page
         assert_equal(type(page), Page)
-        assert_true(page.document is document)
+        assert_is(page.document, document)
         assert_equal(page.n, 0)
-        assert_true(file.size is None)
+        assert_is(file.size, None)
         assert_equal(file.id, u('test1.djvu'))
         assert_equal(type(file.id), unicode)
         assert_equal(file.name, u('test1.djvu'))
@@ -177,8 +177,8 @@ class test_documents:
 
         page = document.pages[0]
         assert_equal(type(page), Page)
-        assert_true(page.document is document)
-        assert_true(page.get_info() is None)
+        assert_is(page.document, document)
+        assert_is(page.get_info(), None)
         assert_equal(page.width, 64)
         assert_equal(page.height, 48)
         assert_equal(page.size, (64, 48))
@@ -200,21 +200,21 @@ class test_documents:
             ]
         )
 
-        assert_true(document.get_message(wait=False) is None)
-        assert_true(context.get_message(wait=False) is None)
+        assert_is(document.get_message(wait=False), None)
+        assert_is(context.get_message(wait=False), None)
 
         with assert_raises_str(IndexError, 'file number out of range'):
             document.files[-1].get_info()
-        assert_true(document.get_message(wait=False) is None)
-        assert_true(context.get_message(wait=False) is None)
+        assert_is(document.get_message(wait=False), None)
+        assert_is(context.get_message(wait=False), None)
 
         with assert_raises_str(IndexError, 'page number out of range'):
             document.pages[-1]
         with assert_raises_str(IndexError, 'page number out of range'):
             document.pages[1]
 
-        assert_true(document.get_message(wait=False) is None)
-        assert_true(context.get_message(wait=False) is None)
+        assert_is(document.get_message(wait=False), None)
+        assert_is(context.get_message(wait=False), None)
 
     def test_save(self):
         skip_unless_command_exists('djvudump')
@@ -467,7 +467,7 @@ class test_page_jobs():
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer)
 
         buffer = array.array('B', blob(*([0] * 16)))
-        assert_true(page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer) is buffer)
+        assert_is(page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer), buffer)
         s = buffer.tostring()
         assert_equal(s, blob(0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xef, 0xff, 0xff, 0xff, 0xa4, 0xff, 0xff, 0xff, 0xb8))
 
@@ -487,7 +487,7 @@ class test_thumbnails:
 
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), dry_run=True)
         assert_equal((w, h, r), (5, 3, 5))
-        assert_true(pixels is None)
+        assert_is(pixels, None)
 
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey())
         assert_equal((w, h, r), (5, 3, 5))
@@ -499,7 +499,7 @@ class test_thumbnails:
 
         buffer = array.array('B', blob(*([0] * 25)))
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
-        assert_true(pixels is buffer)
+        assert_is(pixels, buffer)
         s = buffer[:15].tostring()
         assert_equal(s, blob(0xff, 0xeb, 0xa7, 0xf2, 0xff, 0xff, 0xbf, 0x86, 0xbe, 0xff, 0xff, 0xe7, 0xd6, 0xe7, 0xff))
 
@@ -655,11 +655,11 @@ class test_sexpr:
         anno = document.annotations
         assert_equal(type(anno), DocumentAnnotations)
         anno.wait()
-        assert_true(anno.background_color is None)
-        assert_true(anno.horizontal_align is None)
-        assert_true(anno.vertical_align is None)
-        assert_true(anno.mode is None)
-        assert_true(anno.zoom is None)
+        assert_is(anno.background_color, None)
+        assert_is(anno.horizontal_align, None)
+        assert_is(anno.vertical_align, None)
+        assert_is(anno.mode, None)
+        assert_is(anno.zoom, None)
         x = anno.sexpr
         assert_equal(repr(x), r"""Expression([[Symbol('metadata'), [Symbol('ModDate'), '2010-06-24 01:17:29+02:00'], [Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'], [Symbol('Producer'), 'pdfTeX-1.40.10'], [Symbol('Creator'), 'LaTeX with hyperref package'], [Symbol('Author'), 'Jakub Wilk']], [Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n']])""")
 
@@ -681,11 +681,11 @@ class test_sexpr:
         anno = page.annotations
         assert_equal(type(anno), PageAnnotations)
         anno.wait()
-        assert_true(anno.background_color is None)
-        assert_true(anno.horizontal_align is None)
-        assert_true(anno.vertical_align is None)
-        assert_true(anno.mode is None)
-        assert_true(anno.zoom is None)
+        assert_is(anno.background_color, None)
+        assert_is(anno.horizontal_align, None)
+        assert_is(anno.vertical_align, None)
+        assert_is(anno.mode, None)
+        assert_is(anno.zoom, None)
         x = anno.sexpr
         assert_equal(repr(x), r"""Expression([[Symbol('metadata'), [Symbol('ModDate'), '2010-06-24 01:17:29+02:00'], [Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'], [Symbol('Producer'), 'pdfTeX-1.40.10'], [Symbol('Creator'), 'LaTeX with hyperref package'], [Symbol('Author'), 'Jakub Wilk']], [Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n'], [Symbol('maparea'), '#p0002.djvu', '', [Symbol('rect'), 587, 2346, 60, 79], [Symbol('border'), Symbol('#ff0000')]], [Symbol('maparea'), 'http://jwilk.net/', '', [Symbol('rect'), 458, 1910, 1061, 93], [Symbol('border'), Symbol('#00ffff')]]])""")
 

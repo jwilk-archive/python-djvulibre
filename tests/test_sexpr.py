@@ -42,7 +42,7 @@ class test_int_expressions():
     def test_short(self):
         x = Expression(3)
         assert_repr(x, 'Expression(3)')
-        assert_true(x is Expression(x))
+        assert_is(x, Expression(x))
         assert_equal(x.value, 3)
         assert_equal(x.lvalue, 3)
         assert_equal(str(x), '3')
@@ -83,7 +83,7 @@ class test_symbols():
         symbol = Symbol(name)
         assert_equal(type(symbol), Symbol)
         assert_equal(symbol, Symbol(name))
-        assert_true(symbol is Symbol(name))
+        assert_is(symbol, Symbol(name))
         if py3k:
             assert_equal(str(symbol), name)
         else:
@@ -109,7 +109,7 @@ class test_symbols():
 def test_expressions():
     x = Expression(Symbol('eggs'))
     assert_repr(x, "Expression(Symbol('eggs'))")
-    assert_true(x is Expression(x))
+    assert_is(x, Expression(x))
     assert_equal(x.value, Symbol('eggs'))
     assert_equal(x.lvalue, Symbol('eggs'))
     assert_equal(str(x), 'eggs')
@@ -123,7 +123,7 @@ def test_expressions():
 def test_string_expressions():
     x = Expression('eggs')
     assert_repr(x, "Expression('eggs')")
-    assert_true(x is Expression(x))
+    assert_is(x, Expression(x))
     assert_equal(x.value, 'eggs')
     assert_equal(x.lvalue, 'eggs')
     assert_equal(str(x), '"eggs"')
@@ -139,7 +139,7 @@ class test_unicode_expressions():
     def test1(self):
         x = Expression(u('eggs'))
         assert_repr(x, "Expression('eggs')")
-        assert_true(x is Expression(x))
+        assert_is(x, Expression(x))
 
     def test2(self):
         x = Expression(u('żółw'))
@@ -154,7 +154,7 @@ class test_list_expressions():
         x = Expression(())
         assert_repr(x, "Expression([])")
         y = Expression(x)
-        assert_true(x is y)
+        assert_is(x, y)
         assert_equal(x.value, ())
         assert_equal(x.lvalue, [])
         assert_equal(len(x), 0)
@@ -215,14 +215,14 @@ class test_list_expressions():
         expr = Expression(())
         for pos in [-8, 4, 6, -5, -7, 5, 7, 2, -3, 8, 10, -2, 1, -9, -10, -4, -6, 0, 9, 3, -1]:
             lst.insert(pos, pos)
-            assert_true(expr.insert(pos, pos) is None)
+            assert_is(expr.insert(pos, pos), None)
             assert_equal(expr, Expression(lst))
             assert_equal(expr.lvalue, lst)
 
     def test_append(self):
         expr = Expression(())
         for i in range(10):
-            assert_true(expr.append(i) is None)
+            assert_is(expr.append(i), None)
             assert_equal(expr, Expression(range(i + 1)))
             assert_equal(expr.lvalue, list(range(i + 1)))
 
@@ -245,7 +245,7 @@ class test_list_expressions():
             expr += ext
             assert_equal(expr, Expression(lst))
             assert_equal(expr.lvalue, lst)
-        assert_true(expr is expr0)
+        assert_is(expr, expr0)
         with assert_raises_str(TypeError, "'int' object is not iterable"):
             expr += 0
 
@@ -354,7 +354,7 @@ class test_list_expressions():
                 Expression(reversed(expr)).value,
                 tuple(reversed(lst))
             )
-            assert_true(expr.reverse() is None)
+            assert_is(expr.reverse(), None)
             assert_equal(
                 expr,
                 Expression(reversed(lst))
@@ -416,7 +416,7 @@ class test_expression_parser():
             Expression.from_string('(1')
 
     def test_attr_from_file(self):
-        assert_true(getattr(Expression, 'from_file', None) is None)
+        assert_is(getattr(Expression, 'from_file', None), None)
 
     def test_bad_io(self):
         stderr = StringIO()

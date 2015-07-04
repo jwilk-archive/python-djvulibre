@@ -29,6 +29,7 @@ from nose import SkipTest
 
 if sys.version_info >= (2, 7):
     from nose.tools import (
+        assert_is,
         assert_is_instance,
         assert_less,
         assert_multi_line_equal,
@@ -42,6 +43,11 @@ if sys.version_info >= (2, 7):
         pass
         # FIXME: How to do it Python 3?
 else:
+    def assert_is(x, y):
+        assert_true(
+            x is y,
+            msg='{0!r} is not {1!r}'.format(x, y)
+        )
     def assert_is_instance(obj, cls):
         assert_true(
             isinstance(obj, cls),
@@ -230,6 +236,7 @@ __all__ = [
     'SkipTest',
     'assert_equal',
     'assert_false',
+    'assert_is',
     'assert_is_instance',
     'assert_less',
     'assert_multi_line_equal',

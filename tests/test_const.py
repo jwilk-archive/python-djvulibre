@@ -43,13 +43,13 @@ class test_text_zones():
         assert_repr(TEXT_ZONE_CHARACTER, '<djvu.const.TextZoneType: char>')
 
     def test_identity(self):
-        assert_true(TEXT_ZONE_PAGE is get_text_zone_type(Symbol('page')))
-        assert_true(TEXT_ZONE_COLUMN is get_text_zone_type(Symbol('column')))
-        assert_true(TEXT_ZONE_REGION is get_text_zone_type(Symbol('region')))
-        assert_true(TEXT_ZONE_PARAGRAPH is get_text_zone_type(Symbol('para')))
-        assert_true(TEXT_ZONE_LINE is get_text_zone_type(Symbol('line')))
-        assert_true(TEXT_ZONE_WORD is get_text_zone_type(Symbol('word')))
-        assert_true(TEXT_ZONE_CHARACTER is get_text_zone_type(Symbol('char')))
+        assert_is(TEXT_ZONE_PAGE, get_text_zone_type(Symbol('page')))
+        assert_is(TEXT_ZONE_COLUMN, get_text_zone_type(Symbol('column')))
+        assert_is(TEXT_ZONE_REGION, get_text_zone_type(Symbol('region')))
+        assert_is(TEXT_ZONE_PARAGRAPH, get_text_zone_type(Symbol('para')))
+        assert_is(TEXT_ZONE_LINE, get_text_zone_type(Symbol('line')))
+        assert_is(TEXT_ZONE_WORD, get_text_zone_type(Symbol('word')))
+        assert_is(TEXT_ZONE_CHARACTER, get_text_zone_type(Symbol('char')))
 
     def test_comparison1(self):
         assert_not_equal(TEXT_ZONE_PAGE, '')
