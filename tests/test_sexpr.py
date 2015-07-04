@@ -416,7 +416,7 @@ class test_expression_parser():
             Expression.from_string('(1')
 
     def test_attr_from_file(self):
-        assert getattr(Expression, 'from_file', None) is None
+        assert_true(getattr(Expression, 'from_file', None) is None)
 
     def test_bad_io(self):
         stderr = StringIO()
