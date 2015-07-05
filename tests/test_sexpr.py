@@ -314,13 +314,13 @@ class test_list_expressions():
 
     def test_contains(self):
         expr = Expression(())
-        assert_false(Expression(42) in expr)
+        assert_not_in(Expression(42), expr)
         lst = (1, 2, 3)
         expr = Expression(lst)
         for x in lst:
-            assert_false(x in expr)
-            assert_true(Expression(x) in expr)
-        assert_false(Expression(max(lst) + 1) in expr)
+            assert_not_in(x, expr)
+            assert_in(Expression(x), expr)
+        assert_not_in(Expression(max(lst) + 1), expr)
 
     def test_index(self):
         expr = Expression(())

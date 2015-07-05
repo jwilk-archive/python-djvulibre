@@ -29,10 +29,12 @@ from nose import SkipTest
 
 if sys.version_info >= (2, 7):
     from nose.tools import (
+        assert_in,
         assert_is,
         assert_is_instance,
         assert_less,
         assert_multi_line_equal,
+        assert_not_in,
         assert_raises,
         assert_raises_regexp,
         assert_regexp_matches,
@@ -43,6 +45,11 @@ if sys.version_info >= (2, 7):
         pass
         # FIXME: How to do it Python 3?
 else:
+    def assert_in(x, y):
+        assert_true(
+            x in y,
+            msg='{0!r} not found in {1!r}'.format(x, y)
+        )
     def assert_is(x, y):
         assert_true(
             x is y,
@@ -59,6 +66,11 @@ else:
             msg='{0!r} not less than {1!r}'.format(x, y)
         )
     assert_multi_line_equal = assert_equal
+    def assert_not_in(x, y):
+        assert_true(
+            x not in y,
+            msg='{0!r} unexpectedly found in {1!r}'.format(x, y)
+        )
     class assert_raises(object):
         def __init__(self, exc_type):
             self._exc_type = exc_type
@@ -236,11 +248,13 @@ __all__ = [
     'SkipTest',
     'assert_equal',
     'assert_false',
+    'assert_in',
     'assert_is',
     'assert_is_instance',
     'assert_less',
     'assert_multi_line_equal',
     'assert_not_equal',
+    'assert_not_in',
     'assert_raises',
     'assert_raises_regexp',
     'assert_regexp_matches',
