@@ -81,7 +81,7 @@ class test_documents:
         skip_unless_c_messages()
         context = Context()
         with assert_raises(JobFailed):
-            document = context.new_document(FileUri(path))
+            context.new_document(FileUri(path))
         message = context.get_message()
         assert_equal(type(message), ErrorMessage)
         assert_equal(type(message.message), unicode)
@@ -115,7 +115,7 @@ class test_documents:
             )
         with amended_locale(LC_ALL='ja_JP.UTF-8'):
             with assert_raises_str(JobFailed):
-                document = context.new_document(FileUri(path))
+                context.new_document(FileUri(path))
             message = context.get_message()
             assert_equal(type(message), ErrorMessage)
             assert_equal(type(message.message), unicode)
