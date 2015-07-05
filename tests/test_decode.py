@@ -98,7 +98,7 @@ class test_documents:
         path = '__nonexistent__'
         context = Context()
         try:
-            with amended_locale(LC_ALL='ja_JP.UTF-8'):
+            with interim_locale(LC_ALL='ja_JP.UTF-8'):
                 os.stat(path)
         except OSError:
             _, ex, _ = sys.exc_info()
@@ -113,7 +113,7 @@ class test_documents:
             raise AssertionError(
                 'ja_JP error message is ASCII-only: {msg!r}'.format(msg=c_message)
             )
-        with amended_locale(LC_ALL='ja_JP.UTF-8'):
+        with interim_locale(LC_ALL='ja_JP.UTF-8'):
             with assert_raises_str(JobFailed):
                 context.new_document(FileUri(path))
             message = context.get_message()

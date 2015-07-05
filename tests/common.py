@@ -189,7 +189,7 @@ def interim(obj, **override):
             setattr(obj, key, value)
 
 @contextlib.contextmanager
-def amended_locale(**kwargs):
+def interim_locale(**kwargs):
     old_locale = locale.setlocale(locale.LC_ALL)
     try:
         for category, value in kwargs.items():
@@ -216,7 +216,7 @@ def skip_unless_translation_exists(lang):
     messages = {}
     langs = ['C', lang]
     for lang in langs:
-        with amended_locale(LC_ALL=lang):
+        with interim_locale(LC_ALL=lang):
             try:
                 open(__file__ + '/')
             except EnvironmentError:
@@ -260,10 +260,10 @@ __all__ = [
     'assert_regexp_matches',
     'assert_true',
     # misc
-    'amended_locale',
     'assert_raises_str',
     'assert_repr',
     'interim',
+    'interim_locale',
     'locale_encoding',
     'skip_unless_c_messages',
     'skip_unless_command_exists',
