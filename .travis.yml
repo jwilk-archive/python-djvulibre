@@ -10,6 +10,10 @@ addons:
     packages:
     - djvulibre-bin
     - libdjvulibre-dev
+cache:
+  directories:
+  - $HOME/.cache/pip
+  - $HOME/.ccache
 install:
 - pip install cython
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx'
