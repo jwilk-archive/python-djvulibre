@@ -5,9 +5,11 @@ python:
 - "3.2"
 - "3.3"
 - "3.4"
-before_install:
-- sudo apt-get update
-- sudo apt-get install -y libdjvulibre-dev djvulibre-bin
+addons:
+  apt:
+    packages:
+    - djvulibre-bin
+    - libdjvulibre-dev
 install:
 - pip install cython
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx'
