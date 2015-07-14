@@ -15,9 +15,11 @@ cache:
   - $HOME/.cache/pip
   - $HOME/.ccache
 install:
+- export PATH="/usr/lib/ccache:$PATH"
 - pip install cython
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx'
 script:
+- export PATH="/usr/lib/ccache:$PATH"
 - python setup.py build_ext --inplace
 - nosetests --verbose
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/source/ tmp'
