@@ -1,4 +1,4 @@
-python-djvulibre (0.4) UNRELEASED; urgency=low
+python-djvulibre (0.4) unstable; urgency=low
 
   * Drop support for Python 2.5.
   * Add the lvalue attribute to expressions.
@@ -14,7 +14,7 @@ python-djvulibre (0.4) UNRELEASED; urgency=low
     well-known exception (IOError).
   * Improve the test suite.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Wed, 22 Jul 2015 20:39:47 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 22 Jul 2015 21:05:11 +0200
 
 python-djvulibre (0.3.10) unstable; urgency=low
 
