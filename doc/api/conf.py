@@ -33,7 +33,6 @@ finally:
     _setup_file.close()
 del _setup, _setup_file
 
-
 pygments_style = 'sphinx'
 
 html_theme = 'default'
