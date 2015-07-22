@@ -3,7 +3,7 @@ include MANIFEST.in
 include doc/*.txt
 include doc/COPYING
 include doc/changelog
-include doc/api/*.txt
+include doc/api/*.rst
 include doc/api/conf.py
 
 include examples/*
