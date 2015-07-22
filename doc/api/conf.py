@@ -35,7 +35,7 @@ del _setup, _setup_file
 
 pygments_style = 'sphinx'
 
-html_theme = 'default'
+html_theme = 'haiku'
 html_use_modindex = True
 html_use_index = False
 
