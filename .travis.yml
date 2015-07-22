@@ -22,6 +22,6 @@ script:
 - export PATH="/usr/lib/ccache:$PATH"
 - python setup.py build_ext --inplace
 - nosetests --verbose
-- '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/source/ tmp'
+- '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp'
 
 # vim:ts=2 sts=2 sw=2 et
