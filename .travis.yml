@@ -15,6 +15,7 @@ cache:
   - $HOME/.cache/pip
   - $HOME/.ccache
 install:
+- pip install --upgrade pip
 - export PATH="/usr/lib/ccache:$PATH"
 - pip install --build build-cython cython
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx'
