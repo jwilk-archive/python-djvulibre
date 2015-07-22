@@ -101,7 +101,7 @@ cdef object write_unraisable_exception(object cause):
         'Unhandled exception ({obj!r})\n{msg}\n'.format(obj=cause, msg=message)
     )
 
-cdef void myio_set(stdin, stdout):
+cdef void myio_set(object stdin, object stdout, int escape_unicode=True):
     global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
     global _backup_io_7bit, _backup_io_puts, _backup_io_getc, _backup_io_ungetc
     global io_7bit, io_puts, io_getc, io_ungetc
@@ -138,7 +138,7 @@ cdef void myio_set(stdin, stdout):
             pass  # TODO
     else:
         io_puts = _myio_puts
-    io_7bit = 1
+    io_7bit = escape_unicode
     _myio_buffer = []
 
 cdef void myio_reset():
@@ -203,7 +203,7 @@ cdef class _WrappedCExpr:
     cdef cexpr_t cexpr(self):
         return cvar_ptr(self.cvar)[0]
 
-    cdef object print_into(self, object stdout, object width):
+    cdef object print_into(self, object stdout, object width, int escape_unicode):
         cdef cexpr_t cexpr
         if width is None:
             pass
@@ -212,7 +212,7 @@ cdef class _WrappedCExpr:
         elif width <= 0:
             raise ValueError('width <= 0')
         cexpr = self.cexpr()
-        myio_set(None, stdout)
+        myio_set(None, stdout, escape_unicode)
         try:
             if width is None:
                 cexpr_print(cexpr)
@@ -221,10 +221,10 @@ cdef class _WrappedCExpr:
         finally:
             myio_reset()
 
-    cdef object as_string(self, object width):
+    cdef object as_string(self, object width, int escape_unicode):
         stdout = StringIO()
         try:
-            self.print_into(stdout, width)
+            self.print_into(stdout, width, escape_unicode)
             return stdout.getvalue()
         finally:
             stdout.close()
@@ -240,10 +240,10 @@ cdef _WrappedCExpr wexpr(cexpr_t cexpr):
 
 cdef class _MissingCExpr(_WrappedCExpr):
 
-    cdef object print_into(self, object stdout, object width):
+    cdef object print_into(self, object stdout, object width, int escape_unicode):
         raise NotImplementedError
 
-    cdef object as_string(self, object width):
+    cdef object as_string(self, object width, int escape_unicode):
         raise NotImplementedError
 
 cdef _MissingCExpr wexpr_missing():
@@ -432,21 +432,21 @@ cdef class BaseExpression:
     def __cinit__(self, *args, **kwargs):
         self.wexpr = wexpr_missing()
 
-    def print_into(self, stdout, width=None):
+    def print_into(self, stdout, width=None, escape_unicode=True):
         '''
-        expr.print_into(file[, width]) -> None
+        expr.print_into(file, width=None, escape_unicode=True) -> None
 
         Print the expression into the file.
         '''
-        self.wexpr.print_into(stdout, width)
+        self.wexpr.print_into(stdout, width, escape_unicode)
 
-    def as_string(self, width=None):
+    def as_string(self, width=None, escape_unicode=True):
         '''
-        expr.as_string([width]) -> a string
+        expr.as_string(width=None, escape_unicode=True) -> a string
 
         Return a string representation of the expression.
         '''
-        return self.wexpr.as_string(width)
+        return self.wexpr.as_string(width, escape_unicode)
 
     def __str__(self):
         return self.as_string()

@@ -13,6 +13,7 @@
 
 import collections
 import copy
+import io
 import os
 import re
 import sys
@@ -483,7 +484,7 @@ AttributeError: 'int' object has no attribute 'read'
 class test_expression_writer():
 
     expr = Expression([Symbol('eggs'), Symbol('ham')])
-    repr = '(eggs ham)'
+    repr = urepr = '(eggs ham)'
 
     def test_bad_io(self):
         stderr = StringIO()
@@ -505,12 +506,27 @@ AttributeError: 'int' object has no attribute 'write'
         expected_stderr *= len(stderr) // len(expected_stderr)
         assert_multi_line_equal(stderr, expected_stderr)
 
-    def test_stringio(self):
+    def test_stringio_7(self):
         fp = StringIO()
         self.expr.print_into(fp)
         assert_equal(fp.getvalue(), self.repr)
 
-    def test_fileio_text(self):
+    def test_stringio_8(self):
+        fp = StringIO()
+        self.expr.print_into(fp, escape_unicode=False)
+        assert_equal(fp.getvalue(), self.urepr)
+
+    def test_bytesio_7(self):
+        fp = io.BytesIO()
+        self.expr.print_into(fp)
+        assert_equal(fp.getvalue(), b(self.repr))
+
+    def test_bytesio_8(self):
+        fp = io.BytesIO()
+        self.expr.print_into(fp, escape_unicode=False)
+        assert_equal(fp.getvalue(), b(self.urepr))
+
+    def test_fileio_text_7(self):
         fp = tempfile.TemporaryFile(mode='w+t')
         if not py3k and os.name == 'posix':
             assert_equal(type(fp), file)
@@ -518,7 +534,18 @@ AttributeError: 'int' object has no attribute 'write'
         fp.seek(0)
         assert_equal(fp.read(), self.repr)
 
-    def test_fileio_binary(self):
+    def test_fileio_text_8(self):
+        if py3k:
+            fp = tempfile.TemporaryFile(mode='w+t', encoding='UTF-8')
+        else:
+            fp = tempfile.TemporaryFile(mode='w+t')
+        if not py3k and os.name == 'posix':
+            assert_equal(type(fp), file)
+        self.expr.print_into(fp, escape_unicode=False)
+        fp.seek(0)
+        assert_equal(fp.read(), self.urepr)
+
+    def test_fileio_binary_7(self):
         fp = tempfile.TemporaryFile(mode='w+b')
         if not py3k and os.name == 'posix':
             assert_equal(type(fp), file)
@@ -526,9 +553,26 @@ AttributeError: 'int' object has no attribute 'write'
         fp.seek(0)
         assert_equal(fp.read(), b(self.repr))
 
+    def test_fileio_binary_8(self):
+        fp = tempfile.TemporaryFile(mode='w+b')
+        if not py3k and os.name == 'posix':
+            assert_equal(type(fp), file)
+        self.expr.print_into(fp, escape_unicode=False)
+        fp.seek(0)
+        assert_equal(fp.read(), b(self.urepr))
+
+    def test_as_string_7(self):
+        s = self.expr.as_string()
+        assert_equal(s, self.repr)
+
+    def test_as_string_8(self):
+        s = self.expr.as_string(escape_unicode=False)
+        assert_equal(s, self.urepr)
+
 class test_expression_writer_nonascii(test_expression_writer):
 
     expr = Expression(u('żółw'))
     repr = r'"\305\274\303\263\305\202w"'
+    urepr = r'"żółw"'
 
 # vim:ts=4 sts=4 sw=4 et

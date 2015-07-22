@@ -1,4 +1,4 @@
-# Copyright © 2007-2009 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007-2015 Jakub Wilk <jwilk@jwilk.net>
 #
 # This package is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@ cdef extern from 'libdjvu/miniexp.h':
 cdef class _WrappedCExpr:
     cdef cvar_t* cvar
     cdef cexpr_t cexpr(self)
-    cdef object print_into(self, object, object)
-    cdef object as_string(self, object)
+    cdef object print_into(self, object, object, int)
+    cdef object as_string(self, object, int)
 
 cdef object public_c2py(cexpr_t)
 cdef _WrappedCExpr public_py2c(object)

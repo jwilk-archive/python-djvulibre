@@ -6,13 +6,15 @@ python-djvulibre (0.4) UNRELEASED; urgency=low
     lists, rather than Python tuples.
   * Use the lvalue in __repr__().
   * Make Symbol objects comparable using “<” and other inequality operators.
+  * Make it possible to disable octal-escaping of non-ASCII Unicode characters
+    when printing expressions into a file.
   * Stop using sphinx.ext.intersphinx.
     Making it work offline and consistently across different Python versions
     is too much of a hassle, and it was used only to cross-reference one
     well-known exception (IOError).
   * Improve the test suite.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Fri, 03 Jul 2015 19:53:49 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 22 Jul 2015 20:39:47 +0200
 
 python-djvulibre (0.3.10) unstable; urgency=low
 

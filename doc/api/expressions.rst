@@ -53,11 +53,11 @@ S-expressions
          SymbolExpression
          :parts: 1
 
-   .. method:: as_string([width])
+   .. method:: as_string(width=None, escape_unicode=True)
 
       Return a string representation of the expression.
 
-   .. method:: print_into(file[, width])
+   .. method:: print_into(file, width=None, escape_unicode=True)
 
       Print the expression into the file.
 
