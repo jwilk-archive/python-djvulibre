@@ -13,7 +13,7 @@ extensions = [
 ]
 
 templates_path = ['templates']
-source_suffix = '.txt'
+source_suffix = '.rst'
 source_encoding = 'UTF-8'
 master_doc = 'index'
 

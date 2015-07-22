@@ -273,4 +273,4 @@ Document pages
 
       :raise NotAvailable: when no thumbnail is available.
 
-.. vim:ts=3 sts=3 sw=3 et ft=rst
+.. vim:ts=3 sts=3 sw=3 et

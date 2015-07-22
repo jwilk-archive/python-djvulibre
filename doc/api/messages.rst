@@ -199,4 +199,4 @@ Messages
 
       :return: a :class:`JobException` subclass indicating the current job status.
 
-.. vim:ts=3 sts=3 sw=3 et ft=rst
+.. vim:ts=3 sts=3 sw=3 et
