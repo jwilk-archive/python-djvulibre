@@ -40,8 +40,6 @@ html_theme = 'default'
 html_use_modindex = True
 html_use_index = False
 
-intersphinx_mapping = {'https://docs.python.org/': None}
-
 rst_epilog = '''
 .. |djvu3ref| replace:: Lizardtech DjVu Reference
 .. _djvu3ref: http://djvu.org/docs/DjVu3Spec.djvu
