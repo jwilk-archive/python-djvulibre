@@ -25,5 +25,7 @@ script:
 - python setup.py build_ext --inplace
 - nosetests --verbose
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp'
+- python setup.py sdist
+- '! tar -tvf dist/*.tar.gz | grep -F /djvu/config.pxi'
 
 # vim:ts=2 sts=2 sw=2 et
