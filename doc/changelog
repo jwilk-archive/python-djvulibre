@@ -1,10 +1,10 @@
-python-djvulibre (0.4.1) UNRELEASED; urgency=low
+python-djvulibre (0.4.1) unstable; urgency=low
 
   * Exclude djvu/config.pxi from the source tarball.
     Thanks to Daniel Stender for the bug report.
     https://bitbucket.org/jwilk/python-djvulibre/issues/4
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sun, 26 Jul 2015 17:27:16 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 27 Jul 2015 10:28:21 +0200
 
 python-djvulibre (0.4) unstable; urgency=low
 
