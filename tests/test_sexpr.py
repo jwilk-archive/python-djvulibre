@@ -405,11 +405,6 @@ class test_list_expressions():
             x = Expression(lst)
             assert_pickle_equal(x)
 
-def strip_line_numbers_from_traceback(s):
-    s = re.sub('(?<=[.]c):[0-9]+(?=[)])', '', s)
-    s = re.sub(', line [0-9]+(?=, )', '', s)
-    return s
-
 class test_expression_parser():
 
     def test_badstring(self):
