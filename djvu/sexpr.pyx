@@ -89,7 +89,6 @@ cdef object _myio_stdin
 cdef object _myio_stdout
 cdef int _myio_stdout_binary
 cdef object _myio_buffer
-_myio_buffer = []
 cdef int _backup_io_7bit
 cdef int (*_backup_io_puts)(char *s)
 cdef int (*_backup_io_getc)()
