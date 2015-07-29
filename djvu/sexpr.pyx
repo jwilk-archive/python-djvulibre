@@ -170,12 +170,8 @@ cdef int _myio_getc():
     cdef int result
     if _myio_buffer:
         return _myio_buffer.pop()
-    else:
-        try:
-            s = _myio_stdin.read(1)
-        except:
-            _myio_exc = sys.exc_info()
-            return EOF
+    try:
+        s = _myio_stdin.read(1)
         if s:
             if is_unicode(s):
                 s = s.encode('UTF-8')
@@ -186,6 +182,9 @@ cdef int _myio_getc():
             return _myio_buffer.pop()
         else:
             return EOF
+    except:
+        _myio_exc = sys.exc_info()
+        return EOF
 
 cdef int _myio_ungetc(int c):
     global _myio_buffer
