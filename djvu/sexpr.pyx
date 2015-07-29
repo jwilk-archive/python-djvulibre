@@ -99,39 +99,20 @@ cdef void myio_set(object stdin, object stdout, int escape_unicode=True):
     global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
     global _backup_io_7bit, _backup_io_puts, _backup_io_getc, _backup_io_ungetc
     global io_7bit, io_puts, io_getc, io_ungetc
-    cdef int opt_stdin, opt_stdout
     with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
     _backup_io_7bit = io_7bit
     _backup_io_puts = io_puts
     _backup_io_getc = io_getc
     _backup_io_ungetc = io_ungetc
     _myio_stdin = stdin
-    IF PY3K:
-        # TODO
-        opt_stdin = opt_stdout = 0
-    ELSE:
-        opt_stdin = is_file(stdin)
-        opt_stdout = is_file(stdout)
-    if opt_stdin:
-        IF not PY3K:
-            io_set_input(file_to_cfile(stdin))
-        ELSE:
-            pass  # TODO
-    else:
-        io_getc = _myio_getc
-        io_ungetc = _myio_ungetc
+    io_getc = _myio_getc
+    io_ungetc = _myio_ungetc
     _myio_stdout = stdout
     IF PY3K:
         _myio_stdout_binary = not hasattr(stdout, 'encoding')
     ELSE:
         _myio_stdout_binary = 1
-    if opt_stdout:
-        IF not PY3K:
-            io_set_output(file_to_cfile(stdout))
-        ELSE:
-            pass  # TODO
-    else:
-        io_puts = _myio_puts
+    io_puts = _myio_puts
     io_7bit = escape_unicode
     _myio_buffer = []
     _myio_exc = None
