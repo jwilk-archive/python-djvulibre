@@ -16,7 +16,6 @@ import copy
 import io
 import os
 import re
-import sys
 import tempfile
 
 import pickle
@@ -420,23 +419,8 @@ class test_expression_parser():
         assert_is(getattr(Expression, 'from_file', None), None)
 
     def test_bad_io(self):
-        stderr = StringIO()
-        with interim(sys, stderr=stderr):
-            with assert_raises(ExpressionSyntaxError):
-                Expression.from_stream(42)
-        stderr = strip_line_numbers_from_traceback(stderr.getvalue())
-        stderr = stderr.replace(
-            '"sexpr.pyx"',  # Cython < 0.21
-            '"djvu/sexpr.pyx"'  # Cython ≥ 0.21
-        )
-        stderr = stderr.replace('\n    s = _myio_stdin.read(1)\n', '\n')
-        assert_multi_line_equal(stderr, '''\
-Unhandled exception (42)
-Traceback (most recent call last):
-  File "djvu/sexpr.pyx", in djvu.sexpr._myio_getc (djvu/sexpr.c)
-AttributeError: 'int' object has no attribute 'read'
-
-''')
+        with assert_raises_str(AttributeError, "'int' object has no attribute 'read'"):
+            Expression.from_stream(42)
 
     def test_stringio(self):
         fp = StringIO('(eggs) (ham)')
@@ -487,24 +471,8 @@ class test_expression_writer():
     repr = urepr = '(eggs ham)'
 
     def test_bad_io(self):
-        stderr = StringIO()
-        with interim(sys, stderr=stderr):
+        with assert_raises_str(AttributeError, "'int' object has no attribute 'write'"):
             self.expr.print_into(42)
-        stderr = strip_line_numbers_from_traceback(stderr.getvalue())
-        stderr = stderr.replace(
-            '"sexpr.pyx"',  # Cython < 0.21
-            '"djvu/sexpr.pyx"'  # Cython ≥ 0.21
-        )
-        stderr = stderr.replace('\n    _myio_stdout.write(s)\n', '\n')
-        expected_stderr = '''\
-Unhandled exception (42)
-Traceback (most recent call last):
-  File "djvu/sexpr.pyx", in djvu.sexpr._myio_puts (djvu/sexpr.c)
-AttributeError: 'int' object has no attribute 'write'
-
-'''
-        expected_stderr *= len(stderr) // len(expected_stderr)
-        assert_multi_line_equal(stderr, expected_stderr)
 
     def test_stringio_7(self):
         fp = StringIO()

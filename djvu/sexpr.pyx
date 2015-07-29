@@ -89,16 +89,11 @@ cdef object _myio_stdin
 cdef object _myio_stdout
 cdef int _myio_stdout_binary
 cdef object _myio_buffer
+cdef object _myio_exc
 cdef int _backup_io_7bit
 cdef int (*_backup_io_puts)(char *s)
 cdef int (*_backup_io_getc)()
 cdef int (*_backup_io_ungetc)(int c)
-
-cdef object write_unraisable_exception(object cause):
-    message = format_exc()
-    sys.stderr.write(
-        'Unhandled exception ({obj!r})\n{msg}\n'.format(obj=cause, msg=message)
-    )
 
 cdef void myio_set(object stdin, object stdout, int escape_unicode=True):
     global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
@@ -139,9 +134,10 @@ cdef void myio_set(object stdin, object stdout, int escape_unicode=True):
         io_puts = _myio_puts
     io_7bit = escape_unicode
     _myio_buffer = []
+    _myio_exc = None
 
-cdef void myio_reset():
-    global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
+cdef int myio_reset() except -1:
+    global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer, _myio_exc
     global io_7bit, io_puts, io_getc, io_ungetc
     _myio_stdin = None
     _myio_stdout = None
@@ -151,20 +147,26 @@ cdef void myio_reset():
     io_puts = _backup_io_puts
     io_getc = _backup_io_getc
     io_ungetc = _backup_io_ungetc
-    release_lock(_myio_lock)
+    try:
+        if _myio_exc is not None:
+            raise _myio_exc[0], _myio_exc[1], _myio_exc[2]
+    finally:
+        release_lock(_myio_lock)
+        _myio_exc = None
 
 cdef int _myio_puts(char *s):
+    global _myio_exc
     try:
         if _myio_stdout_binary:
             _myio_stdout.write(s)
         else:
             _myio_stdout.write(decode_utf8(s))
     except:
-        write_unraisable_exception(_myio_stdout)
+        _myio_exc = sys.exc_info()
         return EOF
 
 cdef int _myio_getc():
-    global _myio_buffer
+    global _myio_buffer, _myio_exc
     cdef int result
     if _myio_buffer:
         return _myio_buffer.pop()
@@ -172,7 +174,7 @@ cdef int _myio_getc():
         try:
             s = _myio_stdin.read(1)
         except:
-            write_unraisable_exception(_myio_stdin)
+            _myio_exc = sys.exc_info()
             return EOF
         if s:
             if is_unicode(s):
