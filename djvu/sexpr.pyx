@@ -172,16 +172,15 @@ cdef int _myio_getc():
         return _myio_buffer.pop()
     try:
         s = _myio_stdin.read(1)
-        if s:
-            if is_unicode(s):
-                s = s.encode('UTF-8')
-            IF PY3K:
-                _myio_buffer += reversed(s)
-            ELSE:
-                _myio_buffer += map(ord, reversed(s))
-            return _myio_buffer.pop()
-        else:
+        if not s:
             return EOF
+        if is_unicode(s):
+            s = s.encode('UTF-8')
+        IF PY3K:
+            _myio_buffer += reversed(s)
+        ELSE:
+            _myio_buffer += map(ord, reversed(s))
+        return _myio_buffer.pop()
     except:
         _myio_exc = sys.exc_info()
         return EOF
