@@ -424,6 +424,12 @@ class test_expression_parser():
                 Expression.from_stream(fp)
         assert_equal(ecm.exception.errno, errno.EIO)
 
+    if py3k:
+        def test_bad_unicode_io(self):
+            fp = StringIO(chr(0xD800))
+            with assert_raises(UnicodeEncodeError):
+                Expression.from_stream(fp)
+
     def test_stringio(self):
         fp = StringIO('(eggs) (ham)')
         def read():
