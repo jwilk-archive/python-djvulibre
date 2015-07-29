@@ -13,6 +13,7 @@
 
 import collections
 import copy
+import errno
 import io
 import os
 import re
@@ -422,6 +423,12 @@ class test_expression_parser():
         with assert_raises_str(AttributeError, "'int' object has no attribute 'read'"):
             Expression.from_stream(42)
 
+    def test_bad_file_io(self):
+        with open('/proc/self/mem') as fp:
+            with assert_raises(IOError) as ecm:
+                Expression.from_stream(fp)
+        assert_equal(ecm.exception.errno, errno.EIO)
+
     def test_stringio(self):
         fp = StringIO('(eggs) (ham)')
         def read():
@@ -473,6 +480,21 @@ class test_expression_writer():
     def test_bad_io(self):
         with assert_raises_str(AttributeError, "'int' object has no attribute 'write'"):
             self.expr.print_into(42)
+
+    def test_bad_file_io(self):
+        ecm = None
+        fp = open('/dev/full', 'w', buffering=2)
+        try:
+            with assert_raises(IOError) as ecm:
+                for i in range(1000):
+                    self.expr.print_into(fp)
+        finally:
+            try:
+                fp.close()
+            except IOError:
+                if ecm is None:
+                    raise
+        assert_equal(ecm.exception.errno, errno.ENOSPC)
 
     def test_stringio_7(self):
         fp = StringIO()
