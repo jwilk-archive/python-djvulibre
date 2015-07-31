@@ -508,6 +508,14 @@ class test_expression_writer():
                     raise
         assert_equal(ecm.exception.errno, errno.ENOSPC)
 
+    def test_reentrant(self):
+        class File(object):
+            def write(self, s):
+                expr.as_string()
+        expr = self.expr
+        fp = File()
+        expr.print_into(fp)
+
     def test_stringio_7(self):
         fp = StringIO()
         self.expr.print_into(fp)
