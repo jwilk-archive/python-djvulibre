@@ -643,7 +643,7 @@ cdef BaseExpression _c2py(cexpr_t cexpr):
     elif cexpr_is_str(cexpr):
         result = StringExpression(_wexpr)
     else:
-        raise ValueError
+        raise InvalidExpression
     return result
 
 cdef _WrappedCExpr _build_list_cexpr(object items):

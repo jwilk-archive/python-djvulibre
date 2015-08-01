@@ -78,6 +78,14 @@ class test_int_expressions():
         x = Expression(42)
         assert_pickle_equal(x)
 
+class test_float_expressions():
+
+    # TODO: float expressions are not implemented yet
+
+    def test_parse(self):
+        with assert_raises(ExpressionSyntaxError):
+            Expression.from_string('3.14')
+
 class test_symbols():
 
     def t(self, name):
