@@ -31,6 +31,9 @@ from cpython.mem cimport PyMem_Free as py_free
 
 from cpython.int cimport PyInt_Check as is_short_int
 from cpython.long cimport PyLong_Check as is_long_int
+cdef int is_int(object o):
+    return is_short_int(o) or is_long_int(o)
+
 from cpython.number cimport PyNumber_Check as is_number
 from cpython.float cimport PyFloat_Check as is_float
 
@@ -91,15 +94,14 @@ from cpython.pythread cimport (
     NOWAIT_LOCK,
 )
 
+# Python type checks:
+
 cdef extern from 'object.h':
     ctypedef struct PyTypeObject:
         char *tp_name
-    ctypedef struct PyObject:
-        PyTypeObject *ob_type
-    int _typecheck 'PyObject_TypeCheck'(object o, PyTypeObject* type)
 
-cdef int is_int(object o):
-    return is_short_int(o) or is_long_int(o)
+from cpython.ref cimport PyObject
+from cpython.object cimport PyObject_TypeCheck as _typecheck
 
 cdef object type(object o):
     return <object>((<PyObject*>o).ob_type)
