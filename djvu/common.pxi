@@ -79,16 +79,17 @@ cdef extern from 'Python.h':
 
     cdef object richcmp 'PyObject_RichCompare'(object, object, int)
 
-cdef extern from 'pythread.h':
-    ctypedef void* Lock 'PyThread_type_lock'
-    cdef Lock allocate_lock 'PyThread_allocate_lock'()
-    cdef void free_lock 'PyThread_free_lock'(Lock lock)
-    cdef int acquire_lock 'PyThread_acquire_lock'(Lock lock, int mode) nogil
-    cdef void release_lock 'PyThread_release_lock'(Lock lock)
+# Python threads:
 
-    ctypedef enum:
-        WAIT_LOCK
-        NOWAIT_LOCK
+from cpython.pythread cimport (
+    PyThread_type_lock as Lock,
+    PyThread_allocate_lock as allocate_lock,
+    PyThread_free_lock as free_lock,
+    PyThread_acquire_lock as acquire_lock,
+    PyThread_release_lock as release_lock,
+    WAIT_LOCK,
+    NOWAIT_LOCK,
+)
 
 cdef extern from 'object.h':
     ctypedef struct PyTypeObject:
