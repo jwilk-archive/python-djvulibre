@@ -63,6 +63,7 @@ import distutils.ccompiler
 import distutils.command.clean
 import distutils.command.build_ext
 import distutils.dep_util
+import distutils.version
 
 try:
     import sphinx.setup_command as sphinx_setup_command
@@ -132,6 +133,27 @@ def pkgconfig_build_flags(*packages, **kwargs):
             kwargs['extra_compile_args'].append(argument)
     return kwargs
 
+def pkgconfig_version(package):
+    V = distutils.version.LooseVersion
+    try:
+        pkgconfig = ipc.Popen(
+            ['pkg-config', '--modversion', package],
+            stdout=ipc.PIPE, stderr=ipc.PIPE
+        )
+    except OSError:
+        _, ex, _ = sys.exc_info()
+        distutils.log.warn('cannot execute pkg-config: ' + str(ex))
+        return V('0')
+    stdout, stderr = pkgconfig.communicate()
+    stdout = stdout.decode('ASCII', 'replace')
+    stderr = stderr.decode('ASCII', 'replace')
+    if pkgconfig.returncode:
+        distutils.log.warn('pkg-config failed: ' + stderr.strip())
+        return V('0')
+    version = stdout.strip()
+    return V(version)
+
+djvulibre_version = pkgconfig_version('ddjvuapi')
 py_version = get_version()
 
 # Work-around for <https://bugs.python.org/issue969718>:
@@ -148,6 +170,7 @@ class build_ext(distutils.command.build_ext.build_ext):
         new_config = [
             'DEF PY3K = {0}'.format(sys.version_info >= (3, 0)),
             'DEF PYTHON_DJVULIBRE_VERSION = "{0}"'.format(py_version),
+            'DEF HAVE_MINIEXP_IO_T = {0}'.format(djvulibre_version >= '3.5.26'),
             'DEF HAVE_LANGINFO_H = {0}'.format(os.name == 'posix' and not mingw32cross),
         ]
         try:
