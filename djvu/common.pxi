@@ -27,12 +27,13 @@ from libc.string cimport strlen
 from cpython.mem cimport PyMem_Malloc as py_malloc
 from cpython.mem cimport PyMem_Free as py_free
 
+from cpython.int cimport PyInt_Check as is_short_int
+from cpython.long cimport PyLong_Check as is_long_int
+from cpython.number cimport PyNumber_Check as is_number
+from cpython.float cimport PyFloat_Check as is_float
+
 cdef extern from 'Python.h':
 
-    int is_short_int 'PyInt_Check'(object)
-    int is_long_int 'PyLong_Check'(object)
-    int is_number 'PyNumber_Check'(object)
-    int is_float 'PyFloat_Check'(object)
     int is_slice 'PySlice_Check'(object)
 
     int is_unicode 'PyUnicode_Check'(object)
