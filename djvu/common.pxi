@@ -78,15 +78,19 @@ ELSE:
         FILE* file_to_cfile 'PyFile_AsFile'(object)
         int is_file 'PyFile_Check'(object)
 
+# Python lists:
+
+from cpython.list cimport PyList_Append as list_append
+
+# Python rich comparison:
+
+from cpython.object cimport PyObject_RichCompare as richcmp
+
 cdef extern from 'Python.h':
 
     int is_slice 'PySlice_Check'(object)
 
     int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
-
-    int list_append 'PyList_Append'(object, object) except -1
-
-    cdef object richcmp 'PyObject_RichCompare'(object, object, int)
 
 # Python threads:
 
