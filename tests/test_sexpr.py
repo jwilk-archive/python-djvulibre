@@ -84,7 +84,9 @@ class test_float_expressions():
 
     def test_parse(self):
         with assert_raises(ExpressionSyntaxError):
-            Expression.from_string('3.14')
+            x = Expression.from_string('3.14')
+            if isinstance(x.value, Symbol):
+                raise ExpressionSyntaxError
 
 class test_symbols():
 
