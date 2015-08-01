@@ -50,7 +50,8 @@ from cpython.unicode cimport PyUnicode_DecodeUTF8 as decode_utf8_ex
 from cpython.bytes cimport PyBytes_AsStringAndSize as bytes_to_charp
 from cpython.bytes cimport PyBytes_FromStringAndSize as charp_to_bytes
 IF PY3K:
-    from cpython.unicode cimport PyUnicode_FromString as charp_to_string
+    cdef extern from 'Python.h':
+        object charp_to_string 'PyUnicode_FromString'(char *v)
 ELSE:
     from cpython.string cimport PyString_FromString as charp_to_string
 
