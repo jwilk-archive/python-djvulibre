@@ -132,7 +132,7 @@ def pkgconfig_build_flags(*packages, **kwargs):
             kwargs['extra_compile_args'].append(argument)
     return kwargs
 
-__version__ = get_version()
+py_version = get_version()
 
 # Work-around for <https://bugs.python.org/issue969718>:
 try:
@@ -147,7 +147,7 @@ class build_ext(distutils.command.build_ext.build_ext):
     def run(self):
         new_config = [
             'DEF PY3K = {0}'.format(sys.version_info >= (3, 0)),
-            'DEF PYTHON_DJVULIBRE_VERSION = "{0}"'.format(__version__),
+            'DEF PYTHON_DJVULIBRE_VERSION = "{0}"'.format(py_version),
             'DEF HAVE_LANGINFO_H = {0}'.format(os.name == 'posix' and not mingw32cross),
         ]
         try:
@@ -230,7 +230,7 @@ compiler_flags = pkgconfig_build_flags('ddjvuapi')
 
 setup_params = dict(
     name='python-djvulibre',
-    version=__version__,
+    version=py_version,
     author='Jakub Wilk',
     author_email='jwilk@jwilk.net',
     license='GNU GPL 2',
