@@ -71,8 +71,6 @@ cdef extern from 'libdjvu/miniexp.h':
         int (*io_puts 'minilisp_puts')(char *s)
         int (*io_getc 'minilisp_getc')()
         int (*io_ungetc 'minilisp_ungetc')(int c)
-        void io_set_output 'minilisp_set_output'(FILE *f)
-        void io_set_input 'minilisp_set_input'(FILE *f)
         cexpr_t cexpr_read 'miniexp_read'()
         cexpr_t cexpr_print 'miniexp_prin'(cexpr_t cexpr)
         cexpr_t cexpr_printw 'miniexp_pprin'(cexpr_t cexpr, int width)
