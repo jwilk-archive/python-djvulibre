@@ -5,7 +5,7 @@ python-djvulibre (0.5) UNRELEASED; urgency=low
   * Improve error handling.
   * Make djvu.sexpr.__version__ a byte string in Python 2.X.
   * Make S-expression input/output reentrant.
-    (DjVuLibre >= 3.5.27 is required for this feature.)
+    (DjVuLibre >= 3.5.26 is required for this feature.)
 
  -- Jakub Wilk <jwilk@jwilk.net>  Sat, 01 Aug 2015 23:08:21 +0200
 
