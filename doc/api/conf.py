@@ -19,7 +19,7 @@ master_doc = 'index'
 
 import setup as _setup
 project = _setup.setup_params['name']
-version = release = _setup.__version__
+version = release = _setup.py_version
 _setup_file = codecs.open(
     os.path.splitext(_setup.__file__)[0] + '.py',
     'r', encoding='UTF-8'
