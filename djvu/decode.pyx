@@ -197,10 +197,10 @@ cdef extern from 'libdjvu/ddjvuapi.h':
     cexpr_t* ddjvu_anno_get_metadata_keys(cexpr_t annotations) nogil
     char* ddjvu_anno_get_metadata(cexpr_t annotations, cexpr_t key) nogil
 
+from posix.unistd cimport dup
+from libc.stdio cimport fclose
 cdef extern from 'unistd.h':
-    int dup(int)
     FILE *fdopen(int, char*)
-    int fclose(FILE *)
 
 IF HAVE_LANGINFO_H:
     cdef extern from 'langinfo.h':
