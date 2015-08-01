@@ -91,7 +91,7 @@ def get_version():
 
 PKG_CONFIG_FLAG_MAP = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
-def pkg_config(*packages, **kwargs):
+def pkgconfig_build_flags(*packages, **kwargs):
     fallback = dict(
         libraries=['djvulibre'],
     )
@@ -223,7 +223,7 @@ if sphinx_setup_command:
 else:
     build_sphinx = None
 
-compiler_flags = pkg_config('ddjvuapi')
+compiler_flags = pkgconfig_build_flags('ddjvuapi')
 
 setup_params = dict(
     name='python-djvulibre',
