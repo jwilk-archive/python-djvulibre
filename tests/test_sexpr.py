@@ -26,6 +26,7 @@ except ImportError:
     cpickle = None
 
 from djvu.sexpr import *
+from djvu.sexpr import __version__
 
 from common import *
 
@@ -575,5 +576,8 @@ class test_expression_writer_nonascii(test_expression_writer):
     expr = Expression(u('żółw'))
     repr = r'"\305\274\303\263\305\202w"'
     urepr = r'"żółw"'
+
+def test_version():
+    assert_is_instance(__version__, str)
 
 # vim:ts=4 sts=4 sw=4 et

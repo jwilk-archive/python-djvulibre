@@ -3,6 +3,7 @@ python-djvulibre (0.5) UNRELEASED; urgency=low
   * Make print_into() raise exceptions properly instead of just printing them
     on stderr.
   * Improve error handling.
+  * Make djvu.sexpr.__version__ a byte string in Python 2.X.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Sat, 01 Aug 2015 16:46:34 +0200
 
