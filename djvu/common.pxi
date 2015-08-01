@@ -24,10 +24,10 @@ from libc.string cimport strlen
 
 # Python library
 
-cdef extern from 'Python.h':
+from cpython.mem cimport PyMem_Malloc as py_malloc
+from cpython.mem cimport PyMem_Free as py_free
 
-    void* py_malloc 'PyMem_Malloc'(size_t)
-    void py_free 'PyMem_Free'(void*)
+cdef extern from 'Python.h':
 
     int is_short_int 'PyInt_Check'(object)
     int is_long_int 'PyLong_Check'(object)
