@@ -52,6 +52,12 @@ IF PY3K:
 ELSE:
     from cpython.string cimport PyString_FromString as charp_to_string
 
+cdef object decode_utf8(char* s):
+    return decode_utf8_ex(s, strlen(s), NULL)
+
+cdef extern from 'Python.h':
+    int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
+
 # Python booleans:
 
 from cpython.bool cimport PyBool_FromLong as bool
@@ -84,8 +90,6 @@ from cpython.object cimport PyObject_RichCompare as richcmp
 cdef extern from 'Python.h':
 
     int is_slice 'PySlice_Check'(object)
-
-    int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
 
 # Python threads:
 
@@ -124,9 +128,6 @@ cdef int typecheck(object o, object type):
 
 cdef void raise_instantiation_error(object cls) except *:
     raise TypeError, 'cannot create \'{tp}\' instances'.format(tp=get_type_name(cls))
-
-cdef object decode_utf8(char* s):
-    return decode_utf8_ex(s, strlen(s), NULL)
 
 cdef extern from 'pyerrors.h':
     ctypedef class __builtin__.Exception [object PyBaseExceptionObject]:
