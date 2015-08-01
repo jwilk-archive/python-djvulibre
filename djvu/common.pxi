@@ -11,11 +11,6 @@
 
 include 'config.pxi'
 
-# python-distutils preprocessor macros
-
-cdef extern from *:
-    char* PYTHON_DJVULIBRE_VERSION
-
 # C library
 
 from libc.stdlib cimport free
