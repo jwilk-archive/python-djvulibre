@@ -28,6 +28,7 @@ python-djvulibre (0.4) unstable; urgency=low
     Making it work offline and consistently across different Python versions
     is too much of a hassle, and it was used only to cross-reference one
     well-known exception (IOError).
+  * Make djvu.decode.__version__ a byte string in Python 2.X.
   * Improve the test suite.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Wed, 22 Jul 2015 21:05:11 +0200
