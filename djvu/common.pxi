@@ -32,22 +32,25 @@ from cpython.long cimport PyLong_Check as is_long_int
 from cpython.number cimport PyNumber_Check as is_number
 from cpython.float cimport PyFloat_Check as is_float
 
+# Python strings:
+
+from cpython.unicode cimport PyUnicode_Check as is_unicode
+from cpython.string cimport PyString_Check as is_string
+from cpython.bytes cimport PyBytes_Check as is_bytes
+
+from cpython.unicode cimport PyUnicode_AsUTF8String as encode_utf8
+from cpython.unicode cimport PyUnicode_DecodeUTF8 as decode_utf8_ex
+from cpython.bytes cimport PyBytes_AsStringAndSize as bytes_to_charp
+from cpython.bytes cimport PyBytes_FromStringAndSize as charp_to_bytes
+IF PY3K:
+    from cpython.unicode cimport PyUnicode_FromString as charp_to_string
+ELSE:
+    from cpython.string cimport PyString_FromString as charp_to_string
+
 cdef extern from 'Python.h':
 
     int is_slice 'PySlice_Check'(object)
 
-    int is_unicode 'PyUnicode_Check'(object)
-    int is_string 'PyString_Check'(object)
-    int is_bytes 'PyBytes_Check'(object)
-
-    object encode_utf8 'PyUnicode_AsUTF8String'(object)
-    object decode_utf8_ex 'PyUnicode_DecodeUTF8'(char *, Py_ssize_t, char *)
-    int bytes_to_charp 'PyBytes_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
-    object charp_to_bytes 'PyBytes_FromStringAndSize'(char *, Py_ssize_t)
-    IF PY3K:
-        object charp_to_string 'PyUnicode_FromString'(char *)
-    ELSE:
-        object charp_to_string 'PyString_FromString'(char *)
     int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
 
     IF PY3K:
