@@ -59,13 +59,15 @@ ELSE:
 
 from cpython.bool cimport PyBool_FromLong as bool
 
+# Python pointer->integer conversion:
+
+from cpython.long cimport PyLong_FromVoidPtr as voidp_to_int
+
 cdef extern from 'Python.h':
 
     int is_slice 'PySlice_Check'(object)
 
     int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
-
-    object voidp_to_int 'PyLong_FromVoidPtr'(void *)
 
     IF PY3K:
         object posix_error 'PyErr_SetFromErrno'(object)
