@@ -11,12 +11,12 @@
 
 include 'config.pxi'
 
-# C library
+# C library:
 
 from libc.stdlib cimport free
 from libc.string cimport strlen
 
-# Python library
+# Python memory handling:
 
 from cpython.mem cimport PyMem_Malloc as py_malloc
 from cpython.mem cimport PyMem_Free as py_free
@@ -125,6 +125,7 @@ ELSE:
 cdef int typecheck(object o, object type):
     return _typecheck(o, <PyTypeObject*> type)
 
+# Python exceptions:
 
 cdef void raise_instantiation_error(object cls) except *:
     raise TypeError, 'cannot create \'{tp}\' instances'.format(tp=get_type_name(cls))
