@@ -27,10 +27,17 @@ from libc.string cimport strlen
 from cpython.mem cimport PyMem_Malloc as py_malloc
 from cpython.mem cimport PyMem_Free as py_free
 
+# Python numbers:
+
 from cpython.int cimport PyInt_Check as is_short_int
 from cpython.long cimport PyLong_Check as is_long_int
 from cpython.number cimport PyNumber_Check as is_number
 from cpython.float cimport PyFloat_Check as is_float
+
+IF PY3K:
+    from cpython.number cimport PyNumber_Long as int
+ELSE:
+    from cpython.number cimport PyNumber_Int as int
 
 # Python strings:
 
@@ -53,10 +60,6 @@ cdef extern from 'Python.h':
 
     int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
 
-    IF PY3K:
-        object int 'PyNumber_Long'(object)
-    ELSE:
-        object int 'PyNumber_Int'(object)
     object bool 'PyBool_FromLong'(long)
     object voidp_to_int 'PyLong_FromVoidPtr'(void *)
 
