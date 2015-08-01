@@ -516,7 +516,7 @@ cdef class Page:
             try:
                 return decode_utf8(s)
             finally:
-                libc_free(s)
+                free(s)
 
     def decode(self, wait=1):
         '''
@@ -897,7 +897,7 @@ cdef class File:
             try:
                 return decode_utf8(s)
             finally:
-                libc_free(s)
+                free(s)
 
 cdef object pages_to_opt(object pages, int sort_uniq):
     if sort_uniq:
@@ -3317,7 +3317,7 @@ cdef class Hyperlinks:
                 list_append(self._sexpr, wrap_sexpr(annotations._document, current[0]))
                 current = current + 1
         finally:
-            libc_free(all)
+            free(all)
 
     def __len__(self):
         return len(self._sexpr)
@@ -3349,7 +3349,7 @@ cdef class Metadata:
                 current = current + 1
             self._keys = frozenset(keys)
         finally:
-            libc_free(all)
+            free(all)
 
     def __len__(self):
         return len(self._keys)

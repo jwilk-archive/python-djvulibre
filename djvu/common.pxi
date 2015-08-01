@@ -18,17 +18,9 @@ cdef extern from *:
 
 # C library
 
-ctypedef int size_t
-
-cdef extern from 'stdio.h':
-    ctypedef struct FILE
-
-cdef extern from 'stdlib.h':
-    void libc_free 'free'(void* ptr) nogil
-
-cdef extern from 'string.h':
-    int strcmp(char *s1, char *s2) nogil
-    size_t strlen(char *s) nogil
+from libc.stdio cimport FILE
+from libc.stdlib cimport free
+from libc.string cimport strlen
 
 # Python library
 
