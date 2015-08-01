@@ -23,34 +23,42 @@ from cpython.mem cimport PyMem_Free as py_free
 
 # Python numbers:
 
-from cpython.int cimport PyInt_Check as is_short_int
-from cpython.long cimport PyLong_Check as is_long_int
+from cpython cimport (
+    PyInt_Check as is_short_int,
+    PyLong_Check as is_long_int,
+)
 cdef int is_int(object o):
     return is_short_int(o) or is_long_int(o)
 
-from cpython.number cimport PyNumber_Check as is_number
-from cpython.float cimport PyFloat_Check as is_float
+from cpython cimport (
+    PyNumber_Check as is_number,
+    PyFloat_Check as is_float,
+)
 
 IF PY3K:
-    from cpython.number cimport PyNumber_Long as int
+    from cpython cimport PyNumber_Long as int
 ELSE:
-    from cpython.number cimport PyNumber_Int as int
+    from cpython cimport PyNumber_Int as int
 
 # Python strings:
 
-from cpython.unicode cimport PyUnicode_Check as is_unicode
-from cpython.string cimport PyString_Check as is_string
-from cpython.bytes cimport PyBytes_Check as is_bytes
+from cpython cimport (
+    PyUnicode_Check as is_unicode,
+    PyString_Check as is_string,
+    PyBytes_Check as is_bytes,
+)
 
-from cpython.unicode cimport PyUnicode_AsUTF8String as encode_utf8
-from cpython.unicode cimport PyUnicode_DecodeUTF8 as decode_utf8_ex
-from cpython.bytes cimport PyBytes_AsStringAndSize as bytes_to_charp
-from cpython.bytes cimport PyBytes_FromStringAndSize as charp_to_bytes
+from cpython cimport (
+    PyUnicode_AsUTF8String as encode_utf8,
+    PyUnicode_DecodeUTF8 as decode_utf8_ex,
+    PyBytes_AsStringAndSize as bytes_to_charp,
+    PyBytes_FromStringAndSize as charp_to_bytes,
+)
 IF PY3K:
     cdef extern from 'Python.h':
         object charp_to_string 'PyUnicode_FromString'(char *v)
 ELSE:
-    from cpython.string cimport PyString_FromString as charp_to_string
+    from cpython cimport PyString_FromString as charp_to_string
 
 cdef object decode_utf8(char* s):
     return decode_utf8_ex(s, strlen(s), NULL)
@@ -60,18 +68,20 @@ cdef extern from 'Python.h':
 
 # Python booleans:
 
-from cpython.bool cimport PyBool_FromLong as bool
+from cpython cimport PyBool_FromLong as bool
 
 # Python pointer->integer conversion:
 
-from cpython.long cimport PyLong_FromVoidPtr as voidp_to_int
+from cpython cimport PyLong_FromVoidPtr as voidp_to_int
 
 # Python files:
 
 from libc.stdio cimport FILE
 IF PY3K:
-    from cpython.exc cimport PyErr_SetFromErrno as posix_error
-    from cpython.object cimport PyObject_AsFileDescriptor as file_to_fd
+    from cpython cimport (
+        PyErr_SetFromErrno as posix_error,
+        PyObject_AsFileDescriptor as file_to_fd,
+    )
     cdef int is_file(object o):
         return not is_number(o) and file_to_fd(o) != -1
 ELSE:
@@ -81,11 +91,11 @@ ELSE:
 
 # Python lists:
 
-from cpython.list cimport PyList_Append as list_append
+from cpython cimport PyList_Append as list_append
 
 # Python rich comparison:
 
-from cpython.object cimport PyObject_RichCompare as richcmp
+from cpython cimport PyObject_RichCompare as richcmp
 
 cdef extern from 'Python.h':
 
@@ -93,7 +103,7 @@ cdef extern from 'Python.h':
 
 # Python threads:
 
-from cpython.pythread cimport (
+from cpython cimport (
     PyThread_type_lock as Lock,
     PyThread_allocate_lock as allocate_lock,
     PyThread_free_lock as free_lock,
@@ -109,8 +119,8 @@ cdef extern from 'object.h':
     ctypedef struct PyTypeObject:
         char *tp_name
 
-from cpython.ref cimport PyObject
-from cpython.object cimport PyObject_TypeCheck as _typecheck
+from cpython cimport PyObject
+from cpython cimport PyObject_TypeCheck as _typecheck
 
 cdef object type(object o):
     return <object>((<PyObject*>o).ob_type)
