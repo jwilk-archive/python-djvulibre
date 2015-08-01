@@ -23,6 +23,7 @@ install:
 - export PATH="$HOME/opt/djvulibre/bin/:$PATH"
 - export CPATH="$HOME/opt/djvulibre/include/"
 - export PKG_CONFIG_PATH="$HOME/opt/djvulibre/lib/pkgconfig/"
+- export LD_LIBRARY_PATH="$HOME/opt/djvulibre/lib/"
 - pip install --upgrade pip
 - pip install --build build-cython cython
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx'
