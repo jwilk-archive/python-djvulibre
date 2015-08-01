@@ -89,9 +89,12 @@ def get_version():
     finally:
         changelog.close()
 
-PKG_CONFIG_FLAG_MAP = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
-
 def pkgconfig_build_flags(*packages, **kwargs):
+    flag_map = {
+        '-I': 'include_dirs',
+        '-L': 'library_dirs',
+        '-l': 'libraries',
+    }
     fallback = dict(
         libraries=['djvulibre'],
     )
@@ -123,7 +126,7 @@ def pkgconfig_build_flags(*packages, **kwargs):
         key = argument[:2]
         try:
             value = argument[2:]
-            kwargs.setdefault(PKG_CONFIG_FLAG_MAP[key], []).append(value)
+            kwargs.setdefault(flag_map[key], []).append(value)
         except KeyError:
             kwargs['extra_link_args'].append(argument)
             kwargs['extra_compile_args'].append(argument)
