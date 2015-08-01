@@ -117,6 +117,8 @@ cdef class _ExpressionIO:
     cdef object buffer
     cdef object exc
 
+    _reentrant = HAVE_MINIEXP_IO_T
+
     def __init__(self, object stdin=None, object stdout=None, int escape_unicode=True):
         IF not HAVE_MINIEXP_IO_T:
             global io_7bit, io_puts, io_getc, io_ungetc

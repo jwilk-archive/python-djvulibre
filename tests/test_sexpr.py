@@ -27,6 +27,7 @@ except ImportError:
 
 from djvu.sexpr import *
 from djvu.sexpr import __version__
+from djvu.sexpr import _ExpressionIO
 
 from common import *
 
@@ -509,6 +510,8 @@ class test_expression_writer():
         assert_equal(ecm.exception.errno, errno.ENOSPC)
 
     def test_reentrant(self):
+        if not _ExpressionIO._reentrant:
+            raise SkipTest('this test requires DjVuLibre >= 3.5.26')
         class File(object):
             def write(self, s):
                 expr.as_string()
