@@ -37,19 +37,12 @@ cdef extern from 'Python.h':
 
     int is_unicode 'PyUnicode_Check'(object)
     int is_string 'PyString_Check'(object)
-    IF PY3K:
-        int is_bytes 'PyBytes_Check'(object)
-    ELSE:
-        int is_bytes 'PyString_Check'(object)
+    int is_bytes 'PyBytes_Check'(object)
 
     object encode_utf8 'PyUnicode_AsUTF8String'(object)
     object decode_utf8_ex 'PyUnicode_DecodeUTF8'(char *, Py_ssize_t, char *)
-    IF PY3K:
-        int bytes_to_charp 'PyBytes_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
-        object charp_to_bytes 'PyBytes_FromStringAndSize'(char *, Py_ssize_t)
-    ELSE:
-        int bytes_to_charp 'PyString_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
-        object charp_to_bytes 'PyString_FromStringAndSize'(char *, Py_ssize_t)
+    int bytes_to_charp 'PyBytes_AsStringAndSize'(object, char**, Py_ssize_t*) except -1
+    object charp_to_bytes 'PyBytes_FromStringAndSize'(char *, Py_ssize_t)
     IF PY3K:
         object charp_to_string 'PyUnicode_FromString'(char *)
     ELSE:
