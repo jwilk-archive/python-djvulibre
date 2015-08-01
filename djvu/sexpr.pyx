@@ -85,90 +85,100 @@ symbol_dict = weakref.WeakValueDictionary()
 
 cdef Lock _myio_lock
 _myio_lock = allocate_lock()
-cdef object _myio_stdin
-cdef object _myio_stdout
-cdef int _myio_stdout_binary
-cdef object _myio_buffer
-cdef object _myio_exc
-cdef int _backup_io_7bit
-cdef int (*_backup_io_puts)(char *s)
-cdef int (*_backup_io_getc)()
-cdef int (*_backup_io_ungetc)(int c)
 
-cdef void myio_set(object stdin, object stdout, int escape_unicode=True):
-    global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer
-    global _backup_io_7bit, _backup_io_puts, _backup_io_getc, _backup_io_ungetc
-    global io_7bit, io_puts, io_getc, io_ungetc
-    with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
-    _backup_io_7bit = io_7bit
-    _backup_io_puts = io_puts
-    _backup_io_getc = io_getc
-    _backup_io_ungetc = io_ungetc
-    _myio_stdin = stdin
-    io_getc = _myio_getc
-    io_ungetc = _myio_ungetc
-    _myio_stdout = stdout
-    IF PY3K:
-        _myio_stdout_binary = not hasattr(stdout, 'encoding')
-    ELSE:
-        _myio_stdout_binary = 1
-    io_puts = _myio_puts
-    io_7bit = escape_unicode
-    _myio_buffer = []
-    _myio_exc = None
+cdef class _ExpressionIO:
+    cdef int (*backup_io_puts)(char *s)
+    cdef int (*backup_io_getc)()
+    cdef int (*backup_io_ungetc)(int c)
+    cdef int backup_io_7bit
+    cdef object stdin
+    cdef object stdout
+    cdef int stdout_binary
+    cdef object buffer
+    cdef object exc
 
-cdef int myio_reset() except -1:
-    global _myio_stdin, _myio_stdout, _myio_stdout_binary, _myio_buffer, _myio_exc
-    global io_7bit, io_puts, io_getc, io_ungetc
-    _myio_stdin = None
-    _myio_stdout = None
-    _myio_stdout_binary = 0
-    _myio_buffer = None
-    io_7bit = _backup_io_7bit
-    io_puts = _backup_io_puts
-    io_getc = _backup_io_getc
-    io_ungetc = _backup_io_ungetc
-    try:
-        if _myio_exc is not None:
-            raise _myio_exc[0], _myio_exc[1], _myio_exc[2]
-    finally:
-        release_lock(_myio_lock)
-        _myio_exc = None
+    def __init__(self, object stdin=None, object stdout=None, int escape_unicode=True):
+        global io_7bit, io_puts, io_getc, io_ungetc
+        global _myio
+        with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
+        self.backup_io_7bit = io_7bit
+        self.backup_io_puts = io_puts
+        self.backup_io_getc = io_getc
+        self.backup_io_ungetc = io_ungetc
+        self.stdin = stdin
+        self.stdout = stdout
+        IF PY3K:
+            self.stdout_binary = not hasattr(stdout, 'encoding')
+        ELSE:
+            self.stdout_binary = 1
+        self.buffer = []
+        self.exc = None
+        io_getc = _myio_getc
+        io_ungetc = _myio_ungetc
+        io_puts = _myio_puts
+        io_7bit = escape_unicode
+        _myio = self
+
+    cdef close(self):
+        global io_7bit, io_puts, io_getc, io_ungetc
+        global _myio
+        _myio = None
+        self.stdin = None
+        self.stdout = None
+        self.buffer = None
+        io_7bit = self.backup_io_7bit
+        io_puts = self.backup_io_puts
+        io_getc = self.backup_io_getc
+        io_ungetc = self.backup_io_ungetc
+        try:
+            if self.exc is not None:
+                raise self.exc[0], self.exc[1], self.exc[2]
+        finally:
+            release_lock(_myio_lock)
+            self.exc = None
+
+    cdef cexpr_t read(self):
+        return cexpr_read()
+
+    cdef cexpr_t print_(self, cexpr_t cexpr):
+        return cexpr_print(cexpr)
+
+    cdef cexpr_t printw(self, cexpr_t cexpr, int width):
+        return cexpr_printw(cexpr, width)
+
+cdef _ExpressionIO _myio
 
 cdef int _myio_puts(char *s):
-    global _myio_exc
     try:
-        if _myio_stdout_binary:
-            _myio_stdout.write(s)
+        if _myio.stdout_binary:
+            _myio.stdout.write(s)
         else:
-            _myio_stdout.write(decode_utf8(s))
+            _myio.stdout.write(decode_utf8(s))
     except:
-        _myio_exc = sys.exc_info()
+        _myio.exc = sys.exc_info()
         return EOF
 
 cdef int _myio_getc():
-    global _myio_buffer, _myio_exc
     cdef int result
-    if _myio_buffer:
-        return _myio_buffer.pop()
+    if _myio.buffer:
+        return _myio.buffer.pop()
     try:
-        s = _myio_stdin.read(1)
+        s = _myio.stdin.read(1)
         if not s:
             return EOF
         if is_unicode(s):
             s = s.encode('UTF-8')
         IF PY3K:
-            _myio_buffer += reversed(s)
+            _myio.buffer += reversed(s)
         ELSE:
-            _myio_buffer += map(ord, reversed(s))
-        return _myio_buffer.pop()
+            _myio.buffer += map(ord, reversed(s))
+        return _myio.buffer.pop()
     except:
-        _myio_exc = sys.exc_info()
+        _myio.exc = sys.exc_info()
         return EOF
 
 cdef int _myio_ungetc(int c):
-    global _myio_buffer
-    _myio_buffer += (c,)
+    _myio.buffer += (c,)
 
 cdef object the_sentinel
 the_sentinel = object()
@@ -185,6 +195,7 @@ cdef class _WrappedCExpr:
 
     cdef object print_into(self, object stdout, object width, int escape_unicode):
         cdef cexpr_t cexpr
+        cdef _ExpressionIO xio
         if width is None:
             pass
         elif not is_int(width):
@@ -192,14 +203,14 @@ cdef class _WrappedCExpr:
         elif width <= 0:
             raise ValueError('width <= 0')
         cexpr = self.cexpr()
-        myio_set(None, stdout, escape_unicode)
+        xio = _ExpressionIO(stdout=stdout, escape_unicode=escape_unicode)
         try:
             if width is None:
-                cexpr_print(cexpr)
+                xio.print_(cexpr)
             else:
-                cexpr_printw(cexpr, width)
+                xio.printw(cexpr, width)
         finally:
-            myio_reset()
+            xio.close()
 
     cdef object as_string(self, object width, int escape_unicode):
         stdout = StringIO()
@@ -335,14 +346,15 @@ def _expression_from_stream(stdin):
 
     Read an expression from a stream.
     '''
+    cdef _ExpressionIO xio
     try:
-        myio_set(stdin, None)
+        xio = _ExpressionIO(stdin=stdin)
         try:
-            return _c2py(cexpr_read())
+            return _c2py(xio.read())
         except InvalidExpression:
             raise ExpressionSyntaxError
     finally:
-        myio_reset()
+        xio.close()
 
 def _expression_from_string(str):
     '''
