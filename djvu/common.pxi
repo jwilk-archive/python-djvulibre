@@ -97,8 +97,9 @@ from cpython cimport PyList_Append as list_append
 
 from cpython cimport PyObject_RichCompare as richcmp
 
-cdef extern from 'Python.h':
+# Python slices:
 
+cdef extern from 'Python.h':
     int is_slice 'PySlice_Check'(object)
 
 # Python threads:
