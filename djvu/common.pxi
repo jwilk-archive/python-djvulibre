@@ -55,13 +55,16 @@ IF PY3K:
 ELSE:
     from cpython.string cimport PyString_FromString as charp_to_string
 
+# Python booleans:
+
+from cpython.bool cimport PyBool_FromLong as bool
+
 cdef extern from 'Python.h':
 
     int is_slice 'PySlice_Check'(object)
 
     int buffer_to_writable_memory 'PyObject_AsWriteBuffer'(object, void **, Py_ssize_t *)
 
-    object bool 'PyBool_FromLong'(long)
     object voidp_to_int 'PyLong_FromVoidPtr'(void *)
 
     IF PY3K:
