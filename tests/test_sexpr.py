@@ -476,20 +476,19 @@ class test_expression_parser():
 
 class test_expression_writer():
 
-    expr = Expression([Symbol('eggs'), Symbol('ham')])
-    repr = urepr = '(eggs ham)'
-
     def test_bad_io(self):
+        expr = Expression(23)
         with assert_raises_str(AttributeError, "'int' object has no attribute 'write'"):
-            self.expr.print_into(42)
+            expr.print_into(42)
 
     def test_bad_file_io(self):
         ecm = None
         fp = open('/dev/full', 'w', buffering=2)
+        expr = Expression(23)
         try:
             with assert_raises(IOError) as ecm:
                 for i in range(1000):
-                    self.expr.print_into(fp)
+                    expr.print_into(fp)
         finally:
             try:
                 fp.close()
@@ -504,9 +503,14 @@ class test_expression_writer():
         class File(object):
             def write(self, s):
                 expr.as_string()
-        expr = self.expr
+        expr = Expression(23)
         fp = File()
         expr.print_into(fp)
+
+class test_expression_writer_ascii():
+
+    expr = Expression([Symbol('eggs'), Symbol('ham')])
+    repr = urepr = '(eggs ham)'
 
     def test_stringio_7(self):
         fp = StringIO()
@@ -572,7 +576,7 @@ class test_expression_writer():
         s = self.expr.as_string(escape_unicode=False)
         assert_equal(s, self.urepr)
 
-class test_expression_writer_nonascii(test_expression_writer):
+class test_expression_writer_nonascii(test_expression_writer_ascii):
 
     expr = Expression(u('żółw'))
     repr = r'"\305\274\303\263\305\202w"'
