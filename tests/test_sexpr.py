@@ -16,8 +16,6 @@ import codecs
 import copy
 import errno
 import io
-import os
-import re
 import tempfile
 
 import pickle
