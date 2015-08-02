@@ -462,6 +462,10 @@ class test_expression_parser_ascii():
         fp = StringIO(self.expr)
         self._test_fp(fp)
 
+    def test_bytesio(self):
+        fp = io.BytesIO(b(self.expr))
+        self._test_fp(fp)
+
     def test_file_io_text(self):
         with tempfile.TemporaryFile(mode='w+t') as fp:
             if not py3k:
