@@ -453,7 +453,7 @@ class test_expression_parser():
         with assert_raises(ExpressionSyntaxError):
             x = read()
 
-    def test_fileio_text(self):
+    def test_file_io_text(self):
         fp = tempfile.TemporaryFile(mode='w+t')
         def read():
             return Expression.from_stream(fp)
@@ -469,7 +469,7 @@ class test_expression_parser():
         with assert_raises(ExpressionSyntaxError):
             x = read()
 
-    def test_fileio_binary(self):
+    def test_file_io_binary(self):
         fp = tempfile.TemporaryFile(mode='w+b')
         def read():
             return Expression.from_stream(fp)
@@ -539,7 +539,7 @@ class test_expression_writer():
         self.expr.print_into(fp, escape_unicode=False)
         assert_equal(fp.getvalue(), b(self.urepr))
 
-    def test_fileio_text_7(self):
+    def test_file_io_text_7(self):
         fp = tempfile.TemporaryFile(mode='w+t')
         if not py3k and os.name == 'posix':
             assert_equal(type(fp), file)
@@ -547,7 +547,7 @@ class test_expression_writer():
         fp.seek(0)
         assert_equal(fp.read(), self.repr)
 
-    def test_fileio_text_8(self):
+    def test_file_io_text_8(self):
         if py3k:
             fp = tempfile.TemporaryFile(mode='w+t', encoding='UTF-8')
         else:
@@ -558,7 +558,7 @@ class test_expression_writer():
         fp.seek(0)
         assert_equal(fp.read(), self.urepr)
 
-    def test_fileio_binary_7(self):
+    def test_file_io_binary_7(self):
         fp = tempfile.TemporaryFile(mode='w+b')
         if not py3k and os.name == 'posix':
             assert_equal(type(fp), file)
@@ -566,7 +566,7 @@ class test_expression_writer():
         fp.seek(0)
         assert_equal(fp.read(), b(self.repr))
 
-    def test_fileio_binary_8(self):
+    def test_file_io_binary_8(self):
         fp = tempfile.TemporaryFile(mode='w+b')
         if not py3k and os.name == 'posix':
             assert_equal(type(fp), file)
