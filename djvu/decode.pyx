@@ -197,6 +197,19 @@ cdef extern from 'libdjvu/ddjvuapi.h':
     cexpr_t* ddjvu_anno_get_metadata_keys(cexpr_t annotations) nogil
     char* ddjvu_anno_get_metadata(cexpr_t annotations, cexpr_t key) nogil
 
+# Python files:
+
+IF PY3K:
+    from cpython cimport (
+        PyErr_SetFromErrno as posix_error,
+        PyObject_AsFileDescriptor as file_to_fd,
+    )
+    cdef int is_file(object o):
+        return not is_number(o) and file_to_fd(o) != -1
+ELSE:
+    cdef extern from 'Python.h':
+        FILE* file_to_cfile 'PyFile_AsFile'(object)
+        int is_file 'PyFile_Check'(object)
 from posix.unistd cimport dup
 from libc.stdio cimport fclose
 cdef extern from 'unistd.h':

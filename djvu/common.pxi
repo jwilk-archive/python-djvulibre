@@ -77,17 +77,6 @@ from cpython cimport PyLong_FromVoidPtr as voidp_to_int
 # Python files:
 
 from libc.stdio cimport FILE
-IF PY3K:
-    from cpython cimport (
-        PyErr_SetFromErrno as posix_error,
-        PyObject_AsFileDescriptor as file_to_fd,
-    )
-    cdef int is_file(object o):
-        return not is_number(o) and file_to_fd(o) != -1
-ELSE:
-    cdef extern from 'Python.h':
-        FILE* file_to_cfile 'PyFile_AsFile'(object)
-        int is_file 'PyFile_Check'(object)
 
 # Python lists:
 
