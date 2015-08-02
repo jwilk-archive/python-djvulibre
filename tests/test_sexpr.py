@@ -443,25 +443,30 @@ class test_expression_parser():
             with assert_raises(UnicodeEncodeError):
                 Expression.from_stream(fp)
 
+class test_expression_parser_ascii():
+
+    expr = '(eggs) (ham)'
+    repr = ["Expression([Symbol('eggs')])", "Expression([Symbol('ham')])"]
+
     def _test_fp(self, fp):
         def read():
             return Expression.from_stream(fp)
         x = read()
-        assert_repr(x, "Expression([Symbol('eggs')])")
+        assert_repr(x, self.repr[0])
         x = read()
-        assert_repr(x, "Expression([Symbol('ham')])")
+        assert_repr(x, self.repr[1])
         with assert_raises(ExpressionSyntaxError):
             x = read()
 
     def test_stringio(self):
-        fp = StringIO('(eggs) (ham)')
+        fp = StringIO(self.expr)
         self._test_fp(fp)
 
     def test_file_io_text(self):
         with tempfile.TemporaryFile(mode='w+t') as fp:
             if not py3k:
                 assert_equal(type(fp), file)
-            fp.write('(eggs) (ham)')
+            fp.write(self.expr)
             fp.flush()
             fp.seek(0)
             self._test_fp(fp)
@@ -470,10 +475,17 @@ class test_expression_parser():
         with tempfile.TemporaryFile(mode='w+b') as fp:
             if not py3k:
                 assert_equal(type(fp), file)
-            fp.write(b('(eggs) (ham)'))
+            fp.write(b(self.expr))
             fp.flush()
             fp.seek(0)
             self._test_fp(fp)
+
+class test_expression_parser_nonascii(test_expression_parser_ascii):
+
+    expr = '"jeż" "żółw"'
+    repr = [r"Expression('jeż')", r"Expression('żółw')"]
+    if not py3k:
+        repr = [s.decode('ISO-8859-1').encode('ASCII', 'backslashreplace') for s in repr]
 
 class test_expression_writer():
 
