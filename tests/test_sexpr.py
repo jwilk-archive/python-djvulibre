@@ -475,6 +475,13 @@ class test_expression_parser_ascii():
             fp.seek(0)
             self._test_fp(fp)
 
+    def test_codecs_io(self):
+        with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
+            with codecs.open(bfp.name, mode='w+', encoding='ISO-8859-2') as fp:
+                fp.write(u(self.expr))
+                fp.seek(0)
+                self._test_fp(fp)
+
     def test_file_io_binary(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
             if not py3k:
