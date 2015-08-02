@@ -477,7 +477,7 @@ class test_expression_parser_ascii():
 
     def test_codecs_io(self):
         with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
-            with codecs.open(bfp.name, mode='w+', encoding='ISO-8859-2') as fp:
+            with codecs.open(bfp.name, mode='w+', encoding='GB18030') as fp:
                 fp.write(u(self.expr))
                 fp.seek(0)
                 self._test_fp(fp)
@@ -564,7 +564,7 @@ class test_expression_writer_ascii():
 
     def test_file_io_text_8(self):
         if py3k:
-            fp = tempfile.TemporaryFile(mode='w+t', encoding='UTF-8')
+            fp = tempfile.TemporaryFile(mode='w+t', encoding='GB18030')
         else:
             fp = tempfile.TemporaryFile(mode='w+t')
         with fp:
@@ -574,14 +574,14 @@ class test_expression_writer_ascii():
 
     def test_codecs_io_text_7(self):
         with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
-            with codecs.open(bfp.name, mode='w+', encoding='ISO-8859-2') as fp:
+            with codecs.open(bfp.name, mode='w+', encoding='GB18030') as fp:
                 self.expr.print_into(fp)
                 fp.seek(0)
                 assert_equal(fp.read(), self.repr)
 
     def test_codecs_io_text_8(self):
         with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
-            with codecs.open(bfp.name, mode='w+', encoding='ISO-8859-2') as fp:
+            with codecs.open(bfp.name, mode='w+', encoding='GB18030') as fp:
                 self.expr.print_into(fp, escape_unicode=False)
                 fp.seek(0)
                 assert_equal(fp.read(), u(self.urepr))
