@@ -454,36 +454,36 @@ class test_expression_parser():
             x = read()
 
     def test_file_io_text(self):
-        fp = tempfile.TemporaryFile(mode='w+t')
-        def read():
-            return Expression.from_stream(fp)
-        if not py3k:
-            assert_equal(type(fp), file)
-        fp.write('(eggs) (ham)')
-        fp.flush()
-        fp.seek(0)
-        x = read()
-        assert_repr(x, "Expression([Symbol('eggs')])")
-        x = read()
-        assert_repr(x, "Expression([Symbol('ham')])")
-        with assert_raises(ExpressionSyntaxError):
+        with tempfile.TemporaryFile(mode='w+t') as fp:
+            def read():
+                return Expression.from_stream(fp)
+            if not py3k:
+                assert_equal(type(fp), file)
+            fp.write('(eggs) (ham)')
+            fp.flush()
+            fp.seek(0)
             x = read()
+            assert_repr(x, "Expression([Symbol('eggs')])")
+            x = read()
+            assert_repr(x, "Expression([Symbol('ham')])")
+            with assert_raises(ExpressionSyntaxError):
+                x = read()
 
     def test_file_io_binary(self):
-        fp = tempfile.TemporaryFile(mode='w+b')
-        def read():
-            return Expression.from_stream(fp)
-        if not py3k:
-            assert_equal(type(fp), file)
-        fp.write(b('(eggs) (ham)'))
-        fp.flush()
-        fp.seek(0)
-        x = read()
-        assert_repr(x, "Expression([Symbol('eggs')])")
-        x = read()
-        assert_repr(x, "Expression([Symbol('ham')])")
-        with assert_raises(ExpressionSyntaxError):
+        with tempfile.TemporaryFile(mode='w+b') as fp:
+            def read():
+                return Expression.from_stream(fp)
+            if not py3k:
+                assert_equal(type(fp), file)
+            fp.write(b('(eggs) (ham)'))
+            fp.flush()
+            fp.seek(0)
             x = read()
+            assert_repr(x, "Expression([Symbol('eggs')])")
+            x = read()
+            assert_repr(x, "Expression([Symbol('ham')])")
+            with assert_raises(ExpressionSyntaxError):
+                x = read()
 
 class test_expression_writer():
 
@@ -540,39 +540,40 @@ class test_expression_writer():
         assert_equal(fp.getvalue(), b(self.urepr))
 
     def test_file_io_text_7(self):
-        fp = tempfile.TemporaryFile(mode='w+t')
-        if not py3k and os.name == 'posix':
-            assert_equal(type(fp), file)
-        self.expr.print_into(fp)
-        fp.seek(0)
-        assert_equal(fp.read(), self.repr)
+        with tempfile.TemporaryFile(mode='w+t') as fp:
+            if not py3k and os.name == 'posix':
+                assert_equal(type(fp), file)
+            self.expr.print_into(fp)
+            fp.seek(0)
+            assert_equal(fp.read(), self.repr)
 
     def test_file_io_text_8(self):
         if py3k:
             fp = tempfile.TemporaryFile(mode='w+t', encoding='UTF-8')
         else:
             fp = tempfile.TemporaryFile(mode='w+t')
-        if not py3k and os.name == 'posix':
-            assert_equal(type(fp), file)
-        self.expr.print_into(fp, escape_unicode=False)
-        fp.seek(0)
-        assert_equal(fp.read(), self.urepr)
+        with fp:
+            if not py3k and os.name == 'posix':
+                assert_equal(type(fp), file)
+            self.expr.print_into(fp, escape_unicode=False)
+            fp.seek(0)
+            assert_equal(fp.read(), self.urepr)
 
     def test_file_io_binary_7(self):
-        fp = tempfile.TemporaryFile(mode='w+b')
-        if not py3k and os.name == 'posix':
-            assert_equal(type(fp), file)
-        self.expr.print_into(fp)
-        fp.seek(0)
-        assert_equal(fp.read(), b(self.repr))
+        with tempfile.TemporaryFile(mode='w+b') as fp:
+            if not py3k and os.name == 'posix':
+                assert_equal(type(fp), file)
+            self.expr.print_into(fp)
+            fp.seek(0)
+            assert_equal(fp.read(), b(self.repr))
 
     def test_file_io_binary_8(self):
-        fp = tempfile.TemporaryFile(mode='w+b')
-        if not py3k and os.name == 'posix':
-            assert_equal(type(fp), file)
-        self.expr.print_into(fp, escape_unicode=False)
-        fp.seek(0)
-        assert_equal(fp.read(), b(self.urepr))
+        with tempfile.TemporaryFile(mode='w+b') as fp:
+            if not py3k and os.name == 'posix':
+                assert_equal(type(fp), file)
+            self.expr.print_into(fp, escape_unicode=False)
+            fp.seek(0)
+            assert_equal(fp.read(), b(self.urepr))
 
     def test_as_string_7(self):
         s = self.expr.as_string()
