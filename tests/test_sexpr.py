@@ -467,7 +467,11 @@ class test_expression_parser_ascii():
         self._test_fp(fp)
 
     def test_file_io_text(self):
-        with tempfile.TemporaryFile(mode='w+t') as fp:
+        if py3k:
+            fp = tempfile.TemporaryFile(mode='w+t', encoding='GB18030')
+        else:
+            fp = tempfile.TemporaryFile(mode='w+t')
+        with fp:
             if not py3k:
                 assert_equal(type(fp), file)
             fp.write(self.expr)
