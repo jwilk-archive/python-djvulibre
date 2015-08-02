@@ -228,9 +228,11 @@ def skip_unless_translation_exists(lang):
         raise SkipTest('libc translation not found: ' + lang)
 
 def skip_unless_command_exists(command):
-    child = ipc.Popen('command -v ' + command, shell=True, stdout=ipc.PIPE, stderr=ipc.PIPE)
-    if child.wait() == 0:
-        return
+    directories = os.environ['PATH'].split(os.pathsep)
+    for directory in directories:
+        path = os.path.join(directory, command)
+        if os.access(path, os.X_OK):
+            return
     raise SkipTest('command not found: ' + command)
 
 __all__ = [
