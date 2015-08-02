@@ -174,7 +174,8 @@ class build_ext(distutils.command.build_ext.build_ext):
             'DEF HAVE_LANGINFO_H = {0}'.format(os.name == 'posix' and not mingw32cross),
         ]
         try:
-            old_config = open(self.config_filename, 'rt').read()
+            with open(self.config_filename, 'rt') as fp:
+                old_config = fp.read()
         except IOError:
             old_config = ''
         if '\n'.join(new_config).strip() != old_config.strip():
