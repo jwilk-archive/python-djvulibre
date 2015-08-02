@@ -472,8 +472,6 @@ class test_expression_parser_ascii():
         else:
             fp = tempfile.TemporaryFile(mode='w+t')
         with fp:
-            if not py3k:
-                assert_equal(type(fp), file)
             fp.write(self.expr)
             fp.flush()
             fp.seek(0)
@@ -488,8 +486,6 @@ class test_expression_parser_ascii():
 
     def test_file_io_binary(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
-            if not py3k:
-                assert_equal(type(fp), file)
             fp.write(b(self.expr))
             fp.flush()
             fp.seek(0)
