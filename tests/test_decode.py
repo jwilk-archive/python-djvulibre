@@ -568,7 +568,8 @@ class test_streams:
             document.pages[0].annotations.sexpr
 
         try:
-            message.stream.write(open(images + 'test1.djvu', 'rb').read())
+            with open(images + 'test1.djvu', 'rb') as fp:
+                message.stream.write(fp.read())
         finally:
             message.stream.close()
         with assert_raises_str(IOError, 'I/O operation on closed file'):
