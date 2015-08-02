@@ -233,7 +233,7 @@ IF HAVE_MINIEXP_IO_T:
     cdef int _myio_ungetc(cexpr_io_t* cio, int c):
         cdef _ExpressionIO io
         xio = <_ExpressionIO> cio.data[0]
-        xio.buffer += (c,)
+        list_append(xio.buffer, c)
 
 ELSE:
 
@@ -269,7 +269,7 @@ ELSE:
             return EOF
 
     cdef int _myio_ungetc(int c):
-        _myio.buffer += (c,)
+        list_append(_myio.buffer, c)
 
 cdef object the_sentinel
 the_sentinel = object()
