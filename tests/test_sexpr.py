@@ -24,11 +24,33 @@ try:
 except ImportError:
     cpickle = None
 
-from djvu.sexpr import *
-from djvu.sexpr import __version__
-from djvu.sexpr import _ExpressionIO
+from djvu.sexpr import (
+    Expression,
+    ExpressionSyntaxError,
+    Symbol,
+    _ExpressionIO,
+    __version__,
+)
 
-from common import *
+from common import (
+    assert_equal,
+    assert_false,
+    assert_in,
+    assert_is,
+    assert_is_instance,
+    assert_less,
+    assert_not_equal,
+    assert_not_in,
+    assert_raises,
+    assert_raises_str,
+    assert_repr,
+    SkipTest,
+    L,
+    StringIO,
+    b,
+    py3k,
+    u,
+)
 
 def assert_pickle_equal(obj):
     for pickle_module in pickle, cpickle:

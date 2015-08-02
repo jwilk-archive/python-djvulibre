@@ -19,11 +19,80 @@ import subprocess as ipc
 import sys
 import tempfile
 
-from djvu.decode import *
-from djvu.decode import __version__
-from djvu.sexpr import *
+from djvu.decode import (
+    AffineTransform,
+    Context,
+    DDJVU_VERSION,
+    DOCUMENT_TYPE_BUNDLED,
+    DOCUMENT_TYPE_SINGLE_PAGE,
+    DocInfoMessage,
+    Document,
+    DocumentAnnotations,
+    DocumentDecodingJob,
+    DocumentOutline,
+    ErrorMessage,
+    File,
+    FileUri,
+    Hyperlinks,
+    Job,
+    JobFailed,
+    JobOK,
+    Message,
+    Metadata,
+    NewStreamMessage,
+    NotAvailable,
+    PAGE_TYPE_BITONAL,
+    Page,
+    PageAnnotations,
+    PageJob,
+    PageText,
+    PixelFormat,
+    PixelFormatGrey,
+    PixelFormatPackedBits,
+    PixelFormatPalette,
+    PixelFormatRgb,
+    PixelFormatRgbMask,
+    RENDER_COLOR,
+    SaveJob,
+    Stream,
+    TEXT_DETAILS_ALL,
+    TEXT_DETAILS_CHARACTER,
+    TEXT_DETAILS_COLUMN,
+    TEXT_DETAILS_LINE,
+    TEXT_DETAILS_PAGE,
+    TEXT_DETAILS_PARAGRAPH,
+    TEXT_DETAILS_REGION,
+    TEXT_DETAILS_WORD,
+    ThumbnailMessage,
+    __version__,
+)
+from djvu.sexpr import (
+    Expression,
+    Symbol,
+)
 
-from common import *
+from common import (
+    skip_unless_command_exists,
+    assert_equal,
+    assert_true,
+    assert_raises_str,
+    assert_is,
+    assert_false,
+    assert_is_instance,
+    assert_raises,
+    assert_raises_regexp,
+    SkipTest,
+    b,
+    blob,
+    interim_locale,
+    locale_encoding,
+    maxsize,
+    py3k,
+    skip_unless_c_messages,
+    skip_unless_translation_exists,
+    u,
+    unicode,
+)
 
 images = os.path.join(os.path.dirname(__file__), 'images', '')
 
