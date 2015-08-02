@@ -534,8 +534,6 @@ class test_expression_writer_ascii():
 
     def test_file_io_text_7(self):
         with tempfile.TemporaryFile(mode='w+t') as fp:
-            if not py3k and os.name == 'posix':
-                assert_equal(type(fp), file)
             self.expr.print_into(fp)
             fp.seek(0)
             assert_equal(fp.read(), self.repr)
@@ -546,24 +544,18 @@ class test_expression_writer_ascii():
         else:
             fp = tempfile.TemporaryFile(mode='w+t')
         with fp:
-            if not py3k and os.name == 'posix':
-                assert_equal(type(fp), file)
             self.expr.print_into(fp, escape_unicode=False)
             fp.seek(0)
             assert_equal(fp.read(), self.urepr)
 
     def test_file_io_binary_7(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
-            if not py3k and os.name == 'posix':
-                assert_equal(type(fp), file)
             self.expr.print_into(fp)
             fp.seek(0)
             assert_equal(fp.read(), b(self.repr))
 
     def test_file_io_binary_8(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
-            if not py3k and os.name == 'posix':
-                assert_equal(type(fp), file)
             self.expr.print_into(fp, escape_unicode=False)
             fp.seek(0)
             assert_equal(fp.read(), b(self.urepr))
