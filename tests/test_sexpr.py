@@ -487,7 +487,7 @@ class test_expression_writer():
         expr = Expression(23)
         try:
             with assert_raises(IOError) as ecm:
-                for i in range(1000):
+                for i in range(10000):
                     expr.print_into(fp)
         finally:
             try:
