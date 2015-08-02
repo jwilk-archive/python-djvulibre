@@ -442,8 +442,7 @@ class test_expression_parser():
             with assert_raises(UnicodeEncodeError):
                 Expression.from_stream(fp)
 
-    def test_stringio(self):
-        fp = StringIO('(eggs) (ham)')
+    def _test_fp(self, fp):
         def read():
             return Expression.from_stream(fp)
         x = read()
@@ -453,37 +452,27 @@ class test_expression_parser():
         with assert_raises(ExpressionSyntaxError):
             x = read()
 
+    def test_stringio(self):
+        fp = StringIO('(eggs) (ham)')
+        self._test_fp(fp)
+
     def test_file_io_text(self):
         with tempfile.TemporaryFile(mode='w+t') as fp:
-            def read():
-                return Expression.from_stream(fp)
             if not py3k:
                 assert_equal(type(fp), file)
             fp.write('(eggs) (ham)')
             fp.flush()
             fp.seek(0)
-            x = read()
-            assert_repr(x, "Expression([Symbol('eggs')])")
-            x = read()
-            assert_repr(x, "Expression([Symbol('ham')])")
-            with assert_raises(ExpressionSyntaxError):
-                x = read()
+            self._test_fp(fp)
 
     def test_file_io_binary(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
-            def read():
-                return Expression.from_stream(fp)
             if not py3k:
                 assert_equal(type(fp), file)
             fp.write(b('(eggs) (ham)'))
             fp.flush()
             fp.seek(0)
-            x = read()
-            assert_repr(x, "Expression([Symbol('eggs')])")
-            x = read()
-            assert_repr(x, "Expression([Symbol('ham')])")
-            with assert_raises(ExpressionSyntaxError):
-                x = read()
+            self._test_fp(fp)
 
 class test_expression_writer():
 
