@@ -220,7 +220,7 @@ IF HAVE_MINIEXP_IO_T:
             if not s:
                 return EOF
             if is_unicode(s):
-                s = s.encode('UTF-8')
+                s = encode_utf8(s)
             IF PY3K:
                 xio.buffer += reversed(s)
             ELSE:
@@ -258,7 +258,7 @@ ELSE:
             if not s:
                 return EOF
             if is_unicode(s):
-                s = s.encode('UTF-8')
+                s = encode_utf8(s)
             IF PY3K:
                 _myio.buffer += reversed(s)
             ELSE:
