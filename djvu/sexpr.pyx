@@ -96,6 +96,9 @@ import weakref
 cdef object symbol_dict
 symbol_dict = weakref.WeakValueDictionary()
 
+cdef object codecs
+import codecs
+
 IF not HAVE_MINIEXP_IO_T:
     cdef Lock _myio_lock
     _myio_lock = allocate_lock()
@@ -131,7 +134,10 @@ cdef class _ExpressionIO:
         IF PY3K:
             self.stdout_binary = not hasattr(stdout, 'encoding')
         ELSE:
-            self.stdout_binary = 1
+            # In Python 2, sys.stdout has the encoding attribute,
+            # even though it accepts byte strings.
+            # Let's only make a special-case for codecs.
+            self.stdout_binary = not isinstance(stdout, codecs.StreamReaderWriter)
         self.buffer = []
         self.exc = None
         IF HAVE_MINIEXP_IO_T:

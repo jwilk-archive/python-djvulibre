@@ -2,6 +2,8 @@ python-djvulibre (0.5) UNRELEASED; urgency=low
 
   * Make print_into() raise exceptions properly instead of just printing them
     on stderr.
+  * Make it possible to print S-expressions into file-like objects created by
+    codecs.open().
   * Make djvu.sexpr.__version__ a byte string in Python 2.X.
   * Don't include DjVu file format version in djvu.decode.__version__.
     This information is more conveniently available in
@@ -10,7 +12,7 @@ python-djvulibre (0.5) UNRELEASED; urgency=low
     (DjVuLibre >= 3.5.26 is required for this feature.)
   * Improve error handling.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sun, 02 Aug 2015 12:44:22 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sun, 02 Aug 2015 14:01:21 +0200
 
 python-djvulibre (0.4.1) unstable; urgency=low
 

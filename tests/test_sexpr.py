@@ -12,6 +12,7 @@
 # General Public License for more details.
 
 import collections
+import codecs
 import copy
 import errno
 import io
@@ -547,6 +548,20 @@ class test_expression_writer_ascii():
             self.expr.print_into(fp, escape_unicode=False)
             fp.seek(0)
             assert_equal(fp.read(), self.urepr)
+
+    def test_codecs_io_text_7(self):
+        with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
+            with codecs.open(bfp.name, mode='w+', encoding='ISO-8859-2') as fp:
+                self.expr.print_into(fp)
+                fp.seek(0)
+                assert_equal(fp.read(), self.repr)
+
+    def test_codecs_io_text_8(self):
+        with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
+            with codecs.open(bfp.name, mode='w+', encoding='ISO-8859-2') as fp:
+                self.expr.print_into(fp, escape_unicode=False)
+                fp.seek(0)
+                assert_equal(fp.read(), u(self.urepr))
 
     def test_file_io_binary_7(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
