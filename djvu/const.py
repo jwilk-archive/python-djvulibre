@@ -104,7 +104,7 @@ class TextZoneType(djvu.sexpr.Symbol):
     def __repr__(self):
         return '<{mod}.{cls}: {name}>'.format(
             mod=self.__module__,
-            cls=self.__class__.__name__,
+            cls=type(self).__name__,
             name=self
         )
 
