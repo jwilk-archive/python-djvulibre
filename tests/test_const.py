@@ -35,6 +35,7 @@ from common import (
     assert_not_equal,
     assert_raises_str,
     assert_repr,
+    cmp,
 )
 
 class test_text_zones():
