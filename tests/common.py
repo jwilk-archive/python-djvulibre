@@ -16,7 +16,6 @@ import contextlib
 import locale
 import os
 import re
-import subprocess as ipc
 import sys
 
 from nose.tools import (
