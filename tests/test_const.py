@@ -11,10 +11,31 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
-from djvu.const import *
-from djvu.sexpr import *
 
-from common import *
+from djvu.const import (
+    TEXT_ZONE_CHARACTER,
+    TEXT_ZONE_COLUMN,
+    TEXT_ZONE_LINE,
+    TEXT_ZONE_PAGE,
+    TEXT_ZONE_PARAGRAPH,
+    TEXT_ZONE_REGION,
+    TEXT_ZONE_WORD,
+    TextZoneType,
+    get_text_zone_type,
+)
+
+from djvu.sexpr import (
+    Symbol,
+)
+
+from common import (
+    assert_equal,
+    assert_is,
+    assert_is_instance,
+    assert_not_equal,
+    assert_raises_str,
+    assert_repr,
+)
 
 class test_text_zones():
 
