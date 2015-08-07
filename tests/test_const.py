@@ -32,10 +32,12 @@ from common import (
     assert_equal,
     assert_is,
     assert_is_instance,
+    assert_list_equal,
     assert_not_equal,
     assert_raises_str,
     assert_repr,
     cmp,
+    wildcard_import,
 )
 
 class test_text_zones():
@@ -98,5 +100,73 @@ class test_text_zones():
                 [+1, +1, +1, +1, +1, +1, 0],
             ]
         )
+
+def test_wildcard_import():
+    ns = wildcard_import('djvu.const')
+    assert_list_equal(
+        sorted(ns.keys()), [
+            'ANNOTATION_ALIGN',
+            'ANNOTATION_BACKGROUND',
+            'ANNOTATION_MAPAREA',
+            'ANNOTATION_METADATA',
+            'ANNOTATION_MODE',
+            'ANNOTATION_PRINTED_FOOTER',
+            'ANNOTATION_PRINTED_HEADER',
+            'ANNOTATION_ZOOM',
+            'EMPTY_LIST',
+            'EMPTY_OUTLINE',
+            'MAPAREA_ARROW',
+            'MAPAREA_BACKGROUND_COLOR',
+            'MAPAREA_BORDER_ALWAYS_VISIBLE',
+            'MAPAREA_BORDER_ETCHED_IN',
+            'MAPAREA_BORDER_ETCHED_OUT',
+            'MAPAREA_BORDER_NONE',
+            'MAPAREA_BORDER_SHADOW_IN',
+            'MAPAREA_BORDER_SHADOW_OUT',
+            'MAPAREA_BORDER_SOLID_COLOR',
+            'MAPAREA_BORDER_XOR',
+            'MAPAREA_HIGHLIGHT_COLOR',
+            'MAPAREA_LINE_COLOR',
+            'MAPAREA_LINE_COLOR_DEFAULT',
+            'MAPAREA_LINE_MIN_WIDTH',
+            'MAPAREA_LINE_WIDTH',
+            'MAPAREA_OPACITY',
+            'MAPAREA_OPACITY_DEFAULT',
+            'MAPAREA_OPACITY_MAX',
+            'MAPAREA_OPACITY_MIN',
+            'MAPAREA_PUSHPIN',
+            'MAPAREA_SHADOW_BORDERS',
+            'MAPAREA_SHADOW_BORDER_MAX_WIDTH',
+            'MAPAREA_SHADOW_BORDER_MIN_WIDTH',
+            'MAPAREA_SHAPE_LINE',
+            'MAPAREA_SHAPE_OVAL',
+            'MAPAREA_SHAPE_POLYGON',
+            'MAPAREA_SHAPE_RECTANGLE',
+            'MAPAREA_SHAPE_TEXT',
+            'MAPAREA_TEXT_COLOR',
+            'MAPAREA_TEXT_COLOR_DEFAULT',
+            'MAPAREA_URI',
+            'MAPAREA_URL',
+            'METADATA_BIBTEX_KEYS',
+            'METADATA_KEYS',
+            'METADATA_PDFINFO_KEYS',
+            'PRINTED_FOOTER_ALIGN_CENTER',
+            'PRINTED_FOOTER_ALIGN_LEFT',
+            'PRINTED_FOOTER_ALIGN_RIGHT',
+            'PRINTER_HEADER_ALIGN_CENTER',
+            'PRINTER_HEADER_ALIGN_LEFT',
+            'PRINTER_HEADER_ALIGN_RIGHT',
+            'TEXT_ZONE_CHARACTER',
+            'TEXT_ZONE_COLUMN',
+            'TEXT_ZONE_LINE',
+            'TEXT_ZONE_PAGE',
+            'TEXT_ZONE_PARAGRAPH',
+            'TEXT_ZONE_REGION',
+            'TEXT_ZONE_SEPARATORS',
+            'TEXT_ZONE_WORD',
+            'TextZoneType',
+            'get_text_zone_type'
+        ]
+    )
 
 # vim:ts=4 sts=4 sw=4 et

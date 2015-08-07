@@ -38,6 +38,7 @@ from common import (
     assert_in,
     assert_is,
     assert_is_instance,
+    assert_list_equal,
     assert_less,
     assert_not_equal,
     assert_not_in,
@@ -50,6 +51,7 @@ from common import (
     b,
     py3k,
     u,
+    wildcard_import,
 )
 
 def assert_pickle_equal(obj):
@@ -634,5 +636,20 @@ class test_expression_writer_nonascii(test_expression_writer_ascii):
 
 def test_version():
     assert_is_instance(__version__, str)
+
+def test_wildcard_import():
+    ns = wildcard_import('djvu.sexpr')
+    assert_list_equal(
+        sorted(ns.keys()), [
+            'Expression',
+            'ExpressionSyntaxError',
+            'IntExpression',
+            'InvalidExpression',
+            'ListExpression',
+            'StringExpression',
+            'Symbol',
+            'SymbolExpression'
+        ]
+    )
 
 # vim:ts=4 sts=4 sw=4 et

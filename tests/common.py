@@ -32,6 +32,7 @@ if sys.version_info >= (2, 7):
         assert_is,
         assert_is_instance,
         assert_less,
+        assert_list_equal,
         assert_multi_line_equal,
         assert_not_in,
         assert_raises,
@@ -64,6 +65,7 @@ else:
             x < y,
             msg='{0!r} not less than {1!r}'.format(x, y)
         )
+    assert_list_equal = assert_equal
     assert_multi_line_equal = assert_equal
     def assert_not_in(x, y):
         assert_true(
@@ -234,6 +236,15 @@ def skip_unless_command_exists(command):
             return
     raise SkipTest('command not found: ' + command)
 
+def wildcard_import(mod):
+    ns_orig = {}
+    exec('', ns_orig)
+    ns = {}
+    exec('from {mod} import *'.format(mod=mod), ns)
+    for key in ns_orig:
+        del ns[key]
+    return ns
+
 __all__ = [
     # Python 2/3 compat:
     'L',
@@ -269,6 +280,7 @@ __all__ = [
     'skip_unless_c_messages',
     'skip_unless_command_exists',
     'skip_unless_translation_exists',
+    'wildcard_import',
 ]
 
 # vim:ts=4 sts=4 sw=4 et
