@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+[ $# = 0 ] && set -- python
 printf '%s\n' "$@" \
 | xargs -t -I{python} env {python} setup.py build --build-lib build/{python}
 cd tests
