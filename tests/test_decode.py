@@ -788,9 +788,9 @@ class test_sexpr:
         assert_equal(text_s_detail[2], text_s_detail[3])
         assert_equal(repr(text_s_detail[0]), m(r"""Expression([Symbol('page'), 0, 0, 2550, 3300, '5E \n5.1 E1 \n\xe2\x86\x921 \n5.2 E2 \nhttp://jwilk.net/ \n5 \n'])"""))
         assert_equal(repr(text_s_detail[4]), m(r"""Expression([Symbol('page'), 0, 0, 2550, 3300, [Symbol('line'), 462, 2726, 615, 2775, '5E '], [Symbol('line'), 462, 2544, 663, 2586, '5.1 E1 '], [Symbol('line'), 466, 2349, 631, 2421, '\xe2\x86\x921 '], [Symbol('line'), 462, 2124, 665, 2166, '5.2 E2 '], [Symbol('line'), 465, 1911, 1504, 2000, 'http://jwilk.net/ '], [Symbol('line'), 1259, 374, 1280, 409, '5 ']])"""))
-        assert_true(text_s_detail[5] == text_s)
-        assert_true(text_s_detail[6] == text_s)
-        assert_true(text_s_detail[7] == text_s)
+        assert_equal(text_s_detail[5], text_s)
+        assert_equal(text_s_detail[6], text_s)
+        assert_equal(text_s_detail[7], text_s)
         assert_equal(repr(text_s), m(r"""Expression([Symbol('page'), 0, 0, 2550, 3300, [Symbol('line'), 462, 2726, 615, 2775, [Symbol('word'), 462, 2726, 615, 2775, '5E']], [Symbol('line'), 462, 2544, 663, 2586, [Symbol('word'), 462, 2544, 533, 2586, '5.1'], [Symbol('word'), 596, 2545, 663, 2586, 'E1']], [Symbol('line'), 466, 2349, 631, 2421, [Symbol('word'), 466, 2349, 631, 2421, '\xe2\x86\x921']], [Symbol('line'), 462, 2124, 665, 2166, [Symbol('word'), 462, 2124, 535, 2166, '5.2'], [Symbol('word'), 596, 2125, 665, 2166, 'E2']], [Symbol('line'), 465, 1911, 1504, 2000, [Symbol('word'), 465, 1911, 1504, 2000, 'http://jwilk.net/']], [Symbol('line'), 1259, 374, 1280, 409, [Symbol('word'), 1259, 374, 1280, 409, '5']]])"""))
 
         with assert_raises_str(TypeError, 'details must be a symbol or none'):
