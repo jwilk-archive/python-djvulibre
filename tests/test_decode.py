@@ -185,7 +185,7 @@ class test_documents:
                 'ja_JP error message is ASCII-only: {msg!r}'.format(msg=c_message)
             )
         with interim_locale(LC_ALL='ja_JP.UTF-8'):
-            with assert_raises_str(JobFailed):
+            with assert_raises(JobFailed):
                 context.new_document(FileUri(path))
             message = context.get_message()
             assert_equal(type(message), ErrorMessage)
