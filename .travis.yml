@@ -9,6 +9,10 @@ python:
 env:
 - DJVULIBRE_VERSION=3.5.23
 - DJVULIBRE_VERSION=3.5.27
+addons:
+  apt:
+    packages:
+    - language-pack-ja
 cache:
   directories:
   - $HOME/.cache/pip
