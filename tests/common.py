@@ -264,6 +264,7 @@ __all__ = [
     'assert_is',
     'assert_is_instance',
     'assert_less',
+    'assert_list_equal',
     'assert_multi_line_equal',
     'assert_not_equal',
     'assert_not_in',
