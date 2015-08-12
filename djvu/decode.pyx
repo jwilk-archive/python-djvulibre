@@ -303,20 +303,6 @@ class NotAvailable(Exception):
 cdef object _NotAvailable_
 _NotAvailable_ = NotAvailable
 
-class DjVuLibreBug(Exception):
-
-    '''
-    A DjVuLibre bug was encountered.
-    '''
-
-    def __init__(self, debian_bug_no):
-        Exception.__init__(
-            self,
-            'A DjVuLibre bug has been encountered.\n'
-            'See <https://bugs.debian.org/{0}> for details.\n'
-            'Please upgrade your DjVuLibre.'.format(debian_bug_no)
-        )
-
 cdef class DocumentExtension:
 
     property document:
@@ -1116,10 +1102,6 @@ cdef class Document:
         pages argument specifies a subset of saved pages.
 
         If wait is true, wait until the job is done.
-
-        .. warning::
-            Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
-            See https://bugs.debian.org/467282 for details.
         '''
         cdef char * optv[2]
         cdef int optc
@@ -1136,12 +1118,8 @@ cdef class Document:
                 raise TypeError('file must be None if indirect is specified')
             if not is_string(indirect):
                 raise TypeError('indirect must be a string')
-            # XXX ddjvu API documentation says that output should be NULL,
-            # but we'd like to spot the DjVuLibre bug
-            open(indirect, 'wb').close()
-            file = open(devnull, 'wb')
-            file_wrapper = _FileWrapper(file, <char*> "wb")
-            output = file_wrapper.cfile
+            file_wrapper = None
+            output = NULL
             s1 = '--indirect=' + indirect
             if is_unicode(s1):
                 s1 = encode_utf8(s1)
@@ -1160,11 +1138,6 @@ cdef class Document:
             release_lock(loft_lock)
         if wait:
             job.wait()
-            if indirect is not None:
-                file = open(indirect, 'rb')
-                file.seek(0, 2)
-            if file.tell() == 0:
-                raise DjVuLibreBug(467282)
         return job
 
     def export_ps(self, file, pages=None, eps=0, level=None, orientation=PRINT_ORIENTATION_AUTO, mode=DDJVU_RENDER_COLOR, zoom=None, color=1, srgb=1, gamma=None, copies=1, frame=0, crop_marks=0, text=0, booklet=PRINT_BOOKLET_NO, booklet_max=0, booklet_align=0, booklet_fold=(18, 200), wait=1):
@@ -1271,11 +1244,6 @@ cdef class Document:
             The default value is (18, 200).
 
         .. [1] 1 pt = 1/72 in = 0.3528 mm
-
-        **Warning***
-        ------------
-        Due to a DjVuLibre (<= 3.5.20) bug, this method may be broken.
-        See https://bugs.debian.org/469122 for details.
         '''
         cdef FILE* output
         cdef SaveJob job

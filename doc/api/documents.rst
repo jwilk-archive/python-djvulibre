@@ -86,10 +86,6 @@ DjVu documents
 
       :rtype: :class:`SaveJob`.
 
-      .. warning::
-         Due to a DjVuLibre (≤ 3.5.20) bug, this method may be broken.
-         See https://bugs.debian.org/467282 for details.
-
    .. method:: export_ps(file[, …][, wait=True])
 
       Convert the document into PostScript.
@@ -208,10 +204,6 @@ DjVu documents
          The default value is (18, 200).
 
       .. [1] 1 pt = :math:`\frac1{72}` in = 0.3528 mm
-
-      .. warning::
-         Due to a DjVuLibre (≤ 3.5.20) bug, this method may be broken.
-         See https://bugs.debian.org/469122 for details.
 
 .. currentmodule:: djvu.decode
 .. class:: SaveJob

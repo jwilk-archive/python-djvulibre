@@ -9,11 +9,6 @@ Common exceptions
 
    A resource not (yet) available.
 
-.. currentmodule:: djvu.decode
-.. exception:: DjVuLibreBug
-
-   A DjVuLibre bug was encountered.
-
 .. currentmodule:: djvu.sexpr
 .. exception:: ExpressionSyntaxError
 

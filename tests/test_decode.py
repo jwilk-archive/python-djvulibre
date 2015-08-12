@@ -818,7 +818,6 @@ def test_wildcard_import():
             'DOCUMENT_TYPE_OLD_INDEXED',
             'DOCUMENT_TYPE_SINGLE_PAGE',
             'DOCUMENT_TYPE_UNKNOWN',
-            'DjVuLibreBug',
             'DocInfoMessage',
             'Document',
             'DocumentAnnotations',
