@@ -81,7 +81,7 @@ from common import (
     assert_is_instance,
     assert_list_equal,
     assert_raises,
-    assert_raises_regexp,
+    assert_raises_regex,
     SkipTest,
     b,
     blob,
@@ -526,7 +526,7 @@ class test_page_jobs():
         with assert_raises_str(ValueError, 'row_alignment must be a positive integer'):
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
 
-        with assert_raises_regexp(MemoryError, r'\AUnable to allocate [0-9]+ bytes for an image memory\Z'):
+        with assert_raises_regex(MemoryError, r'\AUnable to allocate [0-9]+ bytes for an image memory\Z'):
             x = int((maxsize//2) ** 0.5)
             page_job.render(RENDER_COLOR, (0, 0, x, x), (0, 0, x, x), PixelFormatRgb(), 8)
 

@@ -36,9 +36,13 @@ if sys.version_info >= (2, 7):
         assert_multi_line_equal,
         assert_not_in,
         assert_raises,
-        assert_raises_regexp,
-        assert_regexp_matches,
     )
+    if sys.version_info >= (3, 2):
+        from nose.tools import assert_raises_regex
+        from nose.tools import assert_regex
+    else:
+        from nose.tools import assert_raises_regexp as assert_raises_regex
+        from nose.tools import assert_regexp_matches as assert_regex
     type(assert_multi_line_equal.__self__).maxDiff = None
 else:
     def assert_in(x, y):
@@ -90,15 +94,15 @@ else:
             self.exception = exc_value
             return True
     @contextlib.contextmanager
-    def assert_raises_regexp(exc_type, regexp):
+    def assert_raises_regex(exc_type, regex):
         with assert_raises(exc_type) as ecm:
             yield
-        assert_regexp_matches(str(ecm.exception), regexp)
-    def assert_regexp_matches(text, regexp):
-        if isinstance(regexp, basestring):
-            regexp = re.compile(regexp)
-        if not regexp.search(text):
-            message = "Regexp didn't match: {0!r} not found in {1!r}".format(regexp.pattern, text)
+        assert_regex(str(ecm.exception), regex)
+    def assert_regex(text, regex):
+        if isinstance(regex, basestring):
+            regex = re.compile(regex)
+        if not regex.search(text):
+            message = "Regex didn't match: {0!r} not found in {1!r}".format(regex.pattern, text)
             assert_true(False, msg=message)
 
 @contextlib.contextmanager
@@ -265,8 +269,8 @@ __all__ = [
     'assert_not_equal',
     'assert_not_in',
     'assert_raises',
-    'assert_raises_regexp',
-    'assert_regexp_matches',
+    'assert_raises_regex',
+    'assert_regex',
     'assert_true',
     # misc
     'assert_raises_str',
