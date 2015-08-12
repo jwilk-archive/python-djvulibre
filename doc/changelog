@@ -3,8 +3,10 @@ python-djvulibre (0.6) UNRELEASED; urgency=low
   * Fix build failure with Cython 0.23.
   * Improve the test suite.
   * Document which software if required to build the package.
-  * Remove work-arounds for DjVuLibre older than 3.5.21, and documentation
-    warnings against such old DjVuLibre versions.
+  * Require DjVuLibre >= 3.5.21:
+    + Add version check to the setup script.
+    + Remove work-arounds for older version.
+    + Remove documentation warnings about older versions.
   * Remove the DjVuLibre class.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Wed, 12 Aug 2015 15:18:19 +0200

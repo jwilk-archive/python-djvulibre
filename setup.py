@@ -167,6 +167,8 @@ class build_ext(distutils.command.build_ext.build_ext):
     config_filename = 'djvu/config.pxi'
 
     def run(self):
+        if djvulibre_version < '3.5.21':
+            raise RuntimeError('DjVuLibre >= 3.5.21 is required')
         new_config = [
             'DEF PY3K = {0}'.format(sys.version_info >= (3, 0)),
             'DEF PYTHON_DJVULIBRE_VERSION = "{0}"'.format(py_version),
