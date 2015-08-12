@@ -33,7 +33,7 @@ install:
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx'
 script:
 - python setup.py build_ext --inplace
-- nosetests --verbose
+- LC_ALL=C nosetests --verbose
 - '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp'
 - python setup.py sdist
 - '! tar -tvf dist/*.tar.gz | grep -F /djvu/config.pxi'
