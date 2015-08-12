@@ -98,6 +98,11 @@ from common import (
 
 images = os.path.join(os.path.dirname(__file__), 'images', '')
 
+if sys.version_info >= (3, 2):
+    array_tobytes = array.array.tobytes
+else:
+    array_tobytes = array.array.tostring
+
 def create_djvu(commands='', sexpr=''):
     skip_unless_command_exists('djvused')
     if sexpr:
@@ -539,7 +544,7 @@ class test_page_jobs():
 
         buffer = array.array('B', blob(*([0] * 16)))
         assert_is(page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer), buffer)
-        s = buffer.tostring()
+        s = array_tobytes(buffer)
         assert_equal(s, blob(0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xef, 0xff, 0xff, 0xff, 0xa4, 0xff, 0xff, 0xff, 0xb8))
 
 class test_thumbnails:
@@ -571,7 +576,7 @@ class test_thumbnails:
         buffer = array.array('B', blob(*([0] * 25)))
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
         assert_is(pixels, buffer)
-        s = buffer[:15].tostring()
+        s = array_tobytes(buffer[:15])
         assert_equal(s, blob(0xff, 0xeb, 0xa7, 0xf2, 0xff, 0xff, 0xbf, 0x86, 0xbe, 0xff, 0xff, 0xe7, 0xd6, 0xe7, 0xff))
 
 def test_jobs():
