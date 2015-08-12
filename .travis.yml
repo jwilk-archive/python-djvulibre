@@ -16,7 +16,7 @@ matrix:
     env: DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
   - python: "3.4"
     env: DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
-  - python: "nightly"
+  - python: nightly
     env: DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
   allow_failures:
   - python: "2.6"
@@ -43,13 +43,13 @@ install:
 - export LD_LIBRARY_PATH="$HOME/opt/djvulibre/lib/"
 - pip install --upgrade pip
 - pip install --build build-cython cython${CYTHON_VERSION:+==$CYTHON_VERSION}
-- '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx'
+- \[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install sphinx
 script:
 - python setup.py build_ext --inplace
 - LC_ALL=C nosetests --verbose
-- '[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp'
+- \[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
 - grep -r -l ft=rst doc/ | xargs -t -n1 -I{} rst2xml.py --strict {} /dev/null
 - python setup.py sdist
-- '! tar -tvf dist/*.tar.gz | grep -F /djvu/config.pxi'
+- tar -tvf dist/*.tar.gz | { ! grep -F /djvu/config.pxi; }
 
 # vim:ts=2 sts=2 sw=2 et
