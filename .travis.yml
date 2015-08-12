@@ -18,6 +18,9 @@ matrix:
     env: DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
   - python: "nightly"
     env: DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
+  allow_failures:
+  - python: "2.6"
+    env: DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 addons:
   apt:
     packages:
