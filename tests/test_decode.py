@@ -15,7 +15,7 @@ import array
 import errno
 import os
 import shutil
-import subprocess as ipc
+import subprocess
 import sys
 import tempfile
 
@@ -103,6 +103,29 @@ if sys.version_info >= (3, 2):
 else:
     array_tobytes = array.array.tostring
 
+def run(*cmd, **kwargs):
+    stdin = kwargs.pop('stdin', None)
+    env = {}
+    for key, value in kwargs.items():
+        if key.isupper():
+            env[key] = value
+            continue
+        raise TypeError('{key!r} is an invalid keyword argument for this function'.format(key=key))
+    def preexec_fn():
+        os.environ.update(env)
+    kwargs = dict(
+        preexec_fn=preexec_fn,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if stdin is not None:
+        kwargs.update(stdin=subprocess.PIPE)
+    child = subprocess.Popen(list(cmd), **kwargs)
+    (stdout, stderr) = child.communicate(stdin)
+    if child.returncode != 0:
+        raise subprocess.CalledProcessError(child.returncode, cmd[0])
+    return (stdout, stderr)
+
 def create_djvu(commands='', sexpr=''):
     skip_unless_command_exists('djvused')
     if sexpr:
@@ -115,9 +138,7 @@ def create_djvu(commands='', sexpr=''):
         0x16, 0x01, 0x53, 0x6a, 0x62, 0x7a, 0x00, 0x00, 0x00, 0x04, 0xbc, 0x73, 0x1b, 0xd7,
     ))
     file.flush()
-    djvused = ipc.Popen(['djvused', '-s', file.name], stdin=ipc.PIPE, stdout=ipc.PIPE, stderr=ipc.PIPE)
-    (stdout, stderr) = djvused.communicate(commands.encode(locale_encoding))
-    assert_equal(djvused.returncode, 0)
+    (stdout, stderr) = run('djvused', '-s', file.name, stdin=commands.encode(locale_encoding))
     assert_equal(stdout, ''.encode(locale_encoding))
     assert_equal(stderr, ''.encode(locale_encoding))
     return file
@@ -305,9 +326,7 @@ class test_documents:
         assert_equal(len(document.pages), 6)
         assert_equal(len(document.files), 7)
 
-        c_env = dict(os.environ, LC_ALL='C')
-
-        stdout0, stderr0 = ipc.Popen(['djvudump', original_filename], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
+        (stdout0, stderr0) = run('djvudump', original_filename, LC_ALL='C')
         assert_equal(stderr0, b(''))
         stdout0 = stdout0.replace(b('\r\n'), b('\n'))
 
@@ -319,7 +338,7 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             tmp.close()
-            stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
+            (stdout, stderr) = run('djvudump', tmp.name, LC_ALL='C')
             assert_equal(stderr, b(''))
             stdout = stdout.replace(b('\r\n'), b('\n'))
             assert_equal(stdout, stdout0)
@@ -335,7 +354,7 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             tmp.close()
-            stdout, stderr = ipc.Popen(['djvudump', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
+            stdout, stderr = run('djvudump', tmp.name, LC_ALL='C')
             assert_equal(stderr, b(''))
             stdout = stdout.replace(b('\r\n'), b('\n'))
             stdout0 = stdout0.split(b('\n'))
@@ -355,7 +374,7 @@ class test_documents:
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
-            stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
+            (stdout, stderr) = run('djvudump', tmpfname, LC_ALL='C')
             assert_equal(stderr, b(''))
             stdout = stdout.replace(b('\r\n'), b('\n'))
             stdout = stdout.split(b('\n'))
@@ -376,7 +395,7 @@ class test_documents:
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
-            stdout, stderr = ipc.Popen(['djvudump', tmpfname], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
+            (stdout, stderr) = run('djvudump', tmpfname, LC_ALL='C')
             stdout = stdout.replace(b('\r\n'), b('\n'))
             assert_equal(stderr, b(''))
             stdout = stdout.split(b('\n'))
@@ -400,15 +419,13 @@ class test_documents:
         assert_equal(len(document.pages), 6)
         assert_equal(len(document.files), 7)
 
-        c_env = dict(os.environ, LC_ALL='C')
-
         tmp = tempfile.NamedTemporaryFile()
         try:
             job = document.export_ps(tmp.file)
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
-            stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
+            stdout, stderr = run('ps2ascii', tmp.name, LC_ALL='C')
             assert_equal(stderr, b(''))
             assert_equal(stdout, b('\x0c') * 6)
         finally:
@@ -420,7 +437,7 @@ class test_documents:
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
-            stdout, stderr = ipc.Popen(['ps2ascii', tmp.name], stdout=ipc.PIPE, stderr=ipc.PIPE, env=c_env).communicate()
+            stdout, stderr = run('ps2ascii', tmp.name, LC_ALL='C')
             assert_equal(stderr, b(''))
             stdout = stdout.split(b('\n'))
             stdout = [b(' ').join(line.split()) for line in stdout]
