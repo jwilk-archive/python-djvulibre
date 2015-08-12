@@ -1,6 +1,6 @@
 The following software is required to build *python-djvulibre*:
 
- * DjVuLibre_;
+ * DjVuLibre_ (≥ 3.5.20.4);
  * Python_ (≥ 2.6);
  * Cython_ (≥ 0.15.1);
  * pkg-config_ (recommended).
