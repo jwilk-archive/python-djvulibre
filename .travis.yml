@@ -7,17 +7,17 @@ python:
 - "3.4"
 - nightly
 env:
-- DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
+- DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.15.1
 - DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 matrix:
   exclude:
   # Old Cython doesn't seem to play well with and Python >= 3.3.
   - python: "3.3"
-    env: DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.15.1
   - python: "3.4"
-    env: DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.15.1
   - python: nightly
-    env: DJVULIBRE_VERSION=3.5.23 CYTHON_VERSION=0.15.1
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.15.1
   allow_failures:
   - python: "2.6"
     env: DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
@@ -36,7 +36,7 @@ install:
 - (cd djvulibre-*/ && ./configure --prefix="$HOME/opt/djvulibre" CXXFLAGS="-fpermissive -include cstddef")
 - make -C djvulibre-*/libdjvu/ install
 - make -C djvulibre-*/tools/ install
-- \[ "$DJVULIBRE_VERSION" = "3.5.23" ] || make -C djvulibre-*/ install
+- \[ "$DJVULIBRE_VERSION" = "3.5.21" ] || make -C djvulibre-*/ install
 - export PATH="$HOME/opt/djvulibre/bin/:$PATH"
 - export CPATH="$HOME/opt/djvulibre/include/"
 - export PKG_CONFIG_PATH="$HOME/opt/djvulibre/lib/pkgconfig/"
