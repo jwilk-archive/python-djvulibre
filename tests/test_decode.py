@@ -116,11 +116,10 @@ def create_djvu(commands='', sexpr=''):
     ))
     file.flush()
     djvused = ipc.Popen(['djvused', '-s', file.name], stdin=ipc.PIPE, stdout=ipc.PIPE, stderr=ipc.PIPE)
-    djvused.stdin.write(commands.encode(locale_encoding))
-    djvused.stdin.close()
-    assert_equal(djvused.wait(), 0)
-    assert_equal(djvused.stdout.read(), ''.encode(locale_encoding))
-    assert_equal(djvused.stderr.read(), ''.encode(locale_encoding))
+    (stdout, stderr) = djvused.communicate(commands.encode(locale_encoding))
+    assert_equal(djvused.returncode, 0)
+    assert_equal(stdout, ''.encode(locale_encoding))
+    assert_equal(stderr, ''.encode(locale_encoding))
     return file
 
 def test_context_cache():
