@@ -1,8 +1,8 @@
 python-djvulibre (0.5.1) UNRELEASED; urgency=low
 
-  * 
+  * Fix build failure with Cython 0.23.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sun, 02 Aug 2015 17:50:50 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 12 Aug 2015 11:40:46 +0200
 
 python-djvulibre (0.5) unstable; urgency=low
 
