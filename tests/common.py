@@ -39,11 +39,7 @@ if sys.version_info >= (2, 7):
         assert_raises_regexp,
         assert_regexp_matches,
     )
-    try:
-        assert_multi_line_equal.im_class.maxDiff = None
-    except AttributeError:
-        pass
-        # FIXME: How to do it Python 3?
+    type(assert_multi_line_equal.__self__).maxDiff = None
 else:
     def assert_in(x, y):
         assert_true(
