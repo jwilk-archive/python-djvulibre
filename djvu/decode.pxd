@@ -37,15 +37,14 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 
     ctypedef void (*ddjvu_message_callback_t)(ddjvu_context_t* context, void* closure) nogil
 
-    cdef enum:
+    ctypedef enum ddjvu_status_t:
         DDJVU_JOB_NOTSTARTED
         DDJVU_JOB_STARTED
         DDJVU_JOB_OK
         DDJVU_JOB_FAILED
         DDJVU_JOB_STOPPED
-    ctypedef int ddjvu_status_t
 
-    cdef enum:
+    ctypedef enum ddjvu_message_tag_t:
         DDJVU_ERROR
         DDJVU_INFO
         DDJVU_NEWSTREAM
@@ -56,7 +55,6 @@ cdef extern from 'libdjvu/ddjvuapi.h':
         DDJVU_CHUNK
         DDJVU_THUMBNAIL
         DDJVU_PROGRESS
-    ctypedef int ddjvu_message_tag_t
 
     cdef struct ddjvu_message_any_s:
         ddjvu_message_tag_t tag
@@ -86,14 +84,13 @@ cdef extern from 'libdjvu/ddjvuapi.h':
     cdef struct ddjvu_message_docinfo_s:
         ddjvu_message_any_t any
 
-    cdef enum:
+    ctypedef enum ddjvu_document_type_t:
         DDJVU_DOCTYPE_UNKNOWN
         DDJVU_DOCTYPE_SINGLEPAGE
         DDJVU_DOCTYPE_BUNDLED
         DDJVU_DOCTYPE_INDIRECT
         DDJVU_DOCTYPE_OLD_BUNDLED
         DDJVU_DOCTYPE_OLD_INDEXED
-    ctypedef int ddjvu_document_type_t
 
     cdef struct ddjvu_fileinfo_s:
         char type
@@ -125,34 +122,31 @@ cdef extern from 'libdjvu/ddjvuapi.h':
         ddjvu_message_any_t any
     char* chunkid
 
-    cdef enum:
+    ctypedef enum ddjvu_page_type_t:
         DDJVU_PAGETYPE_UNKNOWN
         DDJVU_PAGETYPE_BITONAL
         DDJVU_PAGETYPE_PHOTO
         DDJVU_PAGETYPE_COMPOUND
-    ctypedef int ddjvu_page_type_t
 
-    cdef enum:
+    ctypedef enum ddjvu_page_rotation_t:
         DDJVU_ROTATE_0
         DDJVU_ROTATE_90
         DDJVU_ROTATE_180
         DDJVU_ROTATE_270
-    ctypedef int ddjvu_page_rotation_t
 
-    cdef enum:
+    ctypedef enum ddjvu_render_mode_t:
         DDJVU_RENDER_COLOR
         DDJVU_RENDER_BLACK
         DDJVU_RENDER_COLORONLY
         DDJVU_RENDER_MASKONLY
         DDJVU_RENDER_BACKGROUND
         DDJVU_RENDER_FOREGROUND
-    ctypedef int ddjvu_render_mode_t
 
     cdef struct ddjvu_rect_s:
         int x, y
         unsigned int w, h
 
-    cdef enum:
+    ctypedef enum ddjvu_format_style_t:
         DDJVU_FORMAT_BGR24
         DDJVU_FORMAT_RGB24
         DDJVU_FORMAT_RGBMASK16
@@ -161,7 +155,6 @@ cdef extern from 'libdjvu/ddjvuapi.h':
         DDJVU_FORMAT_PALETTE8
         DDJVU_FORMAT_MSBTOLSB
         DDJVU_FORMAT_LSBTOMSB
-    ctypedef int ddjvu_format_style_t
 
     cdef struct ddjvu_message_thumbnail_s:
         ddjvu_message_any_t any

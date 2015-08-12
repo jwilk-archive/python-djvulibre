@@ -1721,7 +1721,7 @@ cdef class PixelFormatRgb(PixelFormat):
     '''
 
     def __cinit__(self, byte_order='RGB', unsigned int bpp=24):
-        cdef unsigned int _format
+        cdef ddjvu_format_style_t _format
         if byte_order == 'RGB':
             self._rgb = 1
             _format = DDJVU_FORMAT_RGB24
@@ -1772,7 +1772,7 @@ cdef class PixelFormatRgbMask(PixelFormat):
     '''
 
     def __cinit__(self, unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int xor_value = 0, unsigned int bpp = 16):
-        cdef unsigned int _format
+        cdef ddjvu_format_style_t _format
         if bpp == 16:
             _format = DDJVU_FORMAT_RGBMASK16
             red_mask = red_mask & 0xffff
@@ -1876,7 +1876,7 @@ cdef class PixelFormatPackedBits(PixelFormat):
     '''
 
     def __cinit__(self, endianness):
-        cdef int _format
+        cdef ddjvu_format_style_t _format
         if endianness == '<':
             self._little_endian = 1
             _format = DDJVU_FORMAT_LSBTOMSB
@@ -2095,7 +2095,7 @@ cdef class PageJob(Job):
         def __del__(self):
             ddjvu_page_set_rotation(<ddjvu_page_t*> self.ddjvu_job, ddjvu_page_get_initial_rotation(<ddjvu_page_t*> self.ddjvu_job))
 
-    def render(self, int mode, page_rect, render_rect, PixelFormat pixel_format not None, long row_alignment=1, buffer=None):
+    def render(self, ddjvu_render_mode_t mode, page_rect, render_rect, PixelFormat pixel_format not None, long row_alignment=1, buffer=None):
         '''
         J.render(mode, page_rect, render_rect, pixel_format, row_alignment=1, buffer=None) -> data
 
