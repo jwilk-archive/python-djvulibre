@@ -7,18 +7,17 @@ python:
 - "3.4"
 - nightly
 env:
-- DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.15.1
+- DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
 - DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 matrix:
-  exclude:
-  # Old Cython doesn't seem to play well with Python >= 3.3.
-  - python: "3.3"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.15.1
-  - python: "3.4"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.15.1
-  - python: nightly
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.15.1
   allow_failures:
+  # Old Cython might not play well with Python >= 3.3.
+  - python: "3.3"
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+  - python: "3.4"
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+  - python: nightly
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
   - python: "2.6"
     env: DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 addons:

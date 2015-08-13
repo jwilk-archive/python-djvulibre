@@ -2,8 +2,9 @@ python-djvulibre (0.6.1) UNRELEASED; urgency=low
 
   * Fix the DjVuLibre version check.
   * Add “const” to variable declarations and function prototypes.
+  * Require Cython >= 0.19.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 13 Aug 2015 18:47:21 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 13 Aug 2015 18:52:10 +0200
 
 python-djvulibre (0.6) unstable; urgency=low
 
