@@ -90,6 +90,27 @@ def get_version():
     finally:
         changelog.close()
 
+def run_pkgconfig(*cmdline):
+    cmdline = ['pkg-config'] + list(cmdline)
+    try:
+        pkgconfig = ipc.Popen(
+            cmdline,
+            stdout=ipc.PIPE, stderr=ipc.PIPE
+        )
+    except EnvironmentError:
+        _, exc, _ = sys.exc_info()
+        msg = 'cannot execute pkg-config: {exc}'.format(exc=exc)
+        distutils.log.warn(msg)
+        return
+    stdout, stderr = pkgconfig.communicate()
+    stdout = stdout.decode('ASCII')
+    stderr = stderr.decode('ASCII', 'replace')
+    if pkgconfig.returncode != 0:
+        msg = 'pkg-config failed: {msg}'.format(msg=stderr.strip())
+        distutils.log.warn(msg)
+        return
+    return stdout
+
 def pkgconfig_build_flags(*packages, **kwargs):
     flag_map = {
         '-I': 'include_dirs',
@@ -106,20 +127,8 @@ def pkgconfig_build_flags(*packages, **kwargs):
                 extra_compile_args=['-I' + os.path.join(dll_path, 'include')],
                 extra_link_args=['-L' + os.path.join(dll_path)],
             )
-    try:
-        pkgconfig = ipc.Popen(
-            ['pkg-config', '--libs', '--cflags'] + list(packages),
-            stdout=ipc.PIPE, stderr=ipc.PIPE
-        )
-    except OSError:
-        _, ex, _ = sys.exc_info()
-        distutils.log.warn('cannot execute pkg-config: ' + str(ex))
-        return fallback
-    stdout, stderr = pkgconfig.communicate()
-    stdout = stdout.decode('ASCII', 'replace')
-    stderr = stderr.decode('ASCII', 'replace')
-    if pkgconfig.returncode:
-        distutils.log.warn('pkg-config failed: ' + stderr.strip())
+    stdout = run_pkgconfig('--libs', '--cflags', *packages)
+    if stdout is None:
         return fallback
     kwargs.setdefault('extra_link_args', [])
     kwargs.setdefault('extra_compile_args', [])
@@ -135,20 +144,8 @@ def pkgconfig_build_flags(*packages, **kwargs):
 
 def pkgconfig_version(package):
     V = distutils.version.LooseVersion
-    try:
-        pkgconfig = ipc.Popen(
-            ['pkg-config', '--modversion', package],
-            stdout=ipc.PIPE, stderr=ipc.PIPE
-        )
-    except OSError:
-        _, ex, _ = sys.exc_info()
-        distutils.log.warn('cannot execute pkg-config: ' + str(ex))
-        return V('0')
-    stdout, stderr = pkgconfig.communicate()
-    stdout = stdout.decode('ASCII', 'replace')
-    stderr = stderr.decode('ASCII', 'replace')
-    if pkgconfig.returncode:
-        distutils.log.warn('pkg-config failed: ' + stderr.strip())
+    stdout = run_pkgconfig('--modversion', package)
+    if stdout is None:
         return V('0')
     version = stdout.strip()
     return V(version)
