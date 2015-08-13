@@ -146,6 +146,8 @@ def pkgconfig_version(package):
     V = distutils.version.LooseVersion
     stdout = run_pkgconfig('--modversion', package)
     if stdout is None:
+        if os.name == 'posix':
+            raise RuntimeError('cannot determine DjVuLibre version')
         return V('0')
     version = stdout.strip()
     return V(version)

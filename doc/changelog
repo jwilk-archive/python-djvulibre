@@ -6,8 +6,9 @@ python-djvulibre (0.6.1) UNRELEASED; urgency=low
   * Don't pass -Wno-uninitialized to the compiler.
     Modern versions of Cython don't generate code that would trigger this
     warning.
+  * Require pkg-config for building on POSIX systems.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 13 Aug 2015 20:57:49 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 13 Aug 2015 21:36:18 +0200
 
 python-djvulibre (0.6) unstable; urgency=low
 
