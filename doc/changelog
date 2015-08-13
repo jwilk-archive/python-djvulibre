@@ -1,8 +1,8 @@
 python-djvulibre (0.6.1) UNRELEASED; urgency=low
 
-  * 
+  * Fix the DjVuLibre version check.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Wed, 12 Aug 2015 20:03:57 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 13 Aug 2015 18:43:14 +0200
 
 python-djvulibre (0.6) unstable; urgency=low
 
