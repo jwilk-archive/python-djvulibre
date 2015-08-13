@@ -122,7 +122,7 @@ def pkgconfig_build_flags(*packages, **kwargs):
         distutils.log.warn('pkg-config failed: ' + stderr.strip())
         return fallback
     kwargs.setdefault('extra_link_args', [])
-    kwargs.setdefault('extra_compile_args', ['-Wno-uninitialized'])
+    kwargs.setdefault('extra_compile_args', [])
     for argument in stdout.split():
         key = argument[:2]
         try:
