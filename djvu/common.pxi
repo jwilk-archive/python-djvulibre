@@ -60,7 +60,7 @@ IF PY3K:
 ELSE:
     from cpython cimport PyString_FromString as charp_to_string
 
-cdef object decode_utf8(char* s):
+cdef object decode_utf8(const char *s):
     return decode_utf8_ex(s, strlen(s), NULL)
 
 cdef extern from 'Python.h':
@@ -107,7 +107,7 @@ from cpython cimport (
 
 cdef extern from 'object.h':
     ctypedef struct PyTypeObject:
-        char *tp_name
+        const char *tp_name
 
 from cpython cimport PyObject
 from cpython cimport PyObject_TypeCheck as _typecheck
@@ -119,7 +119,7 @@ IF PY3K:
     cdef object get_type_name(object type):
         return decode_utf8((<PyTypeObject*>type).tp_name)
 ELSE:
-    cdef char* get_type_name(object type):
+    cdef const char* get_type_name(object type):
         return (<PyTypeObject*>type).tp_name
 
 cdef int typecheck(object o, object type):

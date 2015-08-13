@@ -86,7 +86,7 @@ _job_weak_loft = weakref.WeakValueDictionary()
 loft_lock = allocate_lock()
 
 cdef extern from 'libdjvu/ddjvuapi.h':
-    ddjvu_context_t* ddjvu_context_create(char* program_name) nogil
+    ddjvu_context_t* ddjvu_context_create(const char *program_name) nogil
     void ddjvu_context_release(ddjvu_context_t* context) nogil
 
     void ddjvu_cache_set_size(ddjvu_context_t* context, unsigned long cachesize) nogil
@@ -107,8 +107,8 @@ cdef extern from 'libdjvu/ddjvuapi.h':
     void* ddjvu_job_get_user_data(ddjvu_job_t* job) nogil
     void ddjvu_job_release(ddjvu_job_t* job) nogil
 
-    ddjvu_document_t* ddjvu_document_create(ddjvu_context_t* context, char* url, int cache) nogil
-    ddjvu_document_t* ddjvu_document_create_by_filename(ddjvu_context_t* context, char* filename, int cache) nogil
+    ddjvu_document_t* ddjvu_document_create(ddjvu_context_t *context, const char *url, int cache) nogil
+    ddjvu_document_t* ddjvu_document_create_by_filename(ddjvu_context_t *context, const char *filename, int cache) nogil
     ddjvu_job_t* ddjvu_document_job(ddjvu_document_t* document) nogil
     void ddjvu_document_release(ddjvu_document_t* document) nogil
 
@@ -119,7 +119,7 @@ cdef extern from 'libdjvu/ddjvuapi.h':
     int ddjvu_document_decoding_done(ddjvu_document_t* document) nogil
     int ddjvu_document_decoding_error(ddjvu_document_t* document) nogil
 
-    void ddjvu_stream_write(ddjvu_document_t* document, int streamid, char* data, unsigned long datalen) nogil
+    void ddjvu_stream_write(ddjvu_document_t* document, int streamid, const char *data, unsigned long datalen) nogil
     void ddjvu_stream_close(ddjvu_document_t* document, int streamid, int stop) nogil
 
     ddjvu_document_type_t ddjvu_document_get_type(ddjvu_document_t* document) nogil
@@ -158,7 +158,7 @@ cdef extern from 'libdjvu/ddjvuapi.h':
     ddjvu_page_rotation_t ddjvu_page_get_rotation(ddjvu_page_t* page) nogil
     ddjvu_page_rotation_t ddjvu_page_get_initial_rotation(ddjvu_page_t* page) nogil
 
-    int ddjvu_page_render(ddjvu_page_t* page, ddjvu_render_mode_t mode, ddjvu_rect_t* pagerect, ddjvu_rect_t* renderrect, ddjvu_format_t* pixelformat, unsigned long rowsize, char* imagebuffer) nogil
+    int ddjvu_page_render(ddjvu_page_t *page, const ddjvu_render_mode_t mode, const ddjvu_rect_t *pagerect, const ddjvu_rect_t *renderrect, const ddjvu_format_t *pixelformat, unsigned long rowsize, char *imagebuffer) nogil
 
     ddjvu_rectmapper_t* ddjvu_rectmapper_create(ddjvu_rect_t* input, ddjvu_rect_t* output) nogil
     void ddjvu_rectmapper_modify(ddjvu_rectmapper_t* mapper, int rotation, int mirrorx, int mirrory) nogil
@@ -177,25 +177,25 @@ cdef extern from 'libdjvu/ddjvuapi.h':
 
     ddjvu_status_t ddjvu_thumbnail_status(ddjvu_document_t* document, int pagenum, int start) nogil
 
-    int ddjvu_thumbnail_render(ddjvu_document_t* document, int pagenum, int* wptr, int* hptr, ddjvu_format_t* pixelformat, unsigned long rowsize, char* imagebuffer) nogil
+    int ddjvu_thumbnail_render(ddjvu_document_t *document, int pagenum, int *wptr, int *hptr, const ddjvu_format_t *pixelformat, unsigned long rowsize, char *imagebuffer) nogil
 
-    ddjvu_job_t* ddjvu_document_print(ddjvu_document_t* document, FILE* output, int optc, char** optv) nogil
-    ddjvu_job_t* ddjvu_document_save(ddjvu_document_t* document, FILE* output, int optc, char** optv) nogil
+    ddjvu_job_t* ddjvu_document_print(ddjvu_document_t* document, FILE* output, int optc, const char * const *optv) nogil
+    ddjvu_job_t* ddjvu_document_save(ddjvu_document_t* document, FILE* output, int optc, const char * const *optv) nogil
 
     void ddjvu_miniexp_release(ddjvu_document_t* document, cexpr_t expr) nogil
 
     cexpr_t ddjvu_document_get_outline(ddjvu_document_t* document) nogil
     cexpr_t ddjvu_document_get_anno(ddjvu_document_t* document, int compat) nogil
-    cexpr_t ddjvu_document_get_pagetext(ddjvu_document_t* document, int pageno, char* maxdetail) nogil
+    cexpr_t ddjvu_document_get_pagetext(ddjvu_document_t* document, int pageno, const char *maxdetail) nogil
     cexpr_t ddjvu_document_get_pageanno(ddjvu_document_t* document, int pageno) nogil
-    char* ddjvu_anno_get_bgcolor(cexpr_t annotations) nogil
-    char* ddjvu_anno_get_zoom(cexpr_t annotations) nogil
-    char* ddjvu_anno_get_mode(cexpr_t annotations) nogil
-    char* ddjvu_anno_get_horizalign(cexpr_t annotations) nogil
-    char* ddjvu_anno_get_vertalign(cexpr_t annotations) nogil
+    const char * ddjvu_anno_get_bgcolor(cexpr_t annotations) nogil
+    const char * ddjvu_anno_get_zoom(cexpr_t annotations) nogil
+    const char * ddjvu_anno_get_mode(cexpr_t annotations) nogil
+    const char * ddjvu_anno_get_horizalign(cexpr_t annotations) nogil
+    const char * ddjvu_anno_get_vertalign(cexpr_t annotations) nogil
     cexpr_t* ddjvu_anno_get_hyperlinks(cexpr_t annotations) nogil
     cexpr_t* ddjvu_anno_get_metadata_keys(cexpr_t annotations) nogil
-    char* ddjvu_anno_get_metadata(cexpr_t annotations, cexpr_t key) nogil
+    const char * ddjvu_anno_get_metadata(cexpr_t annotations, cexpr_t key) nogil
 
 # Python files:
 
@@ -1103,7 +1103,7 @@ cdef class Document:
 
         If wait is true, wait until the job is done.
         '''
-        cdef char * optv[2]
+        cdef const char * optv[2]
         cdef int optc
         cdef SaveJob job
         optc = 0
@@ -1317,12 +1317,12 @@ cdef class Document:
             except TypeError:
                 raise TypeError('booklet_fold must a be an integer or a pair of integers')
             list_append(options, '--bookletfold={0}+{1}'.format(fold_base, fold_incr))
-        cdef char **optv
+        cdef const char **optv
         cdef int optc
         cdef size_t buffer_size
         optc = 0
         buffer_size = len(options) * sizeof (char*)
-        optv = <char**> py_malloc(buffer_size)
+        optv = <const char**> py_malloc(buffer_size)
         if optv == NULL:
             raise MemoryError('Unable to allocate {0} bytes for print options'.format(buffer_size))
         try:
@@ -3007,7 +3007,7 @@ cdef class Annotations:
         Return None if this information is not specified.
         '''
         def __get__(self):
-            cdef char* result
+            cdef const char *result
             result = ddjvu_anno_get_bgcolor(self._sexpr._cexpr)
             if result == NULL:
                 return
@@ -3021,7 +3021,7 @@ cdef class Annotations:
         Return None if this information is not specified.
         '''
         def __get__(self):
-            cdef char* result
+            cdef const char *result
             result = ddjvu_anno_get_zoom(self._sexpr._cexpr)
             if result == NULL:
                 return
@@ -3035,7 +3035,7 @@ cdef class Annotations:
         Return zero if this information is not specified.
         '''
         def __get__(self):
-            cdef char* result
+            cdef const char *result
             result = ddjvu_anno_get_mode(self._sexpr._cexpr)
             if result == NULL:
                 return
@@ -3049,7 +3049,7 @@ cdef class Annotations:
         Return None if this information is not specified.
         '''
         def __get__(self):
-            cdef char* result
+            cdef const char *result
             result = ddjvu_anno_get_horizalign(self._sexpr._cexpr)
             if result == NULL:
                 return
@@ -3063,7 +3063,7 @@ cdef class Annotations:
         Return None if this information is not specified.
         '''
         def __get__(self):
-            cdef char* result
+            cdef const char *result
             result = ddjvu_anno_get_vertalign(self._sexpr._cexpr)
             if result == NULL:
                 return
@@ -3337,7 +3337,7 @@ cdef class Metadata:
 
     def __getitem__(self, key):
         cdef _WrappedCExpr cexpr_key
-        cdef char *s
+        cdef const char *s
         cexpr_key = py2cexpr(Symbol(key))
         s = ddjvu_anno_get_metadata(self._annotations._sexpr._cexpr, cexpr_key.cexpr())
         if s == NULL:

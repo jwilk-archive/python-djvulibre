@@ -40,9 +40,9 @@ cdef extern from 'libdjvu/miniexp.h':
     cexpr_t cexpr_reverse_list 'miniexp_reverse'(cexpr_t exp) nogil
 
     int cexpr_is_str 'miniexp_stringp'(cexpr_t cexpr) nogil
-    char* cexpr_to_str 'miniexp_to_str'(cexpr_t cexpr) nogil
-    cexpr_t str_to_cexpr 'miniexp_string'(char* s) nogil
-    cexpr_t cexpr_substr 'miniexp_substring'(char* s, int n) nogil
+    const char * cexpr_to_str 'miniexp_to_str'(cexpr_t cexpr) nogil
+    cexpr_t str_to_cexpr 'miniexp_string'(const char *s) nogil
+    cexpr_t cexpr_substr 'miniexp_substring'(const char *s, int n) nogil
     cexpr_t cexpr_concat 'miniexp_concat'(cexpr_t cexpr_list) nogil
 
     cexpr_t gc_lock 'minilisp_acquire_gc_lock'(cexpr_t cexpr) nogil
@@ -108,7 +108,7 @@ cdef class _ExpressionIO:
         cdef cexpr_io_t cio
         cdef int flags
     ELSE:
-        cdef int (*backup_io_puts)(char *s)
+        cdef int (*backup_io_puts)(const char *s)
         cdef int (*backup_io_getc)()
         cdef int (*backup_io_ungetc)(int c)
         cdef int backup_io_7bit
@@ -203,7 +203,7 @@ cdef class _ExpressionIO:
 
 IF HAVE_MINIEXP_IO_T:
 
-    cdef int _myio_puts(cexpr_io_t* cio, char *s):
+    cdef int _myio_puts(cexpr_io_t* cio, const char *s):
         cdef _ExpressionIO io
         xio = <_ExpressionIO> cio.data[0]
         try:
@@ -245,7 +245,7 @@ ELSE:
 
     cdef _ExpressionIO _myio
 
-    cdef int _myio_puts(char *s):
+    cdef int _myio_puts(const char *s):
         try:
             if _myio.stdout_binary:
                 _myio.stdout.write(s)
@@ -695,7 +695,7 @@ class StringExpression(_Expression_):
     bytes = property(bytes)
 
     def _get_lvalue(BaseExpression self not None):
-        cdef char *bytes
+        cdef const char *bytes
         bytes = cexpr_to_str(self.wexpr.cexpr())
         IF PY3K:
             return decode_utf8(bytes)
@@ -704,7 +704,7 @@ class StringExpression(_Expression_):
 
     IF PY3K:
         def __repr__(BaseExpression self not None):
-            cdef char *bytes
+            cdef const char *bytes
             bytes = cexpr_to_str(self.wexpr.cexpr())
             try:
                 string = decode_utf8(bytes)
