@@ -15,6 +15,8 @@
 DjVuLibre bindings: module for handling Lisp S-expressions
 '''
 
+cimport cython
+
 include 'common.pxi'
 
 cdef extern from 'libdjvu/miniexp.h':
@@ -158,6 +160,7 @@ cdef class _ExpressionIO:
             io_7bit = escape_unicode
             _myio = self
 
+    @cython.final
     cdef close(self):
         IF not HAVE_MINIEXP_IO_T:
             global io_7bit, io_puts, io_getc, io_ungetc
@@ -181,23 +184,29 @@ cdef class _ExpressionIO:
 
     IF HAVE_MINIEXP_IO_T:
 
+        @cython.final
         cdef cexpr_t read(self):
             return cexpr_read(&self.cio)
 
+        @cython.final
         cdef cexpr_t print_(self, cexpr_t cexpr):
             return cexpr_print(&self.cio, cexpr)
 
+        @cython.final
         cdef cexpr_t printw(self, cexpr_t cexpr, int width):
             return cexpr_printw(&self.cio, cexpr, width)
 
     ELSE:
 
+        @cython.final
         cdef cexpr_t read(self):
             return cexpr_read()
 
+        @cython.final
         cdef cexpr_t print_(self, cexpr_t cexpr):
             return cexpr_print(cexpr)
 
+        @cython.final
         cdef cexpr_t printw(self, cexpr_t cexpr, int width):
             return cexpr_printw(cexpr, width)
 
