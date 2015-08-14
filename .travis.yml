@@ -8,9 +8,14 @@ python:
 - nightly
 env:
 - DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+- DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
 - DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 matrix:
-  allow_failures:
+  exclude:
+  - python: "2.6"
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
+  - python: "2.7"
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
   - python: "3.2"
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
   - python: "3.3"
@@ -19,6 +24,7 @@ matrix:
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
   - python: nightly
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+  allow_failures:
   - python: "2.6"
     env: DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 addons:
