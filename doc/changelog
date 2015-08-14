@@ -3,7 +3,7 @@ python-djvulibre (0.6.1) UNRELEASED; urgency=low
   * Fix the DjVuLibre version check.
   * Add “const” to variable declarations and function prototypes.
   * Optimize S-expression input/output.
-  * Require Cython >= 0.19.
+  * Require Cython >= 0.19, or Cython >= 0.20 for Python 3.
     + Remove work-arounds for older versions.
   * Don't pass -Wno-uninitialized to the compiler.
     Modern versions of Cython don't generate code that would trigger this
