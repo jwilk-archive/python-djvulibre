@@ -4,12 +4,13 @@ python-djvulibre (0.6.1) UNRELEASED; urgency=low
   * Add “const” to variable declarations and function prototypes.
   * Optimize S-expression input/output.
   * Require Cython >= 0.19.
+    + Remove work-arounds for older versions.
   * Don't pass -Wno-uninitialized to the compiler.
     Modern versions of Cython don't generate code that would trigger this
     warning.
   * Require pkg-config for building on POSIX systems.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Fri, 14 Aug 2015 09:09:05 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 14 Aug 2015 11:30:01 +0200
 
 python-djvulibre (0.6) unstable; urgency=low
 

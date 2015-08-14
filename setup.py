@@ -202,20 +202,6 @@ class build_ext(distutils.command.build_ext.build_ext):
             distutils.log.info('cythoning {ext.name!r} extension'.format(ext=ext))
             def build_c(source, target):
                 distutils.spawn.spawn(['cython', source])
-                # XXX This is needed to work around <https://bugs.debian.org/607112>.
-                # Fortunately, python-djvulibre doesn't really need __Pyx_GetVtable().
-                file = open(target, 'r+')
-                try:
-                    contents = file.read()
-                    contents = re.compile(
-                        r'(?<=^static int __Pyx_GetVtable\(PyObject [*]dict, void [*]vtabptr\) {)$',
-                        re.MULTILINE
-                    ).sub(' return 0;', contents)
-                    file.seek(0)
-                    file.truncate()
-                    file.write(contents)
-                finally:
-                    file.close()
             self.make_file(depends, target, build_c, [source, target])
 
 class clean(distutils.command.clean.clean):

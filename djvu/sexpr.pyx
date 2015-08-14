@@ -905,20 +905,12 @@ class ListExpression(_Expression_):
             raise TypeError('key must be an integer or a slice')
 
     def extend(self, iterable):
-        # Normally one would use
-        #   self[len(self):] = …
-        # but Cython (at least 0.13) generates broken code for such a statement.
-        # https://bugs.debian.org/604963
         iter(iterable)
-        self[slice(len(self), None, None)] = iterable
+        self[len(self):] = iterable
 
     def __iadd__(self, iterable):
-        # Normally one would use
-        #   self[len(self):] = …
-        # but Cython (at least 0.13) generates broken code for such a statement.
-        # https://bugs.debian.org/604963
         iter(iterable)
-        self[slice(len(self), None, None)] = iterable
+        self[len(self):] = iterable
         return self
 
     def insert(BaseExpression self not None, long index, item):
