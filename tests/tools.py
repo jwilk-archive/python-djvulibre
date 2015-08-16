@@ -157,11 +157,10 @@ else:
     cmp = cmp
 
 if py3k:
-    def blob(*args):
-        return bytes(args)
+    bytes = bytes
 else:
-    def blob(*args):
-        return ''.join(map(chr, args))
+    def bytes(iterable):
+        return ''.join(chr(c) for c in iterable)
 
 if py3k:
     from io import StringIO
