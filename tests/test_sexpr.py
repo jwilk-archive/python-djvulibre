@@ -50,11 +50,11 @@ from tools import (
     assert_repr,
     wildcard_import,
     # Python 2/3 compat:
-    py3k,
-    long,
-    b,
-    u,
     StringIO,
+    b,
+    long,
+    py3k,
+    u,
 )
 
 def assert_pickle_equal(obj):
