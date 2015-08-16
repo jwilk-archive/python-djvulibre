@@ -68,26 +68,59 @@ def assert_pickle_equal(obj):
 
 class test_int_expressions():
 
-    def test_short(self):
-        x = Expression(3)
-        assert_repr(x, 'Expression(3)')
+    def _test_int(self, n, x=None):
+        if x is None:
+            x = Expression(n)
         assert_is(x, Expression(x))
-        assert_equal(x.value, 3)
-        assert_equal(x.lvalue, 3)
-        assert_equal(str(x), '3')
-        assert_repr(x, repr(Expression.from_string(str(x))))
-        assert_equal(int(x), 3)
-        long_x = long(x)
-        assert_equal(type(long_x), long)
-        assert_equal(long_x, long(3))
-        assert_equal(x, Expression(3))
-        assert_not_equal(x, Expression(-3))
-        assert_equal(hash(x), x.value)
-        assert_not_equal(x, 3)
+        # __repr__():
+        assert_repr(x, 'Expression({n})'.format(n=int(n)))
+        # value:
+        v = x.value
+        assert_equal(type(v), int)
+        assert_equal(v, n)
+        # lvalue:
+        v = x.lvalue
+        assert_equal(type(v), int)
+        assert_equal(v, n)
+        # __int__():
+        i = int(x)
+        assert_equal(type(i), int)
+        assert_equal(i, n)
+        # __long__():
+        i = long(x)
+        assert_equal(type(i), long)
+        assert_equal(i, n)
+        # __str__():
+        s = str(x)
+        assert_equal(s, str(n))
+        # __eq__(), __ne__():
+        assert_equal(x, Expression(n))
+        assert_not_equal(x, n)
+        assert_not_equal(x, Expression(n + 37))
+        # __hash__():
+        assert_equal(hash(x), n)
+        # __bool__() / __nonzero__():
+        obj = object()
+        if n:
+            assert_is(x and obj, obj)
+            assert_is(x or obj, x)
+        else:
+            assert_is(x and obj, x)
+            assert_is(x or obj, obj)
+        # pickle:
+        assert_pickle_equal(x)
+
+    def test_int(self):
+        self._test_int(42)
+
+    def test_parse(self):
+        self._test_int(42, Expression.from_string('42'))
+
+    def test_0(self):
+        self._test_int(0)
 
     def test_long(self):
-        x = Expression(long(42))
-        assert_repr(x, 'Expression(42)')
+        self._test_int(long(42))
 
     def test_limits(self):
         assert_equal(Expression((1 << 29) - 1).value, (1 << 29) - 1)
@@ -96,14 +129,6 @@ class test_int_expressions():
             Expression(1 << 29)
         with assert_raises_str(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
             Expression((-1 << 29) - 1)
-
-    def test_bool(self):
-        assert_equal(Expression(1) and 42, 42)
-        assert_equal(Expression(0) or 42, 42)
-
-    def test_pickle(self):
-        x = Expression(42)
-        assert_pickle_equal(x)
 
 class test_float_expressions():
 
