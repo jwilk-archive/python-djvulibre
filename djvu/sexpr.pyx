@@ -398,71 +398,33 @@ cdef class BaseSymbol:
     def __reduce__(self):
         return (Symbol, (self._bytes,))
 
-def Symbol__new__(cls, name):
-    '''
-    Symbol(name) -> a symbol
-    '''
-    self = None
-    if is_unicode(name):
-        name = encode_utf8(name)
-    try:
-        if cls is _Symbol_:
-            self = symbol_dict[name]
-    except KeyError:
-        pass
-    if self is None:
-        if not is_bytes(name):
-            name = str(name)
-            IF PY3K:
-                name = encode_utf8(name)
-        self = BaseSymbol.__new__(cls, name)
-        if cls is _Symbol_:
-            symbol_dict[name] = self
-    return self
-
 class Symbol(BaseSymbol):
-    __new__ = staticmethod(Symbol__new__)
+
+    @staticmethod
+    def __new__(cls, name):
+        '''
+        Symbol(name) -> a symbol
+        '''
+        self = None
+        if is_unicode(name):
+            name = encode_utf8(name)
+        try:
+            if cls is _Symbol_:
+                self = symbol_dict[name]
+        except KeyError:
+            pass
+        if self is None:
+            if not is_bytes(name):
+                name = str(name)
+                IF PY3K:
+                    name = encode_utf8(name)
+            self = BaseSymbol.__new__(cls, name)
+            if cls is _Symbol_:
+                symbol_dict[name] = self
+        return self
 
 cdef object _Symbol_
 _Symbol_ = Symbol
-
-del Symbol__new__
-
-def Expression__new__(cls, value):
-    '''
-    Expression(value) -> an expression
-    '''
-    if typecheck(value, _Expression_) and (not typecheck(value, ListExpression) or not value):
-        return value
-    if is_int(value):
-        return IntExpression(value)
-    elif typecheck(value, _Symbol_):
-        return SymbolExpression(value)
-    elif is_unicode(value):
-        return StringExpression(encode_utf8(value))
-    elif is_bytes(value):
-        if PY3K:
-            return StringExpression(bytes(value))
-        else:
-            return StringExpression(str(value))
-    else:
-        return ListExpression(iter(value))
-
-def _expression_from_stream(stdin):
-    '''
-    Expression.from_stream(stream) -> an expression
-
-    Read an expression from a stream.
-    '''
-    cdef _ExpressionIO xio
-    try:
-        xio = _ExpressionIO(stdin=stdin)
-        try:
-            return _c2py(xio.read())
-        except InvalidExpression:
-            raise ExpressionSyntaxError
-    finally:
-        xio.close()
 
 def _expression_from_string(str):
     '''
@@ -506,14 +468,49 @@ class Expression(BaseExpression):
     of the cdr. (This is only partially supported by Python bindings.)
 
     '''
-    __new__ = staticmethod(Expression__new__)
+
+    @staticmethod
+    def __new__(cls, value):
+        '''
+        Expression(value) -> an expression
+        '''
+        if typecheck(value, _Expression_) and (not typecheck(value, ListExpression) or not value):
+            return value
+        if is_int(value):
+            return IntExpression(value)
+        elif typecheck(value, _Symbol_):
+            return SymbolExpression(value)
+        elif is_unicode(value):
+            return StringExpression(encode_utf8(value))
+        elif is_bytes(value):
+            if PY3K:
+                return StringExpression(bytes(value))
+            else:
+                return StringExpression(str(value))
+        else:
+            return ListExpression(iter(value))
+
+    @staticmethod
+    def from_stream(stdin):
+        '''
+        Expression.from_stream(stream) -> an expression
+
+        Read an expression from a stream.
+        '''
+        cdef _ExpressionIO xio
+        try:
+            xio = _ExpressionIO(stdin=stdin)
+            try:
+                return _c2py(xio.read())
+            except InvalidExpression:
+                raise ExpressionSyntaxError
+        finally:
+            xio.close()
+
     from_string = staticmethod(_expression_from_string)
-    from_stream = staticmethod(_expression_from_stream)
 
 cdef object _Expression_
 _Expression_ = Expression
-
-del Expression__new__
 
 cdef object BaseExpression_richcmp(object left, object right, int op):
     if not typecheck(left, BaseExpression):
@@ -592,23 +589,6 @@ cdef class BaseExpression:
     def __reduce__(self):
         return (_expression_from_string, (self.as_string(),))
 
-def IntExpression__new__(cls, value):
-    '''
-    IntExpression(n) -> an integer expression
-    '''
-    cdef BaseExpression self
-    self = BaseExpression.__new__(cls)
-    if typecheck(value, _WrappedCExpr):
-        self.wexpr = value
-    elif is_int(value):
-        if -1 << 29 <= value < 1 << 29:
-            self.wexpr = wexpr(int_to_cexpr(value))
-        else:
-            raise ValueError('value not in range(-2 ** 29, 2 ** 29)')
-    else:
-        raise TypeError('value must be an integer')
-    return self
-
 class IntExpression(_Expression_):
 
     '''
@@ -617,7 +597,23 @@ class IntExpression(_Expression_):
     To create objects of this class, use the Expression class constructor.
     '''
 
-    __new__ = staticmethod(IntExpression__new__)
+    @staticmethod
+    def __new__(cls, value):
+        '''
+        IntExpression(n) -> an integer expression
+        '''
+        cdef BaseExpression self
+        self = BaseExpression.__new__(cls)
+        if typecheck(value, _WrappedCExpr):
+            self.wexpr = value
+        elif is_int(value):
+            if -1 << 29 <= value < 1 << 29:
+                self.wexpr = wexpr(int_to_cexpr(value))
+            else:
+                raise ValueError('value not in range(-2 ** 29, 2 ** 29)')
+        else:
+            raise TypeError('value must be an integer')
+        return self
 
     IF PY3K:
         def __bool__(self):
@@ -641,30 +637,27 @@ class IntExpression(_Expression_):
     def __hash__(self):
         return hash(self.value)
 
-del IntExpression__new__
-
-def SymbolExpression__new__(cls, value):
-    '''
-    SymbolExpression(Symbol(s)) -> a symbol expression
-    '''
-    cdef BaseExpression self
-    cdef BaseSymbol symbol
-    self = BaseExpression.__new__(cls)
-    if typecheck(value, _WrappedCExpr):
-        self.wexpr = value
-    elif typecheck(value, _Symbol_):
-        symbol = value
-        self.wexpr = wexpr(symbol_to_cexpr(symbol._bytes))
-    else:
-        raise TypeError('value must be a Symbol')
-    return self
-
 class SymbolExpression(_Expression_):
     '''
     To create objects of this class, use the Expression class constructor.
     '''
 
-    __new__ = staticmethod(SymbolExpression__new__)
+    @staticmethod
+    def __new__(cls, value):
+        '''
+        SymbolExpression(Symbol(s)) -> a symbol expression
+        '''
+        cdef BaseExpression self
+        cdef BaseSymbol symbol
+        self = BaseExpression.__new__(cls)
+        if typecheck(value, _WrappedCExpr):
+            self.wexpr = value
+        elif typecheck(value, _Symbol_):
+            symbol = value
+            self.wexpr = wexpr(symbol_to_cexpr(symbol._bytes))
+        else:
+            raise TypeError('value must be a Symbol')
+        return self
 
     def _get_lvalue(BaseExpression self not None):
         return _Symbol_(cexpr_to_symbol(self.wexpr.cexpr()))
@@ -675,35 +668,33 @@ class SymbolExpression(_Expression_):
     def __hash__(self):
         return hash(self.value)
 
-del SymbolExpression__new__
-
-def StringExpression__new__(cls, value):
-    '''
-    SymbolExpression(s) -> a string expression
-    '''
-    cdef BaseExpression self
-    self = BaseExpression.__new__(cls)
-    if typecheck(value, _WrappedCExpr):
-        self.wexpr = value
-    elif is_bytes(value):
-        gc_lock(NULL)  # protect from collecting a just-created object
-        try:
-            self.wexpr = wexpr(str_to_cexpr(value))
-        finally:
-            gc_unlock(NULL)
-    else:
-        raise TypeError('value must be a byte string')
-    return self
-
 class StringExpression(_Expression_):
     '''
     To create objects of this class, use the Expression class constructor.
     '''
-    __new__ = staticmethod(StringExpression__new__)
 
+    @staticmethod
+    def __new__(cls, value):
+        '''
+        SymbolExpression(s) -> a string expression
+        '''
+        cdef BaseExpression self
+        self = BaseExpression.__new__(cls)
+        if typecheck(value, _WrappedCExpr):
+            self.wexpr = value
+        elif is_bytes(value):
+            gc_lock(NULL)  # protect from collecting a just-created object
+            try:
+                self.wexpr = wexpr(str_to_cexpr(value))
+            finally:
+                gc_unlock(NULL)
+        else:
+            raise TypeError('value must be a byte string')
+        return self
+
+    @property
     def bytes(BaseExpression self not None):
         return cexpr_to_str(self.wexpr.cexpr())
-    bytes = property(bytes)
 
     def _get_lvalue(BaseExpression self not None):
         cdef const char *bytes
@@ -728,8 +719,6 @@ class StringExpression(_Expression_):
 
     def __hash__(self):
         return hash(self.value)
-
-del StringExpression__new__
 
 class InvalidExpression(ValueError):
     pass
@@ -785,23 +774,24 @@ cdef _WrappedCExpr _build_list_cexpr(object items):
     finally:
         gc_unlock(NULL)
 
-def ListExpression__new__(cls, items):
-    '''
-    ListExpression(iterable) -> a list expression
-    '''
-    cdef BaseExpression self
-    self = BaseExpression.__new__(cls)
-    if typecheck(items, _WrappedCExpr):
-        self.wexpr = items
-    else:
-        self.wexpr = _build_list_cexpr(items)
-    return self
 
 class ListExpression(_Expression_):
     '''
     To create objects of this class, use the Expression class constructor.
     '''
-    __new__ = staticmethod(ListExpression__new__)
+
+    @staticmethod
+    def __new__(cls, items):
+        '''
+        ListExpression(iterable) -> a list expression
+        '''
+        cdef BaseExpression self
+        self = BaseExpression.__new__(cls)
+        if typecheck(items, _WrappedCExpr):
+            self.wexpr = items
+        else:
+            self.wexpr = _build_list_cexpr(items)
+        return self
 
     IF PY3K:
         def __bool__(BaseExpression self not None):
