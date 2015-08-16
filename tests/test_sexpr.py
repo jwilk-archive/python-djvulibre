@@ -34,7 +34,7 @@ from djvu.sexpr import (
     __version__,
 )
 
-from common import (
+from tools import (
     assert_equal,
     assert_false,
     assert_in,

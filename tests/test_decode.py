@@ -73,7 +73,7 @@ from djvu.sexpr import (
     Symbol,
 )
 
-from common import (
+from tools import (
     skip_unless_command_exists,
     assert_equal,
     assert_true,

@@ -30,7 +30,7 @@ from djvu.sexpr import (
     Symbol,
 )
 
-from common import (
+from tools import (
     assert_equal,
     assert_is,
     assert_is_instance,
