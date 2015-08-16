@@ -1,6 +1,44 @@
 #!/bin/sh
+
+# Copyright © 2015 Jakub Wilk <jwilk@jwilk.net>
+#
+# This file is part of python-djvulibre.
+#
+# python-djvulibre is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License version 2
+# as published by the Free Software Foundation.
+#
+# python-djvulibre is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+usage()
+{
+    printf 'Usage: %s [--no-build] [pythonX.Y...]\n' "$0"
+}
+
+args=$(getopt -n "$0" -o 'h' --long 'help,no-build' -- "$@")
+if [ $? -ne 0 ]
+then
+    usage >&2
+    exit 1
+fi
+eval set -- "$args"
+opt_build=y
+while true
+do
+    case "$1" in
+        -h|--help) usage; exit 0;;
+        --no-build) opt_build=; shift;;
+        --) shift; break;;
+        *) printf '%s: internal error (%s)' "$0" "$1" >&2; exit 1;;
+    esac
+done
+
 set -e
 [ $# = 0 ] && set -- python
+[ -z $opt_build ] || \
 printf '%s\n' "$@" \
 | xargs -t -I{python} env {python} setup.py build --build-lib build/{python}
 cd tests
