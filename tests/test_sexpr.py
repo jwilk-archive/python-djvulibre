@@ -51,7 +51,7 @@ from tools import (
     wildcard_import,
     # Python 2/3 compat:
     py3k,
-    L,
+    long,
     b,
     u,
     StringIO,
@@ -77,17 +77,16 @@ class test_int_expressions():
         assert_equal(str(x), '3')
         assert_repr(x, repr(Expression.from_string(str(x))))
         assert_equal(int(x), 3)
-        if not py3k:
-            long_x = long(x)
-            assert_equal(type(long_x), long)
-            assert_equal(long_x, L(3))
+        long_x = long(x)
+        assert_equal(type(long_x), long)
+        assert_equal(long_x, long(3))
         assert_equal(x, Expression(3))
         assert_not_equal(x, Expression(-3))
         assert_equal(hash(x), x.value)
         assert_not_equal(x, 3)
 
     def test_long(self):
-        x = Expression(L(42))
+        x = Expression(long(42))
         assert_repr(x, 'Expression(42)')
 
     def test_limits(self):

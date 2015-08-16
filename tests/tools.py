@@ -140,11 +140,9 @@ else:
         return s
 
 if py3k:
-    def L(i):
-        return i
+    long = int
 else:
-    def L(i):
-        return long(i)
+    long = long
 
 if py3k:
     def cmp(x, y):
@@ -245,11 +243,11 @@ def wildcard_import(mod):
 
 __all__ = [
     # Python 2/3 compat:
-    'L',
     'StringIO',
     'b',
     'blob',
     'cmp',
+    'long',
     'maxsize',
     'py3k',
     'u',
