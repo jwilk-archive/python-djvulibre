@@ -38,8 +38,9 @@ from tools import (
     assert_not_equal,
     assert_raises_str,
     assert_repr,
-    cmp,
     wildcard_import,
+    # Python 2/3 compat:
+    cmp,
 )
 
 class test_text_zones():

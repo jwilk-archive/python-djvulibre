@@ -74,28 +74,29 @@ from djvu.sexpr import (
 )
 
 from tools import (
-    skip_unless_command_exists,
     assert_equal,
-    assert_true,
-    assert_raises_str,
-    assert_is,
     assert_false,
+    assert_is,
     assert_is_instance,
     assert_list_equal,
     assert_raises,
     assert_raises_regex,
+    assert_raises_str,
+    assert_true,
     SkipTest,
-    b,
-    blob,
+    skip_unless_c_messages,
+    skip_unless_command_exists,
+    skip_unless_translation_exists,
     interim_locale,
     locale_encoding,
+    wildcard_import,
+    # Python 2/3 compat:
+    b,
+    blob,
     maxsize,
     py3k,
-    skip_unless_c_messages,
-    skip_unless_translation_exists,
     u,
     unicode,
-    wildcard_import,
 )
 
 images = os.path.join(os.path.dirname(__file__), 'images', '')

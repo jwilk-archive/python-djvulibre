@@ -35,25 +35,26 @@ from djvu.sexpr import (
 )
 
 from tools import (
+    SkipTest,
     assert_equal,
     assert_false,
     assert_in,
     assert_is,
     assert_is_instance,
-    assert_list_equal,
     assert_less,
+    assert_list_equal,
     assert_not_equal,
     assert_not_in,
     assert_raises,
     assert_raises_str,
     assert_repr,
-    SkipTest,
-    L,
-    StringIO,
-    b,
-    py3k,
-    u,
     wildcard_import,
+    # Python 2/3 compat:
+    py3k,
+    L,
+    b,
+    u,
+    StringIO,
 )
 
 def assert_pickle_equal(obj):
