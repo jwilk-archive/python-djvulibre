@@ -239,12 +239,8 @@ def skip_unless_command_exists(command):
     raise SkipTest('command not found: ' + command)
 
 def wildcard_import(mod):
-    ns_orig = {}
-    exec('', ns_orig)
     ns = {}
-    exec('from {mod} import *'.format(mod=mod), ns)
-    for key in ns_orig:
-        del ns[key]
+    exec('from {mod} import *'.format(mod=mod), {}, ns)
     return ns
 
 __all__ = [
