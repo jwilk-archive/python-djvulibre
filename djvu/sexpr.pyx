@@ -626,7 +626,7 @@ class IntExpression(_Expression_):
         return self.value
 
     def __long__(self):
-        return 0L + self.value
+        return long(self.value)
 
     def _get_lvalue(BaseExpression self not None):
         return cexpr_to_int(self.wexpr.cexpr())

@@ -24,12 +24,6 @@ matrix:
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
   - python: nightly
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
-  allow_failures:
-  # A bug in Cython 0.23 breaks test_sexpr.test_int_expressions.test_short
-  # on Python 2.6:
-  # https://mail.python.org/pipermail/cython-devel/2015-August/004485.html
-  - python: "2.6"
-    env: DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 addons:
   apt:
     packages:

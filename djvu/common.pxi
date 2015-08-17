@@ -41,6 +41,7 @@ IF PY3K:
     from cpython cimport PyNumber_Long as int
 ELSE:
     from cpython cimport PyNumber_Int as int
+    from cpython cimport PyNumber_Long as long
 
 # Python strings:
 

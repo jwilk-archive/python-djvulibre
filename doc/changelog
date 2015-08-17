@@ -1,8 +1,10 @@
 python-djvulibre (0.6.2) UNRELEASED; urgency=low
 
   * Improve the test suite.
+  * Fix the long(<intexpr>) return type with Cython 0.23 and Python 2.6.
+    https://mail.python.org/pipermail/cython-devel/2015-August/004485.html
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 17 Aug 2015 21:29:27 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 17 Aug 2015 21:30:11 +0200
 
 python-djvulibre (0.6.1) unstable; urgency=low
 
