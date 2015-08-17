@@ -241,12 +241,10 @@ class test_documents:
         assert_equal(document.type, DOCUMENT_TYPE_SINGLE_PAGE)
         assert_equal(len(document.pages), 1)
         assert_equal(len(document.files), 1)
-
         decoding_job = document.decoding_job
         assert_true(decoding_job.is_done)
         assert_false(decoding_job.is_error)
         assert_equal(decoding_job.status, JobOK)
-
         file = document.files[0]
         assert_is(type(file), File)
         assert_is(file.document, document)
@@ -264,7 +262,6 @@ class test_documents:
         assert_equal(type(file.name), unicode)
         assert_equal(file.title, u('test1.djvu'))
         assert_equal(type(file.title), unicode)
-
         dump = document.files[0].dump
         assert_equal(type(dump), unicode)
         assert_equal(
@@ -274,7 +271,6 @@ class test_documents:
                 u('    Sjbz [53]         JB2 bilevel data'),
             ]
         )
-
         page = document.pages[0]
         assert_equal(type(page), Page)
         assert_is(page.document, document)
@@ -289,7 +285,6 @@ class test_documents:
         assert_equal(type(file), File)
         assert_equal(file.id, u('test1.djvu'))
         assert_equal(type(file.id), unicode)
-
         dump = document.files[0].dump
         assert_equal(type(dump), unicode)
         assert_equal(
@@ -299,20 +294,16 @@ class test_documents:
                 u('    Sjbz [53]         JB2 bilevel data'),
             ]
         )
-
         assert_is(document.get_message(wait=False), None)
         assert_is(context.get_message(wait=False), None)
-
         with assert_raises_str(IndexError, 'file number out of range'):
             document.files[-1].get_info()
         assert_is(document.get_message(wait=False), None)
         assert_is(context.get_message(wait=False), None)
-
         with assert_raises_str(IndexError, 'page number out of range'):
             document.pages[-1]
         with assert_raises_str(IndexError, 'page number out of range'):
             document.pages[1]
-
         assert_is(document.get_message(wait=False), None)
         assert_is(context.get_message(wait=False), None)
 
@@ -329,11 +320,9 @@ class test_documents:
         assert_equal(document.type, DOCUMENT_TYPE_BUNDLED)
         assert_equal(len(document.pages), 2)
         assert_equal(len(document.files), 3)
-
         (stdout0, stderr0) = run('djvudump', original_filename, LC_ALL='C')
         assert_equal(stderr0, b(''))
         stdout0 = stdout0.replace(b('\r\n'), b('\n'))
-
         tmpdir = tempfile.mkdtemp()
         try:
             tmp = open(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
@@ -349,7 +338,6 @@ class test_documents:
         finally:
             shutil.rmtree(tmpdir)
             tmp = None
-
         tmpdir = tempfile.mkdtemp()
         try:
             tmp = open(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
@@ -370,7 +358,6 @@ class test_documents:
         finally:
             shutil.rmtree(tmpdir)
             tmp = None
-
         tmpdir = tempfile.mkdtemp()
         try:
             tmpfname = os.path.join(tmpdir, 'index.djvu')
@@ -391,7 +378,6 @@ class test_documents:
             assert_equal(stdout[-1], b(''))
         finally:
             shutil.rmtree(tmpdir)
-
         tmpdir = tempfile.mkdtemp()
         try:
             tmpfname = os.path.join(tmpdir, 'index.djvu')
@@ -422,7 +408,6 @@ class test_documents:
         assert_equal(document.type, DOCUMENT_TYPE_BUNDLED)
         assert_equal(len(document.pages), 2)
         assert_equal(len(document.files), 3)
-
         tmp = tempfile.NamedTemporaryFile()
         try:
             job = document.export_ps(tmp.file)
@@ -582,19 +567,15 @@ class test_thumbnails:
         message = document.get_message()
         assert_equal(type(message), ThumbnailMessage)
         assert_equal(message.thumbnail.page.n, 0)
-
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), dry_run=True)
         assert_equal((w, h, r), (5, 3, 5))
         assert_is(pixels, None)
-
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey())
         assert_equal((w, h, r), (5, 3, 5))
         assert_equal(pixels[:15], bytes([0xff, 0xeb, 0xa7, 0xf2, 0xff, 0xff, 0xbf, 0x86, 0xbe, 0xff, 0xff, 0xe7, 0xd6, 0xe7, 0xff]))
-
         buffer = array.array('B', bytes([0]))
         with assert_raises_str(ValueError, 'Image buffer is too small (25 > 1)'):
             (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
-
         buffer = array.array('B', bytes([0] * 25))
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
         assert_is(pixels, buffer)
@@ -655,7 +636,6 @@ class test_streams:
         assert_equal(message.name, 'dummy.djvu')
         assert_equal(message.uri, 'dummy://dummy.djvu')
         assert_equal(type(message.stream), Stream)
-
         with assert_raises(NotAvailable):
             document.outline.sexpr
         with assert_raises(NotAvailable):
@@ -664,7 +644,6 @@ class test_streams:
             document.pages[0].text.sexpr
         with assert_raises(NotAvailable):
             document.pages[0].annotations.sexpr
-
         try:
             with open(images + 'test1.djvu', 'rb') as fp:
                 message.stream.write(fp.read())
@@ -672,10 +651,8 @@ class test_streams:
             message.stream.close()
         with assert_raises_str(IOError, 'I/O operation on closed file'):
             message.stream.write(b('eggs'))
-
         message = document.get_message()
         assert_equal(type(message), DocInfoMessage)
-
         outline = document.outline
         outline.wait()
         x = outline.sexpr
@@ -744,13 +721,11 @@ class test_sexpr:
         assert_equal(type(document), Document)
         message = document.get_message()
         assert_equal(type(message), DocInfoMessage)
-
         anno = DocumentAnnotations(document, shared=False)
         assert_equal(type(anno), DocumentAnnotations)
         anno.wait()
         x = anno.sexpr
         assert_equal(x, Expression([]))
-
         anno = document.annotations
         assert_equal(type(anno), DocumentAnnotations)
         anno.wait()
@@ -788,12 +763,10 @@ class test_sexpr:
         )
         metadata = anno.metadata
         assert_equal(type(metadata), Metadata)
-
         hyperlinks = anno.hyperlinks
         assert_equal(type(hyperlinks), Hyperlinks)
         assert_equal(len(hyperlinks), 0)
         assert_equal(list(hyperlinks), [])
-
         outline = document.outline
         assert_equal(type(outline), DocumentOutline)
         outline.wait()
@@ -827,7 +800,6 @@ class test_sexpr:
         assert_equal(type(page_metadata), Metadata)
         assert_equal(page_metadata.keys(), metadata.keys())
         assert_equal([page_metadata[k] == metadata[k] for k in metadata], [True, True, True, True, True])
-
         hyperlinks = anno.hyperlinks
         assert_equal(type(hyperlinks), Hyperlinks)
         assert_equal(len(hyperlinks), 2)
@@ -886,7 +858,6 @@ class test_sexpr:
         )
         with assert_raises_str(TypeError, 'details must be a symbol or none'):
             PageText(page, 'eggs')
-
         with assert_raises_str(ValueError, 'details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL'):
             PageText(page, Symbol('eggs'))
 
