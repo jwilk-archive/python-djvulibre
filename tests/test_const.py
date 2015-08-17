@@ -13,7 +13,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 
-
 from djvu.const import (
     TEXT_ZONE_CHARACTER,
     TEXT_ZONE_COLUMN,
