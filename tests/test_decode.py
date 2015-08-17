@@ -327,8 +327,8 @@ class test_documents:
         assert_false(document.decoding_error)
         assert_equal(document.decoding_status, JobOK)
         assert_equal(document.type, DOCUMENT_TYPE_BUNDLED)
-        assert_equal(len(document.pages), 6)
-        assert_equal(len(document.files), 7)
+        assert_equal(len(document.pages), 2)
+        assert_equal(len(document.files), 3)
 
         (stdout0, stderr0) = run('djvudump', original_filename, LC_ALL='C')
         assert_equal(stderr0, b(''))
@@ -384,9 +384,9 @@ class test_documents:
             stdout = stdout.split(b('\n'))
             stdout0 = (
                 [b('      shared_anno.iff -> shared_anno.iff')] +
-                [b('      p{n:04}.djvu -> p{n:04}.djvu'.format(n=n)) for n in range(1, 7)]
+                [b('      p{n:04}.djvu -> p{n:04}.djvu'.format(n=n)) for n in range(1, 3)]
             )
-            assert_equal(len(stdout), 11)
+            assert_equal(len(stdout), 7)
             assert_equal(stdout[2:-2], stdout0)
             assert_equal(stdout[-1], b(''))
         finally:
@@ -420,8 +420,8 @@ class test_documents:
         assert_false(document.decoding_error)
         assert_equal(document.decoding_status, JobOK)
         assert_equal(document.type, DOCUMENT_TYPE_BUNDLED)
-        assert_equal(len(document.pages), 6)
-        assert_equal(len(document.files), 7)
+        assert_equal(len(document.pages), 2)
+        assert_equal(len(document.files), 3)
 
         tmp = tempfile.NamedTemporaryFile()
         try:
@@ -431,13 +431,13 @@ class test_documents:
             assert_false(job.is_error)
             stdout, stderr = run('ps2ascii', tmp.name, LC_ALL='C')
             assert_equal(stderr, b(''))
-            assert_equal(stdout, b('\x0c') * 6)
+            assert_equal(stdout, b('\x0c') * 2)
         finally:
             tmp.close()
 
         tmp = tempfile.NamedTemporaryFile()
         try:
-            job = document.export_ps(tmp.file, pages=(2,), text=True)
+            job = document.export_ps(tmp.file, pages=(0,), text=True)
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
             assert_false(job.is_error)
@@ -448,12 +448,14 @@ class test_documents:
             assert_equal(stdout, [
                 b(''),
                 b(''),
-                b('3C'),
-                b('red green blue cyan magenta yellow'),
+                b('1 Lorem ipsum'),
+                b('Optio reprehenderit molestias amet aliquam, similique doloremque fuga labore'),
+                b('voluptatum voluptatem, commodi culpa voluptas, officia tenetur expedita quidem hic'),
                 b(''),
-                b('red green blue cyan magenta yellow'),
+                b('repellat molestiae quis accusamus dolores repudiandae, quidem in ad voluptas'),
+                b('eligendi maiores placeat ex consectetur at tenetur amet.'),
                 b(''),
-                b('3'),
+                b('1'),
             ])
         finally:
             del tmp
@@ -757,9 +759,33 @@ class test_sexpr:
         assert_is(anno.vertical_align, None)
         assert_is(anno.mode, None)
         assert_is(anno.zoom, None)
-        x = anno.sexpr
-        assert_repr(x, r"""Expression([[Symbol('metadata'), [Symbol('ModDate'), '2010-06-24 01:17:29+02:00'], [Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'], [Symbol('Producer'), 'pdfTeX-1.40.10'], [Symbol('Creator'), 'LaTeX with hyperref package'], [Symbol('Author'), 'Jakub Wilk']], [Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n']])""")
-
+        expected_metadata = [
+            Symbol('metadata'),
+            [Symbol('ModDate'), '2015-08-17 19:54:57+02:00'],
+            [Symbol('CreationDate'), '2015-08-17 19:54:57+02:00'],
+            [Symbol('Producer'), 'pdfTeX-1.40.16'],
+            [Symbol('Creator'), 'LaTeX with hyperref package'],
+            [Symbol('Author'), 'Jakub Wilk']
+        ]
+        expected_xmp = [
+            Symbol('xmp'),
+            '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
+            '<rdf:Description rdf:about="">'
+                '<xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" stEvt:softwareAgent="pdf2djvu 0.8.1 (DjVuLibre 3.5.27, Poppler 0.26.5, GraphicsMagick++ 1.3.21, GNOME XSLT 1.1.28, GNOME XML 2.9.2, PStreams 0.8.0)" stEvt:when="2015-08-17T17:54:58+00:00"/></rdf:Seq></xmpMM:History>'
+                '<dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator>'
+                '<dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format>'
+                '<pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.16</pdf:Producer>'
+                '<xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool>'
+                '<xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2015-08-17T19:54:57+02:00</xmp:CreateDate>'
+                '<xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2015-08-17T19:54:57+02:00</xmp:ModifyDate>'
+                '<xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2015-08-17T17:54:58+00:00</xmp:MetadataDate>'
+            '</rdf:Description>'
+            '</rdf:RDF>\n'
+        ]
+        assert_equal(
+            anno.sexpr,
+            Expression([expected_metadata, expected_xmp])
+        )
         metadata = anno.metadata
         assert_equal(type(metadata), Metadata)
 
@@ -771,10 +797,16 @@ class test_sexpr:
         outline = document.outline
         assert_equal(type(outline), DocumentOutline)
         outline.wait()
-        x = outline.sexpr
-        assert_repr(x, r"""Expression([Symbol('bookmarks'), ['A', '#p0001.djvu'], ['B', '#p0002.djvu'], ['C', '#p0003.djvu'], ['D', '#p0004.djvu'], ['E', '#p0005.djvu', ['E1', '#p0005.djvu'], ['E2', '#p0005.djvu']], ['F', '#p0006.djvu']])""")
-
-        page = document.pages[4]
+        assert_equal(outline.sexpr, Expression(
+            [Symbol('bookmarks'),
+                ['Lorem ipsum', '#p0001.djvu'],
+                ['Hyperlinks', '#p0002.djvu',
+                    ['local', '#p0002.djvu'],
+                    ['remote', '#p0002.djvu']
+                ]
+            ]
+        ))
+        page = document.pages[1]
         anno = page.annotations
         assert_equal(type(anno), PageAnnotations)
         anno.wait()
@@ -783,9 +815,14 @@ class test_sexpr:
         assert_is(anno.vertical_align, None)
         assert_is(anno.mode, None)
         assert_is(anno.zoom, None)
-        x = anno.sexpr
-        assert_repr(x, r"""Expression([[Symbol('metadata'), [Symbol('ModDate'), '2010-06-24 01:17:29+02:00'], [Symbol('CreationDate'), '2010-06-24 01:17:29+02:00'], [Symbol('Producer'), 'pdfTeX-1.40.10'], [Symbol('Creator'), 'LaTeX with hyperref package'], [Symbol('Author'), 'Jakub Wilk']], [Symbol('xmp'), '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""><xmpMM:History xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"><rdf:Seq><rdf:li xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#" stEvt:action="converted" stEvt:parameters="from application/pdf to image/vnd.djvu" softwareAgent="pdf2djvu 0.7.4 (DjVuLibre 3.5.22, poppler 0.12.4, GraphicsMagick++ 1.3.12, GNOME XSLT 1.1.26, GNOME XML 2.7.7)" when="2010-06-23T23:17:36+00:00"/></rdf:Seq></xmpMM:History><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Jakub Wilk</dc:creator><dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/vnd.djvu</dc:format><pdf:Producer xmlns:pdf="http://ns.adobe.com/pdf/1.3/">pdfTeX-1.40.10</pdf:Producer><xmp:CreatorTool xmlns:xmp="http://ns.adobe.com/xap/1.0/">LaTeX with hyperref package</xmp:CreatorTool><xmp:CreateDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:CreateDate><xmp:ModifyDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-24T01:17:29+02:00</xmp:ModifyDate><xmp:MetadataDate xmlns:xmp="http://ns.adobe.com/xap/1.0/">2010-06-23T23:17:36+00:00</xmp:MetadataDate></rdf:Description></rdf:RDF>\n'], [Symbol('maparea'), '#p0002.djvu', '', [Symbol('rect'), 587, 2346, 60, 79], [Symbol('border'), Symbol('#ff0000')]], [Symbol('maparea'), 'http://jwilk.net/', '', [Symbol('rect'), 458, 1910, 1061, 93], [Symbol('border'), Symbol('#00ffff')]]])""")
-
+        expected_hyperlinks = [
+            [Symbol('maparea'), '#p0001.djvu', '', [Symbol('rect'), 520, 2502, 33, 42], [Symbol('border'), Symbol('#ff0000')]],
+            [Symbol('maparea'), 'http://jwilk.net/', '', [Symbol('rect'), 458, 2253, 516, 49], [Symbol('border'), Symbol('#00ffff')]]
+        ]
+        assert_equal(
+            anno.sexpr,
+            Expression([expected_metadata, expected_xmp] + expected_hyperlinks)
+        )
         page_metadata = anno.metadata
         assert_equal(type(page_metadata), Metadata)
         assert_equal(page_metadata.keys(), metadata.keys())
@@ -794,30 +831,59 @@ class test_sexpr:
         hyperlinks = anno.hyperlinks
         assert_equal(type(hyperlinks), Hyperlinks)
         assert_equal(len(hyperlinks), 2)
-        assert_repr(list(hyperlinks), r"""[Expression([Symbol('maparea'), '#p0002.djvu', '', [Symbol('rect'), 587, 2346, 60, 79], [Symbol('border'), Symbol('#ff0000')]]), Expression([Symbol('maparea'), 'http://jwilk.net/', '', [Symbol('rect'), 458, 1910, 1061, 93], [Symbol('border'), Symbol('#00ffff')]])]""")
-
+        assert_equal(
+            list(hyperlinks),
+            [Expression(h) for h in expected_hyperlinks]
+        )
         text = page.text
         assert_equal(type(text), PageText)
         text.wait()
         text_s = text.sexpr
         text_s_detail = [PageText(page, details).sexpr for details in (TEXT_DETAILS_PAGE, TEXT_DETAILS_COLUMN, TEXT_DETAILS_REGION, TEXT_DETAILS_PARAGRAPH, TEXT_DETAILS_LINE, TEXT_DETAILS_WORD, TEXT_DETAILS_CHARACTER, TEXT_DETAILS_ALL)]
-        if py3k:
-            # Representations of expression are slightly different in Python ≥ 3.0.
-            def m(s):
-                return s.replace(r'\xe2\x86\x92', r'→')
-        else:
-            def m(s):
-                return s
         assert_equal(text_s_detail[0], text_s_detail[1])
         assert_equal(text_s_detail[1], text_s_detail[2])
         assert_equal(text_s_detail[2], text_s_detail[3])
-        assert_repr(text_s_detail[0], m(r"""Expression([Symbol('page'), 0, 0, 2550, 3300, '5E \n5.1 E1 \n\xe2\x86\x921 \n5.2 E2 \nhttp://jwilk.net/ \n5 \n'])"""))
-        assert_repr(text_s_detail[4], m(r"""Expression([Symbol('page'), 0, 0, 2550, 3300, [Symbol('line'), 462, 2726, 615, 2775, '5E '], [Symbol('line'), 462, 2544, 663, 2586, '5.1 E1 '], [Symbol('line'), 466, 2349, 631, 2421, '\xe2\x86\x921 '], [Symbol('line'), 462, 2124, 665, 2166, '5.2 E2 '], [Symbol('line'), 465, 1911, 1504, 2000, 'http://jwilk.net/ '], [Symbol('line'), 1259, 374, 1280, 409, '5 ']])"""))
+        assert_equal(
+            text_s_detail[0],
+            Expression(
+                [Symbol('page'), 0, 0, 2550, 3300,
+                    '2 Hyperlinks \n'
+                    '2.1 local \n'
+                    + u('→1 \n') +
+                    '2.2 remote \nhttp://jwilk.net/ \n'
+                    '2 \n'
+                ]
+            )
+        )
+        assert_equal(
+            text_s_detail[4],
+            Expression(
+                [Symbol('page'), 0, 0, 2550, 3300,
+                    [Symbol('line'), 462, 2712, 910, 2777, '2 Hyperlinks '],
+                    [Symbol('line'), 462, 2599, 714, 2641, '2.1 local '],
+                    [Symbol('line'), 464, 2505, 544, 2540, u('→1 ')],
+                    [Symbol('line'), 462, 2358, 772, 2400, '2.2 remote '],
+                    [Symbol('line'), 463, 2256, 964, 2298, 'http://jwilk.net/ '],
+                    [Symbol('line'), 1260, 375, 1282, 409, '2 ']
+                ]
+            )
+        )
         assert_equal(text_s_detail[5], text_s)
         assert_equal(text_s_detail[6], text_s)
         assert_equal(text_s_detail[7], text_s)
-        assert_repr(text_s, m(r"""Expression([Symbol('page'), 0, 0, 2550, 3300, [Symbol('line'), 462, 2726, 615, 2775, [Symbol('word'), 462, 2726, 615, 2775, '5E']], [Symbol('line'), 462, 2544, 663, 2586, [Symbol('word'), 462, 2544, 533, 2586, '5.1'], [Symbol('word'), 596, 2545, 663, 2586, 'E1']], [Symbol('line'), 466, 2349, 631, 2421, [Symbol('word'), 466, 2349, 631, 2421, '\xe2\x86\x921']], [Symbol('line'), 462, 2124, 665, 2166, [Symbol('word'), 462, 2124, 535, 2166, '5.2'], [Symbol('word'), 596, 2125, 665, 2166, 'E2']], [Symbol('line'), 465, 1911, 1504, 2000, [Symbol('word'), 465, 1911, 1504, 2000, 'http://jwilk.net/']], [Symbol('line'), 1259, 374, 1280, 409, [Symbol('word'), 1259, 374, 1280, 409, '5']]])"""))
-
+        assert_equal(
+            text_s,
+            Expression(
+                [Symbol('page'), 0, 0, 2550, 3300,
+                    [Symbol('line'), 462, 2712, 910, 2777, [Symbol('word'), 462, 2727, 495, 2776, '2'], [Symbol('word'), 571, 2712, 910, 2777, 'Hyperlinks']],
+                    [Symbol('line'), 462, 2599, 714, 2641, [Symbol('word'), 462, 2599, 532, 2641, '2.1'], [Symbol('word'), 597, 2599, 714, 2640, 'local']],
+                    [Symbol('line'), 464, 2505, 544, 2540, [Symbol('word'), 464, 2505, 544, 2540, u('→1')]],
+                    [Symbol('line'), 462, 2358, 772, 2400, [Symbol('word'), 462, 2358, 535, 2400, '2.2'], [Symbol('word'), 598, 2358, 772, 2397, 'remote']],
+                    [Symbol('line'), 463, 2256, 964, 2298, [Symbol('word'), 463, 2256, 964, 2298, 'http://jwilk.net/']],
+                    [Symbol('line'), 1260, 375, 1282, 409, [Symbol('word'), 1260, 375, 1282, 409, '2']]
+                ]
+            )
+        )
         with assert_raises_str(TypeError, 'details must be a symbol or none'):
             PageText(page, 'eggs')
 
