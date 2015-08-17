@@ -1,3 +1,5 @@
+PDF2DJVU = pdf2djvu
+
 tex_files = $(wildcard *.tex)
 pdf_files = $(tex_files:.tex=.pdf)
 djvu_files = $(pdf_files:.pdf=.djvu)
@@ -10,7 +12,7 @@ all: $(djvu_files)
 	pdflatex $(<)
 
 %.djvu: %.pdf
-	pdf2djvu $(<) -o $(@)
+	$(PDF2DJVU) $(<) -o $(@)
 
 .PHONY: clean
 clean:
