@@ -16,6 +16,6 @@ all: $(djvu_files)
 
 .PHONY: clean
 clean:
-	rm -f $(pdf_files) $(djvu_files) *.log *.out *.aux
+	rm -f $(pdf_files) *.log *.out *.aux
 
 # vim:ts=4 sts=4 sw=4 noet
