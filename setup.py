@@ -62,7 +62,7 @@ except ImportError:
     import distutils.core as distutils_core
 import distutils
 import distutils.ccompiler
-import distutils.command.clean
+import distutils.dir_util
 import distutils.command.build_ext
 import distutils.dep_util
 import distutils.version
@@ -165,8 +165,6 @@ except KeyError:
 
 class build_ext(distutils.command.build_ext.build_ext):
 
-    config_filename = 'djvu/config.pxi'
-
     def run(self):
         if djvulibre_version != '0' and djvulibre_version < '3.5.21':
             raise RuntimeError('DjVuLibre >= 3.5.21 is required')
@@ -176,14 +174,17 @@ class build_ext(distutils.command.build_ext.build_ext):
             'DEF HAVE_MINIEXP_IO_T = {0}'.format(djvulibre_version >= '3.5.26'),
             'DEF HAVE_LANGINFO_H = {0}'.format(os.name == 'posix' and not mingw32cross),
         ]
+        self.src_dir = src_dir = os.path.join(self.build_temp, 'src')
+        distutils.dir_util.mkpath(src_dir)
+        self.config_path = os.path.join(src_dir, 'config.pxi')
         try:
-            with open(self.config_filename, 'rt') as fp:
+            with open(self.config_path, 'rt') as fp:
                 old_config = fp.read()
         except IOError:
             old_config = ''
         if '\n'.join(new_config).strip() != old_config.strip():
-            distutils.log.info('creating {conf!r}'.format(conf=self.config_filename))
-            distutils.file_util.write_file(self.config_filename, new_config)
+            distutils.log.info('creating {conf!r}'.format(conf=self.config_path))
+            distutils.file_util.write_file(self.config_path, new_config)
         distutils.command.build_ext.build_ext.run(self)
 
     def build_extensions(self):
@@ -194,31 +195,26 @@ class build_ext(distutils.command.build_ext.build_ext):
 
     def cython_sources(self, ext):
         for source in ext.sources:
-            assert source.endswith('.pyx')
-            target = '{mod}.c'.format(mod=source[:-4])
+            source_base = os.path.basename(source)
+            assert source_base.endswith('.pyx')
+            target = os.path.join(
+                self.src_dir,
+                '{mod}.c'.format(mod=source_base[:-4])
+            )
             yield target
-            depends = [source, self.config_filename] + ext.depends
+            depends = [source, self.config_path] + ext.depends
             if not (self.force or distutils.dep_util.newer_group(depends, target)):
                 distutils.log.debug('not cythoning {ext.name!r} (up-to-date)'.format(ext=ext))
                 continue
             distutils.log.info('cythoning {ext.name!r} extension'.format(ext=ext))
             def build_c(source, target):
-                distutils.spawn.spawn(['cython', source])
+                distutils.spawn.spawn([
+                    'cython',
+                    '-I', os.path.dirname(self.config_path),
+                    '-o', target,
+                    source,
+                ])
             self.make_file(depends, target, build_c, [source, target])
-
-class clean(distutils.command.clean.clean):
-
-    def run(self):
-        if self.all:
-            for wildcard in 'djvu/*.c', 'djvu/config.pxi':
-                filenames = glob.glob(wildcard)
-                if filenames:
-                    distutils.log.info('removing {0!r}'.format(wildcard))
-                if self.dry_run:
-                    continue
-                for filename in filenames:
-                    os.remove(filename)
-        return distutils.command.clean.clean.run(self)
 
 if sphinx_setup_command:
     class build_sphinx(sphinx_setup_command.BuildDoc):
@@ -265,7 +261,7 @@ setup_params = dict(
     py_modules=['djvu.const'],
     cmdclass=dict(
         (cmd.__name__, cmd)
-        for cmd in (build_ext, clean, build_sphinx)
+        for cmd in (build_ext, build_sphinx)
         if cmd is not None
     )
 )
