@@ -18,18 +18,20 @@ usage()
     printf 'Usage: %s [--no-build] [pythonX.Y...]\n' "$0"
 }
 
-args=$(getopt -n "$0" -o 'h' --long 'help,no-build' -- "$@")
+args=$(getopt -n "$0" -o 'hj:' --long 'help,jobs:,no-build' -- "$@")
 if [ $? -ne 0 ]
 then
     usage >&2
     exit 1
 fi
 eval set -- "$args"
+opt_jobs=$(nproc) || opt_jobs=1
 opt_build=y
 while true
 do
     case "$1" in
         -h|--help) usage; exit 0;;
+	-j|--jobs) opt_jobs=$2; shift 2;;
         --no-build) opt_build=; shift;;
         --) shift; break;;
         *) printf '%s: internal error (%s)\n' "$0" "$1" >&2; exit 1;;
@@ -40,7 +42,7 @@ set -e
 [ $# = 0 ] && set -- python
 [ -z $opt_build ] || \
 printf '%s\n' "$@" \
-| xargs -t -I{python} env {python} setup.py build --build-lib build/{python}
+| xargs -P"$opt_jobs" -t -I{python} env {python} setup.py build --build-lib build/{python}
 cd tests
 printf '%s\n' "$@" \
 | xargs -t -I{python} env PYTHONPATH="$PWD/../build/{python}" {python} $(which nosetests) --verbose
