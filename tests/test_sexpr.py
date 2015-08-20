@@ -55,6 +55,7 @@ from tools import (
     long,
     py3k,
     u,
+    unicode,
 )
 
 def assert_pickle_equal(obj):
@@ -96,6 +97,9 @@ class test_int_expressions():
         assert_equal(i, n)
         # __str__():
         s = str(x)
+        assert_equal(s, str(n))
+        # __unicode__():
+        s = unicode(x)
         assert_equal(s, str(n))
         # __eq__(), __ne__():
         assert_equal(x, Expression(n))
@@ -152,26 +156,32 @@ class test_float_expressions():
 
 class test_symbols():
 
-    def t(self, name):
+    def t(self, name, sname=None):
+        if sname is None:
+            sname = name
+        if py3k:
+            [uname, bname] = [sname, sname.encode('UTF-8')]
+        else:
+            [uname, bname] = [sname.decode('UTF-8'), sname]
         symbol = Symbol(name)
         assert_equal(type(symbol), Symbol)
         assert_equal(symbol, Symbol(name))
         assert_is(symbol, Symbol(name))
-        if py3k:
-            assert_equal(str(symbol), name)
-        else:
-            assert_equal(str(symbol), name.encode('UTF-8'))
-            assert_equal(unicode(symbol), name)
-        assert_not_equal(symbol, name)
-        assert_not_equal(symbol, name.encode('UTF-8'))
-        assert_equal(hash(symbol), hash(name.encode('UTF-8')))
+        assert_equal(str(symbol), sname)
+        assert_equal(unicode(symbol), uname)
+        assert_not_equal(symbol, bname)
+        assert_not_equal(symbol, uname)
+        assert_equal(hash(symbol), hash(bname))
         assert_pickle_equal(symbol)
+        return symbol
 
     def test_ascii(self):
         self.t('eggs')
 
     def test_nonascii(self):
-        self.t(u('ветчина'))
+        x = self.t(b('ветчина'), 'ветчина')
+        y = self.t(u('ветчина'), 'ветчина')
+        assert x is y
 
     def test_inequality(self):
         assert_less(
@@ -179,19 +189,55 @@ class test_symbols():
             Symbol('ham'),
         )
 
-def test_expressions():
-    x = Expression(Symbol('eggs'))
-    assert_repr(x, "Expression(Symbol('eggs'))")
-    assert_is(x, Expression(x))
-    assert_equal(x.value, Symbol('eggs'))
-    assert_equal(x.lvalue, Symbol('eggs'))
-    assert_equal(str(x), 'eggs')
-    assert_repr(x, repr(Expression.from_string(str(x))))
-    assert_equal(x, Expression(Symbol('eggs')))
-    assert_not_equal(x, Expression('eggs'))
-    assert_not_equal(x, Symbol('eggs'))
-    assert_equal(hash(x), hash('eggs'))
-    assert_pickle_equal(x)
+class test_symbol_expressions():
+
+    def t(self, name, sname):
+        if sname is None:
+            sname = name
+        if py3k:
+            [uname, bname] = [sname, sname.encode('UTF-8')]
+        else:
+            [uname, bname] = [sname.decode('UTF-8'), sname]
+        sym = Symbol(name)
+        x = Expression(sym)
+        assert_is(x, Expression(x))
+        # __repr__(x)
+        assert_repr(x, 'Expression({sym!r})'.format(sym=sym))
+        # value:
+        v = x.value
+        assert_equal(type(v), Symbol)
+        assert_equal(v, sym)
+        # lvalue:
+        v = x.lvalue
+        assert_equal(type(v), Symbol)
+        assert_equal(v, sym)
+        # __str__():
+        assert_equal(str(x), sname)
+        assert_repr(x, repr(Expression.from_string(sname)))
+        # __unicode__():
+        assert_equal(unicode(x), uname)
+        assert_repr(x, repr(Expression.from_string(uname)))
+        # __eq__(), __ne__():
+        assert_equal(x, Expression(sym))
+        assert_not_equal(x, Expression(name))
+        assert_not_equal(x, sym)
+        # __hash__():
+        assert_equal(
+            hash(x),
+            hash(bname.strip(b('|')))
+        )
+        # pickle:
+        assert_pickle_equal(x)
+        return x
+
+    def test_ascii(self):
+        self.t('eggs', 'eggs')
+
+    def test_nonascii(self):
+        x = self.t(b('ветчина'), '|ветчина|')
+        y = self.t(u('ветчина'), '|ветчина|')
+        assert_equal(x, y)
+        assert_equal(hash(x), hash(y))
 
 def test_string_expressions():
     x = Expression('eggs')
