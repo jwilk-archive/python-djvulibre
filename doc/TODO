@@ -1,7 +1,7 @@
 Verify that byte and Unicode strings are used consistently.
 Document how they are used.
 
-The FileUri class is ugly.
+The ``FileUri`` class is ugly.
 Implement a nicer interface.
 
 Add an example for using streams.
