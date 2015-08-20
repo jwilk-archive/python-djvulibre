@@ -8,6 +8,11 @@ Add an example for using streams.
 
 Improve the test suite.
 
+   Track test coverage.
+
+   Cython ≥ 0.23 provides the plugin ``Cython.Coverage``
+   that can be added to ``.coveragerc``.
+
 Improve the documentation.
 
 .. vim:ft=rst ts=3 sts=3 sw=3 et tw=72
