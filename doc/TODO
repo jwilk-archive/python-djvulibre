@@ -1,5 +1,13 @@
-- Check and document when/how byte/Unicode string are used.
-- FileUri is ugly. Provide a better alternative.
-- Provide an example for using streams.
-- Write more/better tests.
-- Write more/better documentation.
+Verify that byte and Unicode strings are used consistently.
+Document how they are used.
+
+The FileUri class is ugly.
+Implement a nicer interface.
+
+Add an example for using streams.
+
+Improve the test suite.
+
+Improve the documentation.
+
+.. vim:ft=rst ts=3 sts=3 sw=3 et tw=72
