@@ -301,7 +301,7 @@ cdef class _WrappedCExpr:
     cdef cexpr_t cexpr(self):
         return cvar_ptr(self.cvar)[0]
 
-    cdef object print_into(self, object stdout, object width, int escape_unicode):
+    cdef object print_into(self, object stdout, object width, bint escape_unicode):
         cdef cexpr_t cexpr
         cdef _ExpressionIO xio
         if width is None:
@@ -320,7 +320,7 @@ cdef class _WrappedCExpr:
         finally:
             xio.close()
 
-    cdef object as_string(self, object width, int escape_unicode):
+    cdef object as_string(self, object width, bint escape_unicode):
         stdout = StringIO()
         try:
             self.print_into(stdout, width, escape_unicode)
@@ -339,10 +339,10 @@ cdef _WrappedCExpr wexpr(cexpr_t cexpr):
 
 cdef class _MissingCExpr(_WrappedCExpr):
 
-    cdef object print_into(self, object stdout, object width, int escape_unicode):
+    cdef object print_into(self, object stdout, object width, bint escape_unicode):
         raise NotImplementedError
 
-    cdef object as_string(self, object width, int escape_unicode):
+    cdef object as_string(self, object width, bint escape_unicode):
         raise NotImplementedError
 
 cdef _MissingCExpr wexpr_missing():

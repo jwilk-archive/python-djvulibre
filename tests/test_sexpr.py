@@ -590,6 +590,13 @@ class test_expression_writer():
         fp = File()
         expr.print_into(fp)
 
+    def test_escape_unicode_type(self):
+        expr = Expression(23)
+        fp = StringIO()
+        for v in True, False, 1, 0, 'yes', '':
+            expr.print_into(fp, escape_unicode=v)
+            expr.as_string(escape_unicode=v)
+
 class test_expression_writer_ascii():
 
     expr = Expression([Symbol('eggs'), Symbol('ham')])
