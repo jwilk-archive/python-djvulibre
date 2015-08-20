@@ -553,6 +553,10 @@ cdef class BaseExpression:
     def __str__(self):
         return self.as_string()
 
+    IF not PY3K:
+        def __unicode__(self):
+            return self.as_string().decode('UTF-8')
+
     property value:
         '''
         The "pythonic" value of the expression.

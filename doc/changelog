@@ -1,13 +1,14 @@
 python-djvulibre (0.7) UNRELEASED; urgency=low
 
   * Make Expression.from_string() accept both Unicode and byte strings.
+  * Implement __unicode__() for expressions.
   * Implement __float__() for integer expressions.
   * Be more liberal about object types that can be passed to escape_unicode.
   * Improve the test suite.
   * Fix the long(<intexpr>) return type with Cython 0.23 and Python 2.6.
     https://mail.python.org/pipermail/cython-devel/2015-August/004485.html
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 20 Aug 2015 17:16:41 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 20 Aug 2015 17:17:30 +0200
 
 python-djvulibre (0.6.1) unstable; urgency=low
 
