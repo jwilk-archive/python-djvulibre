@@ -90,6 +90,10 @@ class test_int_expressions():
         i = long(x)
         assert_equal(type(i), long)
         assert_equal(i, n)
+        # __float__():
+        i = float(x)
+        assert_equal(type(i), float)
+        assert_equal(i, n)
         # __str__():
         s = str(x)
         assert_equal(s, str(n))

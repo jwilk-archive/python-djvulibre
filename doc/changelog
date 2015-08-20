@@ -1,10 +1,11 @@
-python-djvulibre (0.6.2) UNRELEASED; urgency=low
+python-djvulibre (0.7) UNRELEASED; urgency=low
 
+  * Implement __float__() for integer expressions.
   * Improve the test suite.
   * Fix the long(<intexpr>) return type with Cython 0.23 and Python 2.6.
     https://mail.python.org/pipermail/cython-devel/2015-August/004485.html
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 17 Aug 2015 21:30:11 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 20 Aug 2015 16:12:33 +0200
 
 python-djvulibre (0.6.1) unstable; urgency=low
 

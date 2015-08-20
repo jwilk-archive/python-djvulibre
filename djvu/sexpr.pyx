@@ -628,6 +628,9 @@ class IntExpression(_Expression_):
     def __long__(self):
         return long(self.value)
 
+    def __float__(self):
+        return 0.0 + self.value
+
     def _get_lvalue(BaseExpression self not None):
         return cexpr_to_int(self.wexpr.cexpr())
 
