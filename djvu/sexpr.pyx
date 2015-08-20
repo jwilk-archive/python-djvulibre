@@ -94,6 +94,9 @@ IF PY3K:
 ELSE:
     from cStringIO import StringIO
 
+cdef object BytesIO
+from io import BytesIO
+
 cdef object weakref
 import weakref
 
@@ -426,13 +429,15 @@ class Symbol(BaseSymbol):
 cdef object _Symbol_
 _Symbol_ = Symbol
 
-def _expression_from_string(str):
+def _expression_from_string(s):
     '''
     Expression.from_string(s) -> an expression
 
     Read an expression from a string.
     '''
-    stdin = StringIO(str)
+    if is_unicode(s):
+        s = encode_utf8(s)
+    stdin = BytesIO(s)
     try:
         return _Expression_.from_stream(stdin)
     finally:
