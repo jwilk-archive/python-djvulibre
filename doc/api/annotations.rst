@@ -316,7 +316,7 @@ The following symbols are pre-defined:
 Metadata
 --------
 .. seealso:: |djvuext|_ (*Metadata Annotations*, *Document Annotations and Metadata*).
-.. _BibTeX: http://www.ctan.org/get/biblio/bibtex/contrib/doc/btxdoc.pdf
+.. _BibTeX: https://www.ctan.org/pkg/bibtex
 
 .. currentmodule:: djvu.decode
 .. class:: Metadata

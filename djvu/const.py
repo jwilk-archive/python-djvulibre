@@ -45,7 +45,7 @@ title
 type
 volume
 year'''.split())
-# Retrieved from <http://www.ctan.org/get/biblio/bibtex/contrib/doc/btxdoc.pdf>
+# Retrieved from <https://www.ctan.org/pkg/bibtex>
 
 METADATA_PDFINFO_KEYS = frozenset(djvu.sexpr.Symbol(x) for x in '''
 Author
