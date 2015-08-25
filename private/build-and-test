@@ -31,7 +31,7 @@ while true
 do
     case "$1" in
         -h|--help) usage; exit 0;;
-	-j|--jobs) opt_jobs=$2; shift 2;;
+        -j|--jobs) opt_jobs=$2; shift 2;;
         --no-build) opt_build=; shift;;
         --) shift; break;;
         *) printf '%s: internal error (%s)\n' "$0" "$1" >&2; exit 1;;
