@@ -1,4 +1,4 @@
-python-djvulibre (0.7) UNRELEASED; urgency=low
+python-djvulibre (0.7) unstable; urgency=low
 
   * Make Expression.from_string() accept both Unicode and byte strings.
   * Implement __unicode__() for expressions.
@@ -14,7 +14,7 @@ python-djvulibre (0.7) UNRELEASED; urgency=low
   * Update BibTeX URL in the documentation.
   * Improve the test suite.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 25 Aug 2015 23:15:01 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 25 Aug 2015 23:46:20 +0200
 
 python-djvulibre (0.6.1) unstable; urgency=low
 
