@@ -9,7 +9,6 @@ include doc/api/conf.py
 include examples/*
 
 recursive-include djvu *.py *.pxi *.pxd *.pyx
-recursive-exclude djvu config.pxi
 
 recursive-include tests *.py Makefile *.jpeg *.tex *.djvu
 
