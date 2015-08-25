@@ -12,3 +12,5 @@ recursive-include djvu *.py *.pxi *.pxd *.pyx
 recursive-exclude djvu config.pxi
 
 recursive-include tests *.py Makefile *.jpeg *.tex *.djvu
+
+include private/*
