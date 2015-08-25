@@ -62,9 +62,9 @@ except ImportError:
     import distutils.core as distutils_core
 import distutils
 import distutils.ccompiler
-import distutils.dir_util
 import distutils.command.build_ext
 import distutils.dep_util
+import distutils.dir_util
 import distutils.version
 
 try:
