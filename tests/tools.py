@@ -70,6 +70,8 @@ def assert_less(x, y):
 
 @noseimport(2, 7)
 def assert_list_equal(x, y):
+    assert_is_instance(x, list)
+    assert_is_instance(y, list)
     return assert_equal(x, y)
 
 @noseimport(2, 7)
