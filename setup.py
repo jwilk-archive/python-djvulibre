@@ -158,10 +158,7 @@ djvulibre_version = pkgconfig_version('ddjvuapi')
 py_version = get_version()
 
 # Work-around for <https://bugs.python.org/issue969718>:
-try:
-    del os.environ['CFLAGS']
-except KeyError:
-    pass
+os.environ.pop('CFLAGS', None)
 
 class build_ext(distutils.command.build_ext.build_ext):
 
