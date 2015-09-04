@@ -264,7 +264,7 @@ __all__ = [
     # Python 2/3 compat:
     'StringIO',
     'b',
-    'blob',
+    'bytes',
     'cmp',
     'long',
     'maxsize',
