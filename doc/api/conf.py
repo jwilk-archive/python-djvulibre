@@ -60,7 +60,7 @@ rst_epilog = '''
 .. _djvused: http://djvu.sourceforge.net/doc/man/djvused.html
 
 .. |djvuext| replace:: Actual and proposed changes to the DjVu format
-.. _djvuext: http://djvu.git.sourceforge.net/git/gitweb.cgi?p=djvu/djvulibre.git;a=blob;f=doc/djvuchanges.txt;hb=refs/tags/release.3.5.23
+.. _djvuext: http://sourceforge.net/p/djvu/djvulibre-git/ci/release.3.5.23/tree/doc/djvuchanges.txt
 '''
 
 # vim:ts=4 sts=4 sw=4 et
