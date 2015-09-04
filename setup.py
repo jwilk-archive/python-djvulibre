@@ -36,7 +36,6 @@ Topic :: Text Processing
 
 import glob
 import os
-import re
 import sys
 import subprocess as ipc
 
