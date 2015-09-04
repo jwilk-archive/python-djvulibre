@@ -47,7 +47,7 @@ class Context(djvu.decode.Context):
         document.decoding_job.wait()
         for page in document.pages:
             page.get_info()
-            text = print_text(page.text.sexpr)
+            print_text(page.text.sexpr)
 
 def main():
     if len(sys.argv) != 2:
