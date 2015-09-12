@@ -81,11 +81,13 @@ def ext_modules():
 ext_modules = list(ext_modules())
 
 def get_version():
-    if sys.version_info >= (3, 0):
-        extra = dict(encoding='UTF-8')
-    else:
-        extra = {}
-    changelog = open(os.path.join(os.path.dirname(__file__), 'doc', 'changelog'), **extra)
+    open_opts = {}
+    if str != bytes:
+        open_opts.update(encoding='UTF-8')
+    changelog = open(
+        os.path.join(os.path.dirname(__file__), 'doc', 'changelog'),
+        **open_opts
+    )
     try:
         return changelog.readline().split()[1].strip('()')
     finally:
