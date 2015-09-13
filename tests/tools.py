@@ -177,12 +177,6 @@ else:
     cmp = cmp
 
 if py3k:
-    bytes = bytes
-else:
-    def bytes(iterable):
-        return ''.join(chr(c) for c in iterable)
-
-if py3k:
     from io import StringIO
 else:
     from io import BytesIO as StringIO
@@ -264,7 +258,6 @@ __all__ = [
     # Python 2/3 compat:
     'StringIO',
     'b',
-    'bytes',
     'cmp',
     'long',
     'maxsize',

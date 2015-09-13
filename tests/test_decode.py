@@ -93,7 +93,6 @@ from tools import (
     wildcard_import,
     # Python 2/3 compat:
     b,
-    bytes,
     maxsize,
     py3k,
     u,
@@ -136,11 +135,11 @@ def create_djvu(commands='', sexpr=''):
         commands += '\nset-ant\n{sexpr}\n.\n'.format(sexpr=sexpr)
     file = tempfile.NamedTemporaryFile(prefix='test', suffix='djvu')
     file.seek(0)
-    file.write(bytes([
-        0x41, 0x54, 0x26, 0x54, 0x46, 0x4f, 0x52, 0x4d, 0x00, 0x00, 0x00, 0x22, 0x44, 0x4a, 0x56, 0x55,
-        0x49, 0x4e, 0x46, 0x4f, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x01, 0x00, 0x01, 0x18, 0x00, 0x2c, 0x01,
-        0x16, 0x01, 0x53, 0x6a, 0x62, 0x7a, 0x00, 0x00, 0x00, 0x04, 0xbc, 0x73, 0x1b, 0xd7,
-    ]))
+    file.write(
+        b'\x41\x54\x26\x54\x46\x4f\x52\x4d\x00\x00\x00\x22\x44\x4a\x56\x55'
+        b'\x49\x4e\x46\x4f\x00\x00\x00\x0a\x00\x01\x00\x01\x18\x00\x2c\x01'
+        b'\x16\x01\x53\x6a\x62\x7a\x00\x00\x00\x04\xbc\x73\x1b\xd7'
+    )
     file.flush()
     (stdout, stderr) = run('djvused', '-s', file.name, stdin=commands.encode(locale_encoding))
     assert_equal(stdout, ''.encode(locale_encoding))
@@ -543,16 +542,16 @@ class test_page_jobs():
             page_job.render(RENDER_COLOR, (0, 0, x, x), (0, 0, x, x), PixelFormatRgb(), 8)
 
         s = page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1)
-        assert_equal(s, bytes([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xef, 0xff, 0xff, 0xff, 0xa4, 0xff, 0xff, 0xff, 0xb8]))
+        assert_equal(s, b'\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8')
 
-        buffer = array.array('B', bytes([0]))
+        buffer = array.array('B', b'\0')
         with assert_raises_str(ValueError, 'Image buffer is too small (16 > 1)'):
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer)
 
-        buffer = array.array('B', bytes([0] * 16))
+        buffer = array.array('B', b'\0' * 16)
         assert_is(page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1, buffer), buffer)
         s = array_tobytes(buffer)
-        assert_equal(s, bytes([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xef, 0xff, 0xff, 0xff, 0xa4, 0xff, 0xff, 0xff, 0xb8]))
+        assert_equal(s, b'\xff\xff\xff\xff\xff\xff\xff\xef\xff\xff\xff\xa4\xff\xff\xff\xb8')
 
 class test_thumbnails:
 
@@ -572,15 +571,15 @@ class test_thumbnails:
         assert_is(pixels, None)
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey())
         assert_equal((w, h, r), (5, 3, 5))
-        assert_equal(pixels[:15], bytes([0xff, 0xeb, 0xa7, 0xf2, 0xff, 0xff, 0xbf, 0x86, 0xbe, 0xff, 0xff, 0xe7, 0xd6, 0xe7, 0xff]))
-        buffer = array.array('B', bytes([0]))
+        assert_equal(pixels[:15], b'\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff')
+        buffer = array.array('B', b'\0')
         with assert_raises_str(ValueError, 'Image buffer is too small (25 > 1)'):
             (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
-        buffer = array.array('B', bytes([0] * 25))
+        buffer = array.array('B', b'\0' * 25)
         (w, h, r), pixels = thumbnail.render((5, 5), PixelFormatGrey(), buffer=buffer)
         assert_is(pixels, buffer)
         s = array_tobytes(buffer[:15])
-        assert_equal(s, bytes([0xff, 0xeb, 0xa7, 0xf2, 0xff, 0xff, 0xbf, 0x86, 0xbe, 0xff, 0xff, 0xe7, 0xd6, 0xe7, 0xff]))
+        assert_equal(s, b'\xff\xeb\xa7\xf2\xff\xff\xbf\x86\xbe\xff\xff\xe7\xd6\xe7\xff')
 
 def test_jobs():
 
