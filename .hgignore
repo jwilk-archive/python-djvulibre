@@ -6,5 +6,4 @@ syntax: glob
 *.so
 build/*
 dist/*
-djvu/config.pxi
 secret/*
