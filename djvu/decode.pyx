@@ -684,7 +684,7 @@ cdef class DocumentFiles(DocumentExtension):
                 raise KeyError(key)
             if self._page_map is None:
                 self._page_map = {}
-                for i from 0 <= i < len(self):
+                for i in range(len(self)):
                     file = File(self._document, i, sentinel = the_sentinel)
                     n_page = file.n_page
                     if n_page is not None:
@@ -897,7 +897,7 @@ cdef object pages_to_opt(object pages, int sort_uniq):
         pages = sorted(frozenset(pages))
     else:
         pages = list(pages)
-    for i from 0 <= i < len(pages):
+    for i in range(len(pages)):
         if not is_int(pages[i]):
             raise TypeError('page numbers must be integers')
         if pages[i] < 0:
@@ -1314,22 +1314,23 @@ cdef class Document:
         cdef const char **optv
         cdef int optc
         cdef size_t buffer_size
-        optc = 0
         buffer_size = len(options) * sizeof (char*)
         optv = <const char**> py_malloc(buffer_size)
         if optv == NULL:
             raise MemoryError('Unable to allocate {0} bytes for print options'.format(buffer_size))
         try:
-            for optc from 0 <= optc < len(options):
+            for optc in range(len(options)):
                 option = options[optc]
                 if is_unicode(option):
                     options[optc] = option = encode_utf8(option)
                 optv[optc] = option
-            assert optc == len(options)
             with nogil: acquire_lock(loft_lock, WAIT_LOCK)
             try:
                 job = SaveJob(sentinel = the_sentinel)
-                job.__init(self._context, ddjvu_document_print(self.ddjvu_document, output, optc, optv))
+                job.__init(
+                    self._context,
+                    ddjvu_document_print(self.ddjvu_document, output, len(options), optv)
+                )
                 job._file = file_wrapper
             finally:
                 release_lock(loft_lock)
@@ -1833,9 +1834,9 @@ cdef class PixelFormatPalette(PixelFormat):
 
     def __cinit__(self, palette, unsigned int bpp = 8):
         cdef int i, j, k, n
-        for i from 0 <= i < 6:
-            for j from 0 <= j < 6:
-                for k from 0 <= k < 6:
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
                     n = palette[(i, j, k)]
                     if not 0 <= n < 0x100:
                         raise ValueError('palette entries must be in range(0, 0x100)')
@@ -1846,12 +1847,12 @@ cdef class PixelFormatPalette(PixelFormat):
         self.ddjvu_format = ddjvu_format_create(DDJVU_FORMAT_PALETTE8, 216, self._palette)
 
     def __repr__(self):
-        cdef int i
+        cdef int i, j, k
         io = StringIO()
         io.write(get_type_name(PixelFormatPalette) + '({')
-        for i from 0 <= i < 6:
-            for j from 0 <= j < 6:
-                for k from 0 <= k < 6:
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
                     io.write('({i}, {j}, {k}): 0x{v:02x}'.format(i=i, j=j, k=k, v=self._palette[i * 6 * 6 + j * 6 + k]))
                     if not (i == j == k == 5):
                         io.write(', ')
