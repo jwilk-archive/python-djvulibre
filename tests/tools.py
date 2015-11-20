@@ -172,7 +172,7 @@ if py3k:
             return -1
         if x > y:
             return 1
-        assert 0
+        assert False
 else:
     cmp = cmp
 
