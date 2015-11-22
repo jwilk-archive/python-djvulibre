@@ -10,6 +10,6 @@ include examples/*
 
 recursive-include djvu *.py *.pxi *.pxd *.pyx
 
-recursive-include tests *.py Makefile *.jpeg *.tex *.djvu
+recursive-include tests *.py Makefile *.tex *.djvu
 
 include private/*
