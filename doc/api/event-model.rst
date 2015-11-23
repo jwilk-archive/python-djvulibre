@@ -59,7 +59,7 @@ The DDJVU API hides this complexity with a familiar event model.
       - The URI is used as a key for the cache of decoded pages.
       - The URI is used to document :class:`NewStreamMessage` messages.
 
-      Setting argument `cache` to a true vaule indicates that decoded pages
+      Setting argument `cache` to a true value indicates that decoded pages
       should be cached when possible.
 
       It is important to understand that the URI is not used to access the

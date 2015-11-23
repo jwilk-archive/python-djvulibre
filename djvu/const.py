@@ -57,7 +57,7 @@ Producer
 Subject
 Title
 Trapped'''.split())
-# Retrived from the PDF specification
+# Retrieved from the PDF specification
 
 METADATA_KEYS = METADATA_BIBTEX_KEYS | METADATA_PDFINFO_KEYS
 

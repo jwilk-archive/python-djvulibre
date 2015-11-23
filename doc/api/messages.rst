@@ -89,7 +89,7 @@ Messages
 
    .. attribute:: uri
 
-      :return: the requrested URI.
+      :return: the requested URI.
 
       URI is is set according to the `uri` argument provided to function
       :meth:`Context.new_document`. The first :class:`NewStreamMessage` message

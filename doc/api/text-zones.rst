@@ -112,7 +112,7 @@ Text zones
 .. currentmodule:: djvu.const
 .. data:: TEXT_ZONE_SEPARATORS
 
-   Dictionary that maps text types to their seprators.
+   Dictionary that maps text types to their separators.
 
    >>> pprint(TEXT_ZONE_SEPARATORS)
    {<djvu.const.TextZoneType: char>: '',

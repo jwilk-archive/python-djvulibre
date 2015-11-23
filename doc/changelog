@@ -1,8 +1,9 @@
 python-djvulibre (0.7.1) UNRELEASED; urgency=low
 
   * Update URL for “actual and proposed changes to the DjVu format”.
+  * Fix a few typos in the documentation.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Fri, 04 Sep 2015 21:21:00 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 23 Nov 2015 16:10:52 +0100
 
 python-djvulibre (0.7) unstable; urgency=low
 

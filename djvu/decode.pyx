@@ -1529,7 +1529,7 @@ cdef class Context:
         - The URI is used as a key for the cache of decoded pages.
         - The URI is used to document NewStreamMessage messages.
 
-        Setting argument cache to a true vaule indicates that decoded pages
+        Setting argument cache to a true value indicates that decoded pages
         should be cached when possible.
 
         It is important to understand that the URI is not used to access the
@@ -2658,7 +2658,7 @@ cdef class NewStreamMessage(Message):
 
     property uri:
         '''
-        Return the requrested URI.
+        Return the requested URI.
 
         URI is is set according to the uri argument provided to function
         Context.new_document(). The first NewMessageStream message always
