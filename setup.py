@@ -14,7 +14,7 @@
 # more details.
 
 '''
-*python-djvulibre* is a set of `Python <https://www.python.org>`_ bindings for
+*python-djvulibre* is a set of Python bindings for
 the `DjVuLibre <http://djvu.sourceforge.net/>`_ library,
 an open source implementation of `DjVu <http://djvu.org/>`_.
 '''
