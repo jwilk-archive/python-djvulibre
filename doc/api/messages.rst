@@ -82,7 +82,7 @@ Messages
       to ``None``.  It indicates that the decoder needs to access the data in
       the main DjVu file.
 
-      Further :class:`NewStreamMessage` messages messages are generated to access the
+      Further :class:`NewStreamMessage` messages are generated to access the
       auxiliary files of indirect or indexed DjVu documents. :attr:`name` then
       provides the base name of the auxiliary file.
 
@@ -91,7 +91,7 @@ Messages
 
       :return: the requested URI.
 
-      URI is is set according to the `uri` argument provided to function
+      URI is set according to the `uri` argument provided to function
       :meth:`Context.new_document`. The first :class:`NewStreamMessage` message
       always contain the URI passed to :meth:`Context.new_document`.
       Subsequent :class:`NewStreamMessage` messages contain the URI of the

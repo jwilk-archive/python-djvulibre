@@ -2649,7 +2649,7 @@ cdef class NewStreamMessage(Message):
         It indicates that the decoder needs to access the data in the main DjVu
         file.
 
-        Further NewStreamMessage messages messages are generated to access the
+        Further NewStreamMessage messages are generated to access the
         auxiliary files of indirect or indexed DjVu documents. .name then
         provides the base name of the auxiliary file.
         '''
@@ -2660,7 +2660,7 @@ cdef class NewStreamMessage(Message):
         '''
         Return the requested URI.
 
-        URI is is set according to the uri argument provided to function
+        URI is set according to the uri argument provided to function
         Context.new_document(). The first NewMessageStream message always
         contain the URI passed to Context.new_document(). Subsequent
         NewMessageStream messages contain the URI of the auxiliary files for
