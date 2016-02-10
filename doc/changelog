@@ -1,9 +1,10 @@
 python-djvulibre (0.7.1) UNRELEASED; urgency=low
 
   * Update URL for “actual and proposed changes to the DjVu format”.
+  * Use HTTPS for sourceforge.net URLs.
   * Fix a few typos in the documentation.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Fri, 15 Jan 2016 18:16:12 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 11 Feb 2016 00:14:40 +0100
 
 python-djvulibre (0.7) unstable; urgency=low
 
