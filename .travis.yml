@@ -47,7 +47,7 @@ install:
 - export CPATH="$HOME/opt/djvulibre/include/"
 - export PKG_CONFIG_PATH="$HOME/opt/djvulibre/lib/pkgconfig/"
 - export LD_LIBRARY_PATH="$HOME/opt/djvulibre/lib/"
-- pip install --upgrade pip
+- \[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || pip install --upgrade pip
 - pip install --build build-cython cython${CYTHON_VERSION:+==$CYTHON_VERSION}
 - \[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || use_sphinx=yes
 - \[ -z "$use_sphinx" ] || pip install sphinx
