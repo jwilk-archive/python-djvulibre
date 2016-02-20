@@ -3,6 +3,8 @@ python-djvulibre (0.7.1) UNRELEASED; urgency=low
   * Update URL for “actual and proposed changes to the DjVu format”.
   * Use HTTPS for sourceforge.net URLs.
   * Fix a few typos in the documentation.
+  * Improve test suite:
+    + Normalize whitespace in ps2ascii output.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Thu, 11 Feb 2016 00:14:40 +0100
 

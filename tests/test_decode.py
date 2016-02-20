@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2007-2015 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007-2016 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of python-djvulibre.
 #
@@ -79,6 +79,7 @@ from tools import (
     assert_is,
     assert_is_instance,
     assert_list_equal,
+    assert_multi_line_equal,
     assert_raises,
     assert_raises_regex,
     assert_raises_str,
@@ -427,20 +428,18 @@ class test_documents:
             assert_false(job.is_error)
             stdout, stderr = run('ps2ascii', tmp.name, LC_ALL='C')
             assert_equal(stderr, b(''))
-            stdout = stdout.split(b('\n'))
-            stdout = [b(' ').join(line.split()) for line in stdout]
-            assert_equal(stdout, [
-                b(''),
-                b(''),
-                b('1 Lorem ipsum'),
-                b('Optio reprehenderit molestias amet aliquam, similique doloremque fuga labore'),
-                b('voluptatum voluptatem, commodi culpa voluptas, officia tenetur expedita quidem hic'),
-                b(''),
-                b('repellat molestiae quis accusamus dolores repudiandae, quidem in ad voluptas'),
-                b('eligendi maiores placeat ex consectetur at tenetur amet.'),
-                b(''),
-                b('1'),
-            ])
+            stdout = stdout.decode('ASCII')
+            stdout = ' '.join(stdout.split())
+            expected = '''
+                1 Lorem ipsum
+                Optio reprehenderit molestias amet aliquam, similique doloremque fuga labore
+                voluptatum voluptatem, commodi culpa voluptas, officia tenetur expedita quidem
+                hic repellat molestiae quis accusamus dolores repudiandae, quidem in ad
+                voluptas eligendi maiores placeat ex consectetur at tenetur amet.
+                1
+            '''
+            expected = ' '.join(expected.split())
+            assert_multi_line_equal(stdout, expected)
         finally:
             del tmp
 
