@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright © 2010-2014 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2010-2016 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of python-djvulibre.
 #
@@ -61,7 +61,7 @@ fflush
 free
 malloc
 EOF
-$target-dlltool --kill-at --def msvcr.def --dllname msvcr90.dll --output-lib "$pwd/$target/common/libmsvcr.a"
+"$target-dlltool" --kill-at --def msvcr.def --dllname msvcr90.dll --output-lib "$pwd/$target/common/libmsvcr.a"
 cd 'drive_c/Program Files/DjVuZone/DjVuLibre/'
 cp -v libdjvulibre.dll libjpeg.dll "$pwd/$target/common/"
 cp -vr include/libdjvu "$pwd/$target/common/"
