@@ -1178,7 +1178,7 @@ cdef class Document:
             RENDER_FOREGROUND
                 render only the foreground layer
             RENDER_BACKGROUND
-                redner only the background layer
+                render only the background layer
         zoom
             Specifies a zoom factor. The default zoom factor scales the image to
             fit the page.
