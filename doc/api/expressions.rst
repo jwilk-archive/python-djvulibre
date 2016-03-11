@@ -137,8 +137,8 @@ S-expressions
    >>> x.value
    Symbol('ham')
 
-Variétés
---------
+Varieties
+---------
 .. data:: EMPTY_LIST
 
    Empty list S-expression.
