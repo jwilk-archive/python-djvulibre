@@ -1041,7 +1041,7 @@ cdef class Document:
         The following values are possible:
         * DOCUMENT_TYPE_UNKNOWN;
         * DOCUMENT_TYPE_SINGLE_PAGE: single-page document;
-        * DOCUMENT_TYPE_BUNDLED: bundled mutli-page document;
+        * DOCUMENT_TYPE_BUNDLED: bundled multi-page document;
         * DOCUMENT_TYPE_INDIRECT: indirect multi-page document;
         * (obsolete) DOCUMENT_TYPE_OLD_BUNDLED,
         * (obsolete) DOCUMENT_TYPE_OLD_INDEXED.
