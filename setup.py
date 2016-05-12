@@ -168,7 +168,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             raise RuntimeError('DjVuLibre >= 3.5.21 is required')
         new_config = [
             'DEF PY3K = {0}'.format(sys.version_info >= (3, 0)),
-            'DEF PYTHON_DJVULIBRE_VERSION = "{0}"'.format(py_version),
+            'DEF PYTHON_DJVULIBRE_VERSION = b"{0}"'.format(py_version),
             'DEF HAVE_MINIEXP_IO_T = {0}'.format(djvulibre_version >= '3.5.26'),
             'DEF HAVE_LANGINFO_H = {0}'.format(os.name == 'posix' and not mingw32cross),
         ]
