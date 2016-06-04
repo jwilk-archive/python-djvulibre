@@ -2,7 +2,7 @@ syntax: glob
 
 *.c
 *.egg-info
-*.pyc
+*.py[co]
 *.so
 build/*
 dist/*
