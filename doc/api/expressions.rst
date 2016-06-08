@@ -84,7 +84,7 @@ S-expressions
    >>> x
    Expression(42)
    >>> type(x)
-   <class 'djvu.sexpr.IntExpression'>
+   <class 'djvu.sexpr.IntExpression'...>
    >>> x.as_string()
    '42'
    >>> x.value
@@ -99,7 +99,7 @@ S-expressions
    >>> x
    Expression([4, 2])
    >>> type(x)
-   <class 'djvu.sexpr.ListExpression'>
+   <class 'djvu.sexpr.ListExpression'...>
    >>> x.as_string()
    '(4 2)'
    >>> x.value
@@ -116,7 +116,7 @@ S-expressions
    >>> x
    Expression('eggs')
    >>> type(x)
-   <class 'djvu.sexpr.StringExpression'>
+   <class 'djvu.sexpr.StringExpression'...>
    >>> x.as_string()
    '"eggs"'
    >>> x.value
@@ -131,7 +131,7 @@ S-expressions
    >>> x
    Expression(Symbol('ham'))
    >>> type(x)
-   <class 'djvu.sexpr.SymbolExpression'>
+   <class 'djvu.sexpr.SymbolExpression'...>
    >>> x.as_string()
    'ham'
    >>> x.value
