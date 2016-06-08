@@ -1,8 +1,8 @@
-python-djvulibre (0.7.3) UNRELEASED; urgency=low
+python-djvulibre (0.7.3) unstable; urgency=low
 
-  * 
+  * Fix compatibility with Python 3.6.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sat, 14 May 2016 01:16:48 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 21 Jun 2016 19:21:39 +0200
 
 python-djvulibre (0.7.2) unstable; urgency=low
 
