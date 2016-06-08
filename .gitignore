@@ -1,0 +1,7 @@
+*.c
+*.egg-info
+*.py[co]
+*.so
+build
+dist
+secret
