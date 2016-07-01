@@ -1537,7 +1537,7 @@ cdef class Context:
         which data is needed. The caller must then provide the raw data using
         a NewStreamMessage.stream object.
 
-        To open a local file, provide a FileUri instance as an uri.
+        To open a local file, provide a FileUri instance as a URI.
 
         Localized characters in uri should be in URI-encoded.
 
@@ -2529,7 +2529,7 @@ cdef class ErrorMessage(Message):
 
 cdef class InfoMessage(Message):
     '''
-    A InfoMessage provides informational text indicating the progress of the
+    An InfoMessage provides informational text indicating the progress of the
     decoding process. This might be displayed in the browser status bar.
     '''
 
