@@ -84,7 +84,7 @@ class Context(djvu.decode.Context):
             text = EMPTY_TEXT_SEXPR
         return text
 
-    def process(self, path, pages = None):
+    def process(self, path, pages=None):
         print('Processing {path!r}:'.format(path=path), file=sys.stderr)
         document = self.new_document(djvu.decode.FileURI(path))
         document.decoding_job.wait()
@@ -92,7 +92,7 @@ class Context(djvu.decode.Context):
         if pages is None:
             pages = iter(document.pages)
         else:
-            pages = (document.pages[i-1] for i in pages)
+            pages = (document.pages[i - 1] for i in pages)
         sed_file.write('remove-txt\n')
         for page in pages:
             sed_file.write('select {0}\n'.format(page.n + 1))
