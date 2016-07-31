@@ -52,7 +52,6 @@ if os.name == 'nt':
     need_setuptools = True
 
 if need_setuptools:
-    import setuptools
     import setuptools.extension
     assert setuptools.extension.have_pyrex
 
