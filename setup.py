@@ -47,12 +47,6 @@ else:
 if os.name == 'nt':
     import djvu.dllpath
 
-# Just to make sure setuptools won't try to be clever:
-fake_module = type(sys)('fake_module')
-fake_module.build_ext = None
-sys.modules['Pyrex'] = sys.modules['Pyrex.Distutils'] = sys.modules['Pyrex.Distutils.build_ext'] = fake_module
-del fake_module
-
 try:
     import setuptools
     import setuptools.extension
