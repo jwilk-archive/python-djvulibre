@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2009-2015 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2009-2016 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of python-djvulibre.
 #
@@ -21,7 +21,6 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
-    'sphinx.ext.pngmath',
     'sphinx.ext.inheritance_diagram',
 ]
 
@@ -51,6 +50,7 @@ pygments_style = 'sphinx'
 html_theme = 'haiku'
 html_use_modindex = True
 html_use_index = False
+html_static_path = ['static']
 
 rst_epilog = '''
 .. |djvu3ref| replace:: Lizardtech DjVu Reference
@@ -62,5 +62,12 @@ rst_epilog = '''
 .. |djvuext| replace:: Actual and proposed changes to the DjVu format
 .. _djvuext: https://sourceforge.net/p/djvu/djvulibre-git/ci/release.3.5.23/tree/doc/djvuchanges.txt
 '''
+
+# With a bit of our help, docutils is capable of rendering our simple formulas.
+# Sphinx math extension is not needed.
+import sphinx.writers.html
+del sphinx.writers.html.HTMLTranslator.visit_math
+def setup(app):
+   app.add_stylesheet('docutils-math.css')
 
 # vim:ts=4 sts=4 sw=4 et
