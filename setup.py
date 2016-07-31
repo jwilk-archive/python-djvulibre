@@ -24,8 +24,7 @@ Development Status :: 4 - Beta
 Intended Audience :: Developers
 License :: OSI Approved :: GNU General Public License (GPL)
 Operating System :: POSIX
-Operating System :: Microsoft :: Windows :: Windows 95/98/2000
-Operating System :: Microsoft :: Windows :: Windows NT/2000
+Operating System :: Microsoft :: Windows
 Programming Language :: Python
 Programming Language :: Python :: 2
 Programming Language :: Python :: 3
