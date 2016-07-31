@@ -1,13 +1,13 @@
 python-djvulibre (0.7.3) UNRELEASED; urgency=low
 
   * Fix compatibility with Python 3.6.
-  * Fix typo in the documentation.
   * Don't hardcode the Python interpreter path in script shebangs; use
     “#!/usr/bin/env python” instead.
-  * Don't require TeX distribution to render math formulas in HTML
-    documentation.
+  * Improve documentation:
+    + Fix typo.
+    + Don't require TeX distribution to render math formulas.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 21 Jun 2016 19:21:39 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sun, 31 Jul 2016 22:32:47 +0200
 
 python-djvulibre (0.7.2) unstable; urgency=low
 
