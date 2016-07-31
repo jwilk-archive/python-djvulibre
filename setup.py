@@ -125,6 +125,7 @@ def pkgconfig_build_flags(*packages, **kwargs):
             fallback.update(
                 include_dirs=[os.path.join(dll_path, 'include')],
                 library_dirs=[os.path.join(dll_path)],
+                libraries=['libdjvulibre'],
             )
     stdout = run_pkgconfig('--libs', '--cflags', *packages)
     if stdout is None:
