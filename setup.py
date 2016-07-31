@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2007-2015 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007-2016 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of python-djvulibre.
 #
@@ -54,12 +54,13 @@ sys.modules['Pyrex'] = sys.modules['Pyrex.Distutils'] = sys.modules['Pyrex.Distu
 del fake_module
 
 try:
-    import setuptools as distutils_core
+    import setuptools
     import setuptools.extension
     assert setuptools.extension.have_pyrex
 except ImportError:
-    import distutils.core as distutils_core
-import distutils
+    pass
+
+import distutils.core
 import distutils.ccompiler
 import distutils.command.build_ext
 import distutils.dep_util
@@ -265,6 +266,6 @@ setup_params = dict(
 )
 
 if __name__ == '__main__':
-    distutils_core.setup(**setup_params)
+    distutils.core.setup(**setup_params)
 
 # vim:ts=4 sts=4 sw=4 et
