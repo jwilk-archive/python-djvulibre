@@ -3,8 +3,10 @@ python-djvulibre (0.7.4) UNRELEASED; urgency=low
   * Fix typo in the documentation.
   * Don't hardcode the Python interpreter path in script shebangs; use
     “#!/usr/bin/env python” instead.
+  * Don't require TeX distribution to render math formulas in HTML
+    documentation.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Fri, 15 Jul 2016 11:09:26 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sun, 31 Jul 2016 21:53:48 +0200
 
 python-djvulibre (0.7.3) unstable; urgency=low
 
