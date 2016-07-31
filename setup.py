@@ -39,20 +39,22 @@ import os
 import sys
 import subprocess as ipc
 
+need_setuptools = False
+
 if os.name == 'posix' and os.getenv('python_djvulibre_mingw32'):
     import mingw32cross
+    need_setuptools = True
 else:
     mingw32cross = None
 
 if os.name == 'nt':
     import djvu.dllpath
+    need_setuptools = True
 
-try:
+if need_setuptools:
     import setuptools
     import setuptools.extension
     assert setuptools.extension.have_pyrex
-except ImportError:
-    pass
 
 import distutils.core
 import distutils.ccompiler
