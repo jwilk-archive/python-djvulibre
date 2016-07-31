@@ -204,7 +204,11 @@ ELSE:
     cdef extern from 'Python.h':
         FILE* file_to_cfile 'PyFile_AsFile'(object)
         int is_file 'PyFile_Check'(object)
-from posix.unistd cimport dup
+IF WINDOWS:
+    cdef extern from 'io.h' nogil:
+        int dup(int)
+ELSE:
+    from posix.unistd cimport dup
 from libc.stdio cimport fclose
 from libc.stdio cimport fdopen
 

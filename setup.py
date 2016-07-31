@@ -167,6 +167,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             'DEF PYTHON_DJVULIBRE_VERSION = b"{0}"'.format(py_version),
             'DEF HAVE_MINIEXP_IO_T = {0}'.format(djvulibre_version >= '3.5.26'),
             'DEF HAVE_LANGINFO_H = {0}'.format(os.name == 'posix' and not mingw32cross),
+            'DEF WINDOWS = {0}'.format(os.name == 'nt' or mingw32cross),
         ]
         self.src_dir = src_dir = os.path.join(self.build_temp, 'src')
         distutils.dir_util.mkpath(src_dir)
