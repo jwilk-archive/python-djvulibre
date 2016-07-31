@@ -231,7 +231,7 @@ else:
 
 compiler_flags = pkgconfig_build_flags('ddjvuapi')
 
-setup_params = dict(
+meta = dict(
     name='python-djvulibre',
     version=py_version,
     author='Jakub Wilk',
@@ -242,6 +242,9 @@ setup_params = dict(
     classifiers=classifiers,
     url='http://jwilk.net/software/python-djvulibre',
     platforms=['all'],
+)
+
+setup_params = dict(
     packages=['djvu'],
     ext_modules=[
         distutils.command.build_ext.Extension(
@@ -257,10 +260,22 @@ setup_params = dict(
         (cmd.__name__, cmd)
         for cmd in (build_ext, build_sphinx)
         if cmd is not None
-    )
+    ),
+    **meta
 )
 
 if __name__ == '__main__':
-    distutils.core.setup(**setup_params)
+    if 'setuptools' in sys.modules and sys.argv[1] == 'egg_info':
+        # We wouldn't normally want setuptools; but pip forces it upon us anyway,
+        # so let's abuse it to instruct pip to install Cython if it's missing.
+        distutils.core.setup(
+            install_requires=['Cython>=0.19'],
+            # Conceptually, “setup_requires” would make more sense than
+            # “install_requires”, but the former is not supported by pip:
+            # https://github.com/pypa/pip/issues/1820
+            **meta
+        )
+    else:
+        distutils.core.setup(**setup_params)
 
 # vim:ts=4 sts=4 sw=4 et
