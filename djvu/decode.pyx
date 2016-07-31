@@ -206,8 +206,7 @@ ELSE:
         int is_file 'PyFile_Check'(object)
 from posix.unistd cimport dup
 from libc.stdio cimport fclose
-cdef extern from 'unistd.h':
-    FILE *fdopen(int, char*)
+from libc.stdio cimport fdopen
 
 IF HAVE_LANGINFO_H:
     cdef extern from 'langinfo.h':
