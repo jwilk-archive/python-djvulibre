@@ -123,8 +123,8 @@ def pkgconfig_build_flags(*packages, **kwargs):
         dll_path = djvu.dllpath.guess_dll_path()
         if dll_path is not None:
             fallback.update(
-                extra_compile_args=['-I' + os.path.join(dll_path, 'include')],
-                extra_link_args=['-L' + os.path.join(dll_path)],
+                include_dirs=[os.path.join(dll_path, 'include')],
+                library_dirs=[os.path.join(dll_path)],
             )
     stdout = run_pkgconfig('--libs', '--cflags', *packages)
     if stdout is None:
