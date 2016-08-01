@@ -24,7 +24,14 @@ if os.name != 'nt':
 
 def guess_dll_path():
     import os
-    import _winreg as winreg
+    try:
+        # Python 3.X
+        import winreg
+        unicode = str
+    except ImportError:
+        # Python 2.X
+        import _winreg as winreg
+    unicode = type(b''.decode())
     registry = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
     try:
         key = winreg.OpenKey(registry, r'Software\Microsoft\Windows\CurrentVersion\Uninstall\DjVuLibre+DjView')
@@ -43,6 +50,7 @@ def guess_dll_path():
         winreg.CloseKey(registry)
 
 def set_dll_search_path(path=None):
+    unicode = type(b''.decode())
     if path is None:
         path = guess_dll_path()
     if path is None:
