@@ -14,7 +14,7 @@
 #cython: autotestdict=False
 
 '''
-DjVuLibre bindings: module for efficiently decoding and displaying DjVu documents.
+DjVuLibre bindings: module for efficiently decoding and displaying DjVu documents
 
 Summary
 -------
