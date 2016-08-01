@@ -14,7 +14,7 @@
 # more details.
 
 '''
-Module aimed to ease finding DjVuLibre DLLs in non-standard locations.
+ease finding DjVuLibre DLLs in non-standard locations
 '''
 
 import os
