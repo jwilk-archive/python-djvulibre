@@ -119,8 +119,8 @@ cdef class _ExpressionIO:
         cdef int (*backup_io_getc)()
         cdef int (*backup_io_ungetc)(int c)
         cdef int backup_io_7bit
-    cdef object stdin
-    cdef object stdout
+    cdef object stdin 'stdin_fp'
+    cdef object stdout 'stdout_fp'
     cdef int stdout_binary
     cdef object buffer
     cdef object exc
