@@ -18,6 +18,8 @@ import codecs
 import copy
 import errno
 import io
+import os
+import shutil
 import tempfile
 
 import pickle
@@ -583,11 +585,15 @@ class test_expression_parser_ascii():
             self.t(fp)
 
     def test_codecs_io(self):
-        with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
-            with codecs.open(bfp.name, mode='w+', encoding='UTF-16-LE') as fp:
+        tmpdir = tempfile.mkdtemp()
+        try:
+            path = os.path.join(tmpdir, 'tmp')
+            with codecs.open(path, mode='w+', encoding='UTF-16-LE') as fp:
                 fp.write(u(self.expr))
                 fp.seek(0)
                 self.t(fp)
+        finally:
+            shutil.rmtree(tmpdir)
 
     def test_file_io_binary(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
@@ -685,18 +691,26 @@ class test_expression_writer_ascii():
             assert_equal(fp.read(), self.urepr)
 
     def test_codecs_io_text_7(self):
-        with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
-            with codecs.open(bfp.name, mode='w+', encoding='UTF-16-LE') as fp:
+        tmpdir = tempfile.mkdtemp()
+        try:
+            path = os.path.join(tmpdir, 'tmp')
+            with codecs.open(path, mode='w+', encoding='UTF-16-LE') as fp:
                 self.expr.print_into(fp)
                 fp.seek(0)
                 assert_equal(fp.read(), self.repr)
+        finally:
+            shutil.rmtree(tmpdir)
 
     def test_codecs_io_text_8(self):
-        with tempfile.NamedTemporaryFile(mode='w+b') as bfp:
-            with codecs.open(bfp.name, mode='w+', encoding='UTF-16-LE') as fp:
+        tmpdir = tempfile.mkdtemp()
+        try:
+            path = os.path.join(tmpdir, 'tmp')
+            with codecs.open(path, mode='w+', encoding='UTF-16-LE') as fp:
                 self.expr.print_into(fp, escape_unicode=False)
                 fp.seek(0)
                 assert_equal(fp.read(), u(self.urepr))
+        finally:
+            shutil.rmtree(tmpdir)
 
     def test_file_io_binary_7(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
