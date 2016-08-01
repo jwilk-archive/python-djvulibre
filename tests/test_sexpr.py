@@ -621,7 +621,12 @@ class test_expression_writer():
 
     def test_bad_file_io(self):
         ecm = None
-        fp = open('/dev/full', 'w', buffering=2)
+        path = '/dev/full'
+        try:
+            os.stat(path)
+        except OSError as exc:
+            raise SkipTest('{exc.filename}: {exc.strerror}'.format(exc=exc))
+        fp = open(path, 'w', buffering=2)
         expr = Expression(23)
         try:
             with assert_raises(IOError) as ecm:
