@@ -552,7 +552,7 @@ class test_expression_parser():
                 Expression.from_stream(fp)
         assert_in(
             ecm.exception.errno,
-            {errno.EIO, errno.EFAULT}
+            (errno.EIO, errno.EFAULT)
         )
 
     if py3k:
