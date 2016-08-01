@@ -13,8 +13,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 # more details.
 
-import collections
 import codecs
+import collections
 import copy
 import errno
 import io
