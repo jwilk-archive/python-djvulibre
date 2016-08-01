@@ -15,6 +15,7 @@
 
 import codecs
 import contextlib
+import distutils.spawn
 import locale
 import os
 import re
@@ -242,11 +243,8 @@ def skip_unless_translation_exists(lang):
         raise SkipTest('libc translation not found: ' + lang)
 
 def skip_unless_command_exists(command):
-    directories = os.environ['PATH'].split(os.pathsep)
-    for directory in directories:
-        path = os.path.join(directory, command)
-        if os.access(path, os.X_OK):
-            return
+    if distutils.spawn.find_executable(command):
+        return
     raise SkipTest('command not found: ' + command)
 
 def wildcard_import(mod):
