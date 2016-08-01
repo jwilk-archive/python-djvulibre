@@ -1,6 +1,7 @@
 *.c
 *.egg-info
 *.py[co]
+*.pyd
 *.so
 MANIFEST
 build
