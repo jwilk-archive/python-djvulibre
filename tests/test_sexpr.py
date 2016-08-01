@@ -20,6 +20,7 @@ import errno
 import io
 import os
 import shutil
+import sys
 import tempfile
 
 import pickle
@@ -539,6 +540,8 @@ class test_expression_parser():
             Expression.from_stream(42)
 
     def test_bad_file_io(self):
+        if not sys.platform.startswith('linux'):
+            raise SkipTest('Linux-only test')
         with open('/proc/self/mem') as fp:
             with assert_raises(IOError) as ecm:
                 Expression.from_stream(fp)
