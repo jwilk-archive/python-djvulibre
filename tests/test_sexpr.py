@@ -540,12 +540,20 @@ class test_expression_parser():
             Expression.from_stream(42)
 
     def test_bad_file_io(self):
-        if not sys.platform.startswith('linux'):
-            raise SkipTest('Linux-only test')
+        if os.name == 'nt':
+            raise SkipTest('not implemented on Windows')
+        path = '/proc/self/mem'
+        try:
+            os.stat(path)
+        except OSError as exc:
+            raise SkipTest('{exc.filename}: {exc.strerror}'.format(exc=exc))
         with open('/proc/self/mem') as fp:
             with assert_raises(IOError) as ecm:
                 Expression.from_stream(fp)
-        assert_equal(ecm.exception.errno, errno.EIO)
+        assert_in(
+            ecm.exception.errno,
+            {errno.EIO, errno.EFAULT}
+        )
 
     if py3k:
         def test_bad_unicode_io(self):
