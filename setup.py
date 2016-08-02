@@ -198,7 +198,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             distutils.log.info('cythoning {ext.name!r} extension'.format(ext=ext))
             def build_c(source, target):
                 distutils.spawn.spawn([
-                    'cython',
+                    'python', '-m', 'cython',
                     '-I', os.path.dirname(self.config_path),
                     '-o', target,
                     source,
