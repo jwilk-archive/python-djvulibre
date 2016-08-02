@@ -89,7 +89,7 @@ def run_pkgconfig(*cmdline):
             stdout=ipc.PIPE, stderr=ipc.PIPE
         )
     except EnvironmentError as exc:
-        msg = 'cannot execute pkg-config: {exc}'.format(exc=exc)
+        msg = 'cannot execute pkg-config: {exc.strerror}'.format(exc=exc)
         distutils.log.warn(msg)
         return
     stdout, stderr = pkgconfig.communicate()
