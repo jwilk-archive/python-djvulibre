@@ -109,18 +109,16 @@ else:
 
 def run(*cmd, **kwargs):
     stdin = kwargs.pop('stdin', None)
-    env = {}
+    env = dict(os.environ)
     for key, value in kwargs.items():
         if key.isupper():
             env[key] = value
             continue
         raise TypeError('{key!r} is an invalid keyword argument for this function'.format(key=key))
-    def preexec_fn():
-        os.environ.update(env)
     kwargs = dict(
-        preexec_fn=preexec_fn,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        env=env,
     )
     if stdin is not None:
         kwargs.update(stdin=subprocess.PIPE)
