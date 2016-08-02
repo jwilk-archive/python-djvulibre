@@ -36,8 +36,8 @@ Topic :: Text Processing
 
 import glob
 import os
-import sys
 import subprocess as ipc
+import sys
 
 need_setuptools = False
 if os.name == 'nt':
