@@ -69,18 +69,17 @@ def ext_modules():
         yield module
 ext_modules = list(ext_modules())
 
-def get_version():
-    open_opts = {}
+def uopen(path):
     if str != bytes:
-        open_opts.update(encoding='UTF-8')
-    changelog = open(
-        os.path.join(os.path.dirname(__file__), 'doc', 'changelog'),
-        **open_opts
-    )
-    try:
-        return changelog.readline().split()[1].strip('()')
-    finally:
-        changelog.close()
+        return open(path, 'rt', encoding='UTF-8')
+    else:
+        return open(path, 'rt')
+
+def get_version():
+    path = os.path.join(os.path.dirname(__file__), 'doc', 'changelog')
+    with uopen(path) as file:
+        line = file.readline()
+    return line.split()[1].strip('()')
 
 def run_pkgconfig(*cmdline):
     cmdline = ['pkg-config'] + list(cmdline)
