@@ -145,6 +145,12 @@ def pkgconfig_version(package):
 
 djvulibre_version = pkgconfig_version('ddjvuapi')
 py_version = get_version()
+if str != bytes:
+    # Python 3.X
+    req_cython_version = '0.20'
+else:
+    # Python 2.X
+    req_cython_version = '0.19'
 
 # Work-around for <https://bugs.python.org/issue969718>:
 os.environ.pop('CFLAGS', None)
@@ -262,7 +268,7 @@ if __name__ == '__main__':
         # We wouldn't normally want setuptools; but pip forces it upon us anyway,
         # so let's abuse it to instruct pip to install Cython if it's missing.
         distutils.core.setup(
-            install_requires=['Cython>=0.19'],
+            install_requires=['Cython>={ver}'.format(ver=req_cython_version)],
             # Conceptually, “setup_requires” would make more sense than
             # “install_requires”, but the former is not supported by pip:
             # https://github.com/pypa/pip/issues/1820
