@@ -37,6 +37,7 @@ Topic :: Text Processing
 import glob
 import os
 import subprocess as ipc
+import re
 import sys
 
 need_setuptools = False
@@ -143,8 +144,22 @@ def pkgconfig_version(package):
     version = stdout.strip()
     return V(version)
 
+def get_cython_version():
+    cmdline = ['python', '-m', 'cython', '--version']
+    cmd = ipc.Popen(cmdline, stdout=ipc.PIPE, stderr=ipc.STDOUT)
+    stdout, stderr = cmd.communicate()
+    if not isinstance(stdout, str):
+        stdout = stdout.decode('ASCII')
+    match = re.match(r'\ACython version (\d\S+)', stdout)
+    if match:
+        ver = match.group(1)
+    else:
+        ver = '0'
+    return distutils.version.LooseVersion(ver)
+
 djvulibre_version = pkgconfig_version('ddjvuapi')
 py_version = get_version()
+cython_version = get_cython_version()
 if str != bytes:
     # Python 3.X
     req_cython_version = '0.20'
@@ -201,6 +216,8 @@ class build_ext(distutils.command.build_ext.build_ext):
                 continue
             distutils.log.info('cythoning {ext.name!r} extension'.format(ext=ext))
             def build_c(source, target):
+                if cython_version < req_cython_version:
+                    raise RuntimeError('Cython >= {ver} is required'.format(ver=req_cython_version))
                 distutils.spawn.spawn([
                     'python', '-m', 'cython',
                     '-I', os.path.dirname(self.config_path),
