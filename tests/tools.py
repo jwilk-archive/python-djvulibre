@@ -211,8 +211,7 @@ def interim_locale(**kwargs):
             category = getattr(locale, category)
             try:
                 locale.setlocale(category, value)
-            except locale.Error:
-                _, exc, _ = sys.exc_info()
+            except locale.Error as exc:
                 raise SkipTest(exc)
         yield
     finally:
@@ -234,8 +233,7 @@ def skip_unless_translation_exists(lang):
         with interim_locale(LC_ALL=lang):
             try:
                 open(__file__ + '/')
-            except EnvironmentError:
-                _, exc, _ = sys.exc_info()
+            except EnvironmentError as exc:
                 messages[lang] = str(exc)
     messages = set(messages.values())
     assert 1 <= len(messages) <= 2

@@ -170,8 +170,7 @@ class test_documents:
         path = '__nonexistent__'
         try:
             os.stat(path)
-        except OSError:
-            _, ex, _ = sys.exc_info()
+        except OSError as ex:
             c_message = ex.args[1]
         else:
             raise OSError(errno.EEXIST, os.strerror(errno.EEXIST), path)
@@ -198,8 +197,7 @@ class test_documents:
         try:
             with interim_locale(LC_ALL='ja_JP.UTF-8'):
                 os.stat(path)
-        except OSError:
-            _, ex, _ = sys.exc_info()
+        except OSError as ex:
             c_message = ex.args[1]
         else:
             raise OSError(errno.EEXIST, os.strerror(errno.EEXIST), path)
