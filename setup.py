@@ -135,14 +135,20 @@ def pkgconfig_build_flags(*packages, **kwargs):
     return kwargs
 
 def pkgconfig_version(package):
-    V = distutils.version.LooseVersion
     stdout = run_pkgconfig('--modversion', package)
     if stdout is None:
+        return
+    return stdout.strip()
+
+def get_djvulibre_version():
+    version = pkgconfig_version('ddjvuapi')
+    if version is None:
         if os.name == 'posix':
             raise RuntimeError('cannot determine DjVuLibre version')
-        return V('0')
-    version = stdout.strip()
-    return V(version)
+        elif os.name == 'nt':
+            version = djvu.dllpath._guess_dll_version()
+    version = version or '0'
+    return distutils.version.LooseVersion(version)
 
 def get_cython_version():
     cmdline = ['python', '-m', 'cython', '--version']
@@ -157,7 +163,6 @@ def get_cython_version():
         ver = '0'
     return distutils.version.LooseVersion(ver)
 
-djvulibre_version = pkgconfig_version('ddjvuapi')
 py_version = get_version()
 cython_version = get_cython_version()
 if str != bytes:
@@ -173,6 +178,7 @@ os.environ.pop('CFLAGS', None)
 class build_ext(distutils.command.build_ext.build_ext):
 
     def run(self):
+        djvulibre_version = get_djvulibre_version()
         if djvulibre_version != '0' and djvulibre_version < '3.5.21':
             raise RuntimeError('DjVuLibre >= 3.5.21 is required')
         new_config = [
