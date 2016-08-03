@@ -22,15 +22,17 @@ import os
 if os.name != 'nt':
     raise ImportError('This module is for Windows only')
 
+import ctypes
+
+try:
+    # Python 3.X
+    import winreg
+    unicode = str
+except ImportError:
+    # Python 2.X
+    import _winreg as winreg
+
 def _get(key, subkey):
-    import os
-    try:
-        # Python 3.X
-        import winreg
-        unicode = str
-    except ImportError:
-        # Python 2.X
-        import _winreg as winreg
     unicode = type(b''.decode())
     with winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE) as registry:
         with winreg.OpenKey(registry, key) as regkey:
@@ -42,7 +44,6 @@ def _get(key, subkey):
 _djvulibre_key = r'Software\Microsoft\Windows\CurrentVersion\Uninstall\DjVuLibre+DjView'
 
 def guess_dll_path():
-    import os
     try:
         path = _get(_djvulibre_key, 'UninstallString')
     except (TypeError, WindowsError):
@@ -59,10 +60,7 @@ def set_dll_search_path(path=None):
         return
     if not isinstance(path, unicode):
         raise TypeError
-    import ctypes
     ctypes.windll.kernel32.SetDllDirectoryW(path)
     return path
-
-del os
 
 # vim:ts=4 sts=4 sw=4 et
