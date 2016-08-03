@@ -37,6 +37,7 @@ def _get(key, subkey):
     with winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE) as registry:
         with winreg.OpenKey(registry, key) as regkey:
             value, tp = winreg.QueryValueEx(regkey, subkey)
+            del tp
             if not isinstance(value, unicode):
                 raise TypeError
             return value
