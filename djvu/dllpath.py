@@ -22,7 +22,7 @@ import os
 if os.name != 'nt':
     raise ImportError('This module is for Windows only')
 
-def guess_dll_path():
+def _get(key, subkey):
     import os
     try:
         # Python 3.X
@@ -32,22 +32,24 @@ def guess_dll_path():
         # Python 2.X
         import _winreg as winreg
     unicode = type(b''.decode())
-    registry = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
-    try:
-        key = winreg.OpenKey(registry, r'Software\Microsoft\Windows\CurrentVersion\Uninstall\DjVuLibre+DjView')
-        try:
-            value, tp = winreg.QueryValueEx(key, 'UninstallString')
+    with winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE) as registry:
+        with winreg.OpenKey(registry, key) as regkey:
+            value, tp = winreg.QueryValueEx(regkey, subkey)
             if not isinstance(value, unicode):
-                return
-            path = os.path.dirname(value)
-            if os.path.isfile(os.path.join(path, 'libdjvulibre.dll')):
-                return path
-        finally:
-            winreg.CloseKey(key)
-    except WindowsError:
+                raise TypeError
+            return value
+
+_djvulibre_key = r'Software\Microsoft\Windows\CurrentVersion\Uninstall\DjVuLibre+DjView'
+
+def guess_dll_path():
+    import os
+    try:
+        path = _get(_djvulibre_key, 'UninstallString')
+    except (TypeError, WindowsError):
         return
-    finally:
-        winreg.CloseKey(registry)
+    path = os.path.dirname(path)
+    if os.path.isfile(os.path.join(path, 'libdjvulibre.dll')):
+        return path
 
 def set_dll_search_path(path=None):
     unicode = type(b''.decode())
