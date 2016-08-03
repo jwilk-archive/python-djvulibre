@@ -52,6 +52,13 @@ def guess_dll_path():
     if os.path.isfile(os.path.join(path, 'libdjvulibre.dll')):
         return path
 
+def _guess_dll_version():
+    try:
+        version = _get(_djvulibre_key, 'DisplayVersion')
+    except (TypeError, WindowsError):
+        return
+    return version.split('+')[0]
+
 def set_dll_search_path(path=None):
     unicode = type(b''.decode())
     if path is None:
