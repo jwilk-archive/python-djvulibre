@@ -257,7 +257,6 @@ meta = dict(
     long_description=__doc__.strip(),
     classifiers=classifiers,
     url='http://jwilk.net/software/python-djvulibre',
-    platforms=['all'],
 )
 
 setup_params = dict(
