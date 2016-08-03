@@ -63,4 +63,9 @@ def set_dll_search_path(path=None):
     ctypes.windll.kernel32.SetDllDirectoryW(path)
     return path
 
+__all__ = [
+    'guess_dll_path',
+    'set_dll_search_path'
+]
+
 # vim:ts=4 sts=4 sw=4 et
