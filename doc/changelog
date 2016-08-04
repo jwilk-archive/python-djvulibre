@@ -1,13 +1,29 @@
-python-djvulibre (0.7.3) UNRELEASED; urgency=low
+python-djvulibre (0.8) UNRELEASED; urgency=low
 
-  * Fix compatibility with Python 3.6.
+  * Fix Windows support. It is now possible to build the package using the
+    default compiler, Microsoft Visual C++ for Python.
+    + Remove support for cross-compiling using MinGW.
+  * Fix test failures on non-Linux systems.
+  * Improve documentation:
+    + Fix doctests' compatibility with Python 3.6.
+    + Don't require TeX distribution to render math formulas.
+    + Simplify some module docstrings.
+    + Fix typos in docstrings.
+    + Update bug tracker URLs.
+      The project repo has moved to GitHub.
+  * Improve the setup script:
+    + Check Cython version.
+    + Use “python -m cython” instead of the “cython” script.
+    + Report build-time requirements to pip.
+    + Don't use setuptools, except on Windows.
+    + Remove poorly standardized “platforms” metadata key. (The information
+      about supported platform is available in the “Operating System”
+      classifiers.)
+    + Add the “Programming Language :: Cython” classifier.
   * Don't hardcode the Python interpreter path in script shebangs; use
     “#!/usr/bin/env python” instead.
-  * Improve documentation:
-    + Fix typo.
-    + Don't require TeX distribution to render math formulas.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sun, 31 Jul 2016 22:32:47 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 04 Aug 2016 15:56:58 +0200
 
 python-djvulibre (0.7.2) unstable; urgency=low
 
