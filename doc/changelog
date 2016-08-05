@@ -145,7 +145,7 @@ python-djvulibre (0.3.10) unstable; urgency=low
     + Fix test_bad_io failures with Cython ≥ 0.21.
   * Improve setup.py:
     + Make it possible to build the package natively on Windows.
-      https://github.com/jwilk/python-djvulibre/issues/4
+      https://github.com/jwilk/python-djvulibre/issues/1
   * Use HTTPS URLs when they are available, in documentation and code.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Tue, 04 Nov 2014 11:44:09 +0100
