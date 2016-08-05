@@ -1,4 +1,4 @@
-python-djvulibre (0.8) UNRELEASED; urgency=low
+python-djvulibre (0.8) unstable; urgency=low
 
   * Fix Windows support. It is now possible to build the package using the
     default compiler, Microsoft Visual C++ Compiler for Python.
@@ -24,7 +24,7 @@ python-djvulibre (0.8) UNRELEASED; urgency=low
   * Don't hardcode the Python interpreter path in script shebangs; use
     “#!/usr/bin/env python” instead.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 04 Aug 2016 15:56:58 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 05 Aug 2016 22:52:25 +0200
 
 python-djvulibre (0.7.2) unstable; urgency=low
 
