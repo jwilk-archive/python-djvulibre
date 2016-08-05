@@ -1,7 +1,8 @@
 python-djvulibre (0.8) UNRELEASED; urgency=low
 
   * Fix Windows support. It is now possible to build the package using the
-    default compiler, Microsoft Visual C++ for Python.
+    default compiler, Microsoft Visual C++ Compiler for Python.
+    https://github.com/jwilk/python-djvulibre/issues/1
     + Remove support for cross-compiling using MinGW.
   * Fix test failures on non-Linux systems.
   * Improve documentation:
