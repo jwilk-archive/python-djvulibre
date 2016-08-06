@@ -1,3 +1,9 @@
+python-djvulibre (0.8.1) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jakub Wilk <jwilk@jwilk.net>  Sat, 06 Aug 2016 13:03:41 +0200
+
 python-djvulibre (0.8) unstable; urgency=low
 
   * Fix Windows support. It is now possible to build the package using the
