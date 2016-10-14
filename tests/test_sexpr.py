@@ -20,7 +20,6 @@ import errno
 import io
 import os
 import shutil
-import sys
 import tempfile
 
 import pickle
