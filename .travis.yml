@@ -6,6 +6,7 @@ python:
 - "3.3"
 - "3.4"
 - "3.5"
+- "3.6-dev"
 - nightly
 env:
 - DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
@@ -25,11 +26,15 @@ matrix:
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
   - python: "3.5"
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
-  - python: nightly
+  - python: "3.6-dev"
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
   - python: nightly
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+  # <https://bugs.python.org/issue26519>:
+  - python: "3.6-dev"
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
-    # https://bugs.python.org/issue26519
+  - python: nightly
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
 branches:
   except:
   - appveyor
