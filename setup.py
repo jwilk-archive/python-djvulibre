@@ -52,6 +52,7 @@ if need_setuptools:
 import distutils.core
 import distutils.ccompiler
 import distutils.command.build_ext
+import distutils.command.sdist
 import distutils.dep_util
 import distutils.dir_util
 import distutils.version
@@ -251,6 +252,18 @@ if sphinx_setup_command:
 else:
     build_sphinx = None
 
+class sdist(distutils.command.sdist.sdist):
+
+    def maybe_move_file(self, base_dir, src, dst):
+        src = os.path.join(base_dir, src)
+        dst = os.path.join(base_dir, dst)
+        if os.path.exists(src):
+            self.move_file(src, dst)
+
+    def make_release_tree(self, base_dir, files):
+        distutils.command.sdist.sdist.make_release_tree(self, base_dir, files)
+        self.maybe_move_file(base_dir, 'COPYING', 'doc/COPYING')
+
 compiler_flags = pkgconfig_build_flags('ddjvuapi')
 
 meta = dict(
@@ -279,7 +292,7 @@ setup_params = dict(
     py_modules=['djvu.const'],
     cmdclass=dict(
         (cmd.__name__, cmd)
-        for cmd in (build_ext, build_sphinx)
+        for cmd in (build_ext, build_sphinx, sdist)
         if cmd is not None
     ),
     **meta
