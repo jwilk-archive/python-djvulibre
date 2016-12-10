@@ -1,7 +1,7 @@
 include MANIFEST.in
 
+include COPYING
 include doc/*.txt
-include doc/COPYING
 include doc/changelog
 include doc/api/*.rst
 include doc/api/conf.py
