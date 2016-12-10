@@ -71,10 +71,10 @@ def ext_modules():
 ext_modules = list(ext_modules())
 
 def uopen(path):
-    if str != bytes:
-        return open(path, 'rt', encoding='UTF-8')
-    else:
+    if str is bytes:
         return open(path, 'rt')
+    else:
+        return open(path, 'rt', encoding='UTF-8')
 
 def get_version():
     path = os.path.join(os.path.dirname(__file__), 'doc', 'changelog')
@@ -165,12 +165,12 @@ def get_cython_version():
 
 py_version = get_version()
 cython_version = get_cython_version()
-if str != bytes:
-    # Python 3.X
-    req_cython_version = '0.20'
-else:
+if str is bytes:
     # Python 2.X
     req_cython_version = '0.19'
+else:
+    # Python 3.X
+    req_cython_version = '0.20'
 
 # Work-around for <https://bugs.python.org/issue969718>:
 os.environ.pop('CFLAGS', None)
