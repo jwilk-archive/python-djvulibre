@@ -2,9 +2,9 @@ include MANIFEST.in
 
 include COPYING
 include doc/*.txt
-include doc/changelog
 include doc/api/*.rst
 include doc/api/conf.py
+include doc/changelog
 
 include examples/*
 
