@@ -19,21 +19,6 @@ the `DjVuLibre <http://djvu.sourceforge.net/>`_ library,
 an open source implementation of `DjVu <http://djvu.org/>`_.
 '''
 
-classifiers = '''
-Development Status :: 4 - Beta
-Intended Audience :: Developers
-License :: OSI Approved :: GNU General Public License (GPL)
-Operating System :: POSIX
-Operating System :: Microsoft :: Windows
-Programming Language :: Cython
-Programming Language :: Python
-Programming Language :: Python :: 2
-Programming Language :: Python :: 3
-Topic :: Multimedia :: Graphics
-Topic :: Multimedia :: Graphics :: Graphics Conversion
-Topic :: Text Processing
-'''.strip().splitlines()
-
 import glob
 import os
 import subprocess as ipc
@@ -265,6 +250,21 @@ class sdist(distutils.command.sdist.sdist):
         self.maybe_move_file(base_dir, 'COPYING', 'doc/COPYING')
 
 compiler_flags = pkgconfig_build_flags('ddjvuapi')
+
+classifiers = '''
+Development Status :: 4 - Beta
+Intended Audience :: Developers
+License :: OSI Approved :: GNU General Public License (GPL)
+Operating System :: POSIX
+Operating System :: Microsoft :: Windows
+Programming Language :: Cython
+Programming Language :: Python
+Programming Language :: Python :: 2
+Programming Language :: Python :: 3
+Topic :: Multimedia :: Graphics
+Topic :: Multimedia :: Graphics :: Graphics Conversion
+Topic :: Text Processing
+'''.strip().splitlines()
 
 meta = dict(
     name='python-djvulibre',
