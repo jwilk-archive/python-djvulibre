@@ -17,12 +17,11 @@
 ease finding DjVuLibre DLLs in non-standard locations
 '''
 
+import ctypes
 import os
 
 if os.name != 'nt':
     raise ImportError('This module is for Windows only')
-
-import ctypes
 
 try:
     # Python 3.X
