@@ -68,6 +68,6 @@ rst_epilog = '''
 import sphinx.writers.html
 del sphinx.writers.html.HTMLTranslator.visit_math
 def setup(app):
-   app.add_stylesheet('docutils-math.css')
+    app.add_stylesheet('docutils-math.css')
 
 # vim:ts=4 sts=4 sw=4 et
