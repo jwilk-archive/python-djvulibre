@@ -67,7 +67,7 @@ before_script:
 script:
 - LC_ALL=C nosetests --verbose
 - \[ -z "$use_sphinx" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
-- \[ -z "$use_sphinx" ] || grep -r -l ft=rst doc/ | xargs -t -n1 -I{} rst2xml.py --strict {} /dev/null
+- \[ -z "$use_sphinx" ] || private/check-rst
 - python setup.py sdist
 - tar -tvf dist/*.tar.gz | { ! grep -F /djvu/config.pxi; }
 
