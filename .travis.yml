@@ -48,7 +48,7 @@ cache:
   - $HOME/.ccache
 install:
 - export PATH="/usr/lib/ccache:$PATH"
-- wget https://downloads.sourceforge.net/djvu/djvulibre-${DJVULIBRE_VERSION}.tar.gz
+- wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${DJVULIBRE_VERSION}/djvulibre-${DJVULIBRE_VERSION}.tar.gz
 - tar -xvvf djvulibre-*.tar.gz
 - (cd djvulibre-*/ && ./configure --prefix="$HOME/opt/djvulibre" CXXFLAGS="-fpermissive -include cstddef")
 - make -C djvulibre-*/libdjvu/ install
