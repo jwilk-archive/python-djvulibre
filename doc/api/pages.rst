@@ -8,7 +8,7 @@ Document pages
 
    Use :attr:`Document.pages` to obtain instances of this class.
 
-   Page indexing is zero-based, i.e. :attr:`~Document.pages`\ ``[0]`` stands for the very first page.
+   Page indexing is zero-based, i.e. :attr:`~Document.pages`\ ``[0]`` stands for the first page.
 
    ``len(pages)`` might return 1 when called before receiving a :class:`DocInfoMessage`.
 

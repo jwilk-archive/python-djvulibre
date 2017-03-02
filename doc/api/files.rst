@@ -8,7 +8,7 @@ Document files
 
    Use :attr:`Document.files` to obtain instances of this class.
 
-   File indexing is zero-based, i.e. :attr:`~Document.files`\ ``[0]`` stands for the very first file.
+   File indexing is zero-based, i.e. :attr:`~Document.files`\ ``[0]`` stands for the first file.
 
    ``len(files)`` might raise :exc:`NotAvailable` when called before receiving
    a :class:`DocInfoMessage`.
