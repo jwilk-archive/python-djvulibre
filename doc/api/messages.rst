@@ -79,7 +79,7 @@ Messages
    .. attribute:: name
 
       The first :class:`NewStreamMessage` message always has :attr:`name` set
-      to ``None``.  It indicates that the decoder needs to access the data in
+      to ``None``. It indicates that the decoder needs to access the data in
       the main DjVu file.
 
       Further :class:`NewStreamMessage` messages are generated to access the
