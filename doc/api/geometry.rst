@@ -123,7 +123,7 @@ Pixel formats
 
    Palette pixel format.
 
-   `palette` must be a dictionary which contains 216 (6 x 6 x 6)
+   `palette` must be a dictionary which contains 216 (6 × 6 × 6)
    entries of a web color cube, such that:
 
    - for each key ``(r, g, b)``: ``r in range(0, 6)``, ``g in range(0, 6)`` etc.;
