@@ -21,8 +21,8 @@ an open source implementation of `DjVu <http://djvu.org/>`_.
 
 import glob
 import os
-import subprocess as ipc
 import re
+import subprocess as ipc
 import sys
 
 need_setuptools = False
