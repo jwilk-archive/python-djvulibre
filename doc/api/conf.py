@@ -38,6 +38,7 @@ html_theme = 'haiku'
 html_use_modindex = True
 html_use_index = False
 html_show_copyright = False
+html_show_sphinx = False
 html_static_path = ['static']
 
 rst_epilog = '''
