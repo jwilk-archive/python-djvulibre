@@ -48,9 +48,6 @@ try:
 except ImportError:
     sphinx_setup_command = None
 
-if sys.version_info < (2, 6):
-    raise RuntimeError('Python >= 2.6 is required')
-
 def ext_modules():
     for pyx_file in glob.iglob(os.path.join('djvu', '*.pyx')):
         module, _ = os.path.splitext(os.path.basename(pyx_file))
