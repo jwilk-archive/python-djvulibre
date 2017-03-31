@@ -13,7 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 # more details.
 
-import codecs
 import os
 
 extensions = [
@@ -32,24 +31,13 @@ master_doc = 'index'
 import setup as _setup
 project = _setup.setup_params['name']
 version = release = _setup.py_version
-_setup_file = codecs.open(
-    os.path.splitext(_setup.__file__)[0] + '.py',
-    'r', encoding='UTF-8'
-)
-try:
-    for line in _setup_file:
-        if line.startswith(u'# Copyright © '):
-            copyright = line[14:].strip()
-            break
-finally:
-    _setup_file.close()
-del _setup, _setup_file
 
 pygments_style = 'sphinx'
 
 html_theme = 'haiku'
 html_use_modindex = True
 html_use_index = False
+html_show_copyright = False
 html_static_path = ['static']
 
 rst_epilog = '''
