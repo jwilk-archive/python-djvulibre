@@ -20,6 +20,7 @@ an open source implementation of `DjVu <http://djvu.org/>`_.
 '''
 
 import glob
+import io
 import os
 import re
 import subprocess as ipc
@@ -56,15 +57,9 @@ def ext_modules():
         yield module
 ext_modules = list(ext_modules())
 
-def uopen(path):
-    if str is bytes:
-        return open(path, 'rt')
-    else:
-        return open(path, 'rt', encoding='UTF-8')
-
 def get_version():
     path = os.path.join(os.path.dirname(__file__), 'doc', 'changelog')
-    with uopen(path) as file:
+    with io.open(path, encoding='UTF-8') as file:
         line = file.readline()
     return line.split()[1].strip('()')
 
