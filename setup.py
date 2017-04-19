@@ -48,6 +48,13 @@ try:
 except ImportError:
     sphinx_setup_command = None
 
+try:
+    import distutils644
+except ImportError:
+    pass
+else:
+    distutils644.install()
+
 b''  # Python >= 2.6 is required
 
 def ext_modules():
