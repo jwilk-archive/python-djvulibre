@@ -3,6 +3,6 @@
 *.py[co]
 *.pyd
 *.so
-MANIFEST
-build
-dist
+/MANIFEST
+/build
+/dist
