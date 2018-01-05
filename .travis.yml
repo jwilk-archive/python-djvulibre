@@ -72,5 +72,8 @@ script:
 - \[ -z "$use_sphinx" ] || private/check-rst
 - python setup.py sdist
 - tar -tvf dist/*.tar.gz | { ! grep -F /djvu/config.pxi; }
+- python setup.py install
+- cd /
+- python -c 'import djvu.sexpr, djvu.decode'
 
 # vim:ts=2 sts=2 sw=2 et
