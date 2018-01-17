@@ -44,6 +44,7 @@ addons:
   apt:
     packages:
     - language-pack-ja
+    - ghostscript
 cache:
   directories:
   - $HOME/.cache/pip
