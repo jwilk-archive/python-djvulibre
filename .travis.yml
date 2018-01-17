@@ -11,32 +11,23 @@ python:
 - "3.6"
 - "3.7-dev"
 env:
-- DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
-- DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
 - DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 matrix:
-  exclude:
+  include:
   - python: "2.6"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
   - python: "2.7"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
   - python: "3.2"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
   - python: "3.3"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
   - python: "3.4"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
   - python: "3.5"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
-  - python: "3.6"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
-  - python: "3.7-dev"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
-  # <https://bugs.python.org/issue26519>:
-  - python: "3.6"
     env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
-  - python: "3.7-dev"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
+  # Python 3.6+ doesn't work with ancient Cython versions:
+  # https://bugs.python.org/issue26519
 branches:
   except:
   - appveyor
