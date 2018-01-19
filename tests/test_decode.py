@@ -318,8 +318,8 @@ class test_documents:
         assert_equal(len(document.pages), 2)
         assert_equal(len(document.files), 3)
         (stdout0, stderr0) = run('djvudump', original_filename, LC_ALL='C')
-        assert_equal(stderr0, b(''))
-        stdout0 = stdout0.replace(b('\r\n'), b('\n'))
+        assert_equal(stderr0, b'')
+        stdout0 = stdout0.replace(b'\r\n', b'\n')
         tmpdir = tempfile.mkdtemp()
         try:
             tmp = open(os.path.join(tmpdir, 'tmp.djvu'), 'wb')
@@ -329,8 +329,8 @@ class test_documents:
             assert_false(job.is_error)
             tmp.close()
             (stdout, stderr) = run('djvudump', tmp.name, LC_ALL='C')
-            assert_equal(stderr, b(''))
-            stdout = stdout.replace(b('\r\n'), b('\n'))
+            assert_equal(stderr, b'')
+            stdout = stdout.replace(b'\r\n', b'\n')
             assert_equal(stdout, stdout0)
         finally:
             shutil.rmtree(tmpdir)
@@ -344,14 +344,14 @@ class test_documents:
             assert_false(job.is_error)
             tmp.close()
             stdout, stderr = run('djvudump', tmp.name, LC_ALL='C')
-            assert_equal(stderr, b(''))
-            stdout = stdout.replace(b('\r\n'), b('\n'))
-            stdout0 = stdout0.split(b('\n'))
-            stdout = stdout.split(b('\n'))
-            stdout[4] = stdout[4].replace(b(' (1)'), b(''))
+            assert_equal(stderr, b'')
+            stdout = stdout.replace(b'\r\n', b'\n')
+            stdout0 = stdout0.split(b'\n')
+            stdout = stdout.split(b'\n')
+            stdout[4] = stdout[4].replace(b' (1)', b'')
             assert_equal(len(stdout), 10)
             assert_equal(stdout[3:-1], stdout0[4:10])
-            assert_equal(stdout[-1], b(''))
+            assert_equal(stdout[-1], b'')
         finally:
             shutil.rmtree(tmpdir)
             tmp = None
@@ -363,16 +363,16 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             (stdout, stderr) = run('djvudump', tmpfname, LC_ALL='C')
-            assert_equal(stderr, b(''))
-            stdout = stdout.replace(b('\r\n'), b('\n'))
-            stdout = stdout.split(b('\n'))
+            assert_equal(stderr, b'')
+            stdout = stdout.replace(b'\r\n', b'\n')
+            stdout = stdout.split(b'\n')
             stdout0 = (
-                [b('      shared_anno.iff -> shared_anno.iff')] +
+                [b'      shared_anno.iff -> shared_anno.iff'] +
                 [b('      p{n:04}.djvu -> p{n:04}.djvu'.format(n=n)) for n in range(1, 3)]
             )
             assert_equal(len(stdout), 7)
             assert_equal(stdout[2:-2], stdout0)
-            assert_equal(stdout[-1], b(''))
+            assert_equal(stdout[-1], b'')
         finally:
             shutil.rmtree(tmpdir)
         tmpdir = tempfile.mkdtemp()
@@ -383,13 +383,13 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             (stdout, stderr) = run('djvudump', tmpfname, LC_ALL='C')
-            stdout = stdout.replace(b('\r\n'), b('\n'))
-            assert_equal(stderr, b(''))
-            stdout = stdout.split(b('\n'))
+            stdout = stdout.replace(b'\r\n', b'\n')
+            assert_equal(stderr, b'')
+            stdout = stdout.split(b'\n')
             assert_equal(len(stdout), 5)
-            assert_equal(stdout[2], b('      shared_anno.iff -> shared_anno.iff'))
-            assert_equal(stdout[3], b('      p0001.djvu -> p0001.djvu'))
-            assert_equal(stdout[-1], b(''))
+            assert_equal(stdout[2], b'      shared_anno.iff -> shared_anno.iff')
+            assert_equal(stdout[3], b'      p0001.djvu -> p0001.djvu')
+            assert_equal(stdout[-1], b'')
         finally:
             shutil.rmtree(tmpdir)
 
@@ -412,7 +412,7 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             stdout, stderr = run('ps2ascii', tmp.name, LC_ALL='C')
-            assert_equal(stderr, b(''))
+            assert_equal(stderr, b'')
             stdout = re.sub(br'[\x00\s]+', b' ', stdout)
             assert_equal(stdout, b' ')
         finally:
@@ -425,7 +425,7 @@ class test_documents:
             assert_true(job.is_done)
             assert_false(job.is_error)
             stdout, stderr = run('ps2ascii', tmp.name, LC_ALL='C')
-            assert_equal(stderr, b(''))
+            assert_equal(stderr, b'')
             stdout = stdout.decode('ASCII')
             stdout = re.sub(r'[\x00\s]+', ' ', stdout)
             stdout = ' '.join(stdout.split()[:3])
@@ -639,7 +639,7 @@ class test_streams:
         finally:
             message.stream.close()
         with assert_raises_str(IOError, 'I/O operation on closed file'):
-            message.stream.write(b('eggs'))
+            message.stream.write(b'eggs')
         message = document.get_message()
         assert_equal(type(message), DocInfoMessage)
         outline = document.outline
