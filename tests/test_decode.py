@@ -405,8 +405,7 @@ class test_documents:
         assert_equal(document.type, DOCUMENT_TYPE_BUNDLED)
         assert_equal(len(document.pages), 2)
         assert_equal(len(document.files), 3)
-        tmp = tempfile.NamedTemporaryFile()
-        try:
+        with tempfile.NamedTemporaryFile() as tmp:
             job = document.export_ps(tmp.file)
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
@@ -415,11 +414,7 @@ class test_documents:
             assert_equal(stderr, b'')
             stdout = re.sub(br'[\x00\s]+', b' ', stdout)
             assert_equal(stdout, b' ')
-        finally:
-            tmp.close()
-
-        tmp = tempfile.NamedTemporaryFile()
-        try:
+        with tempfile.NamedTemporaryFile() as tmp:
             job = document.export_ps(tmp.file, pages=(0,), text=True)
             assert_equal(type(job), SaveJob)
             assert_true(job.is_done)
@@ -431,8 +426,6 @@ class test_documents:
             stdout = ' '.join(stdout.split()[:3])
             expected = '1 Lorem ipsum'
             assert_multi_line_equal(stdout, expected)
-        finally:
-            tmp.close()
 
 class test_pixel_formats():
 
