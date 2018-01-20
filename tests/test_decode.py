@@ -432,7 +432,7 @@ class test_documents:
             expected = '1 Lorem ipsum'
             assert_multi_line_equal(stdout, expected)
         finally:
-            del tmp
+            tmp.close()
 
 class test_pixel_formats():
 
