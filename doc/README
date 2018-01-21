@@ -1,0 +1,9 @@
+**python-djvulibre** is a set of Python bindings for
+the DjVuLibre_ library, an open source implementation of DjVu_.
+
+.. _DjVuLibre:
+   http://djvu.sourceforge.net/
+.. _DjVu:
+   http://djvu.org/
+
+.. vim:ft=rst ts=3 sts=3 sw=3 et
