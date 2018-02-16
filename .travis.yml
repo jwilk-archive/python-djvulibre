@@ -56,12 +56,15 @@ install:
 - pip install --build build-cython cython${CYTHON_VERSION:+==$CYTHON_VERSION}
 - \[ "$TRAVIS_PYTHON_VERSION" = "2.6" ] || \[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || \[ "$TRAVIS_PYTHON_VERSION" = "3.3" ] || use_sphinx=yes
 - \[ -z "$use_sphinx" ] || pip install sphinx
+- pip install pydiatra pyflakes
 before_script:
 - python setup.py build_ext --inplace
 script:
 - LC_ALL=C nosetests --verbose
 - \[ -z "$use_sphinx" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
 - \[ -z "$use_sphinx" ] || private/check-rst
+- python -m pydiatra .
+- pyflakes .
 - python setup.py sdist
 - tar -tvf dist/*.tar.gz | { ! grep -F /djvu/config.pxi; }
 - python setup.py install
