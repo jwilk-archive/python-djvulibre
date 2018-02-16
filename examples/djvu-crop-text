@@ -38,12 +38,12 @@ class ArgumentParser(argparse.ArgumentParser):
         try:
             if options.pages is not None:
                 pages = []
-                for range in options.pages.split(','):
-                    if '-' in range:
+                for rng in options.pages.split(','):
+                    if '-' in rng:
                         x, y = map(int, options.pages.split('-', 1))
-                        pages += xrange(x, y + 1)
+                        pages += range(x, y + 1)
                     else:
-                        pages += int(range),
+                        pages += [int(rng)]
                 options.pages = pages
         except (TypeError, ValueError):
             self.error('Unable to parse page numbers')
@@ -52,7 +52,7 @@ class ArgumentParser(argparse.ArgumentParser):
 def crop_text(sexpr, width, height):
     if isinstance(sexpr, djvu.sexpr.ListExpression) and len(sexpr) >= 5:
         tp = sexpr[0]
-        x0, y0, x1, y1 = (sexpr[i].value for i in xrange(1, 5))
+        x0, y0, x1, y1 = (sexpr[i].value for i in range(1, 5))
         if x1 < 0 or y1 < 0 or x0 >= width or y0 >= height:
             return
         x0 = max(0, x0)
