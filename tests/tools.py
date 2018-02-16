@@ -122,7 +122,7 @@ def assert_raises_regex(exc_type, regex):
 @noseimport(2, 7, 'assert_regexp_matches')
 @noseimport(3, 2)
 def assert_regex(text, regex):
-    if isinstance(regex, basestring):
+    if isinstance(regex, (bytes, str, unicode)):
         regex = re.compile(regex)
     if not regex.search(text):
         message = "Regex didn't match: {0!r} not found in {1!r}".format(regex.pattern, text)
