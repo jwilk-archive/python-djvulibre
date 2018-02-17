@@ -70,5 +70,8 @@ script:
 - python setup.py install
 - cd /
 - python -c 'import djvu.sexpr, djvu.decode'
+- curl -fsS https://pypi.python.org/simple/djvulibre/; [ $? -eq 22 ]
+- curl -fsS https://pypi.python.org/simple/djvu/; [ $? -eq 22 ]
+- curl -fsS https://pypi.python.org/simple/python-djvu/; [ $? -eq 22 ]
 
 # vim:ts=2 sts=2 sw=2 et
