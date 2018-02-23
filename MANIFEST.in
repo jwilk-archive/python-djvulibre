@@ -1,7 +1,7 @@
 include MANIFEST.in
 
 include COPYING
-exclude README
+exclude README.rst
 include doc/*.txt
 include doc/COPYING
 include doc/README
