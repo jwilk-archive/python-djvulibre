@@ -187,11 +187,6 @@ if py3k:
 else:
     unicode = unicode
 
-if py3k:
-    maxsize = sys.maxsize
-else:
-    maxsize = sys.maxint
-
 @contextlib.contextmanager
 def interim(obj, **override):
     copy = dict((key, getattr(obj, key)) for key in override)
@@ -256,7 +251,6 @@ __all__ = [
     'b',
     'cmp',
     'long',
-    'maxsize',
     'py3k',
     'u',
     'unicode',

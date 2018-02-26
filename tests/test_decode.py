@@ -95,7 +95,6 @@ from tools import (
     wildcard_import,
     # Python 2/3 compat:
     b,
-    maxsize,
     py3k,
     u,
     unicode,
@@ -521,7 +520,7 @@ class test_page_jobs():
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
 
         with assert_raises_regex(MemoryError, r'\AUnable to allocate [0-9]+ bytes for an image memory\Z'):
-            x = int((maxsize // 2) ** 0.5)
+            x = int((sys.maxsize // 2) ** 0.5)
             page_job.render(RENDER_COLOR, (0, 0, x, x), (0, 0, x, x), PixelFormatRgb(), 8)
 
         s = page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 4, 4), PixelFormatGrey(), 1)
