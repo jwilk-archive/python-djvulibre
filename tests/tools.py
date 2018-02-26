@@ -147,8 +147,7 @@ if codecs.lookup(locale_encoding) == codecs.lookup('US-ASCII'):
 py3k = sys.version_info >= (3, 0)
 
 if py3k:
-    def u(s):
-        return s
+    u = str
 else:
     def u(s):
         return s.decode('UTF-8')
@@ -157,13 +156,9 @@ if py3k:
     def b(s):
         return s.encode('UTF-8')
 else:
-    def b(s):
-        return s
+    b = bytes
 
-if py3k:
-    long = int
-else:
-    long = long
+long = type(1 << 999)
 
 if py3k:
     def cmp(x, y):
@@ -182,10 +177,7 @@ if py3k:
 else:
     from io import BytesIO as StringIO
 
-if py3k:
-    unicode = str
-else:
-    unicode = unicode
+unicode = type(u(''))
 
 @contextlib.contextmanager
 def interim(obj, **override):
