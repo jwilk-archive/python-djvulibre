@@ -44,14 +44,13 @@ install:
 - export PATH="/usr/lib/ccache:$PATH"
 - wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${DJVULIBRE_VERSION}/djvulibre-${DJVULIBRE_VERSION}.tar.gz
 - tar -xvvf djvulibre-*.tar.gz
-- (cd djvulibre-*/ && ./configure --prefix="$HOME/opt/djvulibre" CXXFLAGS="-fpermissive -include cstddef")
+- (cd djvulibre-*/ && ./configure --prefix ~/.local CXXFLAGS="-fpermissive -include cstddef")
 - make -C djvulibre-*/libdjvu/ install
 - make -C djvulibre-*/tools/ install
 - \[ "$DJVULIBRE_VERSION" = "3.5.21" ] || make -C djvulibre-*/ install
-- export PATH="$HOME/opt/djvulibre/bin/:$PATH"
-- export CPATH="$HOME/opt/djvulibre/include/"
-- export PKG_CONFIG_PATH="$HOME/opt/djvulibre/lib/pkgconfig/"
-- export LD_LIBRARY_PATH="$HOME/opt/djvulibre/lib/"
+- export CPATH=~/.local/include/
+- export PKG_CONFIG_PATH=~/.local/lib/pkgconfig/
+- export LD_LIBRARY_PATH=~/.local/lib/
 - if [ "$TRAVIS_PYTHON_VERSION" = 3.2 ] && [ -z "$CYTHON_VERSION" ]; then CYTHON_VERSION=0.26.1; fi
 - pip install --build ~/build-cython cython${CYTHON_VERSION:+==$CYTHON_VERSION}
 - \[ "$TRAVIS_PYTHON_VERSION" = "2.6" ] || \[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || \[ "$TRAVIS_PYTHON_VERSION" = "3.3" ] || use_sphinx=yes
