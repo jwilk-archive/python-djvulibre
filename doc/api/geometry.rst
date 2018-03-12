@@ -106,7 +106,7 @@ Pixel formats
    `red_mask`, `green_mask` and `blue_mask` are bit masks for color components
    for each pixel. The resulting color is then xored with the `xor_value`.
 
-   For example, ``PixelFormatRgbMask(0xf800, 0x07e0, 0x001f, bpp=16)`` is a
+   For example, ``PixelFormatRgbMask(0xF800, 0x07E0, 0x001F, bpp=16)`` is a
    highcolor format with:
 
    - 5 (most significant) bits for red,

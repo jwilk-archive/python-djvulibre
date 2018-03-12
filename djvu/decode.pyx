@@ -1761,7 +1761,7 @@ cdef class PixelFormatRgbMask(PixelFormat):
     red_mask, green_mask and blue_mask are bit masks for color components
     for each pixel. The resulting color is then xored with the xor_value.
 
-    For example, PixelFormatRgbMask(0xf800, 0x07e0, 0x001f, bpp=16) is a
+    For example, PixelFormatRgbMask(0xF800, 0x07E0, 0x001F, bpp=16) is a
     highcolor format with:
 
     - 5 (most significant) bits for red,
@@ -1773,16 +1773,16 @@ cdef class PixelFormatRgbMask(PixelFormat):
         cdef ddjvu_format_style_t _format
         if bpp == 16:
             _format = DDJVU_FORMAT_RGBMASK16
-            red_mask = red_mask & 0xffff
-            blue_mask = blue_mask & 0xffff
-            green_mask = green_mask & 0xffff
-            xor_value = xor_value & 0xffff
+            red_mask = red_mask & 0xFFFF
+            blue_mask = blue_mask & 0xFFFF
+            green_mask = green_mask & 0xFFFF
+            xor_value = xor_value & 0xFFFF
         elif bpp == 32:
             _format = DDJVU_FORMAT_RGBMASK32
-            red_mask = red_mask & 0xffffffff
-            blue_mask = blue_mask & 0xffffffff
-            green_mask = green_mask & 0xffffffff
-            xor_value = xor_value & 0xffffffff
+            red_mask = red_mask & 0xFFFFFFFF
+            blue_mask = blue_mask & 0xFFFFFFFF
+            green_mask = green_mask & 0xFFFFFFFF
+            xor_value = xor_value & 0xFFFFFFFF
         else:
             raise ValueError('bpp must be equal to 16 or 32')
         self._bpp = self._dither_bpp = bpp
