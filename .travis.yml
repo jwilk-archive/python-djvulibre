@@ -40,6 +40,11 @@ cache:
   directories:
   - $HOME/.cache/pip
   - $HOME/.ccache
+before_install:
+- if [[ $TRAVIS_PYTHON_VERSION = 3.2 ]] && [[ -z $CYTHON_VERSION ]]; then CYTHON_VERSION=0.26.1; fi
+- cython_suffix=${CYTHON_VERSION:+==$CYTHON_VERSION}
+- if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_sphinx=:; fi
+- if [[ $TRAVIS_PYTHON_VERSION = 3.[23] ]]; then if_sphinx=:; fi
 install:
 - export PATH="/usr/lib/ccache:$PATH"
 - wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${DJVULIBRE_VERSION}/djvulibre-${DJVULIBRE_VERSION}.tar.gz
@@ -47,21 +52,19 @@ install:
 - (cd djvulibre-*/ && ./configure --prefix ~/.local CXXFLAGS="-fpermissive -include cstddef")
 - make -C djvulibre-*/libdjvu/ install
 - make -C djvulibre-*/tools/ install
-- \[ "$DJVULIBRE_VERSION" = "3.5.21" ] || make -C djvulibre-*/ install
+- if [[ $DJVULIBRE_VERSION != 3.5.21 ]]; then make -C djvulibre-*/ install; fi
 - export CPATH=~/.local/include/
 - export PKG_CONFIG_PATH=~/.local/lib/pkgconfig/
 - export LD_LIBRARY_PATH=~/.local/lib/
-- if [ "$TRAVIS_PYTHON_VERSION" = 3.2 ] && [ -z "$CYTHON_VERSION" ]; then CYTHON_VERSION=0.26.1; fi
-- pip install --build ~/build-cython cython${CYTHON_VERSION:+==$CYTHON_VERSION}
-- \[ "$TRAVIS_PYTHON_VERSION" = "2.6" ] || \[ "$TRAVIS_PYTHON_VERSION" = "3.2" ] || \[ "$TRAVIS_PYTHON_VERSION" = "3.3" ] || use_sphinx=yes
-- \[ -z "$use_sphinx" ] || pip install sphinx
+- pip install --build ~/build-cython cython${cython_suffix}
+- $if_sphinx pip install sphinx
 - pip install pydiatra pyflakes
 before_script:
 - python setup.py build_ext --inplace
 script:
 - LC_ALL=C nosetests --verbose
-- \[ -z "$use_sphinx" ] || PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
-- \[ -z "$use_sphinx" ] || private/check-rst
+- $if_sphinx env PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
+- $if_sphinx private/check-rst
 - python -m pydiatra .
 - pyflakes .
 - python setup.py sdist
