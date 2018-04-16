@@ -801,8 +801,8 @@ class test_sexpr:
             Expression(
                 [Symbol('page'), 0, 0, 2550, 3300,
                     '2 Hyperlinks \n'
-                    '2.1 local \n'
-                    + u('→1 \n') +
+                    '2.1 local \n' +
+                    u('→1 \n') +
                     '2.2 remote \nhttp://jwilk.net/ \n'
                     '2 \n'
                 ]
