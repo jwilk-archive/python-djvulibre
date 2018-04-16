@@ -131,7 +131,8 @@ cdef class _ExpressionIO:
         IF not HAVE_MINIEXP_IO_T:
             global io_7bit, io_puts, io_getc, io_ungetc
             global _myio
-            with nogil: acquire_lock(_myio_lock, WAIT_LOCK)
+            with nogil:
+                acquire_lock(_myio_lock, WAIT_LOCK)
             self.backup_io_7bit = io_7bit
             self.backup_io_puts = io_puts
             self.backup_io_getc = io_getc

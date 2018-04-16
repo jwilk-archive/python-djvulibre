@@ -529,7 +529,8 @@ cdef class Page:
         '''
         cdef PageJob job
         cdef ddjvu_job_t* ddjvu_job
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             ddjvu_job = <ddjvu_job_t*> ddjvu_page_create_by_pageno(self._document.ddjvu_document, self._n)
             if ddjvu_job == NULL:
@@ -1000,7 +1001,8 @@ cdef class Document:
         _document_weak_loft[voidp_to_int(ddjvu_document)] = self
 
     cdef object __clear(self):
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             _document_loft.discard(self)
         finally:
@@ -1126,7 +1128,8 @@ cdef class Document:
             s2 = pages_to_opt(pages, 1)
             optv[optc] = s2
             optc = optc + 1
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             job = SaveJob(sentinel = the_sentinel)
             job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
@@ -1327,7 +1330,8 @@ cdef class Document:
                 if is_unicode(option):
                     options[optc] = option = encode_utf8(option)
                 optv[optc] = option
-            with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+            with nogil:
+                acquire_lock(loft_lock, WAIT_LOCK)
             try:
                 job = SaveJob(sentinel = the_sentinel)
                 job.__init(
@@ -1373,7 +1377,8 @@ cdef Document Document_from_c(ddjvu_document_t* ddjvu_document):
     if ddjvu_document == NULL:
         result = None
     else:
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             result = _document_weak_loft.get(voidp_to_int(ddjvu_document))
         finally:
@@ -1445,7 +1450,8 @@ cdef class Context:
             argv0 = sys.argv[0]
         if is_unicode(argv0):
             argv0 = encode_utf8(argv0)
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             self.ddjvu_context = ddjvu_context_create(argv0)
             if self.ddjvu_context == NULL:
@@ -1548,7 +1554,8 @@ cdef class Context:
         '''
         cdef Document document
         cdef ddjvu_document_t* ddjvu_document
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             if typecheck(uri, FileUri):
                 IF PY3K:
@@ -1586,7 +1593,8 @@ cdef Context Context_from_c(ddjvu_context_t* ddjvu_context):
     if ddjvu_context == NULL:
         result = None
     else:
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             try:
                 result = _context_loft[voidp_to_int(ddjvu_context)]
@@ -2196,7 +2204,8 @@ cdef class Job:
         _job_weak_loft[voidp_to_int(ddjvu_job)] = self
 
     cdef object __clear(self):
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             _job_loft.discard(self)
         finally:
@@ -2285,7 +2294,8 @@ cdef Job Job_from_c(ddjvu_job_t* ddjvu_job):
     if ddjvu_job == NULL:
         result = None
     else:
-        with nogil: acquire_lock(loft_lock, WAIT_LOCK)
+        with nogil:
+            acquire_lock(loft_lock, WAIT_LOCK)
         try:
             result = _job_weak_loft.get(voidp_to_int(ddjvu_job))
         finally:
