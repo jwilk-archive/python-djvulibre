@@ -45,6 +45,7 @@ before_install:
 - cython_suffix=${CYTHON_VERSION:+==$CYTHON_VERSION}
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_sphinx=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 3.[23] ]]; then if_sphinx=:; fi
+- if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_pycodestyle=:; fi
 install:
 - export PATH="/usr/lib/ccache:$PATH"
 - wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${DJVULIBRE_VERSION}/djvulibre-${DJVULIBRE_VERSION}.tar.gz
@@ -58,14 +59,15 @@ install:
 - export LD_LIBRARY_PATH=~/.local/lib/
 - pip install --build ~/build-cython cython${cython_suffix}
 - $if_sphinx pip install sphinx
-- pip install pycodestyle pydiatra pyflakes
+- $if_pycodestyle pip install pycodestyle
+- pip install pydiatra pyflakes
 before_script:
 - python setup.py build_ext --inplace
 script:
 - LC_ALL=C nosetests --verbose
 - $if_sphinx env PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
 - $if_sphinx private/check-rst
-- python -m pycodestyle .
+- $if_pycodestyle python -m pycodestyle .
 - python -m pydiatra .
 - pyflakes .
 - python setup.py sdist
