@@ -993,7 +993,7 @@ cdef class Document:
 
     cdef object __init(self, Context context, ddjvu_document_t *ddjvu_document):
         # Assumption: loft_lock is already acquired.
-        assert context != None and ddjvu_document != NULL
+        assert (context is not None) and ddjvu_document != NULL
         self.ddjvu_document = ddjvu_document
         self._context = context
         _document_loft.add(self)
@@ -2189,7 +2189,7 @@ cdef class Job:
 
     cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
         # Assumption: loft_lock is already acquired.
-        assert context != None and ddjvu_job != NULL
+        assert (context is not None) and ddjvu_job != NULL
         self._context = context
         self.ddjvu_job = ddjvu_job
         _job_loft.add(self)
