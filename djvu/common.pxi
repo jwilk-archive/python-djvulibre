@@ -131,7 +131,7 @@ cdef int typecheck(object o, object type):
 # Python exceptions:
 
 cdef void raise_instantiation_error(object cls) except *:
-    raise TypeError, 'cannot create \'{tp}\' instances'.format(tp=get_type_name(cls))
+    raise TypeError('cannot create \'{tp}\' instances'.format(tp=get_type_name(cls)))
 
 # Cython before 0.25 didn't support cdef classes deriving from Exception out of
 # the box: https://github.com/cython/cython/issues/1416
