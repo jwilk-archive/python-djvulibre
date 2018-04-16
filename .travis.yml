@@ -58,13 +58,14 @@ install:
 - export LD_LIBRARY_PATH=~/.local/lib/
 - pip install --build ~/build-cython cython${cython_suffix}
 - $if_sphinx pip install sphinx
-- pip install pydiatra pyflakes
+- pip install pycodestyle pydiatra pyflakes
 before_script:
 - python setup.py build_ext --inplace
 script:
 - LC_ALL=C nosetests --verbose
 - $if_sphinx env PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
 - $if_sphinx private/check-rst
+- python -m pycodestyle .
 - python -m pydiatra .
 - pyflakes .
 - python setup.py sdist
