@@ -300,14 +300,14 @@ setup_params = dict(
 )
 
 if __name__ == '__main__':
-    if 'setuptools' in sys.modules and sys.argv[1] == 'egg_info':
-        # We wouldn't normally want setuptools; but pip forces it upon us anyway,
-        # so let's abuse it to instruct pip to install Cython if it's missing.
+    egg_info_for_pip = ('setuptools' in sys.modules) and (sys.argv[1] == 'egg_info')
+    if (cython_version < req_cython_version) and egg_info_for_pip:
+        # This shouldn't happen with pip >= 10, thanks to PEP-518 support.
+        # For older versions, we use this hack to trick it into installing Cython:
         distutils.core.setup(
             install_requires=['Cython>={ver}'.format(ver=req_cython_version)],
             # Conceptually, “setup_requires” would make more sense than
-            # “install_requires”, but the former is not supported by pip:
-            # https://github.com/pypa/pip/issues/1820
+            # “install_requires”, but the former is not supported by pip.
             **meta
         )
     else:
