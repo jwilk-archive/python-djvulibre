@@ -49,6 +49,11 @@ except ImportError:
     sphinx_setup_command = None
 
 try:
+    from wheel.bdist_wheel import bdist_wheel
+except ImportError:
+    bdist_wheel = None
+
+try:
     import distutils644
 except ImportError:
     pass
@@ -293,7 +298,7 @@ setup_params = dict(
     py_modules=['djvu.const'],
     cmdclass=dict(
         (cmd.__name__, cmd)
-        for cmd in (build_ext, build_sphinx, sdist)
+        for cmd in (build_ext, build_sphinx, sdist, bdist_wheel)
         if cmd is not None
     ),
     **meta
