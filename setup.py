@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2007-2017 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007-2018 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of python-djvulibre.
 #
