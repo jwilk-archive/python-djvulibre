@@ -14,19 +14,23 @@
 # more details.
 
 here=$(dirname "$0")
+here=${here#./}
+root="$here/../"
+root=${root#private/../}
 rst2xml=$(command -v rst2xml) \
 || rst2xml=$(command -v rst2xml.py) \
 || { printf 'rst2xml not found\n' >&2; exit 1; }
+rst2xml=${rst2xml##*/}
 options='--input-encoding=UTF-8 --output-encoding=UTF-8 --strict'
 if [ $# -eq 0 ]
 then
     print_desc='python setup.py --long-description'
-    echo "(cd $here/.. && $print_desc) | $rst2xml $options - /dev/null" >&2
-    (cd "$here/.." && $print_desc) | "$rst2xml" $options - /dev/null || exit 1
+    echo "(cd ${root:-.} && $print_desc) | $rst2xml $options - /dev/null" >&2
+    (cd "${root:-.}" && $print_desc) | "$rst2xml" $options - /dev/null || exit 1
 fi
 if [ $# -eq 0 ]
 then
-    grep -r -w -l ft=rst doc/
+    grep -r -w -l ft=rst "${root}doc/"
 else
     printf '%s\n' "$@"
 fi |
