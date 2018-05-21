@@ -1,33 +1,24 @@
 dist: trusty
 sudo: false
 language: python
-python:
-- "2.6"
-- "2.7"
-- "3.2"
-- "3.3"
-- "3.4"
-- "3.5"
-- "3.6"
-- "3.7-dev"
-env:
-- DJVULIBRE_VERSION=3.5.27 CYTHON_VERSION=
 matrix:
   include:
   - python: "2.6"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+    env: DJVULIBRE=3.5.21 CYTHON=0.19
   - python: "2.7"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.19
+    env: DJVULIBRE=3.5.27
   - python: "3.2"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
+    env: DJVULIBRE=3.5.21 CYTHON=0.20
   - python: "3.3"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
+    env: DJVULIBRE=3.5.27
   - python: "3.4"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
+    env: DJVULIBRE=3.5.27
   - python: "3.5"
-    env: DJVULIBRE_VERSION=3.5.21 CYTHON_VERSION=0.20
-  # Python 3.6+ doesn't work with ancient Cython versions:
-  # https://bugs.python.org/issue26519
+    env: DJVULIBRE=3.5.27
+  - python: "3.6"
+    env: DJVULIBRE=3.5.27
+  - python: "3.7-dev"
+    env: DJVULIBRE=3.5.27
 branches:
   except:
   - appveyor
@@ -41,23 +32,22 @@ cache:
   - $HOME/.cache/pip
   - $HOME/.ccache
 before_install:
-- if [[ $TRAVIS_PYTHON_VERSION = 3.2 ]]; then true ${CYTHON_VERSION:=0.26.1}; fi
-- cython_suffix=${CYTHON_VERSION:+==$CYTHON_VERSION}
+- cython="cython${CYTHON:+==$CYTHON}"
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_sphinx=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 3.[23] ]]; then if_sphinx=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_pycodestyle=:; fi
 install:
 - export PATH="/usr/lib/ccache:$PATH"
-- wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${DJVULIBRE_VERSION}/djvulibre-${DJVULIBRE_VERSION}.tar.gz
+- wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/$DJVULIBRE/djvulibre-$DJVULIBRE.tar.gz
 - tar -xvvf djvulibre-*.tar.gz
 - (cd djvulibre-*/ && ./configure --prefix ~/.local CXXFLAGS="-fpermissive -include cstddef")
 - make -C djvulibre-*/libdjvu/ install
 - make -C djvulibre-*/tools/ install
-- if [[ $DJVULIBRE_VERSION != 3.5.21 ]]; then make -C djvulibre-*/ install; fi
+- if [[ $DJVULIBRE != 3.5.21 ]]; then make -C djvulibre-*/ install; fi
 - export CPATH=~/.local/include/
 - export PKG_CONFIG_PATH=~/.local/lib/pkgconfig/
 - export LD_LIBRARY_PATH=~/.local/lib/
-- pip install --build ~/build-cython cython${cython_suffix}
+- pip install --build ~/build-cython $cython
 - $if_sphinx pip install sphinx
 - $if_pycodestyle pip install pycodestyle
 - pip install pydiatra pyflakes
