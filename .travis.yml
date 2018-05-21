@@ -36,6 +36,9 @@ before_install:
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_sphinx=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 3.[23] ]]; then if_sphinx=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_pycodestyle=:; fi
+- pyflakes=pyflakes
+- if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then pyflakes='pyflakes<2'; fi
+- if [[ $TRAVIS_PYTHON_VERSION = 3.[23] ]]; then pyflakes='pyflakes<2'; fi
 install:
 - export PATH="/usr/lib/ccache:$PATH"
 - wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/$DJVULIBRE/djvulibre-$DJVULIBRE.tar.gz
@@ -50,7 +53,8 @@ install:
 - pip install --build ~/build-cython $cython
 - $if_sphinx pip install sphinx
 - $if_pycodestyle pip install pycodestyle
-- pip install pydiatra pyflakes
+- pip install pydiatra
+- pip install $pyflakes
 before_script:
 - python setup.py build_ext --inplace
 script:
