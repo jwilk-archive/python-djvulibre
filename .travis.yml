@@ -28,8 +28,8 @@ addons:
     - language-pack-ja
     - ghostscript
 cache:
+  pip: true
   directories:
-  - $HOME/.cache/pip
   - $HOME/.ccache
 before_install:
 - cython="cython${CYTHON:+==$CYTHON}"
