@@ -31,7 +31,7 @@ class ArgumentParser(argparse.ArgumentParser):
     def __init__(self):
         argparse.ArgumentParser.__init__(self)
         self.add_argument('-p', '--pages', dest='pages', action='store', help='pages to process')
-        self.add_argument('path', metavar='FILE', action='store', help='DjVu file to process')
+        self.add_argument('path', metavar='DJVU-FILE', action='store', help='DjVu file to process')
 
     def parse_args(self):
         options = argparse.ArgumentParser.parse_args(self)
