@@ -1,8 +1,25 @@
 python-djvulibre (0.8.1) UNRELEASED; urgency=low
 
-  * 
+  * Improve documentation:
+    + Add README, and move information about build requirements there.
+    + Apply minor wording and typographic fixes to API documentation.
+    + Don't include Sphinx version in HTML documentation.
+    + Don't include copyright information in HTML documentation.
+  * Improve examples:
+    + Make djvu-dump-text and djvu-crop-text compatible with Python 3.
+    + Make djvu2png render all layers by default.
+    + Unify command-line argument parsing.
+  * Explicitly set Cython's Python language level to 2.
+    This might fix build failures with future versions of Cython.
+  * Improve the build system:
+    + Declare build-dependencies (as per PEP-518).
+    + Add the bdist_wheel command.
+    + Use distutils644 to normalize tarball permissions etc.
+    + Fix Python version check.
+  * Improve the test suite.
+    + Be more tolerant about ps2ascii output.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sat, 06 Aug 2016 13:03:41 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 29 May 2018 23:26:05 +0200
 
 python-djvulibre (0.8) unstable; urgency=low
 
