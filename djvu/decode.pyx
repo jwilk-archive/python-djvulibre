@@ -2329,7 +2329,7 @@ cdef class AffineTransform:
         if n % 90:
             raise ValueError('n must a multiple of 90')
         else:
-            ddjvu_rectmapper_modify(self.ddjvu_rectmapper, n/90, 0, 0)
+            ddjvu_rectmapper_modify(self.ddjvu_rectmapper, n // 90, 0, 0)
 
     def __call__(self, value):
         cdef ddjvu_rect_t rect
