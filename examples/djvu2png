@@ -61,7 +61,7 @@ class Context(djvu.decode.Context):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.set_defaults(mode=djvu.decode.RENDER_COLOR_ONLY)
+    parser.set_defaults(mode=djvu.decode.RENDER_COLOR)
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--foreground', dest='mode', action='store_const', const=djvu.decode.RENDER_FOREGROUND)
     group.add_argument('--background', dest='mode', action='store_const', const=djvu.decode.RENDER_BACKGROUND)
