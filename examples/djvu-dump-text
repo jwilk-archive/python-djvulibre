@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 
+import argparse
 import os
 import sys
 
@@ -50,11 +51,11 @@ class Context(djvu.decode.Context):
             print_text(page.text.sexpr)
 
 def main():
-    if len(sys.argv) != 2:
-        print('Usage: {prog} <djvu-file>'.format(prog=sys.argv[0]), file=sys.stderr)
-        sys.exit(1)
+    ap = argparse.ArgumentParser()
+    ap.add_argument('path', metavar='DJVU-FILE')
+    options = ap.parse_args()
     context = Context()
-    context.process(sys.argv[1])
+    context.process(options.path)
 
 if __name__ == '__main__':
     main()
