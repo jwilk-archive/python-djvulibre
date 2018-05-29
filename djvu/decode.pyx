@@ -12,6 +12,7 @@
 # more details.
 
 #cython: autotestdict=False
+#cython: language_level=2
 
 '''
 DjVuLibre bindings: module for efficiently decoding and displaying DjVu documents
