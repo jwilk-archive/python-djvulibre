@@ -1,4 +1,4 @@
-python-djvulibre (0.8.1) UNRELEASED; urgency=low
+python-djvulibre (0.8.1) unstable; urgency=low
 
   * Improve documentation:
     + Add README, and move information about build requirements there.
@@ -21,7 +21,7 @@ python-djvulibre (0.8.1) UNRELEASED; urgency=low
       Fixes some failures with Ghostscript 9.22.
       https://github.com/jwilk/python-djvulibre/issues/6
 
- -- Jakub Wilk <jwilk@jwilk.net>  Wed, 30 May 2018 11:51:58 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 30 May 2018 18:48:50 +0200
 
 python-djvulibre (0.8) unstable; urgency=low
 
