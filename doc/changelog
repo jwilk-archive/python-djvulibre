@@ -18,8 +18,10 @@ python-djvulibre (0.8.1) UNRELEASED; urgency=low
     + Fix Python version check.
   * Improve the test suite.
     + Be more tolerant about ps2ascii output.
+      Fixes some failures with Ghostscript 9.22.
+      https://github.com/jwilk/python-djvulibre/issues/6
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 29 May 2018 23:26:05 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 30 May 2018 11:51:58 +0200
 
 python-djvulibre (0.8) unstable; urgency=low
 
