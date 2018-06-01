@@ -32,8 +32,7 @@ usage()
     printf '%s [--tests]\n' "$0"
 }
 
-args=$(getopt -n "$0" -o 'h' --long 'help,tests' -- "$@")
-if [ $? -ne 0 ]
+if ! args=$(getopt -n "$0" -o 'h' --long 'help,tests' -- "$@")
 then
     usage >&2
     exit 1
