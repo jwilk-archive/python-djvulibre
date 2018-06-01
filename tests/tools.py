@@ -16,6 +16,7 @@
 import codecs
 import contextlib
 import distutils.spawn
+import io
 import locale
 import os
 import re
@@ -31,6 +32,13 @@ from nose.tools import (
     assert_equal,
     assert_not_equal,
 )
+
+def get_changelog_version():
+    here = os.path.dirname(__file__)
+    path = os.path.join(here, '../doc/changelog')
+    with io.open(path, encoding='UTF-8') as file:
+        line = file.readline()
+    return line.split()[1].strip('()')
 
 def noseimport(vmaj, vmin, name=None):
     def wrapper(f):
@@ -265,6 +273,7 @@ __all__ = [
     # misc
     'assert_raises_str',
     'assert_repr',
+    'get_changelog_version',
     'interim',
     'interim_locale',
     'locale_encoding',

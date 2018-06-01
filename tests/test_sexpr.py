@@ -50,6 +50,7 @@ from tools import (
     assert_raises,
     assert_raises_str,
     assert_repr,
+    get_changelog_version,
     wildcard_import,
     # Python 2/3 compat:
     StringIO,
@@ -755,6 +756,7 @@ class test_expression_writer_nonascii(test_expression_writer_ascii):
 
 def test_version():
     assert_is_instance(__version__, str)
+    assert_equal(__version__, get_changelog_version())
 
 def test_wildcard_import():
     ns = wildcard_import('djvu.sexpr')

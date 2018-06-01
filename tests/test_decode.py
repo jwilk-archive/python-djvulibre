@@ -90,6 +90,7 @@ from tools import (
     skip_unless_c_messages,
     skip_unless_command_exists,
     skip_unless_translation_exists,
+    get_changelog_version,
     interim_locale,
     locale_encoding,
     wildcard_import,
@@ -844,6 +845,7 @@ class test_sexpr:
 
 def test_version():
     assert_is_instance(__version__, str)
+    assert_equal(__version__, get_changelog_version())
     assert_is_instance(DDJVU_VERSION, int)
 
 def test_wildcard_import():
