@@ -13,7 +13,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 # more details.
 
-here=$(dirname "$0")
+here=${0%/*}
 here=${here#./}
 root="$here/../"
 root=${root#private/../}
