@@ -216,7 +216,7 @@ def assert_repr(self, expected):
     return assert_equal(repr(self), expected)
 
 def skip_unless_c_messages():
-    if locale.setlocale(locale.LC_MESSAGES) != 'C':
+    if locale.setlocale(locale.LC_MESSAGES) not in ('C', 'POSIX'):
         raise SkipTest('you need to run this test with LC_MESSAGES=C')
     if os.getenv('LANGUAGE', '') != '':
         raise SkipTest('you need to run this test with LANGUAGE unset')
