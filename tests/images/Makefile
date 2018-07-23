@@ -31,4 +31,6 @@ all: $(djvu_files)
 clean:
 	rm -f $(pdf_files) *.log *.out *.aux
 
+.error = GNU make is required
+
 # vim:ts=4 sts=4 sw=4 noet
