@@ -45,7 +45,7 @@ while true
 do
     case "$1" in
         -h|--help) usage; exit 0;;
-        --tests) opt_tests=y ; shift;;
+        --tests) opt_tests=y; shift;;
         --) shift; break;;
         *) printf '%s: internal error (%s)\n' "$0" "$1" >&2; exit 1;;
     esac
