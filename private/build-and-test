@@ -18,6 +18,8 @@ usage()
     printf 'Usage: %s [--no-build] [pythonX.Y...]\n' "$0"
 }
 
+set -e -u
+
 if ! args=$(getopt -n "$0" -o 'hj:' --long 'help,jobs:,no-build' -- "$@")
 then
     usage >&2
@@ -37,7 +39,6 @@ do
     esac
 done
 
-set -e
 [ $# = 0 ] && set -- python
 [ -z $opt_build ] ||
 printf '%s\n' "$@" \
