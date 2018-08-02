@@ -1,8 +1,10 @@
 python-djvulibre (0.8.2) UNRELEASED; urgency=low
 
-  * 
+  * Improve the test suite:
+    + Treat the “POSIX” locale the same way as the “C” locale.
+      (POSIX says they are equivalent.)
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sat, 02 Jun 2018 00:14:26 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 02 Aug 2018 21:58:42 +0200
 
 python-djvulibre (0.8.1) unstable; urgency=low
 
