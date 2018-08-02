@@ -2,12 +2,13 @@ include MANIFEST.in
 
 include COPYING
 exclude README.rst
-include doc/*.txt
 include doc/COPYING
 include doc/README
 include doc/api/*.rst
 include doc/api/conf.py
 include doc/changelog
+include doc/credits
+include doc/todo
 
 include examples/*
 
