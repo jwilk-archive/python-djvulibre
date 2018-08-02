@@ -32,6 +32,8 @@ usage()
     printf '%s [--tests]\n' "$0"
 }
 
+set -e -u
+
 if ! args=$(getopt -n "$0" -o 'h' --long 'help,tests' -- "$@")
 then
     usage >&2
@@ -52,7 +54,6 @@ done
 [ "$opt_tests" ] && pkgs="$pkgs $pkgs_tests"
 
 PS4='# '
-set -e
 (
     set -x
     # shellcheck disable=SC2086
