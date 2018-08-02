@@ -34,24 +34,30 @@ usage()
 
 set -e -u
 
-if ! args=$(getopt -n "$0" -o 'h' --long 'help,tests' -- "$@")
+if ! args=$(getopt -n "$0" -o 'h' --long 'help,tests,py3' -- "$@")
 then
     usage >&2
     exit 1
 fi
 opt_tests=
+opt_py3=
 eval set -- "$args"
 while true
 do
     case "$1" in
         -h|--help) usage; exit 0;;
         --tests) opt_tests=y; shift;;
+        --py3) opt_py3=y; shift;;
         --) shift; break;;
         *) printf '%s: internal error (%s)\n' "$0" "$1" >&2; exit 1;;
     esac
 done
 
 [ "$opt_tests" ] && pkgs="$pkgs $pkgs_tests"
+if [ "$opt_py3" ]
+then
+    pkgs=$(printf '%s' "$pkgs" | sed -e 's/^python-/python3-/')
+fi
 
 PS4='# '
 (
