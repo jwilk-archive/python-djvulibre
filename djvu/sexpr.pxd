@@ -11,6 +11,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 # more details.
 
+#cython: language_level=2
+
 cdef extern from 'libdjvu/miniexp.h':
     struct cexpr_s 'miniexp_s'
     ctypedef cexpr_s* cexpr_t 'miniexp_t'
