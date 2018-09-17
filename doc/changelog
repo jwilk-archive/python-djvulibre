@@ -1,10 +1,18 @@
 python-djvulibre (0.8.2) UNRELEASED; urgency=low
 
+  * Explicitly set Cython's Python language level to 2 in pxd files too.
+    This might fix build failures with future versions of Cython.
+  * Improve documentation:
+    + Update the credits file to make it clear that the project is no longer
+      being funded.
+    + Remove .txt extensions from misc. files.
   * Improve the test suite:
     + Treat the “POSIX” locale the same way as the “C” locale.
       (POSIX says they are equivalent.)
+    + Add test for version consistency.
+    + Add check against BSD make. (Only GNU make is supported.)
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 02 Aug 2018 21:58:42 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 17 Sep 2018 08:35:31 +0200
 
 python-djvulibre (0.8.1) unstable; urgency=low
 
