@@ -55,10 +55,9 @@ install:
 - $if_pycodestyle pip install pycodestyle
 - pip install pydiatra
 - pip install $pyflakes
-before_script:
-- python setup.py build_ext --inplace
 script:
 - dpkg-parsechangelog -ldoc/changelog --all 2>&1 >/dev/null | { ! grep .; }
+- python setup.py build_ext --inplace
 - LC_ALL=C nosetests --verbose
 - $if_sphinx env PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
 - $if_sphinx private/check-rst
