@@ -42,7 +42,7 @@ install:
 - export PATH="/usr/lib/ccache:$PATH"
 - wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/$DJVULIBRE/djvulibre-$DJVULIBRE.tar.gz
 - tar -xvvf djvulibre-*.tar.gz
-- (cd djvulibre-*/ && ./configure --prefix ~/.local CXXFLAGS="-fpermissive -include cstddef")
+- (cd djvulibre-*/ && ./configure --prefix ~/.local CXXFLAGS="-fpermissive -include cstddef" || cat config.log /fail)
 - make -C djvulibre-*/libdjvu/ install
 - make -C djvulibre-*/tools/ install
 - if [[ $DJVULIBRE != 3.5.21 ]]; then make -C djvulibre-*/ install; fi
