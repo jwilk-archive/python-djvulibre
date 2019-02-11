@@ -18,9 +18,20 @@ import errno
 import os
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
+import warnings
+
+if sys.version_info >= (3, 2):
+    import subprocess
+else:
+    try:
+        import subprocess32 as subprocess
+    except ImportError as exc:
+        import subprocess
+        msg = str(exc)
+        warnings.warn(msg, category=RuntimeWarning)  # subprocess is not thread-safe in Python < 3.2
+        del msg, exc
 
 from djvu.decode import (
     AffineTransform,
