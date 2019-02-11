@@ -32,6 +32,7 @@ cache:
   - $HOME/.ccache
 before_install:
 - cython="cython${CYTHON:+==$CYTHON}"
+- if [[ $TRAVIS_PYTHON_VERSION = 3.* ]]; then if_py2=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_sphinx=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 3.[23] ]]; then if_sphinx=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_pycodestyle=:; fi
@@ -50,6 +51,7 @@ install:
 - export PKG_CONFIG_PATH=~/.local/lib/pkgconfig/
 - export LD_LIBRARY_PATH=~/.local/lib/
 - pip install --build ~/build-cython $cython
+- $if_py2 pip install --build ~/build-subprocess32 subprocess32
 - $if_sphinx pip install sphinx
 - $if_pycodestyle pip install pycodestyle
 - pip install pydiatra
