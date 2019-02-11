@@ -1,9 +1,9 @@
-python-djvulibre (0.8.3) UNRELEASED; urgency=low
+python-djvulibre (0.8.3) unstable; urgency=low
 
   * Require subprocess32 for test suite with Python 2.X.
     https://github.com/jwilk/python-djvulibre/issues/8
 
- -- Jakub Wilk <jwilk@jwilk.net>  Mon, 11 Feb 2019 20:47:39 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 11 Feb 2019 20:53:17 +0100
 
 python-djvulibre (0.8.2) unstable; urgency=low
 
