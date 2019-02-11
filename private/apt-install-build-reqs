@@ -22,6 +22,7 @@ cython
 '
 pkgs_tests='
 python-nose
+python-subprocess32
 djvulibre-bin
 ghostscript
 '
@@ -56,7 +57,7 @@ done
 [ "$opt_tests" ] && pkgs="$pkgs $pkgs_tests"
 if [ "$opt_py3" ]
 then
-    pkgs=$(printf '%s' "$pkgs" | sed -e 's/^python-/python3-/')
+    pkgs=$(printf '%s' "$pkgs" | sed -e '/^python-subprocess32$/d' -e 's/^python-/python3-/')
 fi
 
 PS4='# '
