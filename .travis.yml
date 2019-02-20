@@ -1,6 +1,6 @@
 dist: trusty
 language: python
-matrix:
+jobs:
   include:
   - python: "2.6"
     env: DJVULIBRE=3.5.21 CYTHON=0.19
