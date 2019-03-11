@@ -14,13 +14,18 @@
 # more details.
 
 import codecs
-import collections
 import copy
 import errno
 import io
 import os
 import shutil
+import sys
 import tempfile
+
+if sys.version_info >= (3, 3):
+    import collections.abc as collections_abc
+else:
+    import collections as collections_abc
 
 import pickle
 try:
@@ -518,8 +523,8 @@ class test_list_expressions():
 
     def test_abc(self):
         x = Expression(())
-        assert_is_instance(x, collections.MutableSequence)
-        assert_is_instance(iter(x), collections.Iterator)
+        assert_is_instance(x, collections_abc.MutableSequence)
+        assert_is_instance(iter(x), collections_abc.Iterator)
 
     def test_pickle(self):
         for lst in (), (1, 2, 3), (1, (2, 3)):

@@ -1052,9 +1052,12 @@ class ListExpression(_Expression_):
     def __deepcopy__(self, memo):
         return _Expression_(self._get_value())
 
-import collections
-collections.MutableSequence.register(ListExpression)
-del collections
+if sys.version_info >= (3, 3):
+    import collections.abc as collections_abc
+else:
+    import collections as collections_abc
+collections_abc.MutableSequence.register(ListExpression)
+del collections_abc
 
 cdef class _ListExpressionIterator:
 
