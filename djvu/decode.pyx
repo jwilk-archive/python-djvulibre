@@ -2807,9 +2807,9 @@ JOB_STOPPED_SYMBOL = Symbol('stopped')
 cdef object JobException_from_sexpr(object sexpr):
     if typecheck(sexpr, SymbolExpression):
         if sexpr.value is JOB_FAILED_SYMBOL:
-            raise JobFailed
+            return JobFailed
         elif sexpr.value is JOB_STOPPED_SYMBOL:
-            raise JobStopped
+            return JobStopped
 
 cdef JobException_from_c(ddjvu_status_t code):
     try:
