@@ -161,7 +161,7 @@ py_version = get_version()
 cython_version = get_cython_version()
 if str is bytes:
     # Python 2.X
-    req_cython_version = '0.19'
+    req_cython_version = '0.19.1'
 else:
     # Python 3.X
     req_cython_version = '0.20'
