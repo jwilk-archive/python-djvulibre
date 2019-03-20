@@ -60,7 +60,7 @@ except ImportError:
 else:
     distutils644.install()
 
-b''  # Python >= 2.6 is required
+type(b'')  # Python >= 2.6 is required
 
 def ext_modules():
     for pyx_file in glob.iglob(os.path.join('djvu', '*.pyx')):
