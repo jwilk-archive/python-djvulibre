@@ -33,7 +33,6 @@ if os.name == 'nt':
 
 if need_setuptools:
     import setuptools.extension
-    assert setuptools.extension.have_pyrex
 
 import distutils.core
 import distutils.ccompiler
