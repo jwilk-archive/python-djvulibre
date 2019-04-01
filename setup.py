@@ -33,6 +33,8 @@ if os.name == 'nt':
 
 if need_setuptools:
     import setuptools.extension
+    del setuptools.extension
+    del setuptools
 
 import distutils.core
 import distutils.ccompiler
