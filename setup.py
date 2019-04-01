@@ -202,7 +202,7 @@ class build_ext(distutils.command.build_ext.build_ext):
     def cython_sources(self, ext):
         for source in ext.sources:
             source_base = os.path.basename(source)
-            assert source_base.endswith('.pyx')
+            assert source_base.endswith('.pyx'), '{path} is not a .pyx file'.format(path=source_base)
             target = os.path.join(
                 self.src_dir,
                 '{mod}.c'.format(mod=source_base[:-4])
