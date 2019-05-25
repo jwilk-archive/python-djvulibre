@@ -1,15 +1,18 @@
-dist: trusty
+dist: xenial
 language: python
 jobs:
   include:
   - python: "2.6"
     env: DJVULIBRE=3.5.21 CYTHON=0.19
+    dist: trusty
   - python: "2.7"
     env: DJVULIBRE=3.5.27
   - python: "3.2"
     env: DJVULIBRE=3.5.21 CYTHON=0.20
+    dist: trusty
   - python: "3.3"
     env: DJVULIBRE=3.5.27
+    dist: trusty
   - python: "3.4"
     env: DJVULIBRE=3.5.27
   - python: "3.5"
@@ -17,10 +20,8 @@ jobs:
   - python: "3.6"
     env: DJVULIBRE=3.5.27
   - python: "3.7"
-    dist: xenial
     env: DJVULIBRE=3.5.27
   - python: "3.8-dev"
-    dist: xenial
     env: DJVULIBRE=3.5.27
 branches:
   except:
