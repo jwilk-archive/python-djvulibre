@@ -144,7 +144,7 @@ def get_djvulibre_version():
     return distutils.version.LooseVersion(version)
 
 def get_cython_version():
-    cmdline = ['python', '-m', 'cython', '--version']
+    cmdline = [sys.executable, '-m', 'cython', '--version']
     cmd = ipc.Popen(cmdline, stdout=ipc.PIPE, stderr=ipc.STDOUT)
     stdout, stderr = cmd.communicate()
     if not isinstance(stdout, str):
