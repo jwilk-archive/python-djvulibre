@@ -144,7 +144,7 @@ def get_djvulibre_version():
     return distutils.version.LooseVersion(version)
 
 def get_cython_version():
-    cmdline = ['python', '-m', 'cython', '--version']
+    cmdline = [sys.executable, '-m', 'cython', '--version']
     cmd = ipc.Popen(cmdline, stdout=ipc.PIPE, stderr=ipc.STDOUT)
     stdout, stderr = cmd.communicate()
     if not isinstance(stdout, str):
@@ -219,7 +219,7 @@ class build_ext(distutils.command.build_ext.build_ext):
                 if cython_version < req_cython_version:
                     raise RuntimeError('Cython >= {ver} is required'.format(ver=req_cython_version))
                 distutils.spawn.spawn([
-                    'python', '-m', 'cython',
+                    sys.executable, '-m', 'cython',
                     '-I', os.path.dirname(self.config_path),
                     '-o', target,
                     source,
