@@ -1,8 +1,12 @@
 python-djvulibre (0.8.5) UNRELEASED; urgency=low
 
-  * 
+  * Improve the setup script:
+    + Use the current Python interpreter for running Cython.
+      Thanks to John Vandenberg for the bug report and the initial patch.
+      https://github.com/jwilk/python-djvulibre/issues/10
+    + Improve error handling.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Wed, 13 Mar 2019 00:23:28 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Mon, 23 Sep 2019 18:49:32 +0200
 
 python-djvulibre (0.8.4) unstable; urgency=low
 
