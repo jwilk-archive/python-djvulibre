@@ -29,7 +29,7 @@ Additionally, the following software is needed to run the tests:
 .. _Python:
    https://www.python.org/
 .. _Cython:
-   http://cython.org/
+   https://cython.org/
 .. _pkg-config:
    https://wiki.freedesktop.org/www/Software/pkg-config/
 .. _nose:
