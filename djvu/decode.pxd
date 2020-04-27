@@ -203,8 +203,8 @@ cdef class Document:
     cdef object _queue
     cdef object _condition
     cdef object __weakref__
-    cdef object __init(self, Context context, ddjvu_document_t* ddjvu_document)
-    cdef object __clear(self)
+    cdef object _init(self, Context context, ddjvu_document_t* ddjvu_document)
+    cdef object _clear(self)
 
 cdef class _SexprWrapper:
     cdef object _document_weakref
@@ -285,8 +285,8 @@ cdef class Job:
     cdef ddjvu_job_t* ddjvu_job
     cdef object _queue
     cdef object _condition
-    cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job)
-    cdef object __clear(self)
+    cdef object _init(self, Context context, ddjvu_job_t *ddjvu_job)
+    cdef object _clear(self)
     cdef object __weakref__
 
 cdef class PageJob(Job):
@@ -297,7 +297,7 @@ cdef class SaveJob(Job):
 
 cdef class DocumentDecodingJob(Job):
     cdef object _document
-    cdef object __init_ddj(self, Document document)
+    cdef object _init_ddj(self, Document document)
 
 cdef class AffineTransform:
     cdef ddjvu_rectmapper_t* ddjvu_rectmapper
@@ -308,7 +308,7 @@ cdef class Message:
     cdef Document _document
     cdef PageJob _page_job
     cdef Job _job
-    cdef object __init(self)
+    cdef object _init(self)
 
 cdef class ErrorMessage(Message):
     cdef object _message

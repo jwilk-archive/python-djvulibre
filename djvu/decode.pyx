@@ -539,7 +539,7 @@ cdef class Page:
             if ddjvu_document_decoding_error(self._document.ddjvu_document):
                 raise JobException_from_c(ddjvu_document_decoding_status(self._document.ddjvu_document))
             job = PageJob(sentinel = the_sentinel)
-            job.__init(self._document._context, ddjvu_job)
+            job._init(self._document._context, ddjvu_job)
         finally:
             release_lock(loft_lock)
         if wait:
@@ -960,7 +960,7 @@ cdef class DocumentDecodingJob(Job):
     Use document.decoding_job to obtain instances of this class.
     '''
 
-    cdef object __init_ddj(self, Document document):
+    cdef object _init_ddj(self, Document document):
         self._context = document._context
         self._document = document
         self._condition = document._condition
@@ -993,7 +993,7 @@ cdef class Document:
         self._queue = Queue()
         self._condition = Condition()
 
-    cdef object __init(self, Context context, ddjvu_document_t *ddjvu_document):
+    cdef object _init(self, Context context, ddjvu_document_t *ddjvu_document):
         # Assumption: loft_lock is already acquired.
         assert (context is not None) and ddjvu_document != NULL
         self.ddjvu_document = ddjvu_document
@@ -1001,7 +1001,7 @@ cdef class Document:
         _document_loft.add(self)
         _document_weak_loft[voidp_to_int(ddjvu_document)] = self
 
-    cdef object __clear(self):
+    cdef object _clear(self):
         with nogil:
             acquire_lock(loft_lock, WAIT_LOCK)
         try:
@@ -1037,7 +1037,7 @@ cdef class Document:
         def __get__(self):
             cdef DocumentDecodingJob job
             job = DocumentDecodingJob(sentinel = the_sentinel)
-            job.__init_ddj(self)
+            job._init_ddj(self)
             return job
 
     property type:
@@ -1133,7 +1133,7 @@ cdef class Document:
             acquire_lock(loft_lock, WAIT_LOCK)
         try:
             job = SaveJob(sentinel = the_sentinel)
-            job.__init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
+            job._init(self._context, ddjvu_document_save(self.ddjvu_document, output, optc, optv))
             job._file = file_wrapper
         finally:
             release_lock(loft_lock)
@@ -1335,7 +1335,7 @@ cdef class Document:
                 acquire_lock(loft_lock, WAIT_LOCK)
             try:
                 job = SaveJob(sentinel = the_sentinel)
-                job.__init(
+                job._init(
                     self._context,
                     ddjvu_document_print(self.ddjvu_document, output, len(options), optv)
                 )
@@ -1423,7 +1423,7 @@ def _Context_message_distributor(Context self not None, **kwargs):
                 finally:
                     job._condition.release()
                 if job.is_done:
-                    job.__clear()
+                    job._clear()
             elif message._page_job is not None:
                 raise SystemError  # should not happen
             elif message._document is not None:
@@ -1434,7 +1434,7 @@ def _Context_message_distributor(Context self not None, **kwargs):
                 finally:
                     document._condition.release()
                 if document.decoding_done:
-                    document.__clear()
+                    document._clear()
         except KeyboardInterrupt:
             return
         except SystemExit:
@@ -1569,7 +1569,7 @@ cdef class Context:
             if ddjvu_document == NULL:
                 raise JobFailed
             document = Document(sentinel = the_sentinel)
-            document.__init(self, ddjvu_document)
+            document._init(self, ddjvu_document)
         finally:
             release_lock(loft_lock)
         return document
@@ -1954,8 +1954,8 @@ cdef class PageJob(Job):
     Use page.decode(...) to obtain instances of this class.
     '''
 
-    cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
-        Job.__init(self, context, ddjvu_job)
+    cdef object _init(self, Context context, ddjvu_job_t *ddjvu_job):
+        Job._init(self, context, ddjvu_job)
 
     property width:
         '''
@@ -2196,7 +2196,7 @@ cdef class Job:
         self._condition = Condition()
         self._queue = Queue()
 
-    cdef object __init(self, Context context, ddjvu_job_t *ddjvu_job):
+    cdef object _init(self, Context context, ddjvu_job_t *ddjvu_job):
         # Assumption: loft_lock is already acquired.
         assert (context is not None) and ddjvu_job != NULL
         self._context = context
@@ -2204,7 +2204,7 @@ cdef class Job:
         _job_loft.add(self)
         _job_weak_loft[voidp_to_int(ddjvu_job)] = self
 
-    cdef object __clear(self):
+    cdef object _clear(self):
         with nogil:
             acquire_lock(loft_lock, WAIT_LOCK)
         try:
@@ -2434,7 +2434,7 @@ cdef class Message:
         check_sentinel(self, kwargs)
         self.ddjvu_message = NULL
 
-    cdef object __init(self):
+    cdef object _init(self):
         if self.ddjvu_message == NULL:
             raise SystemError
         self._context = Context_from_c(self.ddjvu_message.m_any.context)
@@ -2477,8 +2477,8 @@ cdef class ErrorMessage(Message):
     because they can occur asynchronously.
     '''
 
-    cdef object __init(self):
-        Message.__init(self)
+    cdef object _init(self):
+        Message._init(self)
         IF HAVE_LANGINFO_H:
             locale_encoding = charp_to_string(nl_langinfo(CODESET))
         ELSE:
@@ -2547,8 +2547,8 @@ cdef class InfoMessage(Message):
     decoding process. This might be displayed in the browser status bar.
     '''
 
-    cdef object __init(self):
-        Message.__init(self)
+    cdef object _init(self):
+        Message._init(self)
         self._message = charp_to_string(self.ddjvu_message.m_error.message)
 
     property message:
@@ -2644,8 +2644,8 @@ cdef class NewStreamMessage(Message):
 
     '''
 
-    cdef object __init(self):
-        Message.__init(self)
+    cdef object _init(self):
+        Message._init(self)
         self._stream = Stream(self.document, self.ddjvu_message.m_newstream.streamid, sentinel = the_sentinel)
         self._name = charp_to_string(self.ddjvu_message.m_newstream.name)
         self._uri = charp_to_string(self.ddjvu_message.m_newstream.url)
@@ -2731,8 +2731,8 @@ cdef class ThumbnailMessage(Message):
     A ThumbnailMessage is sent when additional thumbnails are available.
     '''
 
-    cdef object __init(self):
-        Message.__init(self)
+    cdef object _init(self):
+        Message._init(self)
         self._page_no = self.ddjvu_message.m_thumbnail.pagenum
 
     property thumbnail:
@@ -2752,8 +2752,8 @@ cdef class ProgressMessage(Message):
     completion of a print or save job.
     '''
 
-    cdef object __init(self):
-        Message.__init(self)
+    cdef object _init(self):
+        Message._init(self)
         self._percent = self.ddjvu_message.m_progress.percent
         self._status = self.ddjvu_message.m_progress.status
 
@@ -2795,7 +2795,7 @@ cdef Message Message_from_c(ddjvu_message_t* ddjvu_message):
         raise SystemError
     message = klass(sentinel = the_sentinel)
     message.ddjvu_message = ddjvu_message
-    message.__init()
+    message._init()
     return message
 
 cdef object JOB_EXCEPTION_MAP
