@@ -1,8 +1,9 @@
 python-djvulibre (0.8.6) UNRELEASED; urgency=low
 
-  * 
+  * Fix build failure with Cython >= 3.0.
+  * Use HTTPS for cython.org URL.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sat, 16 Nov 2019 18:31:24 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Sat, 30 May 2020 18:19:36 +0200
 
 python-djvulibre (0.8.5) unstable; urgency=low
 
