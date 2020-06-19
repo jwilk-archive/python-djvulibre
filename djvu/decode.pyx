@@ -414,7 +414,7 @@ cdef class Page:
             return
         if not wait:
             return self._get_info()
-        while 1:
+        while True:
             self._document._condition.acquire()
             try:
                 status = ddjvu_document_get_pageinfo(self._document.ddjvu_document, self._n, &self.ddjvu_pageinfo)
@@ -758,7 +758,7 @@ cdef class File:
             return
         if not wait:
             return self._get_info()
-        while 1:
+        while True:
             self._document._condition.acquire()
             try:
                 status = ddjvu_document_get_fileinfo(self._document.ddjvu_document, self._n, &self.ddjvu_fileinfo)
@@ -1403,7 +1403,7 @@ def _Context_message_distributor(Context self not None, **kwargs):
     cdef ddjvu_message_t* ddjvu_message
 
     check_sentinel(self, kwargs)
-    while 1:
+    while True:
         with nogil:
             ddjvu_message = ddjvu_message_wait(self.ddjvu_context)
         try:
@@ -2239,7 +2239,7 @@ cdef class Job:
 
         Wait until the job is done.
         '''
-        while 1:
+        while True:
             self._condition.acquire()
             try:
                 if ddjvu_job_done(self.ddjvu_job):
@@ -2912,7 +2912,7 @@ cdef class DocumentOutline(DocumentExtension):
 
         Wait until the associated S-expression is available.
         '''
-        while 1:
+        while True:
             self._document._condition.acquire()
             try:
                 try:
@@ -2974,7 +2974,7 @@ cdef class Annotations:
 
         Wait until the associated S-expression is available.
         '''
-        while 1:
+        while True:
             self._document._condition.acquire()
             try:
                 try:
@@ -3244,7 +3244,7 @@ cdef class PageText:
 
         Wait until the associated S-expression is available.
         '''
-        while 1:
+        while True:
             self._page._document._condition.acquire()
             try:
                 try:

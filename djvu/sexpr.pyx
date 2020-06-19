@@ -834,7 +834,7 @@ class ListExpression(_Expression_):
                 n = n + len(self)
             if n < 0:
                 raise IndexError('list index of out range')
-            while 1:
+            while True:
                 if cexpr == cexpr_nil:
                     raise IndexError('list index of out range')
                 if n > 0:
@@ -872,7 +872,7 @@ class ListExpression(_Expression_):
                 n = n + len(self)
             if n < 0:
                 raise IndexError('list index of out range')
-            while 1:
+            while True:
                 if cexpr == cexpr_nil:
                     raise IndexError('list index of out range')
                 if n > 0:
@@ -941,7 +941,7 @@ class ListExpression(_Expression_):
             finally:
                 gc_unlock(NULL)
             return
-        while 1:
+        while True:
             assert cexpr != cexpr_nil
             if index > 1 and cexpr_tail(cexpr) != cexpr_nil:
                 index = index - 1
@@ -999,7 +999,7 @@ class ListExpression(_Expression_):
         if _c2py(cexpr_head(cexpr)) == item:
             self.wexpr = wexpr(cexpr_tail(cexpr))
             return
-        while 1:
+        while True:
             assert cexpr != cexpr_nil
             if cexpr_tail(cexpr) == cexpr_nil:
                 raise IndexError('item not in list')
