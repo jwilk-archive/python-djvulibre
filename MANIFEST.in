@@ -9,6 +9,7 @@ include doc/api/conf.py
 include doc/changelog
 include doc/credits
 include doc/todo
+include pyproject.toml
 
 include examples/*
 
