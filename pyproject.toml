@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     'setuptools', 'wheel',  # needed only to make pip happy
-    'Cython>=0.19',
+    'Cython>=0.19; python_version<"3"',
     'Cython>=0.20; python_version>="3"',
 ]
 
