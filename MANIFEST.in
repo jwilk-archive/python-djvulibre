@@ -1,7 +1,7 @@
 include MANIFEST.in
 
-include COPYING
 exclude README.rst
+include COPYING
 include doc/COPYING
 include doc/README
 include doc/api/*.rst
