@@ -137,7 +137,7 @@ def get_djvulibre_version():
     version = pkgconfig_version('ddjvuapi')
     if version is None:
         if os.name == 'posix':
-            raise RuntimeError('cannot determine DjVuLibre version')
+            raise distutils.errors.DistutilsError('cannot determine DjVuLibre version')
         elif os.name == 'nt':
             version = djvu.dllpath._guess_dll_version()
     version = version or '0'
@@ -173,7 +173,7 @@ class build_ext(distutils.command.build_ext.build_ext):
     def run(self):
         djvulibre_version = get_djvulibre_version()
         if djvulibre_version != '0' and djvulibre_version < '3.5.21':
-            raise RuntimeError('DjVuLibre >= 3.5.21 is required')
+            raise distutils.errors.DistutilsError('DjVuLibre >= 3.5.21 is required')
         new_config = [
             'DEF PY3K = {0}'.format(sys.version_info >= (3, 0)),
             'DEF PYTHON_DJVULIBRE_VERSION = b"{0}"'.format(py_version),
@@ -217,7 +217,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             distutils.log.info('cythoning {ext.name!r} extension'.format(ext=ext))
             def build_c(source, target):
                 if cython_version < req_cython_version:
-                    raise RuntimeError('Cython >= {ver} is required'.format(ver=req_cython_version))
+                    raise distutils.errors.DistutilsError('Cython >= {ver} is required'.format(ver=req_cython_version))
                 distutils.spawn.spawn([
                     sys.executable, '-m', 'cython',
                     '-I', os.path.dirname(self.config_path),
