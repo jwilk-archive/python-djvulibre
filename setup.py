@@ -90,8 +90,9 @@ def run_pkgconfig(*cmdline):
     stdout = stdout.decode('ASCII')
     stderr = stderr.decode('ASCII', 'replace')
     if pkgconfig.returncode != 0:
-        msg = 'pkg-config failed: {msg}'.format(msg=stderr.strip())
-        distutils.log.warn(msg)
+        distutils.log.warn('pkg-config failed:')
+        for line in stderr.splitlines():
+            distutils.log.warn('  ' + line)
         return
     return stdout
 
