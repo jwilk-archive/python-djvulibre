@@ -174,6 +174,11 @@ class build_ext(distutils.command.build_ext.build_ext):
         djvulibre_version = get_djvulibre_version()
         if djvulibre_version != '0' and djvulibre_version < '3.5.21':
             raise distutils.errors.DistutilsError('DjVuLibre >= 3.5.21 is required')
+        compiler_flags = pkgconfig_build_flags('ddjvuapi')
+        for extension in self.extensions:
+            for attr, flags in compiler_flags.items():
+                getattr(extension, attr)
+                setattr(extension, attr, flags)
         new_config = [
             'DEF PY3K = {0}'.format(sys.version_info >= (3, 0)),
             'DEF PYTHON_DJVULIBRE_VERSION = b"{0}"'.format(py_version),
@@ -257,8 +262,6 @@ class sdist(distutils.command.sdist.sdist):
         distutils.command.sdist.sdist.make_release_tree(self, base_dir, files)
         self.maybe_move_file(base_dir, 'COPYING', 'doc/COPYING')
 
-compiler_flags = pkgconfig_build_flags('ddjvuapi')
-
 classifiers = '''
 Development Status :: 4 - Beta
 Intended Audience :: Developers
@@ -293,7 +296,6 @@ setup_params = dict(
             'djvu.{mod}'.format(mod=name),
             ['djvu/{mod}.pyx'.format(mod=name)],
             depends=(['djvu/common.pxi'] + glob.glob('djvu/*.pxd')),
-            **compiler_flags
         )
         for name in ext_modules
     ],
