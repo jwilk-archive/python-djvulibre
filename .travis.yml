@@ -74,6 +74,12 @@ script:
 - pyflakes .
 - python setup.py sdist
 - tar -tvf dist/*.tar.gz | { ! grep -F /djvu/config.pxi; }
+- pip install dist/*.tar.gz
+- cd /
+- python -c 'import djvu.sexpr, djvu.decode'
+- pip uninstall -y python-djvulibre
+- python -c 'import djvu'; [ $? -eq 1 ]
+- cd "$TRAVIS_BUILD_DIR"
 - python setup.py install
 - cd /
 - python -c 'import djvu.sexpr, djvu.decode'
