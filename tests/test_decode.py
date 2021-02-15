@@ -547,6 +547,12 @@ class test_page_jobs():
         s = array_tobytes(buffer)
         assert_equal(s, b'\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xEF\xFF\xFF\xFF\xA4\xFF\xFF\xFF\xB8')
 
+        buffer = array.array('I', [0] * 4)
+        pixel_format = PixelFormatRgbMask(0xFF0000, 0xFF00, 0xFF, bpp=32)
+        assert_is(page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 2, 2), pixel_format, 1, buffer), buffer)
+        s = array_tobytes(buffer)
+        assert_equal(s, b'\xFF\xFF\xFF\x00' * 4)
+
 class test_thumbnails:
 
     def test(self):
