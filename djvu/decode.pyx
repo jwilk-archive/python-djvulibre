@@ -59,6 +59,10 @@ import sys
 from os import devnull
 from traceback import format_exc
 
+IF PY3K:
+    cdef object memoryview
+    from builtins import memoryview
+
 cdef object StringIO
 IF PY3K:
     from io import StringIO
@@ -641,7 +645,7 @@ cdef class Thumbnail:
             result = None
             memory = NULL
         else:
-            result = allocate_image_memory(row_size, h, buffer, &memory)
+            (result, memview) = allocate_image_memory(row_size, h, buffer, &memory)
         if ddjvu_thumbnail_render(self._page._document.ddjvu_document, self._page._n, &iw, &ih, pixel_format.ddjvu_format, row_size, <char*> memory):
             return (iw, ih, row_size), result
         else:
@@ -1928,6 +1932,7 @@ cdef object calculate_row_size(long width, long row_alignment, int bpp):
     return result
 
 cdef object allocate_image_memory(long width, long height, object buffer, void **memory):
+    cdef char[::1] memview = None
     cdef Py_ssize_t c_requested_size
     cdef Py_ssize_t c_memory_size
     py_requested_size = int(width) * int(height)
@@ -1940,10 +1945,16 @@ cdef object allocate_image_memory(long width, long height, object buffer, void *
         memory[0] = <char*> result
     else:
         result = buffer
-        buffer_to_writable_memory(buffer, memory, &c_memory_size)
-        if c_memory_size < c_requested_size:
-            raise ValueError('Image buffer is too small ({0} > {1})'.format(c_requested_size, c_memory_size))
-    return result
+        IF PY3K:
+            memview = memoryview(buffer).cast('c')
+            if len(memview) < c_requested_size:
+                raise ValueError('Image buffer is too small ({0} > {1})'.format(c_requested_size, len(memview)))
+            memory[0] = &memview[0]
+        ELSE:
+            buffer_to_writable_memory(buffer, memory, &c_memory_size)
+            if c_memory_size < c_requested_size:
+                raise ValueError('Image buffer is too small ({0} > {1})'.format(c_requested_size, c_memory_size))
+    return (result, memview)
 
 
 cdef class PageJob(Job):
@@ -2167,7 +2178,7 @@ cdef class PageJob(Job):
         ):
             raise ValueError('render_rect must be inside page_rect')
         row_size = calculate_row_size(c_render_rect.w, row_alignment, pixel_format._bpp)
-        result = allocate_image_memory(row_size, c_render_rect.h, buffer, &memory)
+        (result, memview) = allocate_image_memory(row_size, c_render_rect.h, buffer, &memory)
         if ddjvu_page_render(<ddjvu_page_t*> self.ddjvu_job, mode, &c_page_rect, &c_render_rect, pixel_format.ddjvu_format, row_size, <char*> memory) == 0:
             raise _NotAvailable_
         return result
