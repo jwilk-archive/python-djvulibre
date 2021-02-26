@@ -119,6 +119,9 @@ if sys.version_info >= (3, 2):
 else:
     array_tobytes = array.array.tostring
 
+if sys.version_info < (2, 7):
+    memoryview = None  # make pyflakes happy
+
 def run(*cmd, **kwargs):
     stdin = kwargs.pop('stdin', None)
     env = dict(os.environ)
