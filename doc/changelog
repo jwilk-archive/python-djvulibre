@@ -310,7 +310,7 @@ python-djvulibre (0.3.2) unstable; urgency=low
   * Improve setup.py:
     + Add work-around for <https://bugs.debian.org/607112>.
     + Make ‘clean --all’ remove temporary *.pxi and *.c files.
-    + Don't import Cython modules; calls the ‘cython’ binary instead.
+    + Don't import Cython modules; call the ‘cython’ binary instead.
     + Allow cross-compilation using MinGW cross compiler.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Wed, 15 Dec 2010 21:17:39 +0100
