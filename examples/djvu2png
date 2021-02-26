@@ -46,9 +46,10 @@ class Context(djvu.decode.Context):
             width, height = page_job.size
             rect = (0, 0, width, height)
             bytes_per_line = cairo.ImageSurface.format_stride_for_width(cairo_pixel_format, width)
-            color_buffer = numpy.zeros((height, bytes_per_line), dtype=numpy.uint32)
+            assert bytes_per_line % 4 == 0
+            color_buffer = numpy.zeros((height, bytes_per_line // 4), dtype=numpy.uint32)
             page_job.render(mode, rect, rect, djvu_pixel_format, row_alignment=bytes_per_line, buffer=color_buffer)
-            mask_buffer = numpy.zeros((height, bytes_per_line), dtype=numpy.uint32)
+            mask_buffer = numpy.zeros((height, bytes_per_line // 4), dtype=numpy.uint32)
             if mode == djvu.decode.RENDER_FOREGROUND:
                 page_job.render(djvu.decode.RENDER_MASK_ONLY, rect, rect, djvu_pixel_format, row_alignment=bytes_per_line, buffer=mask_buffer)
                 mask_buffer <<= 24
