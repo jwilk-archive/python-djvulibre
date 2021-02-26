@@ -553,6 +553,13 @@ class test_page_jobs():
         s = array_tobytes(buffer)
         assert_equal(s, b'\xFF\xFF\xFF\x00' * 4)
 
+        if sys.version_info >= (3, 3):
+            buffer = bytearray(16)
+            memview = memoryview(buffer).cast('I', shape=(2, 2))
+            assert_is(page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 2, 2), pixel_format, 1, memview), memview)
+            s = bytes(buffer)
+            assert_equal(s, b'\xFF\xFF\xFF\x00' * 4)
+
 class test_thumbnails:
 
     def test(self):
