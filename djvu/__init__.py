@@ -14,5 +14,6 @@
 # more details.
 
 type(b'')  # Python >= 2.6 is required
+type(u'')  # Python 2.X or >= 3.3 is required
 
 # vim:ts=4 sts=4 sts=4 sw=4 et

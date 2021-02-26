@@ -7,11 +7,8 @@ jobs:
     dist: trusty
   - python: "2.7"
     env: DJVULIBRE=3.5.27
-  - python: "3.2"
-    env: DJVULIBRE=3.5.21 CYTHON=0.20
-    dist: trusty
   - python: "3.3"
-    env: DJVULIBRE=3.5.27
+    env: DJVULIBRE=3.5.21 CYTHON=0.20
     dist: trusty
   - python: "3.4"
     env: DJVULIBRE=3.5.27
@@ -41,11 +38,11 @@ before_install:
 - cython="cython${CYTHON:+==$CYTHON}"
 - if [[ $TRAVIS_PYTHON_VERSION = 3.* ]]; then if_py2=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_sphinx=:; fi
-- if [[ $TRAVIS_PYTHON_VERSION = 3.[23] ]]; then if_sphinx=:; fi
+- if [[ $TRAVIS_PYTHON_VERSION = 3.3 ]]; then if_sphinx=:; fi
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then if_pycodestyle=:; fi
 - pyflakes=pyflakes
 - if [[ $TRAVIS_PYTHON_VERSION = 2.6 ]]; then pyflakes='pyflakes<2'; fi
-- if [[ $TRAVIS_PYTHON_VERSION = 3.[23] ]]; then pyflakes='pyflakes<2'; fi
+- if [[ $TRAVIS_PYTHON_VERSION = 3.3 ]]; then pyflakes='pyflakes<2'; fi
 install:
 - export PATH="/usr/lib/ccache:$PATH"
 - wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/$DJVULIBRE/djvulibre-$DJVULIBRE.tar.gz
