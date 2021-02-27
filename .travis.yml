@@ -20,7 +20,7 @@ jobs:
     env: DJVULIBRE=3.5.27
   - python: "3.8"
     env: DJVULIBRE=3.5.27
-  - python: "3.9-dev"
+  - python: "3.9"
     env: DJVULIBRE=3.5.27
 branches:
   except:
