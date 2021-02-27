@@ -22,6 +22,8 @@ jobs:
     env: DJVULIBRE=3.5.27
   - python: "3.9"
     env: DJVULIBRE=3.5.27
+  - python: "3.10-dev"
+    env: DJVULIBRE=3.5.27
 branches:
   except:
   - appveyor
