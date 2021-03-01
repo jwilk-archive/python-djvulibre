@@ -2152,7 +2152,7 @@ cdef class PageJob(Job):
             raise ValueError('page_rect width/height must be a positive integer')
         c_page_rect.x, c_page_rect.y, c_page_rect.w, c_page_rect.h = x, y, w, h
         if c_page_rect.x != x or c_page_rect.y != y or c_page_rect.w != w or c_page_rect.h != h:
-            raise OverflowError('render_rect coordinates are too large')
+            raise OverflowError('page_rect coordinates are too large')
         x, y, w, h = render_rect
         if w <= 0 or h <= 0:
             raise ValueError('render_rect width/height must be a positive integer')
