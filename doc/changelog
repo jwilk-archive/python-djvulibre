@@ -60,7 +60,6 @@ python-djvulibre (0.8.1) unstable; urgency=low
   * Explicitly set Cython's Python language level to 2.
     This might fix build failures with future versions of Cython.
   * Improve the build system:
-    + Declare build-dependencies (as per PEP-518).
     + Add the bdist_wheel command.
     + Use distutils644 to normalize tarball permissions etc.
     + Fix Python version check.
