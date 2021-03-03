@@ -1,9 +1,21 @@
 python-djvulibre (0.8.6) UNRELEASED; urgency=low
 
+  * Fix build failure with Python 3.10.
+    Thanks to Audrey Yeena Toskin for the bug report.
+    https://github.com/jwilk/python-djvulibre/issues/13
+    + Require Cython >= 0.19.1 for Python 2.X.
+    + Drop support for Python 3.2 (and earlier 3.X versions).
   * Fix build failure with Cython >= 3.0.
+  * Fix excessive memory use in djvu2png.
+  * Fix typo in an error message.
   * Use HTTPS for cython.org URL.
+  * Improve the test suite.
+  * Improve the build system:
+    + Improve error handling.
+      https://github.com/jwilk/python-djvulibre/issues/12
+    + Declare build-dependencies (as per PEP-518).
 
- -- Jakub Wilk <jwilk@jwilk.net>  Sat, 30 May 2020 18:19:36 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Wed, 03 Mar 2021 17:28:01 +0100
 
 python-djvulibre (0.8.5) unstable; urgency=low
 
