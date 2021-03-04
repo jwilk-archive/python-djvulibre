@@ -1,4 +1,4 @@
-python-djvulibre (0.8.6) UNRELEASED; urgency=low
+python-djvulibre (0.8.6) unstable; urgency=low
 
   * Fix build failure with Python 3.10.
     Thanks to Audrey Yeena Toskin for the bug report.
@@ -15,7 +15,7 @@ python-djvulibre (0.8.6) UNRELEASED; urgency=low
       https://github.com/jwilk/python-djvulibre/issues/12
     + Declare build-dependencies (as per PEP-518).
 
- -- Jakub Wilk <jwilk@jwilk.net>  Wed, 03 Mar 2021 17:28:01 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Thu, 04 Mar 2021 21:26:02 +0100
 
 python-djvulibre (0.8.5) unstable; urgency=low
 
