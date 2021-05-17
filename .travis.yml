@@ -6,6 +6,9 @@ jobs:
     env: DJVULIBRE=3.5.21 CYTHON=0.19.1
     dist: trusty
   - python: "2.7"
+    env: DJVULIBRE=3.5.21 CYTHON=0.19.1
+    dist: trusty
+  - python: "2.7"
     env: DJVULIBRE=3.5.27
   - python: "3.3"
     env: DJVULIBRE=3.5.21 CYTHON=0.20
@@ -24,6 +27,10 @@ jobs:
     env: DJVULIBRE=3.5.27
   - python: "3.10-dev"
     env: DJVULIBRE=3.5.27
+  allow_failures:
+  - python: "2.6"
+    env: DJVULIBRE=3.5.21 CYTHON=0.19.1
+    dist: trusty
 branches:
   except:
   - appveyor
