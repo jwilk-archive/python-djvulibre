@@ -26,23 +26,18 @@ import re
 import subprocess as ipc
 import sys
 
-need_setuptools = False
 if os.name == 'nt':
     import djvu.dllpath
-    need_setuptools = True
 
-if need_setuptools:
-    import setuptools.extension
-    del setuptools.extension
-    del setuptools
+import setuptools
 
-import distutils.core
-import distutils.ccompiler
-import distutils.command.build_ext
-import distutils.command.sdist
+import setuptools.command.build_ext
+import setuptools.command.sdist
 import distutils.dep_util
 import distutils.dir_util
 import distutils.version
+import distutils.log
+import distutils.errors
 
 try:
     import sphinx.setup_command as sphinx_setup_command
@@ -65,7 +60,7 @@ type(b'')  # Python >= 2.6 is required
 type(u'')  # Python 2.X or >= 3.3 is required
 
 def ext_modules():
-    for pyx_file in glob.iglob(os.path.join('djvu', '*.pyx')):
+    for pyx_file in glob.iglob(os.path.join('src', 'djvu', '*.pyx')):
         module, _ = os.path.splitext(os.path.basename(pyx_file))
         yield module
 ext_modules = list(ext_modules())
@@ -170,7 +165,7 @@ else:
 # Work-around for <https://bugs.python.org/issue969718>:
 os.environ.pop('CFLAGS', None)
 
-class build_ext(distutils.command.build_ext.build_ext):
+class build_ext(setuptools.command.build_ext.build_ext):
 
     def run(self):
         djvulibre_version = get_djvulibre_version()
@@ -199,7 +194,7 @@ class build_ext(distutils.command.build_ext.build_ext):
         if '\n'.join(new_config).strip() != old_config.strip():
             distutils.log.info('creating {conf!r}'.format(conf=self.config_path))
             distutils.file_util.write_file(self.config_path, new_config)
-        distutils.command.build_ext.build_ext.run(self)
+        setuptools.command.build_ext.build_ext.run(self)
 
     def build_extensions(self):
         self.check_extensions_list(self.extensions)
@@ -244,7 +239,7 @@ if sphinx_setup_command:
             # the extension modules. Prepend the directory that build_ext would
             # use instead.
             build_ext = self.get_finalized_command('build_ext')
-            sys.path[:0] = [build_ext.build_lib]
+            sys.path[:0] = build_ext.build_lib
             for ext in ext_modules:
                 __import__('djvu.' + ext)
             del sys.path[0]
@@ -252,7 +247,7 @@ if sphinx_setup_command:
 else:
     build_sphinx = None
 
-class sdist(distutils.command.sdist.sdist):
+class sdist(setuptools.command.sdist.sdist):
 
     def maybe_move_file(self, base_dir, src, dst):
         src = os.path.join(base_dir, src)
@@ -261,7 +256,7 @@ class sdist(distutils.command.sdist.sdist):
             self.move_file(src, dst)
 
     def make_release_tree(self, base_dir, files):
-        distutils.command.sdist.sdist.make_release_tree(self, base_dir, files)
+        setuptools.command.sdist.sdist.make_release_tree(self, base_dir, files)
         self.maybe_move_file(base_dir, 'COPYING', 'doc/COPYING')
 
 classifiers = '''
@@ -294,10 +289,10 @@ meta = dict(
 setup_params = dict(
     packages=['djvu'],
     ext_modules=[
-        distutils.command.build_ext.Extension(
+        setuptools.Extension(
             'djvu.{mod}'.format(mod=name),
-            ['djvu/{mod}.pyx'.format(mod=name)],
-            depends=(['djvu/common.pxi'] + glob.glob('djvu/*.pxd')),
+            ['src/djvu/{mod}.pyx'.format(mod=name)],
+            depends=(['src/djvu/common.pxi'] + glob.glob('djvu/*.pxd')),
         )
         for name in ext_modules
     ],
@@ -315,13 +310,13 @@ if __name__ == '__main__':
     if (cython_version < req_cython_version) and egg_info_for_pip:
         # This shouldn't happen with pip >= 10, thanks to PEP-518 support.
         # For older versions, we use this hack to trick it into installing Cython:
-        distutils.core.setup(
+        setuptools.setup(
             install_requires=['Cython>={ver}'.format(ver=req_cython_version)],
             # Conceptually, “setup_requires” would make more sense than
             # “install_requires”, but the former is not supported by pip.
             **meta
         )
     else:
-        distutils.core.setup(**setup_params)
+        setuptools.setup(**setup_params)
 
 # vim:ts=4 sts=4 sw=4 et
