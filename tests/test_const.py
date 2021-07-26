@@ -13,6 +13,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 # more details.
 
+import unittest
+
 from djvu.const import (
     TEXT_ZONE_CHARACTER,
     TEXT_ZONE_COLUMN,
@@ -29,21 +31,10 @@ from djvu.sexpr import (
     Symbol,
 )
 
-from tools import (
-    assert_equal,
-    assert_is,
-    assert_is_instance,
-    assert_list_equal,
-    assert_not_equal,
-    assert_raises_str,
-    assert_repr,
-    wildcard_import,
-    # Python 2/3 compat:
-    cmp,
-)
+# Py2, Py3 compatibility shim
+from tools import cmp
 
-class test_text_zones():
-
+class test_text_zones(unittest.TestCase):
     zones = [
         TEXT_ZONE_PAGE,
         TEXT_ZONE_COLUMN,
@@ -56,42 +47,42 @@ class test_text_zones():
 
     def test_type(self):
         for zone in self.zones:
-            assert_equal(type(zone), TextZoneType)
-            assert_is_instance(zone, Symbol)
+            self.assertEqual(type(zone), TextZoneType)
+            self.assertIsInstance(zone, Symbol)
 
     def test_repr(self):
-        assert_repr(TEXT_ZONE_PAGE, '<djvu.const.TextZoneType: page>')
-        assert_repr(TEXT_ZONE_COLUMN, '<djvu.const.TextZoneType: column>')
-        assert_repr(TEXT_ZONE_REGION, '<djvu.const.TextZoneType: region>')
-        assert_repr(TEXT_ZONE_PARAGRAPH, '<djvu.const.TextZoneType: para>')
-        assert_repr(TEXT_ZONE_LINE, '<djvu.const.TextZoneType: line>')
-        assert_repr(TEXT_ZONE_WORD, '<djvu.const.TextZoneType: word>')
-        assert_repr(TEXT_ZONE_CHARACTER, '<djvu.const.TextZoneType: char>')
+        self.assertEqual(repr(TEXT_ZONE_PAGE), '<djvu.const.TextZoneType: page>')
+        self.assertEqual(repr(TEXT_ZONE_COLUMN), '<djvu.const.TextZoneType: column>')
+        self.assertEqual(repr(TEXT_ZONE_REGION), '<djvu.const.TextZoneType: region>')
+        self.assertEqual(repr(TEXT_ZONE_PARAGRAPH), '<djvu.const.TextZoneType: para>')
+        self.assertEqual(repr(TEXT_ZONE_LINE), '<djvu.const.TextZoneType: line>')
+        self.assertEqual(repr(TEXT_ZONE_WORD), '<djvu.const.TextZoneType: word>')
+        self.assertEqual(repr(TEXT_ZONE_CHARACTER), '<djvu.const.TextZoneType: char>')
 
     def test_identity(self):
-        assert_is(TEXT_ZONE_PAGE, get_text_zone_type(Symbol('page')))
-        assert_is(TEXT_ZONE_COLUMN, get_text_zone_type(Symbol('column')))
-        assert_is(TEXT_ZONE_REGION, get_text_zone_type(Symbol('region')))
-        assert_is(TEXT_ZONE_PARAGRAPH, get_text_zone_type(Symbol('para')))
-        assert_is(TEXT_ZONE_LINE, get_text_zone_type(Symbol('line')))
-        assert_is(TEXT_ZONE_WORD, get_text_zone_type(Symbol('word')))
-        assert_is(TEXT_ZONE_CHARACTER, get_text_zone_type(Symbol('char')))
+        self.assertIs(TEXT_ZONE_PAGE, get_text_zone_type(Symbol('page')))
+        self.assertIs(TEXT_ZONE_COLUMN, get_text_zone_type(Symbol('column')))
+        self.assertIs(TEXT_ZONE_REGION, get_text_zone_type(Symbol('region')))
+        self.assertIs(TEXT_ZONE_PARAGRAPH, get_text_zone_type(Symbol('para')))
+        self.assertIs(TEXT_ZONE_LINE, get_text_zone_type(Symbol('line')))
+        self.assertIs(TEXT_ZONE_WORD, get_text_zone_type(Symbol('word')))
+        self.assertIs(TEXT_ZONE_CHARACTER, get_text_zone_type(Symbol('char')))
 
     def test_comparison1(self):
-        assert_not_equal(TEXT_ZONE_PAGE, '')
-        assert_not_equal(TEXT_ZONE_PAGE, 42)
-        with assert_raises_str(TypeError, 'cannot compare text zone type with other object'):
+        self.assertNotEqual(TEXT_ZONE_PAGE, '')
+        self.assertNotEqual(TEXT_ZONE_PAGE, 42)
+        with self.assertRaisesRegex(TypeError, 'cannot compare text zone type with other object'):
             TEXT_ZONE_PAGE < 42
-        with assert_raises_str(TypeError, 'cannot compare text zone type with other object'):
+        with self.assertRaisesRegex(TypeError, 'cannot compare text zone type with other object'):
             TEXT_ZONE_PAGE <= 42
-        with assert_raises_str(TypeError, 'cannot compare text zone type with other object'):
+        with self.assertRaisesRegex(TypeError, 'cannot compare text zone type with other object'):
             TEXT_ZONE_PAGE > 42
-        with assert_raises_str(TypeError, 'cannot compare text zone type with other object'):
+        with self.assertRaisesRegex(TypeError, 'cannot compare text zone type with other object'):
             TEXT_ZONE_PAGE >= 42
 
     def test_comparison2(self):
-        assert_equal(self.zones, sorted(self.zones, reverse=True))
-        assert_equal(
+        self.assertEqual(self.zones, sorted(self.zones, reverse=True))
+        self.assertEqual(
             [[cmp(z1, z2) for z1 in self.zones] for z2 in self.zones], [
                 [0, -1, -1, -1, -1, -1, -1],
                 [+1, 0, -1, -1, -1, -1, -1],
@@ -104,8 +95,9 @@ class test_text_zones():
         )
 
 def test_wildcard_import():
-    ns = wildcard_import('djvu.const')
-    assert_list_equal(
+    ns = {}
+    exec("from djvu.const import *", {}, ns)
+    self.assertEqual(
         sorted(ns.keys()), [
             'ANNOTATION_ALIGN',
             'ANNOTATION_BACKGROUND',

@@ -22,16 +22,7 @@ import os
 import re
 import sys
 
-from nose import SkipTest
-
-import nose.tools
-
-from nose.tools import (
-    assert_true,
-    assert_false,
-    assert_equal,
-    assert_not_equal,
-)
+from unittest import SkipTest
 
 def get_changelog_version():
     here = os.path.dirname(__file__)
@@ -39,108 +30,6 @@ def get_changelog_version():
     with io.open(path, encoding='UTF-8') as file:
         line = file.readline()
     return line.split()[1].strip('()')
-
-def noseimport(vmaj, vmin, name=None):
-    def wrapper(f):
-        if f.__module__ == 'unittest.case':
-            return f
-        if sys.version_info >= (vmaj, vmin):
-            return getattr(nose.tools, name or f.__name__)
-        return f
-    return wrapper
-
-@noseimport(2, 7)
-def assert_in(x, y):
-    assert_true(
-        x in y,
-        msg='{0!r} not found in {1!r}'.format(x, y)
-    )
-
-@noseimport(2, 7)
-def assert_is(x, y):
-    assert_true(
-        x is y,
-        msg='{0!r} is not {1!r}'.format(x, y)
-    )
-
-@noseimport(2, 7)
-def assert_is_instance(obj, cls):
-    assert_true(
-        isinstance(obj, cls),
-        msg='{0!r} is not an instance of {1!r}'.format(obj, cls)
-    )
-
-@noseimport(2, 7)
-def assert_less(x, y):
-    assert_true(
-        x < y,
-        msg='{0!r} not less than {1!r}'.format(x, y)
-    )
-
-@noseimport(2, 7)
-def assert_list_equal(x, y):
-    assert_is_instance(x, list)
-    assert_is_instance(y, list)
-    return assert_equal(x, y)
-
-@noseimport(2, 7)
-def assert_multi_line_equal(x, y):
-    return assert_equal(x, y)
-if sys.version_info >= (2, 7):
-    type(assert_multi_line_equal.__self__).maxDiff = None
-
-@noseimport(2, 7)
-def assert_not_in(x, y):
-    assert_true(
-        x not in y,
-        msg='{0!r} unexpectedly found in {1!r}'.format(x, y)
-    )
-
-@noseimport(2, 7)
-class assert_raises(object):
-    def __init__(self, exc_type):
-        self._exc_type = exc_type
-        self.exception = None
-    def __enter__(self):
-        return self
-    def __exit__(self, exc_type, exc_value, tb):
-        if exc_type is None:
-            assert_true(False, '{0} not raised'.format(self._exc_type.__name__))
-        if not issubclass(exc_type, self._exc_type):
-            return False
-        if isinstance(exc_value, exc_type):
-            pass
-            # This branch is not always taken in Python 2.6:
-            # https://bugs.python.org/issue7853
-        elif isinstance(exc_value, tuple):
-            exc_value = exc_type(*exc_value)
-        else:
-            exc_value = exc_type(exc_value)
-        self.exception = exc_value
-        return True
-
-@noseimport(2, 7, 'assert_raises_regexp')
-@noseimport(3, 2)
-@contextlib.contextmanager
-def assert_raises_regex(exc_type, regex):
-    with assert_raises(exc_type) as ecm:
-        yield
-    assert_regex(str(ecm.exception), regex)
-
-@noseimport(2, 7, 'assert_regexp_matches')
-@noseimport(3, 2)
-def assert_regex(text, regex):
-    if isinstance(regex, (bytes, str, unicode)):
-        regex = re.compile(regex)
-    if not regex.search(text):
-        message = "Regex didn't match: {0!r} not found in {1!r}".format(regex.pattern, text)
-        assert_true(False, msg=message)
-
-@contextlib.contextmanager
-def assert_raises_str(exc_type, s):
-    with assert_raises(exc_type) as ecm:
-        yield
-    assert_equal(str(ecm.exception), s)
 
 try:
     locale.LC_MESSAGES
@@ -247,32 +136,13 @@ def wildcard_import(mod):
 
 __all__ = [
     # Python 2/3 compat:
-    'StringIO',
     'b',
     'cmp',
     'long',
     'py3k',
     'u',
     'unicode',
-    # nose
-    'SkipTest',
-    'assert_equal',
-    'assert_false',
-    'assert_in',
-    'assert_is',
-    'assert_is_instance',
-    'assert_less',
-    'assert_list_equal',
-    'assert_multi_line_equal',
-    'assert_not_equal',
-    'assert_not_in',
-    'assert_raises',
-    'assert_raises_regex',
-    'assert_regex',
-    'assert_true',
     # misc
-    'assert_raises_str',
-    'assert_repr',
     'get_changelog_version',
     'interim',
     'interim_locale',
@@ -280,7 +150,6 @@ __all__ = [
     'skip_unless_c_messages',
     'skip_unless_command_exists',
     'skip_unless_translation_exists',
-    'wildcard_import',
 ]
 
 # vim:ts=4 sts=4 sw=4 et

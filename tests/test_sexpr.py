@@ -21,11 +21,14 @@ import os
 import shutil
 import sys
 import tempfile
+import unittest
 
 if sys.version_info >= (3, 3):
     import collections.abc as collections_abc
 else:
     import collections as collections_abc
+
+from io import StringIO
 
 import pickle
 try:
@@ -42,23 +45,8 @@ from djvu.sexpr import (
 )
 
 from tools import (
-    SkipTest,
-    assert_equal,
-    assert_false,
-    assert_in,
-    assert_is,
-    assert_is_instance,
-    assert_less,
-    assert_list_equal,
-    assert_not_equal,
-    assert_not_in,
-    assert_raises,
-    assert_raises_str,
-    assert_repr,
     get_changelog_version,
-    wildcard_import,
     # Python 2/3 compat:
-    StringIO,
     b,
     long,
     py3k,
@@ -66,65 +54,66 @@ from tools import (
     unicode,
 )
 
-def assert_pickle_equal(obj):
-    for pickle_module in pickle, cpickle:
-        if pickle_module is None:
-            continue
-        for protocol in range(pickle.HIGHEST_PROTOCOL + 1):
-            pickled_obj = pickle_module.dumps(obj, protocol=protocol)
-            repickled_obj = pickle_module.loads(pickled_obj)
-            assert_equal(obj, repickled_obj)
 
-class test_int_expressions():
+class TestBase(unittest.TestCase):
+    def assert_pickle_equal(self, obj):
+        for pickle_module in pickle, cpickle:
+            if pickle_module is None:
+                continue
+            for protocol in range(pickle.HIGHEST_PROTOCOL + 1):
+                pickled_obj = pickle_module.dumps(obj, protocol=protocol)
+                repickled_obj = pickle_module.loads(pickled_obj)
+                self.assertEqual(obj, repickled_obj)
 
+class test_int_expressions(TestBase):
     def t(self, n, x=None):
         if x is None:
             x = Expression(n)
-        assert_is(x, Expression(x))
+        self.assertIs(x, Expression(x))
         # __repr__():
-        assert_repr(x, 'Expression({n})'.format(n=int(n)))
+        self.assertEqual(repr(x), 'Expression({n})'.format(n=int(n)))
         # value:
         v = x.value
-        assert_equal(type(v), int)
-        assert_equal(v, n)
+        self.assertEqual(type(v), int)
+        self.assertEqual(v, n)
         # lvalue:
         v = x.lvalue
-        assert_equal(type(v), int)
-        assert_equal(v, n)
+        self.assertEqual(type(v), int)
+        self.assertEqual(v, n)
         # __int__():
         i = int(x)
-        assert_equal(type(i), int)
-        assert_equal(i, n)
+        self.assertEqual(type(i), int)
+        self.assertEqual(i, n)
         # __long__():
         i = long(x)
-        assert_equal(type(i), long)
-        assert_equal(i, n)
+        self.assertEqual(type(i), long)
+        self.assertEqual(i, n)
         # __float__():
         i = float(x)
-        assert_equal(type(i), float)
-        assert_equal(i, n)
+        self.assertEqual(type(i), float)
+        self.assertEqual(i, n)
         # __str__():
         s = str(x)
-        assert_equal(s, str(n))
+        self.assertEqual(s, str(n))
         # __unicode__():
         s = unicode(x)
-        assert_equal(s, str(n))
+        self.assertEqual(s, str(n))
         # __eq__(), __ne__():
-        assert_equal(x, Expression(n))
-        assert_not_equal(x, n)
-        assert_not_equal(x, Expression(n + 37))
+        self.assertEqual(x, Expression(n))
+        self.assertNotEqual(x, n)
+        self.assertNotEqual(x, Expression(n + 37))
         # __hash__():
-        assert_equal(hash(x), n)
+        self.assertEqual(hash(x), n)
         # __bool__() / __nonzero__():
         obj = object()
         if n:
-            assert_is(x and obj, obj)
-            assert_is(x or obj, x)
+            self.assertIs(x and obj, obj)
+            self.assertIs(x or obj, x)
         else:
-            assert_is(x and obj, x)
-            assert_is(x or obj, obj)
+            self.assertIs(x and obj, x)
+            self.assertIs(x or obj, obj)
         # pickle:
-        assert_pickle_equal(x)
+        self.assert_pickle_equal(x)
 
     def test_int(self):
         self.t(42)
@@ -145,24 +134,28 @@ class test_int_expressions():
         self.t(long(42))
 
     def test_limits(self):
-        assert_equal(Expression((1 << 29) - 1).value, (1 << 29) - 1)
-        assert_equal(Expression(-1 << 29).value, -1 << 29)
-        with assert_raises_str(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
-            Expression(1 << 29)
-        with assert_raises_str(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
-            Expression((-1 << 29) - 1)
+        self.assertEqual(Expression((1 << 29) - 1).value, (1 << 29) - 1)
+        self.assertEqual(Expression(-1 << 29).value, -1 << 29)
+        with self.assertRaisesRegex(
+            ValueError,
+            r'value not in range\(-2 \*\* 29, 2 \*\* 29\)'):
+                Expression(1 << 29)
+        with self.assertRaisesRegex(
+            ValueError,
+            r'value not in range\(-2 \*\* 29, 2 \*\* 29\)'):
+                Expression((-1 << 29) - 1)
 
-class test_float_expressions():
+class test_float_expressions(TestBase):
 
     # TODO: float expressions are not implemented yet
 
     def test_parse(self):
-        with assert_raises(ExpressionSyntaxError):
+        with self.assertRaises(ExpressionSyntaxError):
             x = Expression.from_string('3.14')
             if isinstance(x.value, Symbol):
                 raise ExpressionSyntaxError
 
-class test_symbols():
+class test_symbols(TestBase):
 
     def t(self, name, sname=None):
         if sname is None:
@@ -172,15 +165,15 @@ class test_symbols():
         else:
             [uname, bname] = [sname.decode('UTF-8'), sname]
         symbol = Symbol(name)
-        assert_equal(type(symbol), Symbol)
-        assert_equal(symbol, Symbol(name))
-        assert_is(symbol, Symbol(name))
-        assert_equal(str(symbol), sname)
-        assert_equal(unicode(symbol), uname)
-        assert_not_equal(symbol, bname)
-        assert_not_equal(symbol, uname)
-        assert_equal(hash(symbol), hash(bname))
-        assert_pickle_equal(symbol)
+        self.assertEqual(type(symbol), Symbol)
+        self.assertEqual(symbol, Symbol(name))
+        self.assertIs(symbol, Symbol(name))
+        self.assertEqual(str(symbol), sname)
+        self.assertEqual(unicode(symbol), uname)
+        self.assertNotEqual(symbol, bname)
+        self.assertNotEqual(symbol, uname)
+        self.assertEqual(hash(symbol), hash(bname))
+        self.assert_pickle_equal(symbol)
         return symbol
 
     def test_ascii(self):
@@ -192,12 +185,12 @@ class test_symbols():
         assert x is y
 
     def test_inequality(self):
-        assert_less(
+        self.assertLess(
             Symbol('eggs'),
             Symbol('ham'),
         )
 
-class test_symbol_expressions():
+class test_symbol_expressions(TestBase):
 
     def t(self, name, sname):
         if sname is None:
@@ -208,34 +201,34 @@ class test_symbol_expressions():
             [uname, bname] = [sname.decode('UTF-8'), sname]
         sym = Symbol(name)
         x = Expression(sym)
-        assert_is(x, Expression(x))
+        self.assertIs(x, Expression(x))
         # __repr__(x)
-        assert_repr(x, 'Expression({sym!r})'.format(sym=sym))
+        self.assertEqual(repr(x), 'Expression({sym!r})'.format(sym=sym))
         # value:
         v = x.value
-        assert_equal(type(v), Symbol)
-        assert_equal(v, sym)
+        self.assertEqual(type(v), Symbol)
+        self.assertEqual(v, sym)
         # lvalue:
         v = x.lvalue
-        assert_equal(type(v), Symbol)
-        assert_equal(v, sym)
+        self.assertEqual(type(v), Symbol)
+        self.assertEqual(v, sym)
         # __str__():
-        assert_equal(str(x), sname)
-        assert_repr(x, repr(Expression.from_string(sname)))
+        self.assertEqual(str(x), sname)
+        self.assertEqual(repr(x), repr(Expression.from_string(sname)))
         # __unicode__():
-        assert_equal(unicode(x), uname)
-        assert_repr(x, repr(Expression.from_string(uname)))
+        self.assertEqual(unicode(x), uname)
+        self.assertEqual(repr(x), repr(Expression.from_string(uname)))
         # __eq__(), __ne__():
-        assert_equal(x, Expression(sym))
-        assert_not_equal(x, Expression(name))
-        assert_not_equal(x, sym)
+        self.assertEqual(x, Expression(sym))
+        self.assertNotEqual(x, Expression(name))
+        self.assertNotEqual(x, sym)
         # __hash__():
-        assert_equal(
+        self.assertEqual(
             hash(x),
             hash(bname.strip(b'|'))
         )
         # pickle:
-        assert_pickle_equal(x)
+        self.assert_pickle_equal(x)
         return x
 
     def test_ascii(self):
@@ -244,97 +237,97 @@ class test_symbol_expressions():
     def test_nonascii(self):
         x = self.t(b('ветчина'), '|ветчина|')
         y = self.t(u('ветчина'), '|ветчина|')
-        assert_equal(x, y)
-        assert_equal(hash(x), hash(y))
+        self.assertEqual(x, y)
+        self.assertEqual(hash(x), hash(y))
 
 def test_string_expressions():
     x = Expression('eggs')
-    assert_repr(x, "Expression('eggs')")
-    assert_is(x, Expression(x))
-    assert_equal(x.value, 'eggs')
-    assert_equal(x.lvalue, 'eggs')
-    assert_equal(str(x), '"eggs"')
-    assert_repr(x, repr(Expression.from_string(str(x))))
-    assert_equal(x, Expression('eggs'))
-    assert_not_equal(x, Expression(Symbol('eggs')))
-    assert_not_equal(x, 'eggs')
-    assert_equal(hash(x), hash('eggs'))
-    assert_pickle_equal(x)
+    self.assertEqual(repr(x), "Expression('eggs')")
+    self.assertIs(x, Expression(x))
+    self.assertEqual(x.value, 'eggs')
+    self.assertEqual(x.lvalue, 'eggs')
+    self.assertEqual(str(x), '"eggs"')
+    self.assertEqual(repr(x), repr(Expression.from_string(str(x))))
+    self.assertEqual(x, Expression('eggs'))
+    self.assertNotEqual(x, Expression(Symbol('eggs')))
+    self.assertNotEqual(x, 'eggs')
+    self.assertEqual(hash(x), hash('eggs'))
+    self.assert_pickle_equal(x)
 
-class test_unicode_expressions():
+class test_unicode_expressions(TestBase):
 
     def test1(self):
         x = Expression(u('eggs'))
-        assert_repr(x, "Expression('eggs')")
-        assert_is(x, Expression(x))
+        self.assertEqual(repr(x), "Expression('eggs')")
+        self.assertIs(x, Expression(x))
 
     def test2(self):
         x = Expression(u('żółw'))
         if py3k:
-            assert_repr(x, "Expression('żółw')")
+            self.assertEqual(repr(x), "Expression('żółw')")
         else:
-            assert_repr(x, r"Expression('\xc5\xbc\xc3\xb3\xc5\x82w')")
+            self.assertEqual(repr(x), r"Expression('\xc5\xbc\xc3\xb3\xc5\x82w')")
 
-class test_list_expressions():
+class test_list_expressions(TestBase):
 
     def test1(self):
         x = Expression(())
-        assert_repr(x, "Expression([])")
+        self.assertEqual(repr(x), "Expression([])")
         y = Expression(x)
-        assert_is(x, y)
-        assert_equal(x.value, ())
-        assert_equal(x.lvalue, [])
-        assert_equal(len(x), 0)
-        assert_equal(bool(x), False)
-        assert_equal(list(x), [])
+        self.assertIs(x, y)
+        self.assertEqual(x.value, ())
+        self.assertEqual(x.lvalue, [])
+        self.assertEqual(len(x), 0)
+        self.assertEqual(bool(x), False)
+        self.assertEqual(list(x), [])
 
     def test2(self):
         x = Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
-        assert_repr(x, "Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])")
+        self.assertEqual(repr(x), "Expression([[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])")
         y = Expression(x)
-        assert_repr(y, repr(x))
-        assert_false(x is y)
-        assert_equal(x.value, ((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
-        assert_equal(x.lvalue, [[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
-        assert_equal(str(x), '((1 2) 3 (4 5 baz) ("quux"))')
-        assert_repr(x, repr(Expression.from_string(str(x))))
-        assert_equal(len(x), 4)
-        assert_equal(bool(x), True)
-        assert_equal(tuple(x), (Expression((1, 2)), Expression(3), Expression((4, 5, Symbol('baz'))), Expression(('quux',))))
-        with assert_raises_str(TypeError, 'key must be an integer or a slice'):
+        self.assertEqual(repr(y), repr(x))
+        self.assertIsNot(x, y)
+        self.assertEqual(x.value, ((1, 2), 3, (4, 5, Symbol('baz')), ('quux',)))
+        self.assertEqual(x.lvalue, [[1, 2], 3, [4, 5, Symbol('baz')], ['quux']])
+        self.assertEqual(str(x), '((1 2) 3 (4 5 baz) ("quux"))')
+        self.assertEqual(repr(x), repr(Expression.from_string(str(x))))
+        self.assertEqual(len(x), 4)
+        self.assertEqual(bool(x), True)
+        self.assertEqual(tuple(x), (Expression((1, 2)), Expression(3), Expression((4, 5, Symbol('baz'))), Expression(('quux',))))
+        with self.assertRaisesRegex(TypeError, 'key must be an integer or a slice'):
             x[object()]
-        assert_equal(x[1], Expression(3))
-        assert_equal(x[-1][0], Expression('quux'))
-        with assert_raises_str(IndexError, 'list index of out range'):
+        self.assertEqual(x[1], Expression(3))
+        self.assertEqual(x[-1][0], Expression('quux'))
+        with self.assertRaisesRegex(IndexError, 'list index of out range'):
             x[6]
-        with assert_raises_str(IndexError, 'list index of out range'):
+        with self.assertRaisesRegex(IndexError, 'list index of out range'):
             x[-6]
-        assert_equal(x[:].value, x.value)
-        assert_equal(x[:].lvalue, x.lvalue)
-        assert_repr(x[1:], "Expression([3, [4, 5, Symbol('baz')], ['quux']])")
-        assert_repr(x[-2:], "Expression([[4, 5, Symbol('baz')], ['quux']])")
+        self.assertEqual(x[:].value, x.value)
+        self.assertEqual(x[:].lvalue, x.lvalue)
+        self.assertEqual(repr(x[1:]), "Expression([3, [4, 5, Symbol('baz')], ['quux']])")
+        self.assertEqual(repr(x[-2:]), "Expression([[4, 5, Symbol('baz')], ['quux']])")
         x[-2:] = 4, 5, 6
-        assert_repr(x, 'Expression([[1, 2], 3, 4, 5, 6])')
+        self.assertEqual(repr(x), 'Expression([[1, 2], 3, 4, 5, 6])')
         x[0] = 2
-        assert_repr(x, 'Expression([2, 3, 4, 5, 6])')
+        self.assertEqual(repr(x), 'Expression([2, 3, 4, 5, 6])')
         x[:] = (1, 3, 5)
-        assert_repr(x, 'Expression([1, 3, 5])')
+        self.assertEqual(repr(x), 'Expression([1, 3, 5])')
         x[3:] = 7,
-        assert_repr(x, 'Expression([1, 3, 5, 7])')
-        with assert_raises_str(NotImplementedError, 'only [n:] slices are supported'):
+        self.assertEqual(repr(x), 'Expression([1, 3, 5, 7])')
+        with self.assertRaisesRegex(NotImplementedError, r'only \[n:\] slices are supported'):
             x[object():]
-        with assert_raises_str(NotImplementedError, 'only [n:] slices are supported'):
+        with self.assertRaisesRegex(NotImplementedError, r'only \[n:\] slices are supported'):
             x[:2]
-        with assert_raises_str(NotImplementedError, 'only [n:] slices are supported'):
+        with self.assertRaisesRegex(NotImplementedError, r'only \[n:\] slices are supported'):
             x[object():] = []
-        with assert_raises_str(NotImplementedError, 'only [n:] slices are supported'):
+        with self.assertRaisesRegex(NotImplementedError, r'only \[n:\] slices are supported'):
             x[:2] = []
-        with assert_raises_str(TypeError, 'can only assign a list expression'):
+        with self.assertRaisesRegex(TypeError, 'can only assign a list expression'):
             x[:] = 0
-        assert_equal(x, Expression((1, 3, 5, 7)))
-        assert_not_equal(x, Expression((2, 4, 6)))
-        assert_not_equal(x, (1, 3, 5, 7))
-        with assert_raises_str(TypeError, "unhashable type: 'ListExpression'"):
+        self.assertEqual(x, Expression((1, 3, 5, 7)))
+        self.assertNotEqual(x, Expression((2, 4, 6)))
+        self.assertNotEqual(x, (1, 3, 5, 7))
+        with self.assertRaisesRegex(TypeError, "unhashable type: 'ListExpression'"):
             hash(x)
 
     def test_insert(self):
@@ -342,16 +335,16 @@ class test_list_expressions():
         expr = Expression(())
         for pos in [-8, 4, 6, -5, -7, 5, 7, 2, -3, 8, 10, -2, 1, -9, -10, -4, -6, 0, 9, 3, -1]:
             lst.insert(pos, pos)
-            assert_is(expr.insert(pos, pos), None)
-            assert_equal(expr, Expression(lst))
-            assert_equal(expr.lvalue, lst)
+            self.assertIs(expr.insert(pos, pos), None)
+            self.assertEqual(expr, Expression(lst))
+            self.assertEqual(expr.lvalue, lst)
 
     def test_append(self):
         expr = Expression(())
         for i in range(10):
-            assert_is(expr.append(i), None)
-            assert_equal(expr, Expression(range(i + 1)))
-            assert_equal(expr.lvalue, list(range(i + 1)))
+            self.assertIs(expr.append(i), None)
+            self.assertEqual(expr, Expression(range(i + 1)))
+            self.assertEqual(expr.lvalue, list(range(i + 1)))
 
     def test_extend(self):
         lst = []
@@ -359,9 +352,9 @@ class test_list_expressions():
         for ext in [1], [], [2, 3]:
             lst.extend(ext)
             expr.extend(ext)
-            assert_equal(expr, Expression(lst))
-            assert_equal(expr.lvalue, lst)
-        with assert_raises_str(TypeError, "'int' object is not iterable"):
+            self.assertEqual(expr, Expression(lst))
+            self.assertEqual(expr.lvalue, lst)
+        with self.assertRaisesRegex(TypeError, r"'int' object is not iterable"):
             expr.extend(0)
 
     def test_inplace_add(self):
@@ -370,96 +363,96 @@ class test_list_expressions():
         for ext in [], [1], [], [2, 3]:
             lst += ext
             expr += ext
-            assert_equal(expr, Expression(lst))
-            assert_equal(expr.lvalue, lst)
-        assert_is(expr, expr0)
-        with assert_raises_str(TypeError, "'int' object is not iterable"):
+            self.assertEqual(expr, Expression(lst))
+            self.assertEqual(expr.lvalue, lst)
+        self.assertIs(expr, expr0)
+        with self.assertRaisesRegex(TypeError, r"'int' object is not iterable"):
             expr += 0
 
     def test_pop(self):
         expr = Expression([0, 1, 2, 3, 4, 5, 6])
-        assert_equal(expr.pop(0), Expression(0))
-        assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
-        with assert_raises_str(IndexError, 'pop index of out range'):
+        self.assertEqual(expr.pop(0), Expression(0))
+        self.assertEqual(expr, Expression([1, 2, 3, 4, 5, 6]))
+        with self.assertRaisesRegex(IndexError, 'pop index of out range'):
             expr.pop(6)
-        assert_equal(expr.pop(5), Expression(6))
-        assert_equal(expr, Expression([1, 2, 3, 4, 5]))
-        assert_equal(expr.pop(-1), Expression(5))
-        assert_equal(expr, Expression([1, 2, 3, 4]))
-        assert_equal(expr.pop(-2), Expression(3))
-        assert_equal(expr, Expression([1, 2, 4]))
-        assert_equal(expr.pop(1), Expression(2))
-        assert_equal(expr, Expression([1, 4]))
+        self.assertEqual(expr.pop(5), Expression(6))
+        self.assertEqual(expr, Expression([1, 2, 3, 4, 5]))
+        self.assertEqual(expr.pop(-1), Expression(5))
+        self.assertEqual(expr, Expression([1, 2, 3, 4]))
+        self.assertEqual(expr.pop(-2), Expression(3))
+        self.assertEqual(expr, Expression([1, 2, 4]))
+        self.assertEqual(expr.pop(1), Expression(2))
+        self.assertEqual(expr, Expression([1, 4]))
         expr.pop()
         expr.pop()
-        with assert_raises_str(IndexError, 'pop from empty list'):
+        with self.assertRaisesRegex(IndexError, 'pop from empty list'):
             expr.pop()
         for i in range(-2, 3):
-            with assert_raises_str(IndexError, 'pop from empty list'):
+            with self.assertRaisesRegex(IndexError, 'pop from empty list'):
                 expr.pop(i)
 
     def test_delitem(self):
         expr = Expression([0, 1, 2, 3, 4, 5, 6])
         del expr[0]
-        assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
-        with assert_raises_str(IndexError, 'pop index of out range'):
+        self.assertEqual(expr, Expression([1, 2, 3, 4, 5, 6]))
+        with self.assertRaisesRegex(IndexError, 'pop index of out range'):
             expr.pop(6)
         del expr[5]
-        assert_equal(expr, Expression([1, 2, 3, 4, 5]))
+        self.assertEqual(expr, Expression([1, 2, 3, 4, 5]))
         del expr[-1]
-        assert_equal(expr, Expression([1, 2, 3, 4]))
+        self.assertEqual(expr, Expression([1, 2, 3, 4]))
         del expr[-2]
-        assert_equal(expr, Expression([1, 2, 4]))
+        self.assertEqual(expr, Expression([1, 2, 4]))
         del expr[1]
-        assert_equal(expr, Expression([1, 4]))
+        self.assertEqual(expr, Expression([1, 4]))
         del expr[1:]
-        assert_equal(expr, Expression([1]))
+        self.assertEqual(expr, Expression([1]))
         del expr[:]
-        assert_equal(expr, Expression([]))
+        self.assertEqual(expr, Expression([]))
         for i in range(-2, 3):
-            with assert_raises_str(IndexError, 'pop from empty list'):
+            with self.assertRaisesRegex(IndexError, 'pop from empty list'):
                 del expr[i]
 
     def test_remove(self):
         expr = Expression([0, 1, 2, 3, 4, 5, 6])
         expr.remove(Expression(0))
-        assert_equal(expr, Expression([1, 2, 3, 4, 5, 6]))
-        with assert_raises_str(IndexError, 'item not in list'):
+        self.assertEqual(expr, Expression([1, 2, 3, 4, 5, 6]))
+        with self.assertRaisesRegex(IndexError, 'item not in list'):
             expr.remove(Expression(0))
         expr.remove(Expression(6))
-        assert_equal(expr, Expression([1, 2, 3, 4, 5]))
+        self.assertEqual(expr, Expression([1, 2, 3, 4, 5]))
         expr.remove(Expression(5))
-        assert_equal(expr, Expression([1, 2, 3, 4]))
+        self.assertEqual(expr, Expression([1, 2, 3, 4]))
         expr.remove(Expression(3))
-        assert_equal(expr, Expression([1, 2, 4]))
+        self.assertEqual(expr, Expression([1, 2, 4]))
         expr.remove(Expression(2))
-        assert_equal(expr, Expression([1, 4]))
+        self.assertEqual(expr, Expression([1, 4]))
         expr.remove(Expression(4))
         expr.remove(Expression(1))
-        with assert_raises_str(IndexError, 'item not in list'):
+        with self.assertRaisesRegex(IndexError, 'item not in list'):
             expr.remove(Expression(-1))
 
     def test_contains(self):
         expr = Expression(())
-        assert_not_in(Expression(42), expr)
+        self.assertNotIn(Expression(42), expr)
         lst = (1, 2, 3)
         expr = Expression(lst)
         for x in lst:
-            assert_not_in(x, expr)
-            assert_in(Expression(x), expr)
-        assert_not_in(Expression(max(lst) + 1), expr)
+            self.assertNotIn(x, expr)
+            self.assertIn(Expression(x), expr)
+        self.assertNotIn(Expression(max(lst) + 1), expr)
 
     def test_index(self):
         expr = Expression(())
-        with assert_raises_str(ValueError, 'value not in list'):
+        with self.assertRaisesRegex(ValueError, 'value not in list'):
             expr.index(Expression(42))
         lst = [1, 2, 3]
         expr = Expression(lst)
         for x in lst:
             i = lst.index(x)
             j = expr.index(Expression(x))
-            assert_equal(i, j)
-        with assert_raises_str(ValueError, 'value not in list'):
+            self.assertEqual(i, j)
+        with self.assertRaisesRegex(ValueError, 'value not in list'):
             expr.index(Expression(max(lst) + 1))
 
     def test_count(self):
@@ -468,25 +461,25 @@ class test_list_expressions():
         for x in lst + [max(lst) + 1]:
             i = lst.count(x)
             j = expr.count(Expression(x))
-            assert_equal(i, j)
+            self.assertEqual(i, j)
 
     def test_reverse(self):
         for lst in (), (1, 2, 3):
             expr = Expression(lst)
-            assert_equal(
+            self.assertEqual(
                 Expression(reversed(expr)),
                 Expression(reversed(lst))
             )
-            assert_equal(
+            self.assertEqual(
                 Expression(reversed(expr)).value,
                 tuple(reversed(lst))
             )
-            assert_is(expr.reverse(), None)
-            assert_equal(
+            self.assertIs(expr.reverse(), None)
+            self.assertEqual(
                 expr,
                 Expression(reversed(lst))
             )
-            assert_equal(
+            self.assertEqual(
                 expr.value,
                 tuple(reversed(lst))
             )
@@ -495,67 +488,67 @@ class test_list_expressions():
         x = Expression([1, [2], 3])
         y = Expression(x)
         x[1][0] = 0
-        assert_repr(x, 'Expression([1, [0], 3])')
-        assert_repr(y, 'Expression([1, [0], 3])')
+        self.assertEqual(repr(x), 'Expression([1, [0], 3])')
+        self.assertEqual(repr(y), 'Expression([1, [0], 3])')
         x[1] = 0
-        assert_repr(x, 'Expression([1, 0, 3])')
-        assert_repr(y, 'Expression([1, [0], 3])')
+        self.assertEqual(repr(x), 'Expression([1, 0, 3])')
+        self.assertEqual(repr(y), 'Expression([1, [0], 3])')
 
     def test_copy2(self):
         x = Expression([1, [2], 3])
         y = copy.copy(x)
         x[1][0] = 0
-        assert_repr(x, 'Expression([1, [0], 3])')
-        assert_repr(y, 'Expression([1, [0], 3])')
+        self.assertEqual(repr(x), 'Expression([1, [0], 3])')
+        self.assertEqual(repr(y), 'Expression([1, [0], 3])')
         x[1] = 0
-        assert_repr(x, 'Expression([1, 0, 3])')
-        assert_repr(y, 'Expression([1, [0], 3])')
+        self.assertEqual(repr(x), 'Expression([1, 0, 3])')
+        self.assertEqual(repr(y), 'Expression([1, [0], 3])')
 
     def test_copy3(self):
         x = Expression([1, [2], 3])
         y = copy.deepcopy(x)
         x[1][0] = 0
-        assert_repr(x, 'Expression([1, [0], 3])')
-        assert_repr(y, 'Expression([1, [2], 3])')
+        self.assertEqual(repr(x), 'Expression([1, [0], 3])')
+        self.assertEqual(repr(y), 'Expression([1, [2], 3])')
         x[1] = 0
-        assert_repr(x, 'Expression([1, 0, 3])')
-        assert_repr(y, 'Expression([1, [2], 3])')
+        self.assertEqual(repr(x), 'Expression([1, 0, 3])')
+        self.assertEqual(repr(y), 'Expression([1, [2], 3])')
 
     def test_abc(self):
         x = Expression(())
-        assert_is_instance(x, collections_abc.MutableSequence)
-        assert_is_instance(iter(x), collections_abc.Iterator)
+        self.assertIsInstance(x, collections_abc.MutableSequence)
+        self.assertIsInstance(iter(x), collections_abc.Iterator)
 
     def test_pickle(self):
         for lst in (), (1, 2, 3), (1, (2, 3)):
             x = Expression(lst)
-            assert_pickle_equal(x)
+            self.assert_pickle_equal(x)
 
-class test_expression_parser():
+class test_expression_parser(TestBase):
 
     def test_badstring(self):
-        with assert_raises(ExpressionSyntaxError):
+        with self.assertRaises(ExpressionSyntaxError):
             Expression.from_string('(1')
 
     def test_attr_from_file(self):
-        assert_is(getattr(Expression, 'from_file', None), None)
+        self.assertIs(getattr(Expression, 'from_file', None), None)
 
     def test_bad_io(self):
-        with assert_raises_str(AttributeError, "'int' object has no attribute 'read'"):
+        with self.assertRaisesRegex(AttributeError, "'int' object has no attribute 'read'"):
             Expression.from_stream(42)
 
     def test_bad_file_io(self):
         if os.name == 'nt':
-            raise SkipTest('not implemented on Windows')
+            raise unittest.SkipTest('not implemented on Windows')
         path = '/proc/self/mem'
         try:
             os.stat(path)
         except OSError as exc:
-            raise SkipTest('{exc.filename}: {exc.strerror}'.format(exc=exc))
+            raise unittest.SkipTest('{exc.filename}: {exc.strerror}'.format(exc=exc))
         with open('/proc/self/mem') as fp:
-            with assert_raises(IOError) as ecm:
+            with self.assertRaises(IOError) as ecm:
                 Expression.from_stream(fp)
-        assert_in(
+        self.assertIn(
             ecm.exception.errno,
             (errno.EIO, errno.EFAULT)
         )
@@ -563,10 +556,10 @@ class test_expression_parser():
     if py3k:
         def test_bad_unicode_io(self):
             fp = StringIO(chr(0xD800))
-            with assert_raises(UnicodeEncodeError):
+            with self.assertRaises(UnicodeEncodeError):
                 Expression.from_stream(fp)
 
-class test_expression_parser_ascii():
+class test_expression_parser_ascii(TestBase):
 
     expr = '(eggs) (ham)'
     repr = ["Expression([Symbol('eggs')])", "Expression([Symbol('ham')])"]
@@ -575,10 +568,10 @@ class test_expression_parser_ascii():
         def read():
             return Expression.from_stream(fp)
         x = read()
-        assert_repr(x, self.repr[0])
+        self.assertEqual(repr(x), self.repr[0])
         x = read()
-        assert_repr(x, self.repr[1])
-        with assert_raises(ExpressionSyntaxError):
+        self.assertEqual(repr(x), self.repr[1])
+        with self.assertRaises(ExpressionSyntaxError):
             x = read()
 
     def test_stringio(self):
@@ -625,11 +618,11 @@ class test_expression_parser_nonascii(test_expression_parser_ascii):
     if not py3k:
         repr = [s.decode('ISO-8859-1').encode('ASCII', 'backslashreplace') for s in repr]
 
-class test_expression_writer():
+class test_expression_writer(TestBase):
 
     def test_bad_io(self):
         expr = Expression(23)
-        with assert_raises_str(AttributeError, "'int' object has no attribute 'write'"):
+        with self.assertRaisesRegex(AttributeError, "'int' object has no attribute 'write'"):
             expr.print_into(42)
 
     def test_bad_file_io(self):
@@ -638,11 +631,11 @@ class test_expression_writer():
         try:
             os.stat(path)
         except OSError as exc:
-            raise SkipTest('{exc.filename}: {exc.strerror}'.format(exc=exc))
+            raise unittest.SkipTest('{exc.filename}: {exc.strerror}'.format(exc=exc))
         fp = open(path, 'w', buffering=2)
         expr = Expression(23)
         try:
-            with assert_raises(IOError) as ecm:
+            with self.assertRaises(IOError) as ecm:
                 for i in range(10000):
                     expr.print_into(fp)
         finally:
@@ -651,11 +644,11 @@ class test_expression_writer():
             except IOError:
                 if ecm is None:
                     raise
-        assert_equal(ecm.exception.errno, errno.ENOSPC)
+        self.assertEqual(ecm.exception.errno, errno.ENOSPC)
 
     def test_reentrant(self):
         if not _ExpressionIO._reentrant:
-            raise SkipTest('this test requires DjVuLibre >= 3.5.26')
+            raise unittest.SkipTest('this test requires DjVuLibre >= 3.5.26')
         class File(object):
             def write(self, s):
                 expr.as_string()
@@ -670,7 +663,7 @@ class test_expression_writer():
             expr.print_into(fp, escape_unicode=v)
             expr.as_string(escape_unicode=v)
 
-class test_expression_writer_ascii():
+class test_expression_writer_ascii(TestBase):
 
     expr = Expression([Symbol('eggs'), Symbol('ham')])
     repr = urepr = '(eggs ham)'
@@ -678,28 +671,28 @@ class test_expression_writer_ascii():
     def test_stringio_7(self):
         fp = StringIO()
         self.expr.print_into(fp)
-        assert_equal(fp.getvalue(), self.repr)
+        self.assertEqual(fp.getvalue(), self.repr)
 
     def test_stringio_8(self):
         fp = StringIO()
         self.expr.print_into(fp, escape_unicode=False)
-        assert_equal(fp.getvalue(), self.urepr)
+        self.assertEqual(fp.getvalue(), self.urepr)
 
     def test_bytesio_7(self):
         fp = io.BytesIO()
         self.expr.print_into(fp)
-        assert_equal(fp.getvalue(), b(self.repr))
+        self.assertEqual(fp.getvalue(), b(self.repr))
 
     def test_bytesio_8(self):
         fp = io.BytesIO()
         self.expr.print_into(fp, escape_unicode=False)
-        assert_equal(fp.getvalue(), b(self.urepr))
+        self.assertEqual(fp.getvalue(), b(self.urepr))
 
     def test_file_io_text_7(self):
         with tempfile.TemporaryFile(mode='w+t') as fp:
             self.expr.print_into(fp)
             fp.seek(0)
-            assert_equal(fp.read(), self.repr)
+            self.assertEqual(fp.read(), self.repr)
 
     def test_file_io_text_8(self):
         if py3k:
@@ -709,7 +702,7 @@ class test_expression_writer_ascii():
         with fp:
             self.expr.print_into(fp, escape_unicode=False)
             fp.seek(0)
-            assert_equal(fp.read(), self.urepr)
+            self.assertEqual(fp.read(), self.urepr)
 
     def test_codecs_io_text_7(self):
         tmpdir = tempfile.mkdtemp()
@@ -718,7 +711,7 @@ class test_expression_writer_ascii():
             with codecs.open(path, mode='w+', encoding='UTF-16-LE') as fp:
                 self.expr.print_into(fp)
                 fp.seek(0)
-                assert_equal(fp.read(), self.repr)
+                self.assertEqual(fp.read(), self.repr)
         finally:
             shutil.rmtree(tmpdir)
 
@@ -729,7 +722,7 @@ class test_expression_writer_ascii():
             with codecs.open(path, mode='w+', encoding='UTF-16-LE') as fp:
                 self.expr.print_into(fp, escape_unicode=False)
                 fp.seek(0)
-                assert_equal(fp.read(), u(self.urepr))
+                self.assertEqual(fp.read(), u(self.urepr))
         finally:
             shutil.rmtree(tmpdir)
 
@@ -737,45 +730,48 @@ class test_expression_writer_ascii():
         with tempfile.TemporaryFile(mode='w+b') as fp:
             self.expr.print_into(fp)
             fp.seek(0)
-            assert_equal(fp.read(), b(self.repr))
+            self.assertEqual(fp.read(), b(self.repr))
 
     def test_file_io_binary_8(self):
         with tempfile.TemporaryFile(mode='w+b') as fp:
             self.expr.print_into(fp, escape_unicode=False)
             fp.seek(0)
-            assert_equal(fp.read(), b(self.urepr))
+            self.assertEqual(fp.read(), b(self.urepr))
 
     def test_as_string_7(self):
         s = self.expr.as_string()
-        assert_equal(s, self.repr)
+        self.assertEqual(s, self.repr)
 
     def test_as_string_8(self):
         s = self.expr.as_string(escape_unicode=False)
-        assert_equal(s, self.urepr)
+        self.assertEqual(s, self.urepr)
 
 class test_expression_writer_nonascii(test_expression_writer_ascii):
+    def test_expression_nonascii(self):
+        expr = Expression(u('żółw'))
+        repr = r'"\305\274\303\263\305\202w"'
+        urepr = r'"żółw"'
 
-    expr = Expression(u('żółw'))
-    repr = r'"\305\274\303\263\305\202w"'
-    urepr = r'"żółw"'
+class TestGeneralSettings(TestBase):
 
-def test_version():
-    assert_is_instance(__version__, str)
-    assert_equal(__version__, get_changelog_version())
+    def test_version(self):
+        self.assertIsInstance(__version__, str)
+        self.assertEqual(__version__, get_changelog_version())
 
-def test_wildcard_import():
-    ns = wildcard_import('djvu.sexpr')
-    assert_list_equal(
-        sorted(ns.keys()), [
-            'Expression',
-            'ExpressionSyntaxError',
-            'IntExpression',
-            'InvalidExpression',
-            'ListExpression',
-            'StringExpression',
-            'Symbol',
-            'SymbolExpression'
-        ]
-    )
+    def test_wildcard_import(self):
+            ns = {}
+            exec('from djvu.sexpr import *', {}, ns)
+            self.assertEqual(
+                sorted(ns.keys()), [
+                    'Expression',
+                    'ExpressionSyntaxError',
+                    'IntExpression',
+                    'InvalidExpression',
+                    'ListExpression',
+                    'StringExpression',
+                    'Symbol',
+                    'SymbolExpression'
+                ]
+            )
 
 # vim:ts=4 sts=4 sw=4 et
