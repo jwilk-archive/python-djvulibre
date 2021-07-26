@@ -21,7 +21,6 @@ python-dev
 cython
 '
 pkgs_tests='
-python-nose
 python-subprocess32
 djvulibre-bin
 ghostscript
