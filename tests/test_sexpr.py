@@ -42,6 +42,8 @@ from djvu.sexpr import (
 )
 
 from tools import (
+    TestCase,
+    testcase,
     SkipTest,
     assert_equal,
     assert_false,
@@ -75,7 +77,7 @@ def assert_pickle_equal(obj):
             repickled_obj = pickle_module.loads(pickled_obj)
             assert_equal(obj, repickled_obj)
 
-class test_int_expressions():
+class test_int_expressions(TestCase):
 
     def t(self, n, x=None):
         if x is None:
@@ -152,7 +154,7 @@ class test_int_expressions():
         with assert_raises_str(ValueError, 'value not in range(-2 ** 29, 2 ** 29)'):
             Expression((-1 << 29) - 1)
 
-class test_float_expressions():
+class test_float_expressions(TestCase):
 
     # TODO: float expressions are not implemented yet
 
@@ -162,7 +164,7 @@ class test_float_expressions():
             if isinstance(x.value, Symbol):
                 raise ExpressionSyntaxError
 
-class test_symbols():
+class test_symbols(TestCase):
 
     def t(self, name, sname=None):
         if sname is None:
@@ -197,7 +199,7 @@ class test_symbols():
             Symbol('ham'),
         )
 
-class test_symbol_expressions():
+class test_symbol_expressions(TestCase):
 
     def t(self, name, sname):
         if sname is None:
@@ -247,6 +249,7 @@ class test_symbol_expressions():
         assert_equal(x, y)
         assert_equal(hash(x), hash(y))
 
+@testcase
 def test_string_expressions():
     x = Expression('eggs')
     assert_repr(x, "Expression('eggs')")
@@ -261,7 +264,7 @@ def test_string_expressions():
     assert_equal(hash(x), hash('eggs'))
     assert_pickle_equal(x)
 
-class test_unicode_expressions():
+class test_unicode_expressions(TestCase):
 
     def test1(self):
         x = Expression(u('eggs'))
@@ -275,7 +278,7 @@ class test_unicode_expressions():
         else:
             assert_repr(x, r"Expression('\xc5\xbc\xc3\xb3\xc5\x82w')")
 
-class test_list_expressions():
+class test_list_expressions(TestCase):
 
     def test1(self):
         x = Expression(())
@@ -531,7 +534,7 @@ class test_list_expressions():
             x = Expression(lst)
             assert_pickle_equal(x)
 
-class test_expression_parser():
+class test_expression_parser(TestCase):
 
     def test_badstring(self):
         with assert_raises(ExpressionSyntaxError):
@@ -566,7 +569,7 @@ class test_expression_parser():
             with assert_raises(UnicodeEncodeError):
                 Expression.from_stream(fp)
 
-class test_expression_parser_ascii():
+class test_expression_parser_ascii(TestCase):
 
     expr = '(eggs) (ham)'
     repr = ["Expression([Symbol('eggs')])", "Expression([Symbol('ham')])"]
@@ -625,7 +628,7 @@ class test_expression_parser_nonascii(test_expression_parser_ascii):
     if not py3k:
         repr = [s.decode('ISO-8859-1').encode('ASCII', 'backslashreplace') for s in repr]
 
-class test_expression_writer():
+class test_expression_writer(TestCase):
 
     def test_bad_io(self):
         expr = Expression(23)
@@ -670,7 +673,7 @@ class test_expression_writer():
             expr.print_into(fp, escape_unicode=v)
             expr.as_string(escape_unicode=v)
 
-class test_expression_writer_ascii():
+class test_expression_writer_ascii(TestCase):
 
     expr = Expression([Symbol('eggs'), Symbol('ham')])
     repr = urepr = '(eggs ham)'
@@ -759,10 +762,12 @@ class test_expression_writer_nonascii(test_expression_writer_ascii):
     repr = r'"\305\274\303\263\305\202w"'
     urepr = r'"żółw"'
 
+@testcase
 def test_version():
     assert_is_instance(__version__, str)
     assert_equal(__version__, get_changelog_version())
 
+@testcase
 def test_wildcard_import():
     ns = wildcard_import('djvu.sexpr')
     assert_list_equal(
@@ -777,5 +782,7 @@ def test_wildcard_import():
             'SymbolExpression'
         ]
     )
+
+del testcase
 
 # vim:ts=4 sts=4 sw=4 et

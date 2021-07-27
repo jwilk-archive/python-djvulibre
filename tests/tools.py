@@ -19,19 +19,12 @@ import distutils.spawn
 import io
 import locale
 import os
-import re
 import sys
+import unittest
 
-from nose import SkipTest
+py3k = sys.version_info >= (3, 0)
 
-import nose.tools
-
-from nose.tools import (
-    assert_true,
-    assert_false,
-    assert_equal,
-    assert_not_equal,
-)
+SkipTest = unittest.SkipTest
 
 def get_changelog_version():
     here = os.path.dirname(__file__)
@@ -40,101 +33,36 @@ def get_changelog_version():
         line = file.readline()
     return line.split()[1].strip('()')
 
-def noseimport(vmaj, vmin, name=None):
-    def wrapper(f):
-        if f.__module__ == 'unittest.case':
-            return f
-        if sys.version_info >= (vmaj, vmin):
-            return getattr(nose.tools, name or f.__name__)
-        return f
-    return wrapper
+tc = unittest.TestCase('__hash__')
 
-@noseimport(2, 7)
-def assert_in(x, y):
-    assert_true(
-        x in y,
-        msg='{0!r} not found in {1!r}'.format(x, y)
-    )
+assert_true = tc.assertTrue
 
-@noseimport(2, 7)
-def assert_is(x, y):
-    assert_true(
-        x is y,
-        msg='{0!r} is not {1!r}'.format(x, y)
-    )
+assert_false = tc.assertFalse
 
-@noseimport(2, 7)
-def assert_is_instance(obj, cls):
-    assert_true(
-        isinstance(obj, cls),
-        msg='{0!r} is not an instance of {1!r}'.format(obj, cls)
-    )
+assert_equal = tc.assertEqual
 
-@noseimport(2, 7)
-def assert_less(x, y):
-    assert_true(
-        x < y,
-        msg='{0!r} not less than {1!r}'.format(x, y)
-    )
+assert_not_equal = tc.assertNotEqual
 
-@noseimport(2, 7)
-def assert_list_equal(x, y):
-    assert_is_instance(x, list)
-    assert_is_instance(y, list)
-    return assert_equal(x, y)
+assert_in = tc.assertIn
 
-@noseimport(2, 7)
-def assert_multi_line_equal(x, y):
-    return assert_equal(x, y)
-if sys.version_info >= (2, 7):
-    type(assert_multi_line_equal.__self__).maxDiff = None
+assert_is = tc.assertIs
 
-@noseimport(2, 7)
-def assert_not_in(x, y):
-    assert_true(
-        x not in y,
-        msg='{0!r} unexpectedly found in {1!r}'.format(x, y)
-    )
+assert_is_instance = tc.assertIsInstance
 
-@noseimport(2, 7)
-class assert_raises(object):
-    def __init__(self, exc_type):
-        self._exc_type = exc_type
-        self.exception = None
-    def __enter__(self):
-        return self
-    def __exit__(self, exc_type, exc_value, tb):
-        if exc_type is None:
-            assert_true(False, '{0} not raised'.format(self._exc_type.__name__))
-        if not issubclass(exc_type, self._exc_type):
-            return False
-        if isinstance(exc_value, exc_type):
-            pass
-            # This branch is not always taken in Python 2.6:
-            # https://bugs.python.org/issue7853
-        elif isinstance(exc_value, tuple):
-            exc_value = exc_type(*exc_value)
-        else:
-            exc_value = exc_type(exc_value)
-        self.exception = exc_value
-        return True
+assert_less = tc.assertLess
 
-@noseimport(2, 7, 'assert_raises_regexp')
-@noseimport(3, 2)
-@contextlib.contextmanager
-def assert_raises_regex(exc_type, regex):
-    with assert_raises(exc_type) as ecm:
-        yield
-    assert_regex(str(ecm.exception), regex)
+assert_list_equal = tc.assertListEqual
 
-@noseimport(2, 7, 'assert_regexp_matches')
-@noseimport(3, 2)
-def assert_regex(text, regex):
-    if isinstance(regex, (bytes, str, unicode)):
-        regex = re.compile(regex)
-    if not regex.search(text):
-        message = "Regex didn't match: {0!r} not found in {1!r}".format(regex.pattern, text)
-        assert_true(False, msg=message)
+assert_multi_line_equal = tc.assertMultiLineEqual
+assert_multi_line_equal.__self__.maxDiff = None
+
+assert_not_in = tc.assertNotIn
+
+assert_raises = tc.assertRaises
+
+assert_raises_regex = tc.assertRaisesRegex if py3k else tc.assertRaisesRegexp
+
+assert_regex = tc.assertRegex if py3k else tc.assertRegexpMatches
 
 @contextlib.contextmanager
 def assert_raises_str(exc_type, s):
@@ -151,8 +79,6 @@ except AttributeError:
 locale_encoding = locale.getpreferredencoding()
 if codecs.lookup(locale_encoding) == codecs.lookup('US-ASCII'):
     locale_encoding = 'UTF-8'
-
-py3k = sys.version_info >= (3, 0)
 
 if py3k:
     u = str
@@ -240,6 +166,21 @@ def skip_unless_command_exists(command):
         return
     raise SkipTest('command not found: ' + command)
 
+class TestCase(unittest.TestCase):
+    def __str__(self):
+        return '{cls}.{name}'.format(
+            cls=unittest.util.strclass(self.__class__),
+            name=self._testMethodName,
+        )
+
+def testcase(f):
+    class TestCase(unittest.TestCase):
+        def test(self):
+            return f()
+        def __str__(self):
+            return '{f.__module__}.{f.__name__}'.format(f=f)
+    return TestCase
+
 def wildcard_import(mod):
     ns = {}
     exec('from {mod} import *'.format(mod=mod), {}, ns)
@@ -254,8 +195,11 @@ __all__ = [
     'py3k',
     'u',
     'unicode',
-    # nose
+    # unittest(-like)
     'SkipTest',
+    'TestCase',
+    'testcase',
+    # nose-compatible
     'assert_equal',
     'assert_false',
     'assert_in',

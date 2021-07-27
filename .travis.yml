@@ -69,11 +69,10 @@ install:
 - $if_pycodestyle pip install pycodestyle
 - pip install pydiatra
 - pip install $pyflakes
-- if [[ $TRAVIS_PYTHON_VERSION = 3.10-* ]]; then pip install --upgrade --no-deps --force-reinstall --no-binary ':all:' nose; fi
 script:
 - dpkg-parsechangelog -ldoc/changelog --all 2>&1 >/dev/null | { ! grep .; }
 - PYTHONWARNINGS=error::FutureWarning python setup.py build_ext --inplace
-- LC_ALL=C nosetests --verbose
+- LC_ALL=C python -m unittest discover tests/ -v
 - $if_sphinx env PYTHONPATH=$PWD sphinx-build -b doctest doc/api/ tmp
 - $if_sphinx private/check-rst
 - $if_pycodestyle python -m pycodestyle .

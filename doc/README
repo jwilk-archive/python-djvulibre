@@ -21,7 +21,6 @@ The following software is required to build python-djvulibre:
 
 Additionally, the following software is needed to run the tests:
 
-* nose_
 * subprocess32_ (only for Python 2.X)
 * DjVuLibre_ command-line tools
 * Ghostscript_

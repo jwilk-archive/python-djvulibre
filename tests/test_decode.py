@@ -86,6 +86,8 @@ from djvu.sexpr import (
 )
 
 from tools import (
+    TestCase,
+    testcase,
     assert_equal,
     assert_false,
     assert_is,
@@ -160,6 +162,7 @@ def create_djvu(commands='', sexpr=''):
     assert_equal(stderr, ''.encode(locale_encoding))
     return file
 
+@testcase
 def test_context_cache():
     context = Context()
     assert_equal(context.cache_size, 10 << 20)
@@ -175,7 +178,7 @@ def test_context_cache():
         n = (n + 1) * 2 - 1
     context.clear_cache()
 
-class test_documents:
+class test_documents(TestCase):
 
     def test_bad_new(self):
         with assert_raises_str(TypeError, "cannot create 'djvu.decode.Document' instances"):
@@ -441,7 +444,7 @@ class test_documents:
             expected = '1 Lorem ipsum'
             assert_multi_line_equal(stdout, expected)
 
-class test_pixel_formats():
+class test_pixel_formats(TestCase):
 
     def test_bad_new(self):
         with assert_raises_str(TypeError, "cannot create 'djvu.decode.PixelFormat' instances"):
@@ -490,7 +493,7 @@ class test_pixel_formats():
         assert_repr(pf, "djvu.decode.PixelFormatPackedBits('>')")
         assert_equal(pf.bpp, 1)
 
-class test_page_jobs():
+class test_page_jobs(TestCase):
 
     def test_bad_new(self):
         with assert_raises_str(TypeError, "cannot create 'djvu.decode.PageJob' instances"):
@@ -563,7 +566,7 @@ class test_page_jobs():
             s = bytes(buffer)
             assert_equal(s, b'\xFF\xFF\xFF\x00' * 4)
 
-class test_thumbnails:
+class test_thumbnails(TestCase):
 
     def test(self):
         context = Context()
@@ -591,6 +594,7 @@ class test_thumbnails:
         s = array_tobytes(buffer[:15])
         assert_equal(s, b'\xFF\xEB\xA7\xF2\xFF\xFF\xBF\x86\xBE\xFF\xFF\xE7\xD6\xE7\xFF')
 
+@testcase
 def test_jobs():
 
     with assert_raises_str(TypeError, "cannot create 'djvu.decode.Job' instances"):
@@ -599,7 +603,7 @@ def test_jobs():
     with assert_raises_str(TypeError, "cannot create 'djvu.decode.DocumentDecodingJob' instances"):
         DocumentDecodingJob()
 
-class test_affine_transforms():
+class test_affine_transforms(TestCase):
 
     def test_bad_args(self):
         with assert_raises_str(ValueError, 'need more than 2 values to unpack'):
@@ -625,13 +629,13 @@ class test_affine_transforms():
         assert_equal(af.inverse(af((234, 567))), (234, 567))
         assert_equal(af.inverse(af((23, 45, 67, 78))), (23, 45, 67, 78))
 
-class test_messages():
+class test_messages(TestCase):
 
     def test_bad_new(self):
         with assert_raises_str(TypeError, "cannot create 'djvu.decode.Message' instances"):
             Message()
 
-class test_streams:
+class test_streams(TestCase):
 
     def test_bad_new(self):
         with assert_raises_str(TypeError, "Argument 'document' has incorrect type (expected djvu.decode.Document, got NoneType)"):
@@ -679,6 +683,7 @@ class test_streams:
         x = anno.sexpr
         assert_equal(x, Expression([]))
 
+@testcase
 def test_metadata():
 
     model_metadata = {
@@ -722,7 +727,7 @@ def test_metadata():
     finally:
         test_file.close()
 
-class test_sexpr:
+class test_sexpr(TestCase):
 
     def test(self):
         context = Context()
@@ -870,11 +875,13 @@ class test_sexpr:
         with assert_raises_str(ValueError, 'details must be equal to TEXT_DETAILS_PAGE, or TEXT_DETAILS_COLUMN, or TEXT_DETAILS_REGION, or TEXT_DETAILS_PARAGRAPH, or TEXT_DETAILS_LINE, or TEXT_DETAILS_WORD, or TEXT_DETAILS_CHARACTER or TEXT_DETAILS_ALL'):
             PageText(page, Symbol('eggs'))
 
+@testcase
 def test_version():
     assert_is_instance(__version__, str)
     assert_equal(__version__, get_changelog_version())
     assert_is_instance(DDJVU_VERSION, int)
 
+@testcase
 def test_wildcard_import():
     ns = wildcard_import('djvu.decode')
     assert_list_equal(
@@ -966,5 +973,7 @@ def test_wildcard_import():
             'cmp_text_zone'
         ]
     )
+
+del testcase
 
 # vim:ts=4 sts=4 sw=4 et

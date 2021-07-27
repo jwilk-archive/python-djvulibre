@@ -30,6 +30,8 @@ from djvu.sexpr import (
 )
 
 from tools import (
+    TestCase,
+    testcase,
     assert_equal,
     assert_is,
     assert_is_instance,
@@ -42,7 +44,7 @@ from tools import (
     cmp,
 )
 
-class test_text_zones():
+class test_text_zones(TestCase):
 
     zones = [
         TEXT_ZONE_PAGE,
@@ -103,6 +105,7 @@ class test_text_zones():
             ]
         )
 
+@testcase
 def test_wildcard_import():
     ns = wildcard_import('djvu.const')
     assert_list_equal(
@@ -170,5 +173,7 @@ def test_wildcard_import():
             'get_text_zone_type'
         ]
     )
+
+del testcase
 
 # vim:ts=4 sts=4 sw=4 et
