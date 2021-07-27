@@ -62,8 +62,6 @@ assert_raises = tc.assertRaises
 
 assert_raises_regex = tc.assertRaisesRegex if py3k else tc.assertRaisesRegexp
 
-assert_regex = tc.assertRegex if py3k else tc.assertRegexpMatches
-
 @contextlib.contextmanager
 def assert_raises_str(exc_type, s):
     with assert_raises(exc_type) as ecm:
@@ -212,7 +210,6 @@ __all__ = [
     'assert_not_in',
     'assert_raises',
     'assert_raises_regex',
-    'assert_regex',
     'assert_true',
     # misc
     'assert_raises_str',
