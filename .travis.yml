@@ -2,9 +2,6 @@ dist: xenial
 language: python
 jobs:
   include:
-  - python: "2.6"
-    env: DJVULIBRE=3.5.21 CYTHON=0.19.1
-    dist: trusty
   - python: "2.7"
     env: DJVULIBRE=3.5.21 CYTHON=0.19.1
     dist: trusty
