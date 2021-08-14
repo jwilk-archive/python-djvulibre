@@ -31,8 +31,6 @@ Additionally, the following software is needed to run the tests:
    https://cython.org/
 .. _pkg-config:
    https://wiki.freedesktop.org/www/Software/pkg-config/
-.. _nose:
-   https://nose.readthedocs.io/
 .. _subprocess32:
    https://pypi.org/project/subprocess32/
 .. _Ghostscript:
