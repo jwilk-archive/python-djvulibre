@@ -42,11 +42,11 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: ${{runner.os}}-pip
+          key: pip-${{matrix.os}}-python${{matrix.python-version}}-cython${{matrix.cython-version}}-djvulibre${{matrix.djvulibre-version}}
       - uses: actions/cache@v2
         with:
           path: ~/.ccache
-          key: ${{runner.os}}-ccache
+          key: ccache-${{matrix.os}}-python${{matrix.python-version}}-cython${{matrix.cython-version}}-djvulibre${{matrix.djvulibre-version}}
       - name: Set up Python ${{matrix.python-version}}
         uses: actions/setup-python@v2
         with:
