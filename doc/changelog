@@ -1,10 +1,10 @@
-python-djvulibre (0.8.7) UNRELEASED; urgency=low
+python-djvulibre (0.8.7) unstable; urgency=low
 
   * Fix compatibility with Sphinx 4.0.
     https://github.com/jwilk/python-djvulibre/issues/15
   * Stop using nose for the test suite.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Thu, 12 Aug 2021 22:46:06 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Sat, 14 Aug 2021 21:35:30 +0200
 
 python-djvulibre (0.8.6) unstable; urgency=low
 
