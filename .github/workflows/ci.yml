@@ -51,6 +51,8 @@ jobs:
       with:
         python-version: ${{matrix.python-version}}
     - run: |
+        sudo apt-get update
+    - run: |
         sudo apt-get install ccache language-pack-ja ghostscript
     - name: add /usr/lib/ccache to $PATH
       run: |
