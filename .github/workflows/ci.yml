@@ -43,13 +43,16 @@ jobs:
       with:
         path: ~/.cache/pip
         key: pip-${{matrix.os}}-python${{matrix.python-version}}-cython${{matrix.cython-version}}-djvulibre${{matrix.djvulibre-version}}
-        restore-keys:
-        - pip-${{matrix.os}}-python${{matrix.python-version}}-
-        - pip-${{matrix.os}}-
-    - uses: actions/cache@v2
+        restore-keys: |
+          pip-${{matrix.os}}-python${{matrix.python-version}}-
+          pip-${{matrix.os}}-
+    - name: set up ccache
+      uses: actions/cache@v2
       with:
         path: ~/.ccache
-        key: ccache-${{matrix.os}}-python${{matrix.python-version}}-cython${{matrix.cython-version}}-djvulibre${{matrix.djvulibre-version}}
+        key: ccache-${{matrix.os}}-djvulibre${{matrix.djvulibre-version}}-python${{matrix.python-version}}-cython${{matrix.cython-version}}
+        restore-keys: |
+          ccache-${{matrix.os}}-djvulibre${{matrix.djvulibre-version}}-
     - name: Set up Python ${{matrix.python-version}}
       uses: actions/setup-python@v2
       with:
