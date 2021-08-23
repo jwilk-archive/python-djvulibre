@@ -38,10 +38,14 @@ jobs:
           djvulibre-version: '3.5.27'
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/cache@v2
+    - name: set up pip cache
+      uses: actions/cache@v2
       with:
         path: ~/.cache/pip
         key: pip-${{matrix.os}}-python${{matrix.python-version}}-cython${{matrix.cython-version}}-djvulibre${{matrix.djvulibre-version}}
+        restore-keys:
+        - pip-${{matrix.os}}-python${{matrix.python-version}}-
+        - pip-${{matrix.os}}-
     - uses: actions/cache@v2
       with:
         path: ~/.ccache
@@ -69,6 +73,8 @@ jobs:
         echo CPATH=~/.local/include/ >> $GITHUB_ENV
         echo PKG_CONFIG_PATH=~/.local/lib/pkgconfig/ >> $GITHUB_ENV
         echo LD_LIBRARY_PATH=~/.local/lib/ >> $GITHUB_ENV
+    - run: |
+        pip install wheel
     - name: install Cython
       run: |
         cyver=${{matrix.cython-version}}
