@@ -66,7 +66,6 @@ jobs:
         echo "/usr/lib/ccache:$PATH" >> $GITHUB_PATH
     - name: install DjVuLibre
       run: |
-        echo $PATH
         wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${{matrix.djvulibre-version}}/djvulibre-${{matrix.djvulibre-version}}.tar.gz
         tar -xvvf djvulibre-*.tar.gz
         (cd djvulibre-*/ && ./configure --disable-desktopfiles --prefix ~/.local CXXFLAGS="-fpermissive -include cstddef" || cat config.log /fail)
