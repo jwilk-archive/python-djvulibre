@@ -34,7 +34,7 @@ jobs:
           os: ubuntu-18.04
           djvulibre-version: '3.5.27'
         - python-version: '3.10-dev'
-          os: ubuntu-latest
+          os: ubuntu-20.04
           djvulibre-version: '3.5.27'
     steps:
     - uses: actions/checkout@v2
