@@ -99,7 +99,7 @@ jobs:
       env:
         cython: ${{matrix.cython || 'cython'}}
       run: |
-        pip install --build ~/build-cython "${cython/-/==}"
+        pip install "${cython/-/==}"
     - name: install subprocess32
       if: env.python-version == '2.7'
       run: |
