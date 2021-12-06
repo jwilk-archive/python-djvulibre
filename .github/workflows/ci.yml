@@ -144,6 +144,9 @@ jobs:
       run: |
         cd /
         python -c 'import djvu.sexpr, djvu.decode'
+  PyPI:
+    runs-on: ubuntu-latest
+    steps:
     - name: check for namesquatting
       run: |
         set +e
