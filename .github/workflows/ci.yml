@@ -71,13 +71,15 @@ jobs:
       env:
         djvulibre: ${{matrix.djvulibre}}
         python: ${{matrix.python}}
-    - name: Set up Python ${{env.python-version}}
+    - name: set up Python ${{env.python-version}}
       uses: actions/setup-python@v2
       with:
         python-version: ${{env.python-version}}
-    - run: |
+    - name: APT update
+      run: |
         sudo apt-get update
-    - run: |
+    - name: APT install depds
+      run: |
         sudo apt-get install ccache language-pack-ja ghostscript
     - name: add /usr/lib/ccache to $PATH
       run: |
@@ -93,7 +95,8 @@ jobs:
         echo CPATH=~/.local/include/ >> $GITHUB_ENV
         echo PKG_CONFIG_PATH=~/.local/lib/pkgconfig/ >> $GITHUB_ENV
         echo LD_LIBRARY_PATH=~/.local/lib/ >> $GITHUB_ENV
-    - run: |
+    - name: install wheel
+      run: |
         pip install wheel
     - name: install Cython
       env:
@@ -108,9 +111,11 @@ jobs:
       if: matrix.sphinx
       run: |
         pip install sphinx
-    - run: |
+    - name: install pycodestyle
+      run: |
         pip install pycodestyle
-    - run: |
+    - name: install pydiatra
+      run: |
         pip install pydiatra
     - name: install pyflakes
       run: |
@@ -134,11 +139,14 @@ jobs:
       if: matrix.sphinx
       run: |
         private/check-rst
-    - run: |
+    - name: run pycodestyle
+      run: |
         python -m pycodestyle .
-    - run: |
+    - name: run pydiatra
+      run: |
         python -m pydiatra .
-    - run: |
+    - name: run pyflakes
+      run: |
         pyflakes .
     - name: build sdist
       run: |
