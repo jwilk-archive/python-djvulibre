@@ -1423,7 +1423,7 @@ def _Context_message_distributor(Context self not None, **kwargs):
                 job = message._job
                 job._condition.acquire()
                 try:
-                    job._condition.notifyAll()
+                    job._condition.notify_all()
                 finally:
                     job._condition.release()
                 if job.is_done:
