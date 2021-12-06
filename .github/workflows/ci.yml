@@ -9,54 +9,72 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        python-version:
-        - '2.7'
-        - '3.6'
-        - '3.7'
-        - '3.8'
-        - '3.9'
-        os: [ubuntu-20.04]
-        djvulibre-version: ['3.5.27']
-        use-sphinx: [true]
         include:
-        - python-version: '2.7'
+        - python: python-2.7
           os: ubuntu-18.04
-          djvulibre-version: '3.5.21'
-          cython-version: '0.19.1'
-        - python-version: '3.3'
-          os: ubuntu-18.04
-          djvulibre-version: '3.5.21'
-          cython-version: '0.20'
-        - python-version: '3.4'
-          os: ubuntu-18.04
-          djvulibre-version: '3.5.27'
-        - python-version: '3.5'
-          os: ubuntu-18.04
-          djvulibre-version: '3.5.27'
-        - python-version: '3.10-dev'
+          djvulibre: djvulibre-3.5.21
+          cython: cython-0.19.1
+        - python: python-2.7
           os: ubuntu-20.04
-          djvulibre-version: '3.5.27'
+          djvulibre: djvulibre-3.5.27
+          sphinx: sphinx
+        - python: python-3.3
+          os: ubuntu-18.04
+          djvulibre: djvulibre-3.5.21
+          cython: cython-0.20
+        - python: python-3.4
+          os: ubuntu-18.04
+          djvulibre: djvulibre-3.5.27
+        - python: python-3.5
+          os: ubuntu-18.04
+          djvulibre: djvulibre-3.5.27
+        - python: python-3.6
+          os: ubuntu-20.04
+          djvulibre: djvulibre-3.5.27
+          sphinx: sphinx
+        - python: python-3.7
+          os: ubuntu-20.04
+          djvulibre: djvulibre-3.5.27
+          sphinx: sphinx
+        - python: python-3.8
+          os: ubuntu-20.04
+          djvulibre: djvulibre-3.5.27
+          sphinx: sphinx
+        - python: python-3.9
+          os: ubuntu-20.04
+          djvulibre: djvulibre-3.5.27
+          sphinx: sphinx
+        - python: python-3.10-dev
+          os: ubuntu-20.04
+          djvulibre: djvulibre-3.5.27
     steps:
     - uses: actions/checkout@v2
     - name: set up pip cache
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: pip-${{matrix.os}}-python${{matrix.python-version}}-cython${{matrix.cython-version}}-djvulibre${{matrix.djvulibre-version}}
+        key: pip-${{matrix.os}}-{{matrix.python}}-${{matrix.cython}}-${{matrix.djvulibre}}
         restore-keys: |
-          pip-${{matrix.os}}-python${{matrix.python-version}}-
+          pip-${{matrix.os}}-${{matrix.python}}-
           pip-${{matrix.os}}-
     - name: set up ccache
       uses: actions/cache@v2
       with:
         path: ~/.ccache
-        key: ccache-${{matrix.os}}-djvulibre${{matrix.djvulibre-version}}-python${{matrix.python-version}}-cython${{matrix.cython-version}}
+        key: ccache-${{matrix.os}}-${{matrix.djvulibre}}-${{matrix.python}}-${{matrix.cython}}
         restore-keys: |
-          ccache-${{matrix.os}}-djvulibre${{matrix.djvulibre-version}}-
-    - name: Set up Python ${{matrix.python-version}}
+          ccache-${{matrix.os}}-${{matrix.djvulibre}}-
+    - name: extract version numbers
+      run: |
+        echo "djvulibre-version=${djvulibre#djvulibre-}" >> $GITHUB_ENV
+        echo "python-version=${python#python-}" >> $GITHUB_ENV
+      env:
+        djvulibre: ${{matrix.djvulibre}}
+        python: ${{matrix.python}}
+    - name: Set up Python ${{env.python-version}}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{matrix.python-version}}
+        python-version: ${{env.python-version}}
     - run: |
         sudo apt-get update
     - run: |
@@ -66,27 +84,30 @@ jobs:
         echo "/usr/lib/ccache:$PATH" >> $GITHUB_PATH
     - name: install DjVuLibre
       run: |
-        wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${{matrix.djvulibre-version}}/djvulibre-${{matrix.djvulibre-version}}.tar.gz
+        wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${{env.djvulibre-version}}/${{matrix.djvulibre}}.tar.gz
         tar -xvvf djvulibre-*.tar.gz
         (cd djvulibre-*/ && ./configure --disable-desktopfiles --prefix ~/.local CXXFLAGS="-fpermissive -include cstddef" || cat config.log /fail)
         make -C djvulibre-*/libdjvu/ install
         make -C djvulibre-*/tools/ install
-        if [[ ${{matrix.djvulibre-version}} != 3.5.21 ]]; then make -C djvulibre-*/ install; fi
+        if [[ ${{env.djvulibre-version}} != 3.5.21 ]]; then make -C djvulibre-*/ install; fi
         echo CPATH=~/.local/include/ >> $GITHUB_ENV
         echo PKG_CONFIG_PATH=~/.local/lib/pkgconfig/ >> $GITHUB_ENV
         echo LD_LIBRARY_PATH=~/.local/lib/ >> $GITHUB_ENV
     - run: |
         pip install wheel
     - name: install Cython
+      env:
+        cython: ${{matrix.cython || 'cython'}}
       run: |
-        cyver=${{matrix.cython-version}}
-        pip install --build ~/build-cython "cython${cyver:+==$cyver}"
-    - run: |
+        pip install --build ~/build-cython "${cython/-/==}"
+    - name: install subprocess32
+      if: env.python-version == '2.7'
+      run: |
         pip install subprocess32
-      if: ${{matrix.python-version == '2.7'}}
-    - run: |
+    - name: install Sphinx
+      if: matrix.sphinx
+      run: |
         pip install sphinx
-      if: ${{matrix.use-sphinx}}
     - run: |
         pip install pycodestyle
     - run: |
@@ -94,7 +115,7 @@ jobs:
     - name: install pyflakes
       run: |
         pyflakes=pyflakes
-        if [[ ${{matrix.python-version}} = 3.3 ]]; then pyflakes='pyflakes<2'; fi
+        if [[ ${{env.python-version}} = 3.3 ]]; then pyflakes='pyflakes<2'; fi
         pip install $pyflakes
     - name: check changelog syntax
       run: |
@@ -106,13 +127,13 @@ jobs:
       run: |
         LC_ALL=C python -m unittest discover tests/ -v
     - name: build the docs
+      if: matrix.sphinx
       run: |
         PYTHONPATH=$PWD sphinx-build -W -b doctest doc/api/ tmp
-      if: ${{matrix.use-sphinx}}
     - name: check reST syntax
+      if: matrix.sphinx
       run: |
         private/check-rst
-      if: ${{matrix.use-sphinx}}
     - run: |
         python -m pycodestyle .
     - run: |
