@@ -44,9 +44,10 @@ jobs:
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
           sphinx: sphinx
-        - python: python-3.10-dev
+        - python: python-3.10
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
+          sphinx: sphinx
     steps:
     - uses: actions/checkout@v2
     - name: set up pip cache
