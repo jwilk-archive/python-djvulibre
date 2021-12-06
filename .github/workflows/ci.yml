@@ -17,7 +17,6 @@ jobs:
         - python: python-2.7
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
-          sphinx: sphinx
         - python: python-3.3
           os: ubuntu-18.04
           djvulibre: djvulibre-3.5.21
@@ -31,23 +30,18 @@ jobs:
         - python: python-3.6
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
-          sphinx: sphinx
         - python: python-3.7
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
-          sphinx: sphinx
         - python: python-3.8
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
-          sphinx: sphinx
         - python: python-3.9
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
-          sphinx: sphinx
         - python: python-3.10
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
-          sphinx: sphinx
     steps:
     - uses: actions/checkout@v2
     - name: set up pip cache
@@ -118,10 +112,10 @@ jobs:
       run: |
         LC_ALL=C python -m unittest discover tests/ -v
     - name: build the docs
-      if: matrix.sphinx
       run: |
         pip install sphinx
         PYTHONPATH=$PWD sphinx-build -W -b doctest doc/api/ tmp
+      if: env.python-version != '3.3'
     - name: check reST syntax
       if: matrix.sphinx
       run: |
