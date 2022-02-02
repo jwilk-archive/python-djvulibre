@@ -5,67 +5,45 @@ on:
     - appveyor
   pull_request:
 jobs:
-  main:
-    runs-on: ${{matrix.os}}
+  windows:
+    runs-on: windows-2019
     strategy:
       matrix:
         include:
         - python: python-2.7
-          os: ubuntu-18.04
           djvulibre: djvulibre-3.5.21
-          cython: cython-0.19.1
-        - python: python-2.7
-          os: ubuntu-20.04
-          djvulibre: djvulibre-3.5.27
+          broken: broken
         - python: python-3.3
-          os: ubuntu-18.04
-          djvulibre: djvulibre-3.5.21
-          cython: cython-0.20
+          djvulibre: djvulibre-3.5.27
+          broken: broken
         - python: python-3.4
-          os: ubuntu-18.04
           djvulibre: djvulibre-3.5.27
+          broken: broken
         - python: python-3.5
-          os: ubuntu-18.04
-          djvulibre: djvulibre-3.5.27
+          djvulibre: djvulibre-3.5.28
         - python: python-3.6
-          os: ubuntu-20.04
-          djvulibre: djvulibre-3.5.27
+          djvulibre: djvulibre-3.5.28
         - python: python-3.7
-          os: ubuntu-20.04
-          djvulibre: djvulibre-3.5.27
+          djvulibre: djvulibre-3.5.28
         - python: python-3.8
-          os: ubuntu-20.04
-          djvulibre: djvulibre-3.5.27
+          djvulibre: djvulibre-3.5.28
+          broken: broken
         - python: python-3.9
-          os: ubuntu-20.04
-          djvulibre: djvulibre-3.5.27
+          djvulibre: djvulibre-3.5.28
+          broken: broken
         - python: python-3.10
-          os: ubuntu-20.04
-          djvulibre: djvulibre-3.5.27
-        - python: python-3.11-dev
-          os: ubuntu-20.04
-          djvulibre: djvulibre-3.5.27
+          djvulibre: djvulibre-3.5.28
+          broken: broken
+    continue-on-error: ${{(matrix.broken && true) || false}}
+    defaults:
+      run:
+        shell: bash
     steps:
     - uses: actions/checkout@v2
-    - name: set up pip cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: pip-${{matrix.os}}-{{matrix.python}}-${{matrix.cython}}-${{matrix.djvulibre}}
-        restore-keys: |
-          pip-${{matrix.os}}-${{matrix.python}}-
-          pip-${{matrix.os}}-
-    - name: set up ccache
-      uses: actions/cache@v2
-      with:
-        path: ~/.ccache
-        key: ccache-${{matrix.os}}-${{matrix.djvulibre}}-${{matrix.python}}-${{matrix.cython}}
-        restore-keys: |
-          ccache-${{matrix.os}}-${{matrix.djvulibre}}-
     - name: extract version numbers
       run: |
-        echo "djvulibre-version=${djvulibre#djvulibre-}" >> $GITHUB_ENV
         echo "python-version=${python#python-}" >> $GITHUB_ENV
+        echo "djvulibre-version=${djvulibre#djvulibre-}" >> $GITHUB_ENV
       env:
         djvulibre: ${{matrix.djvulibre}}
         python: ${{matrix.python}}
@@ -73,103 +51,45 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{env.python-version}}
-    - name: APT update
+        architecture: x86
+    - name: add MSYS2 to PATH
       run: |
-        sudo apt-get update
-    - name: APT install depds
+        echo 'C:\msys64\usr\bin\' >> $GITHUB_PATH
+    - name: download DjVuLibre
       run: |
-        sudo apt-get install ccache language-pack-ja ghostscript
-    - name: add /usr/lib/ccache to $PATH
-      run: |
-        echo "/usr/lib/ccache:$PATH" >> $GITHUB_PATH
+        mkdir -p download
+        case ${{env.djvulibre-version}} in
+          3.5.21) url='https://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.21%2B4.5/DjVuLibre%2BDjView-3.5.21%2B4.5-Setup.exe';;
+          3.5.27) url='https://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.27%2B4.10/DjVuLibre-3.5.27_DjView-4.10.4_Setup.exe';;
+          3.5.28) url='https://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.28%2B4.12/DjVuLibre-3.5.28_DjView-4.12_Setup.exe';;
+          *) exit 1;
+        esac
+        wget "$url" -O download/djvulibre-setup.exe
     - name: install DjVuLibre
+      shell: cmd
       run: |
-        wget https://downloads.sourceforge.net/project/djvu/DjVuLibre/${{env.djvulibre-version}}/${{matrix.djvulibre}}.tar.gz
-        tar -xvvf djvulibre-*.tar.gz
-        (cd djvulibre-*/ && ./configure --disable-desktopfiles --prefix ~/.local CXXFLAGS="-fpermissive -include cstddef" || cat config.log /fail)
-        make -C djvulibre-*/libdjvu/ install
-        make -C djvulibre-*/tools/ install
-        if [[ ${{env.djvulibre-version}} != 3.5.21 ]]; then make -C djvulibre-*/ install; fi
-        echo CPATH=~/.local/include/ >> $GITHUB_ENV
-        echo PKG_CONFIG_PATH=~/.local/lib/pkgconfig/ >> $GITHUB_ENV
-        echo LD_LIBRARY_PATH=~/.local/lib/ >> $GITHUB_ENV
-    - name: install wheel
+        START /WAIT download\djvulibre-setup /S
+      timeout-minutes: 1
+    - name: add DjVuLibre to PATH
       run: |
-        pip install wheel
+        echo 'C:\Program Files (x86)\DjVuLibre\' >> $GITHUB_PATH
     - name: install Cython
       env:
         cython: ${{matrix.cython || 'cython'}}
       run: |
         pip install "${cython/-/==}"
-    - name: install subprocess32
-      if: env.python-version == '2.7'
+    - name: install Visual C++ for Python 2.7
+      if: matrix.python == 'python-2.7'
       run: |
-        pip install subprocess32
-    - name: check changelog syntax
+        choco install vcpython27 -f -y
+    - name: install setuptools
       run: |
-        dpkg-parsechangelog -ldoc/changelog --all 2>&1 >/dev/null | { ! grep .; }
+        python -m pip install setuptools
     - name: build the extension in-place
       run: |
         PYTHONWARNINGS=error::FutureWarning python setup.py build_ext --inplace
     - name: run tests
       run: |
-        LC_ALL=C python -m unittest discover tests/ -v
-    - name: build the docs
-      run: |
-        pip install sphinx
-        PYTHONPATH=$PWD sphinx-build -W -b doctest doc/api/ tmp
-      if: env.python-version != '3.3'
-    - name: check reST syntax
-      if: matrix.sphinx
-      run: |
-        private/check-rst
-    - name: run pycodestyle
-      run: |
-        pip install pycodestyle
-        python -m pycodestyle .
-    - name: run pydiatra
-      run: |
-        pip install pydiatra
-        python -m pydiatra .
-    - name: run pyflakes
-      run: |
-        pyflakes=pyflakes
-        if [[ ${{env.python-version}} = 3.3 ]]; then pyflakes='pyflakes<2'; fi
-        pip install $pyflakes
-        pyflakes .
-    - name: build sdist
-      run: |
-        python setup.py sdist
-    - name: check sdist tarball
-      run: |
-        tar -tvf dist/*.tar.gz | { ! grep -F /djvu/config.pxi; }
-    - name: install via sdist
-      run: |
-        pip install dist/*.tar.gz
-    - name: check import
-      run: |
-        cd /
-        python -c 'import djvu.sexpr, djvu.decode'
-    - name: uninstall
-      run: |
-        cd /
-        pip uninstall -y python-djvulibre
-        set +e; python -c 'import djvu'; [ $? -eq 1 ]
-    - name: install via setup.py
-      run:
-        python setup.py install
-    - name: check import
-      run: |
-        cd /
-        python -c 'import djvu.sexpr, djvu.decode'
-  PyPI:
-    runs-on: ubuntu-latest
-    steps:
-    - name: check for namesquatting
-      run: |
-        set +e
-        curl -fsS https://pypi.org/simple/djvulibre/; [ $? -eq 22 ] || exit 1
-        curl -fsS https://pypi.org/simple/djvu/; [ $? -eq 22 ] || exit 1
-        curl -fsS https://pypi.org/simple/python-djvu/; [ $? -eq 22 ] || exit 1
+        python -m unittest discover tests/ -v
 
 # vim:ts=2 sts=2 sw=2 et
