@@ -45,6 +45,8 @@ jobs:
         - python: python-3.11-dev
           os: ubuntu-20.04
           djvulibre: djvulibre-3.5.27
+          broken: broken
+    continue-on-error: ${{(matrix.broken && true) || false}}
     steps:
     - uses: actions/checkout@v2
     - name: set up pip cache
