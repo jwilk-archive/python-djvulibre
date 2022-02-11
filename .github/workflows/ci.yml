@@ -76,7 +76,7 @@ jobs:
     - name: APT update
       run: |
         sudo apt-get update
-    - name: APT install depds
+    - name: APT install deps
       run: |
         sudo apt-get install ccache language-pack-ja ghostscript
     - name: add /usr/lib/ccache to $PATH
