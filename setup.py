@@ -288,7 +288,7 @@ meta = dict(
     description='Python support for the DjVu image format',
     long_description=__doc__.strip(),
     classifiers=classifiers,
-    url='http://jwilk.net/software/python-djvulibre',
+    url='https://jwilk.net/software/python-djvulibre',
 )
 
 setup_params = dict(
