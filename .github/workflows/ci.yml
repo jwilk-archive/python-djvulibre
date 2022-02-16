@@ -75,8 +75,9 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{env.python-version}}
-    - name: APT update
+    - name: set up APT
       run: |
+        printf 'Apt::Install-Recommends "false";\n' | sudo tee -a /etc/apt/apt.conf
         sudo apt-get update
     - name: APT install deps
       run: |
