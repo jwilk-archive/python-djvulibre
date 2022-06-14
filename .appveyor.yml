@@ -1,0 +1,57 @@
+environment:
+  matrix:
+  - PYTHON: Python27
+    DJVULIBRE: djvulibre-3.5.23
+  - PYTHON: Python33
+    DJVULIBRE: djvulibre-3.5.27
+  - PYTHON: Python34
+    DJVULIBRE: djvulibre-3.5.27
+  - PYTHON: Python35
+    DJVULIBRE: djvulibre-3.5.28
+  - PYTHON: Python36
+    DJVULIBRE: djvulibre-3.5.28
+  - PYTHON: Python37
+    DJVULIBRE: djvulibre-3.5.28
+  - PYTHON: Python38
+    DJVULIBRE: djvulibre-3.5.28
+  - PYTHON: Python39
+    DJVULIBRE: djvulibre-3.5.28
+    APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2019'
+  - PYTHON: Python310
+    DJVULIBRE: djvulibre-3.5.28
+    APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2019'
+
+install:
+- SET PATH=C:\\%PYTHON%;%PATH%
+- python --version
+- python -m pip install cython
+- ps: |
+    rm alias:curl
+    $url = switch($Env:DJVULIBRE) {
+      djvulibre-3.5.23 { "https://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.23%2B4.6/DjVuLibre%2BDjView-3.5.23c%2B4.6b-Setup.exe" }
+      djvulibre-3.5.27 { "https://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.27%2B4.10/DjVuLibre-3.5.27_DjView-4.10.4_Setup.exe" }
+      djvulibre-3.5.28 { "https://downloads.sourceforge.net/project/djvu/DjVuLibre_Windows/3.5.28%2B4.12/DjVuLibre-3.5.28_DjView-4.12_Setup.exe" }
+    }
+    if (-not (Test-Path download/djvulibre-installer.exe)) {
+      md -Force tmp
+      curl -fsSL --connect-timeout 10 -o tmp\djvulibre-installer.exe $url
+    }
+- ps: |
+    md -Force download
+    if (-not (Test-Path download/djvulibre-installer.exe)) {
+      cp tmp\djvulibre-installer.exe download
+    }
+- START /WAIT download\djvulibre-installer /S
+
+build_script:
+- python setup.py build_ext --inplace
+
+test_script:
+- SET "PATH=%PATH%;C:\Program Files (x86)\DjVuLibre"
+- python -m unittest discover tests/ -v
+
+cache:
+- C:\Users\appveyor\AppData\Local\pip
+- download
+
+# vim:ts=2 sts=2 sw=2 et
