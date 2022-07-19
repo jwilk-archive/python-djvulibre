@@ -1434,7 +1434,7 @@ def _Context_message_distributor(Context self not None, **kwargs):
                 document = message._document
                 document._condition.acquire()
                 try:
-                    document._condition.notifyAll()
+                    document._condition.notify_all()
                 finally:
                     document._condition.release()
                 if document.decoding_done:
