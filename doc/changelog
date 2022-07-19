@@ -1,8 +1,10 @@
 python-djvulibre (0.8.8) UNRELEASED; urgency=low
 
   * Stop using deprecated threading.Condition.notifyAll().
+    Thanks to Ali Erdinç Köroğlu for help.
+  * Use HTTPS in homepage URL.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 07 Dec 2021 10:09:25 +0100
+ -- Jakub Wilk <jwilk@jwilk.net>  Tue, 19 Jul 2022 18:01:35 +0200
 
 python-djvulibre (0.8.7) unstable; urgency=low
 
