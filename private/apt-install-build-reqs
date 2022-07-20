@@ -29,7 +29,7 @@ pkgs="$pkgs_base"
 
 usage()
 {
-    printf 'Usage: %s [--tests]\n' "$0"
+    printf 'Usage: %s [--tests] [--py3]\n' "$0"
 }
 
 set -e -u
