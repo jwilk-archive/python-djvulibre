@@ -1,4 +1,4 @@
-# Copyright © 2007-2021 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2007-2022 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of python-djvulibre.
 #
