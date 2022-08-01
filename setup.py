@@ -196,7 +196,7 @@ class build_ext(distutils.command.build_ext.build_ext):
                 old_config = fp.read()
         except IOError:
             old_config = ''
-        if '\n'.join(new_config).strip() != old_config.strip():
+        if str.join('\n', new_config).strip() != old_config.strip():
             distutils.log.info('creating {conf!r}'.format(conf=self.config_path))
             distutils.file_util.write_file(self.config_path, new_config)
         distutils.command.build_ext.build_ext.run(self)

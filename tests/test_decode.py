@@ -440,7 +440,7 @@ class test_documents(TestCase):
             assert_equal(stderr, b'')
             stdout = stdout.decode('ASCII')
             stdout = re.sub(r'[\x00\s]+', ' ', stdout)
-            stdout = ' '.join(stdout.split()[:3])
+            stdout = str.join(' ', stdout.split()[:3])
             expected = '1 Lorem ipsum'
             assert_multi_line_equal(stdout, expected)
 
@@ -477,9 +477,8 @@ class test_pixel_formats(TestCase):
         )
         data = dict(((i, j, k), i + 7 * j + 37 + k) for i in range(6) for j in range(6) for k in range(6))
         pf = PixelFormatPalette(data)
-        data_repr = ', '.join(
-            '{k!r}: 0x{v:02x}'.format(k=k, v=v) for k, v in sorted(data.items())
-        )
+        data_repr = ('{k!r}: 0x{v:02x}'.format(k=k, v=v) for k, v in sorted(data.items()))
+        data_repr = str.join(', ', data_repr)
         assert_equal(
             repr(pf),
             'djvu.decode.PixelFormatPalette({{{data}}}, bpp = 8)'.format(data=data_repr)
@@ -690,7 +689,8 @@ def test_metadata():
         'English': 'eggs',
         u('Русский'): u('яйца'),
     }
-    meta = '\n'.join(u('|{k}| {v}').format(k=k, v=v) for k, v in model_metadata.items())
+    meta = (u('|{k}| {v}').format(k=k, v=v) for k, v in model_metadata.items())
+    meta = str.join('\n', meta)
     test_script = u('set-meta\n{meta}\n.\n').format(meta=meta)
     try:
         test_file = create_djvu(test_script)
@@ -720,7 +720,7 @@ def test_metadata():
         for k in metadata:
             assert_equal(type(k), unicode)
             assert_equal(type(metadata[k]), unicode)
-        for k in None, 42, '+'.join(model_metadata):
+        for k in None, 42, str.join('+', model_metadata):
             with assert_raises(KeyError) as ecm:
                 metadata[k]
             assert_equal(ecm.exception.args, (k,))

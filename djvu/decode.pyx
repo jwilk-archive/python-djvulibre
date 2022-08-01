@@ -912,7 +912,7 @@ cdef object pages_to_opt(object pages, int sort_uniq):
         if pages[i] < 0:
             raise ValueError('page number out of range')
         pages[i] = pages[i] + 1
-    result = '--pages=' + (','.join(imap(str, pages)))
+    result = '--pages=' + str.join(',', imap(str, pages))
     if is_unicode(result):
         result = encode_utf8(result)
     return result
