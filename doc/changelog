@@ -417,7 +417,7 @@ python-djvulibre (0.1.11) unstable; urgency=low
 
 python-djvulibre (0.1.10) unstable; urgency=low
 
-  * Remove the `PageInfo` class (it served no purpose).
+  * Remove the PageInfo class (it served no purpose).
   * Work around a Pyrex compilation bug.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Tue, 07 Jul 2009 23:12:27 +0200
@@ -442,17 +442,17 @@ python-djvulibre (0.1.7) unstable; urgency=low
 
 python-djvulibre (0.1.6) unstable; urgency=low
 
-  * Call `Context.handle_message()` *before* any blocking method finishes.
-  * Better error handling in `Page.decode()`.
+  * Call Context.handle_message() *before* any blocking method finishes.
+  * Better error handling in Page.decode().
 
  -- Jakub Wilk <jwilk@jwilk.net>  Wed, 14 May 2008 11:19:52 +0200
 
 python-djvulibre (0.1.5) unstable; urgency=low
 
-  * Fix a race condition in `DocumentDecodingJob.wait()`.
-  * `DocumentPages` and `DocumentFiles` checks for actual length and raises
-    `IndexError` exceptions.
-  * Add `Page.size` and `PageJob.size` properties.
+  * Fix a race condition in DocumentDecodingJob.wait().
+  * DocumentPages and DocumentFiles checks for actual length and raises
+    IndexError exceptions.
+  * Add Page.size and PageJob.size properties.
   * Remove spurious overflow checks.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Wed, 07 May 2008 18:36:51 +0200
