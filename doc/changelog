@@ -424,7 +424,7 @@ python-djvulibre (0.1.10) unstable; urgency=low
 
 python-djvulibre (0.1.9) unstable; urgency=low
 
-  * Fill up the package metadata.
+  * Fill out the package metadata.
 
  -- Jakub Wilk <jwilk@jwilk.net>  Sat, 16 May 2009 11:05:45 +0200
 
