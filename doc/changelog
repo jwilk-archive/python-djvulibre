@@ -1,10 +1,13 @@
 python-djvulibre (0.8.8) UNRELEASED; urgency=low
 
+  * Fix possible integer overflow in djvu.decode.PageJob.render().
   * Stop using deprecated threading.Condition.notifyAll().
     Thanks to Ali Erdinç Köroğlu for help.
+  * Remove indication of Windows support from the package metadata.
+    This works very poorly, if at all, in practice.
   * Use HTTPS in homepage URL.
 
- -- Jakub Wilk <jwilk@jwilk.net>  Tue, 19 Jul 2022 18:01:35 +0200
+ -- Jakub Wilk <jwilk@jwilk.net>  Fri, 02 Sep 2022 21:49:14 +0200
 
 python-djvulibre (0.8.7) unstable; urgency=low
 
