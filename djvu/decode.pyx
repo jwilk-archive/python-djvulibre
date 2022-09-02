@@ -2173,8 +2173,8 @@ cdef class PageJob(Job):
         if (
             c_page_rect.x > c_render_rect.x or
             c_page_rect.y > c_render_rect.y or
-            c_page_rect.x + c_page_rect.w < c_render_rect.x + c_render_rect.w or
-            c_page_rect.y + c_page_rect.h < c_render_rect.y + c_render_rect.h
+            int(c_page_rect.x) + c_page_rect.w < int(c_render_rect.x) + c_render_rect.w or
+            int(c_page_rect.y) + c_page_rect.h < int(c_render_rect.y) + c_render_rect.h
         ):
             raise ValueError('render_rect must be inside page_rect')
         row_size = calculate_row_size(c_render_rect.w, row_alignment, pixel_format._bpp)

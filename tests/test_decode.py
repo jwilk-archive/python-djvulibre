@@ -533,6 +533,13 @@ class test_page_jobs(TestCase):
         with assert_raises_str(ValueError, 'render_rect must be inside page_rect'):
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (2, 2, 10, 10), PixelFormatRgb())
 
+        if sys.maxsize > (1 << 32):
+            with assert_raises_str(ValueError, 'render_rect must be inside page_rect'):
+                page_job.render(RENDER_COLOR, (0, 0, 10, 10), (2, 2, 0xFFFFFFFF, 1), PixelFormatRgb())
+        else:
+            with assert_raises_str(OverflowError, 'Python int too large to convert to C long'):
+                page_job.render(RENDER_COLOR, (0, 0, 10, 10), (2, 2, 0xFFFFFFFF, 1), PixelFormatRgb())
+
         with assert_raises_str(ValueError, 'row_alignment must be a positive integer'):
             page_job.render(RENDER_COLOR, (0, 0, 10, 10), (0, 0, 10, 10), PixelFormatRgb(), -1)
 
