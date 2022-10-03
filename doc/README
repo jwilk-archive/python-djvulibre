@@ -36,4 +36,10 @@ Additionally, the following software is needed to run the tests:
 .. _Ghostscript:
    https://www.ghostscript.com/
 
+Acknowledgment
+==============
+python-djvulibre development was supported by the Polish Ministry of Science
+and Higher Education's grant no. N N519 384036 (2009–2012,
+https://bitbucket.org/jsbien/ndt).
+
 .. vim:ft=rst ts=3 sts=3 sw=3 et
